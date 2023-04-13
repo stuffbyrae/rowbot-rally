@@ -5,8 +5,12 @@ local gfx <const> = pd.graphics
 -- Defining some variables we'll need later
 local rowbot_speed = 8
 local boat_rotation = 0
+
 local rowbot_oar_anim = 1
 local player_oar_anim = 1
+
+local time_elapsed = 0
+local time_limit = 600 * 30
 
 -- Import all the images!!!!1!
 local img_meter = gfx.image.new('images/meter')
@@ -150,4 +154,9 @@ local race_sprite = race()
 
 -- Update!
 function race:update()
+    time_elapsed += 1
+    if time_elapsed > time_limit then
+        -- Write some code that stops you for "TIME UP!!"
+    end
+    print(math.floor((time_limit - time_elapsed) / 30))
 end

@@ -5,12 +5,10 @@ local gfx <const> = pd.graphics
 -- Defining some variables we'll need later
 local rowbot_speed = 8
 local boat_rotation = 0
+local elapsed_time = 0
 
 local rowbot_oar_anim = 1
 local player_oar_anim = 1
-
-local time_elapsed = 0
-local time_limit = 600 * 30
 
 -- Import all the images!!!!1!
 local img_meter = gfx.image.new('images/meter')
@@ -140,6 +138,25 @@ function timer:init()
     self:setIgnoresDrawOffset(true)
     self:add()
 end
+function timer:update()
+    elapsed_time += 1
+    if elapsed_time <= 0 then
+        return "00:00:00";
+      else
+        hours = string.format("%02.f", math.floor((elapsed_time/30)/3600))
+        mins = string.format("%02.f", math.floor((elapsed_time/30)/60 - (hours*60)))
+        secs = string.format("%02.f", math.floor((elapsed_time/30) - hours*3600 - mins *60))
+        mils = string.format("%02.f", (elapsed_time/30)*99 - secs*99)
+        print(elapsed_time)
+        local timer_image = gfx.image.new(125, 35)
+        gfx.pushContext(timer_image)
+            img_timer:draw(0, 0)
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            gfx.drawText(mins..":"..secs.."."..mils, 15, 3)
+        gfx.popContext()
+        self:setImage(timer_image)
+      end
+end
 
 -- aaaaaaaaaaaaaaaaaagh
 local track_col_sprite = track_col()
@@ -154,9 +171,4 @@ local race_sprite = race()
 
 -- Update!
 function race:update()
-    time_elapsed += 1
-    if time_elapsed > time_limit then
-        -- Write some code that stops you for "TIME UP!!"
-    end
-    print(math.floor((time_limit - time_elapsed) / 30))
 end

@@ -65,7 +65,8 @@ function bonk()
     rowbot_speed = 0
     boat_speed = boat_speed*-1
     bonkable = false
-    pd.timer.performAfterDelay(1500, function() bonkable = true end)
+    update_react()
+    pd.timer.performAfterDelay(1500, function() bonkable = true update_react() end)
 end
 
 class('boat').extends(gfx.sprite)
@@ -139,17 +140,18 @@ function react:init()
     react.super.init(self)
     self:moveTo(400, 240)
     self:setCenter(1, 1)
+    self:setImage(img_react_idle)
     self:setIgnoresDrawOffset(true)
     self:add()
 end
-function react:update()
+local spr_react = react()
+function update_react()
     if bonkable == false then
-        self:setImage(img_react_bonk)
+        spr_react:setImage(img_react_bonk)
     else
-        self:setImage(img_react_idle)
+        spr_react:setImage(img_react_idle)
     end
 end
-local spr_react = react()
 
 class('hud').extends(gfx.sprite)
 function hud:init()

@@ -7,6 +7,7 @@ local rowbot_speed = 8
 local boat_rotation = 0
 local elapsed_time = 0
 local race_started = false
+local track_start_x = 750
 
 local rowbot_oar_anim = 1
 local player_oar_anim = 1
@@ -20,12 +21,14 @@ local img_boat_wooden = gfx.image.new('images/boat_wooden')
 local img_oar = gfx.imagetable.new('images/oar/oar')
 local boat_image = gfx.image.new(107, 65)
 
-local img_track_test_col = gfx.image.new('images/track_test_col')
-local img_track_test_bg = gfx.image.new('images/track_test_bg')
-local img_track_test_fg = gfx.image.new('images/track_test_fg')
+local img_water = gfx.image.new('images/water')
+local img_track_test_col = gfx.image.new('images/track_jungle_col')
+local img_track_test_bg = gfx.image.new('images/track_jungle_bg')
+local img_track_test_fg = gfx.image.new('images/track_jungle_fg')
 
 local img_react_test = gfx.image.new('images/react_test')
-local img_timer = gfx.image.new('images/timer')
+local img_hud = gfx.image.new('images/hud')
+local timesnewrally = gfx.font.new('Times New Rally')
 
 local img_countdown = gfx.imagetable.new('images/countdown/countdown')
 local countdown_anim = gfx.animation.loop.new(66, img_countdown, false)
@@ -38,6 +41,9 @@ end
 class('race').extends(gfx.sprite)
 function race:init()
     race.super.init(self)
+    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
+        img_water:draw(0, 0)
+    end)
 end
 
 -- The track's collision sprite
@@ -45,7 +51,7 @@ class('track_col').extends(gfx.sprite)
 function track_col:init()
     track_col.super.init(self)
     self:setImage(img_track_test_col)
-    self:moveTo(650, 0)
+    self:moveTo(track_start_x, 0)
     self:setCollideRect(0, 0, self:getSize())
     self:add()
 end
@@ -55,7 +61,7 @@ class('track_bg').extends(gfx.sprite)
 function track_bg:init()
     track_bg.super.init(self)
     self:setImage(img_track_test_bg)
-    self:moveTo(650, 0)
+    self:moveTo(track_start_x, 0)
     self:add()
 end
 
@@ -98,7 +104,7 @@ class('track_fg').extends(gfx.sprite)
 function track_fg:init()
     track_fg.super.init(self)
     self:setImage(img_track_test_fg)
-    self:moveTo(650, 0)
+    self:moveTo(track_start_x, 0)
     self:add()
 end
 
@@ -139,33 +145,36 @@ function react:init()
 end
 
 -- Top-left UI junk
-class('timer').extends(gfx.sprite)
-function timer:init()
-    timer.super.init(self)
+class('hud').extends(gfx.sprite)
+function hud:init()
+    hud.super.init(self)
     self:setImage(img_timer)
     self:moveTo(10, 10)
     self:setCenter(0, 0)
     self:setIgnoresDrawOffset(true)
     self:add()
 end
-function timer:update()
+function hud:update()
+    gfx.setFont(timesnewrally)
     if race_started == true then
         elapsed_time += 1
         mins = string.format("%02.f", math.floor((elapsed_time/30) / 60))
         secs = string.format("%02.f", math.floor((elapsed_time/30) - mins * 60))
         mils = string.format("%02.f", (elapsed_time/30)*99 - mins * 5940 - secs * 99)
     end
-    local timer_image = gfx.image.new(125, 35)
-    gfx.pushContext(timer_image)
-        img_timer:draw(0, 0)
+    local hud_image = gfx.image.new(89, 46)
+    gfx.pushContext(hud_image)
+        img_hud:draw(0, 0)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
         if elapsed_time <= 0 then
-            gfx.drawText("00:00.00", 17, 3)
+            gfx.drawText("O 00:00.00", 5, 6)
         else
-            gfx.drawText(mins..":"..secs.."."..mils, 17, 3)
+            gfx.drawText("O "..mins..":"..secs.."."..mils, 5, 6)
         end
+        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+        gfx.drawTextAligned("C AB 1!", 46, 27, kTextAlignment.center)
     gfx.popContext()
-    self:setImage(timer_image)
+    self:setImage(hud_image)
 end
 
 class('countdown').extends(gfx.sprite)
@@ -189,7 +198,7 @@ local boat_sprite = boat()
 local track_fg_sprite = track_fg()
 local meter_sprite = meter()
 local react_sprite = react()
-local timer_sprite = timer()
+local hud_sprite = hud()
 local countdown_sprite = countdown()
 
 local race_sprite = race()

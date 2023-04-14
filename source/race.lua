@@ -27,6 +27,13 @@ local img_track_test_fg = gfx.image.new('images/track_test_fg')
 local img_react_test = gfx.image.new('images/react_test')
 local img_timer = gfx.image.new('images/timer')
 
+local img_countdown = gfx.imagetable.new('images/countdown/countdown')
+local countdown_anim = gfx.animation.loop.new(66, img_countdown, false)
+
+function toggle_race_started()
+    race_started = not race_started
+end
+
 -- Racism
 class('race').extends(gfx.sprite)
 function race:init()
@@ -161,6 +168,20 @@ function timer:update()
     self:setImage(timer_image)
 end
 
+class('countdown').extends(gfx.sprite)
+function countdown:init()
+    countdown.super.init(self)
+    self:setImage(countdown_anim:image())
+    self:setCenter(0, 0)
+    self:setIgnoresDrawOffset(true)
+    playdate.timer.performAfterDelay(3000, function() race_started = not race_started end)
+    playdate.timer.performAfterDelay(3600, function() self:remove() end)
+    self:add()
+end
+function countdown:update()
+    self:setImage(countdown_anim:image())
+end
+
 -- aaaaaaaaaaaaaaaaaagh
 local track_col_sprite = track_col()
 local track_bg_sprite = track_bg()
@@ -169,12 +190,9 @@ local track_fg_sprite = track_fg()
 local meter_sprite = meter()
 local react_sprite = react()
 local timer_sprite = timer()
+local countdown_sprite = countdown()
 
 local race_sprite = race()
-
-function playdate.AButtonDown()
-    race_started = not race_started
-end
 
 -- Update!
 function race:update()

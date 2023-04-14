@@ -4,6 +4,7 @@ import 'CoreLibs/timer'
 import 'CoreLibs/ui'
 import 'CoreLibs/sprites'
 import 'CoreLibs/math'
+import 'CoreLibs/animation'
 
 -- Handy shorthands
 local pd <const> = playdate

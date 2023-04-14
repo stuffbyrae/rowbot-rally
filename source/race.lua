@@ -6,6 +6,7 @@ local gfx <const> = pd.graphics
 local rowbot_speed = 8
 local boat_rotation = 0
 local elapsed_time = 0
+local race_started = false
 
 local rowbot_oar_anim = 1
 local player_oar_anim = 1
@@ -62,18 +63,20 @@ function boat:init()
 end
 function boat:update()
     change = playdate.getCrankChange()
-
-    rowbot_oar_anim += 0.1 * rowbot_speed
-    if rowbot_oar_anim > 22 then rowbot_oar_anim = 1 end
-    player_oar_anim += 0.1 * change
-    if player_oar_anim > 22 then player_oar_anim = 1 end
-    if player_oar_anim < 1 then player_oar_anim = 1 end
-
-    boat_rotation -= rowbot_speed
-    if change > 0 then
-        boat_rotation += change
+    if race_started == true then
+        boat_rotation -= rowbot_speed
+        if change > 0 then
+            boat_rotation += change
+        end
+        self:setRotation(boat_rotation)
+        rowbot_oar_anim += 0.1 * rowbot_speed
+        if rowbot_oar_anim > 22 then rowbot_oar_anim = 1 end
+        player_oar_anim += 0.1 * change
+        if player_oar_anim > 22 then player_oar_anim = 1 end
+        if player_oar_anim < 1 then player_oar_anim = 1 end
+        self:moveBy(math.sin(math.rad(boat_rotation))*4, math.cos(math.rad(boat_rotation))*-4)
+        gfx.setDrawOffset(-self.x+200, -self.y+120)
     end
-    self:setRotation(boat_rotation)
     local boat_image = gfx.image.new(107, 65)
     gfx.pushContext(boat_image)
         img_oar:drawImage(math.floor(rowbot_oar_anim), 5, 15)
@@ -81,8 +84,6 @@ function boat:update()
         img_boat_wooden:draw(36, 0)
     gfx.popContext()
     self:setImage(boat_image)
-    self:moveBy(math.sin(math.rad(boat_rotation))*4, math.cos(math.rad(boat_rotation))*-4)
-    gfx.setDrawOffset(-self.x+200, -self.y+120)
 end
 
 -- The foreground track elements
@@ -109,7 +110,9 @@ function meter:update()
         gfx.setColor(gfx.kColorWhite)
         gfx.fillRect(0, 0, 130, 118)
         gfx.setColor(gfx.kColorBlack)
-        gfx.fillRect(0, 33, 50, rowbot_speed*2.5)
+        if race_started == true then
+            gfx.fillRect(0, 33, 50, rowbot_speed*2.5)
+        end
         gfx.fillRect(80, 33, 50, change*2.5)
         meter_image:setMaskImage(img_meter_mask)
         img_meter:draw(0, 0)
@@ -139,23 +142,23 @@ function timer:init()
     self:add()
 end
 function timer:update()
-    elapsed_time += 1
-    if elapsed_time <= 0 then
-        return "00:00:00";
-      else
-        hours = string.format("%02.f", math.floor((elapsed_time/30)/3600))
-        mins = string.format("%02.f", math.floor((elapsed_time/30)/60 - (hours*60)))
-        secs = string.format("%02.f", math.floor((elapsed_time/30) - hours*3600 - mins *60))
-        mils = string.format("%02.f", (elapsed_time/30)*99 - secs*99)
-        print(elapsed_time)
-        local timer_image = gfx.image.new(125, 35)
-        gfx.pushContext(timer_image)
-            img_timer:draw(0, 0)
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            gfx.drawText(mins..":"..secs.."."..mils, 15, 3)
-        gfx.popContext()
-        self:setImage(timer_image)
-      end
+    if race_started == true then
+        elapsed_time += 1
+        mins = string.format("%02.f", math.floor((elapsed_time/30) / 60))
+        secs = string.format("%02.f", math.floor((elapsed_time/30) - mins * 60))
+        mils = string.format("%02.f", (elapsed_time/30)*99 - mins * 5940 - secs * 99)
+    end
+    local timer_image = gfx.image.new(125, 35)
+    gfx.pushContext(timer_image)
+        img_timer:draw(0, 0)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        if elapsed_time <= 0 then
+            gfx.drawText("00:00.00", 17, 3)
+        else
+            gfx.drawText(mins..":"..secs.."."..mils, 17, 3)
+        end
+    gfx.popContext()
+    self:setImage(timer_image)
 end
 
 -- aaaaaaaaaaaaaaaaaagh
@@ -168,6 +171,10 @@ local react_sprite = react()
 local timer_sprite = timer()
 
 local race_sprite = race()
+
+function playdate.AButtonDown()
+    race_started = not race_started
+end
 
 -- Update!
 function race:update()

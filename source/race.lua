@@ -13,22 +13,22 @@ local bonkable = true
 local race_started = false
 local elapsed_time = 0
 
-local img_meter = gfx.image.new('images/meter')
-local img_meter_mask = gfx.image.new('images/meter_mask')
+local img_meter = gfx.image.new('images/race/meter')
+local img_meter_mask = gfx.image.new('images/race/meter_mask')
 
-local img_boat_wooden = gfx.image.new('images/boat_wooden')
-local img_oar = gfx.imagetable.new('images/oar/oar')
+local img_boat_wooden = gfx.image.new('images/boats/boat_wooden')
+local img_oar = gfx.imagetable.new('images/boats/oar/oar')
 
-local img_water = gfx.image.new('images/water')
-local img_track_test_col = gfx.image.new('images/track_jungle_col')
-local img_track_test_bg = gfx.image.new('images/track_jungle_bg')
-local img_track_test_fg = gfx.image.new('images/track_jungle_fg')
+local img_water = gfx.image.new('images/tracks/water')
+local img_track_test_col = gfx.image.new('images/tracks/track_jungle_col')
+local img_track_test_bg = gfx.image.new('images/tracks/track_jungle_bg')
+local img_track_test_fg = gfx.image.new('images/tracks/track_jungle_fg')
 local track_start_x = 750
 
-local img_react_idle = gfx.image.new('images/react_idle')
-local img_react_bonk = gfx.image.new('images/react_bonk')
+local img_react_idle = gfx.image.new('images/react/react_idle')
+local img_react_bonk = gfx.image.new('images/react/react_bonk')
 
-local img_hud = gfx.image.new('images/hud')
+local img_hud = gfx.image.new('images/race/hud')
 local timesnewrally = gfx.font.new('Times New Rally')
 
 local img_countdown = gfx.imagetable.new('images/countdown/countdown')
@@ -194,3 +194,25 @@ function countdown:update()
     self:setImage(countdown_anim:image())
 end
 local spr_countdown = countdown()
+
+function restart_race()
+    rowbot_speed = 0
+    boat_speed = 0
+    boat_rotation = 0
+    elapsed_time = 0
+    race_started = false
+    spr_boat:moveTo(200, 120)
+    spr_boat:setRotation(boat_rotation)
+    gfx.setDrawOffset(-spr_boat.x+200, -spr_boat.y+120)
+    countdown_anim = gfx.animation.loop.new(66, img_countdown, false)
+    playdate.timer.performAfterDelay(3000, function() race_started = true end)
+end
+
+function playdate.gameWillPause()
+    local menu = playdate.getSystemMenu()
+    menu:removeAllMenuItems()
+    if race_started == true then
+        menu:addMenuItem('restart race', function() restart_race() end)
+    end
+    menu:addMenuItem('back to title', function() end)
+end

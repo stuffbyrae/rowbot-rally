@@ -10,6 +10,9 @@ import 'CoreLibs/animation'
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+slide_menu_000 = gfx.image.new('images/slide_menu/000')
+pd.setMenuImage(slide_menu_000)
+
 -- Setting up the scene manager
 import "scenemanager"
 scenemanager = scenemanager()

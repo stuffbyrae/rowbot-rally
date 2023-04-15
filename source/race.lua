@@ -3,12 +3,15 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 local rowbot_speed = 0
-local max_rowbot_speed = 8
+local max_rowbot_speed = 7
 
 local boat_speed = 0
-local boat_rotation = 0
 local max_boat_speed = 5
 local bonkable = true
+
+local turn_rate = 1.5
+local turn_speed = 0
+local boat_rotation = 0
 
 local race_started = false
 local elapsed_time = 0
@@ -16,17 +19,13 @@ local elapsed_time = 0
 local img_meter = gfx.image.new('images/race/meter')
 local img_meter_mask = gfx.image.new('images/race/meter_mask')
 
-local img_boat_wooden = gfx.image.new('images/boats/boat_wooden')
+local img_boat_wooden = gfx.imagetable.new('images/boats/boat_wooden2')
 local img_oar = gfx.imagetable.new('images/boats/oar/oar')
 
 local img_water = gfx.image.new('images/tracks/water')
 local img_track_test_col = gfx.image.new('images/tracks/track_jungle_col')
-local img_track_test_bg = gfx.image.new('images/tracks/track_jungle_bg')
-local img_track_test_fg = gfx.image.new('images/tracks/track_jungle_fg')
+local img_track_test = gfx.image.new('images/tracks/track_jungle')
 local track_start_x = 750
-
-local img_react_idle = gfx.image.new('images/react/react_idle')
-local img_react_bonk = gfx.image.new('images/react/react_bonk')
 
 local img_hud = gfx.image.new('images/race/hud')
 local timesnewrally = gfx.font.new('Times New Rally')
@@ -52,21 +51,12 @@ function track_col:init()
 end
 local spr_track_col = track_col()
 
-class('track_bg').extends(gfx.sprite)
-function track_bg:init()
-    track_bg.super.init(self)
-    self:setImage(img_track_test_bg)
-    self:moveTo(track_start_x, 0)
-    self:add()
-end
-local spr_track_bg = track_bg()
-
 function bonk()
     rowbot_speed = 0
+    turn_speed = 0
     boat_speed = boat_speed*-1
     bonkable = false
-    update_react()
-    pd.timer.performAfterDelay(1500, function() bonkable = true update_react() end)
+    pd.timer.performAfterDelay(1500, function() bonkable = true end)
 end
 
 class('boat').extends(gfx.sprite)
@@ -77,38 +67,50 @@ function boat:init()
     self:add()
 end
 function boat:update()
-    change = pd.getCrankChange()
+    change = pd.getCrankChange()/1.3
     if race_started == true then
         elapsed_time += 1
         if bonkable == true then
-            if change > 0 then boat_rotation += change end
+            if change > 0 then
+                if turn_speed < change then
+                    turn_speed += turn_rate
+                end
+                if turn_speed > change then
+                    turn_speed -= turn_rate
+                end
+                boat_rotation += turn_speed
+            else
+                turn_speed -= turn_rate
+            end
+            if turn_speed < 0 then turn_speed = 0 end
             if boat_speed < max_boat_speed then boat_speed += 0.1 end
-            if rowbot_speed < max_rowbot_speed then rowbot_speed += 0.5 end
+            if rowbot_speed < max_rowbot_speed then rowbot_speed += turn_rate end
             if self:alphaCollision(spr_track_col) == true then bonk() end
         else
             if boat_speed < 0 then boat_speed += 0.25 end
             if boat_speed > 0 then boat_speed = 0 end
         end
         boat_rotation -= rowbot_speed
-        self:setRotation(boat_rotation)
         gfx.setDrawOffset(-self.x+200, -self.y+120)
     else
         if boat_speed > 0 then boat_speed -= 0.1 end
     end
-    self:setImage(img_boat_wooden)
+    if boat_rotation <= 1 then boat_rotation = 359 end
+    if boat_rotation >= 360 then boat_rotation = 2 end
+    self:setImage(img_boat_wooden[math.floor(boat_rotation)])
     local boat_radtation = math.rad(boat_rotation)
     self:moveBy(math.sin(boat_radtation)*boat_speed, math.cos(boat_radtation)*-boat_speed)
 end
 local spr_boat = boat()
 
-class('track_fg').extends(gfx.sprite)
-function track_fg:init()
-    track_fg.super.init(self)
-    self:setImage(img_track_test_fg)
+class('track').extends(gfx.sprite)
+function track:init()
+    track.super.init(self)
+    self:setImage(img_track_test)
     self:moveTo(track_start_x, 0)
     self:add()
 end
-local spr_track_fg = track_fg()
+local spr_track = track()
 
 class('meter').extends(gfx.sprite)
 function meter:init()
@@ -118,7 +120,6 @@ function meter:init()
     self:add()
 end
 function meter:update()
-    change = pd.getCrankChange()
     local meter_image = gfx.image.new(130, 118)
     gfx.pushContext(meter_image)
         gfx.setColor(gfx.kColorWhite)
@@ -126,7 +127,7 @@ function meter:update()
         gfx.setColor(gfx.kColorBlack)
         if race_started == true then
             gfx.fillRect(0, 33, 50, rowbot_speed*2.5)
-            gfx.fillRect(80, 33, 50, change*2.5)
+            gfx.fillRect(80, 33, 50, turn_speed*2.5)
         end
         meter_image:setMaskImage(img_meter_mask)
         img_meter:draw(0, 0)
@@ -134,24 +135,6 @@ function meter:update()
     self:setImage(meter_image, gfx.kImageFlippedY)
 end
 local spr_meter = meter()
-
-class('react').extends(gfx.sprite)
-function react:init()
-    react.super.init(self)
-    self:moveTo(400, 240)
-    self:setCenter(1, 1)
-    self:setImage(img_react_idle)
-    self:setIgnoresDrawOffset(true)
-    self:add()
-end
-local spr_react = react()
-function update_react()
-    if bonkable == false then
-        spr_react:setImage(img_react_bonk)
-    else
-        spr_react:setImage(img_react_idle)
-    end
-end
 
 class('hud').extends(gfx.sprite)
 function hud:init()

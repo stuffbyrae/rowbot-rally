@@ -5,6 +5,7 @@ import 'CoreLibs/ui'
 import 'CoreLibs/sprites'
 import 'CoreLibs/math'
 import 'CoreLibs/animation'
+import 'pdParticles'
 
 -- Handy shorthands
 local pd <const> = playdate

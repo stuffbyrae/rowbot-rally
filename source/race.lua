@@ -20,7 +20,7 @@ local img_meter = gfx.image.new('images/race/meter')
 local img_meter_mask = gfx.image.new('images/race/meter_mask')
 
 local img_boat_wooden = gfx.imagetable.new('images/boats/boat_wooden2')
-local img_oar = gfx.imagetable.new('images/boats/oar/oar')
+local img_wake = gfx.image.new('images/boats/wake')
 
 local img_water = gfx.image.new('images/tracks/water')
 local img_track_test_col = gfx.image.new('images/tracks/track_jungle_col')
@@ -56,8 +56,36 @@ function bonk()
     turn_speed = 0
     boat_speed = boat_speed*-1
     bonkable = false
-    pd.timer.performAfterDelay(1500, function() bonkable = true end)
+    pd.timer.performAfterDelay(500, function() bonkable = true end)
 end
+
+class('wake').extends(gfx.sprite)
+function wake:init()
+    wake.super.init(self)
+    wake_particles = ParticleImage(200, 120)
+    wake_particles:setImage(img_wake)
+    wake_particles:setMode(Particles.modes.DECAY)
+    wake_particles:setDecay(0.1)
+    self:setIgnoresDrawOffset(true)
+    self:moveTo(200, 120)
+    self:add()
+end
+function wake:update()
+    wake_particles:setSpread(math.floor(boat_rotation)-180)
+    wake_particles:setRotation(math.floor(boat_rotation)-180)
+    wake_particles:setSpeed(math.floor(boat_speed))
+    local wake_image = gfx.image.new(400, 240)
+    gfx.pushContext(wake_image)
+    if race_started == true and bonkable == true then
+        wake_particles:add(1)
+    end
+    wake_particles:update()
+    gfx.popContext()
+    local boat_radtation = math.rad(boat_rotation)
+    self:moveTo(200+(math.sin(boat_radtation)*-20), 120+(math.cos(boat_radtation)*20))
+    self:setImage(wake_image)
+end
+spr_wake = wake()
 
 class('boat').extends(gfx.sprite)
 function boat:init()

@@ -38,10 +38,7 @@ function race:init()
     race.super.init(self)
     gfx.sprite.setBackgroundDrawingCallback(
         function(x, y, width, height) img_water:draw(0, 0) end)
-end
-local spr_race = race()
-
-class('track_col').extends(gfx.sprite)
+        class('track_col').extends(gfx.sprite)
 function track_col:init()
     track_col.super.init(self)
     self:setImage(img_track_test_col)
@@ -65,7 +62,7 @@ function wake:init()
     wake_particles = ParticleImage(200, 120)
     wake_particles:setImage(img_wake)
     wake_particles:setMode(Particles.modes.DECAY)
-    wake_particles:setDecay(0.1)
+    wake_particles:setDecay(0.05)
     self:setIgnoresDrawOffset(true)
     self:moveTo(200, 120)
     self:add()
@@ -228,4 +225,8 @@ function playdate.gameWillPause()
         menu:addMenuItem('restart race', function() restart_race() end)
     end
     menu:addMenuItem('back to title', function() end)
+end
+end
+
+function race:update()
 end

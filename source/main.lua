@@ -16,10 +16,11 @@ import "scenemanager"
 scenemanager = scenemanager()
 import "title"
 import "race"
+import "opening"
 
 -- Setting up important stuff
 pd.display.setRefreshRate(30)
-race()
+opening()
 
 -- Update!
 function pd.update()

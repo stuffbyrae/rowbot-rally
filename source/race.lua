@@ -226,6 +226,7 @@ function playdate.gameWillPause()
     end
     menu:addMenuItem('back to title', function() end)
 end
+self:add()
 end
 
 function race:update()

@@ -11,22 +11,42 @@ import 'libraries/pdParticles'
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+stage_1_best_time = 0
+stage_2_best_time = 0
+stage_3_best_time = 0
+stage_4_best_time = 0
+stage_5_best_time = 0
+stage_6_best_time = 0
+stage_7_best_time = 0
+active_adventure = false
+current_track = 0
+max_track = 0
+
 -- Setting up the scene manager, and all the scenes
-import "scenes/title"
-import "scenes/race"
-import "scenes/opening"
-import "scenes/cutscene"
-import "scenes/settings"
-import "scenes/credits"
-import "scenes/garage"
-import "scenes/tracks"
-import "scenes/splash"
-import "scenes/scenemanager"
+import "scenemanager"
+import "save"
 scenemanager = scenemanager()
 
+checksave = pd.datastore.read()
+if checksave == nil then
+  scenemanager:switchscene(save)
+else
+  printTable(checksave)
+  stage_1_best_time = checksave["t1"]
+  stage_2_best_time = checksave["t2"]
+  stage_3_best_time = checksave["t3"]
+  stage_4_best_time = checksave["t4"]
+  stage_5_best_time = checksave["t5"]
+  stage_6_best_time = checksave["t6"]
+  stage_7_best_time = checksave["t7"]
+  active_adventure = checksave["aa"]
+  current_track = checksave["ct"]
+  max_track = checksave["mt"]
+  print(active_adventure)
+  scenemanager:switchscene(title)
+end
 -- Setting up important stuff
 pd.display.setRefreshRate(30)
-opening()
 
 -- Update!
 function pd.update()

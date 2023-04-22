@@ -25,13 +25,13 @@ max_track = 0
 -- Setting up the scene manager, and all the scenes
 import "scenemanager"
 import "save"
+import "race"
 scenemanager = scenemanager()
 
 checksave = pd.datastore.read()
 if checksave == nil then
   scenemanager:switchscene(save)
 else
-  printTable(checksave)
   stage_1_best_time = checksave["t1"]
   stage_2_best_time = checksave["t2"]
   stage_3_best_time = checksave["t3"]
@@ -42,7 +42,6 @@ else
   active_adventure = checksave["aa"]
   current_track = checksave["ct"]
   max_track = checksave["mt"]
-  print(active_adventure)
   scenemanager:switchscene(title)
 end
 -- Setting up important stuff

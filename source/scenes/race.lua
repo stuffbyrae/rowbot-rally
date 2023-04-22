@@ -28,7 +28,7 @@ local img_track_test = gfx.image.new('images/tracks/track_jungle')
 local track_start_x = 750
 
 local img_hud = gfx.image.new('images/race/hud')
-local timesnewrally = gfx.font.new('Times New Rally')
+local timesnewrally = gfx.font.new('fonts/times_new_rally')
 
 local img_countdown = gfx.imagetable.new('images/countdown/countdown')
 local countdown_anim = gfx.animation.loop.new(66, img_countdown, false)

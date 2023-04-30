@@ -3,19 +3,25 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
 
 ## Things to do:
 ### in races:
-• refactor race code
+• clean up race collisions
+
+• profile, figure out what’s taking up the most CPU
+
+ • perhaps fix it as well
+
+• parallax on the tracks
+
+• new top-left HUD
+
+• laps system
 
 • add shadow indicator when boat is under something
-
-• set up laps system during races
 
 • add support for different boats (assets, speed, turning)
 
 • add support for different tracks (assets, start points, checkpoint markers)
 
-• fix collision
-
-• reaction images (idle, collide, secret, win, loss)
+• collision
 
 • button controls in races
 
@@ -28,7 +34,7 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
 
 • locked boats and tracks
 
-• cutscene scene (takes a number to show a cutscene based on stage)
+• results screen post-race
 
 • credits scene
 

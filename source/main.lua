@@ -11,6 +11,8 @@ import 'libraries/pdParticles'
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+showcrankindicator = false
+
 stage_1_best_time = 0
 stage_2_best_time = 0
 stage_3_best_time = 0
@@ -30,25 +32,32 @@ scenemanager = scenemanager()
 
 checksave = pd.datastore.read()
 if checksave == nil then
-  scenemanager:switchscene(save)
+    scenemanager:switchscene(save)
 else
-  stage_1_best_time = checksave["t1"]
-  stage_2_best_time = checksave["t2"]
-  stage_3_best_time = checksave["t3"]
-  stage_4_best_time = checksave["t4"]
-  stage_5_best_time = checksave["t5"]
-  stage_6_best_time = checksave["t6"]
-  stage_7_best_time = checksave["t7"]
-  active_adventure = checksave["aa"]
-  current_track = checksave["ct"]
-  max_track = checksave["mt"]
-  scenemanager:switchscene(race)
+    stage_1_best_time = checksave["t1"]
+    stage_2_best_time = checksave["t2"]
+    stage_3_best_time = checksave["t3"]
+    stage_4_best_time = checksave["t4"]
+    stage_5_best_time = checksave["t5"]
+    stage_6_best_time = checksave["t6"]
+    stage_7_best_time = checksave["t7"]
+    active_adventure = checksave["aa"]
+    current_track = checksave["ct"]
+    max_track = checksave["mt"]
+    scenemanager:switchscene(race)
 end
 -- Setting up important stuff
 pd.display.setRefreshRate(30)
+pd.ui.crankIndicator:start()
 
 -- Update!
 function pd.update()
-  gfx.sprite.update()
-  pd.timer.updateTimers()
+    gfx.sprite.update()
+    if pd.isCrankDocked() and showcrankindicator then
+        pd.ui.crankIndicator:update()
+    end
+    pd.timer.updateTimers()
+end
+function pd.debugDraw()
+    pd.drawFPS(0, 0)
 end

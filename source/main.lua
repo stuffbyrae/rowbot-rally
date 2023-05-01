@@ -13,13 +13,13 @@ local gfx <const> = pd.graphics
 
 showcrankindicator = false
 
-stage_1_best_time = 0
-stage_2_best_time = 0
-stage_3_best_time = 0
-stage_4_best_time = 0
-stage_5_best_time = 0
-stage_6_best_time = 0
-stage_7_best_time = 0
+stage_1_best_time = 5999
+stage_2_best_time = 5999
+stage_3_best_time = 5999
+stage_4_best_time = 5999
+stage_5_best_time = 5999
+stage_6_best_time = 5999
+stage_7_best_time = 5999
 active_adventure = false
 current_track = 0
 max_track = 0

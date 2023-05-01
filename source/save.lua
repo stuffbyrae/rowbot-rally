@@ -23,10 +23,10 @@ function save:init()
     end)
 
     -- Grab the save template, and shove it into a data file!
-    local freshsave = json.decode('{"aa":false,"ct":0,"mt":0,"t1":0,"t2":0,"t3":0,"t4":0,"t5":0,"t6":0,"t7":0}')
+    local freshsave = json.decode('{"aa":false,"ct":0,"mt":0,"t1":5999,"t2":5999,"t3":5999,"t4":5999,"t5":5999,"t6":5999,"t7":5999}')
     pd.datastore.write(freshsave)
 
     -- After a couple of seconds (so it feels like it's doing something bigger), switch away from this scene.
-    pd.timer.performAfterDelay(2000, function() scenemanager:switchscene(title) end)
+    pd.timer.performAfterDelay(2000, function() scenemanager:switchscene(race) end)
     self:add()
 end

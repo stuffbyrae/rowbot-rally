@@ -6,12 +6,10 @@ import "results"
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-showcrankindicator = true -- We need to show the indicator if the crank's docked in this scene
-
 -- Defining some stuff for the race
 local race_ongoing = false
 local race_finished = false
-local elapsed_time = 0
+elapsed_time = 0
 local track_start_x = 710
 local track_start_y = 100
 
@@ -23,12 +21,12 @@ local img_boat = gfx.imagetable.new('images/boats/boat_wooden') -- The boat!
 local img_wake = gfx.image.new('images.boats/wake.png') -- The wake behind the boat
 local img_meter = gfx.image.new('images/race/meter') -- The meter that shows each sides' power
 local img_meter_mask = gfx.image.new('images/race/meter_mask') -- The mask for that aforementioned meter
-local img_react_idle = gfx.imagetable.new('images/react/react_idle') -- Idle reaction
-local img_react_curious = gfx.image.new('images/react/react_curious') -- Reaction if you find a secret
-local img_react_obscured = gfx.image.new('images/react/react_obscured') -- Reaction if the crank is docked
-local img_react_crash = gfx.imagetable.new('images/react/react_crash') -- Reaction if you CRASH
-local img_countdown = gfx.imagetable.new('images/overlay/countdown/countdown') -- Countdown overlay for the start of the race
-local img_finish = gfx.imagetable.new('images/overlay/finish/finish') -- Photo finish overlay for the end of the race
+local img_react_idle = gfx.imagetable.new('images/race/react_idle') -- Idle reaction
+local img_react_curious = gfx.image.new('images/race/react_curious') -- Reaction if you find a secret
+local img_react_obscured = gfx.image.new('images/race/react_obscured') -- Reaction if the crank is docked
+local img_react_crash = gfx.imagetable.new('images/race/react_crash') -- Reaction if you CRASH
+local img_countdown = gfx.imagetable.new('images/screen_effects/countdown/countdown') -- Countdown overlay for the start of the race
+local img_finish = gfx.imagetable.new('images/screen_effects/fadefromwhite100/fadefromwhite100') -- Photo finish overlay for the end of the race
 
 local react_idle_loop = gfx.animation.loop.new(500, img_react_idle, true)
 local react_crash_loop = gfx.animation.loop.new(10, img_react_crash, true)
@@ -37,6 +35,7 @@ local react_crash_loop = gfx.animation.loop.new(10, img_react_crash, true)
 class('race').extends(gfx.sprite)
 function race:init()
     race.super.init(self)
+    showcrankindicator = true
 
     -- Boat variables
     local boat_speed = 0 -- How fast the boat's going
@@ -67,7 +66,7 @@ function race:init()
         self:setCenter(0, 0)
         self:setImage(img_water)
         self:setIgnoresDrawOffset(true)
-        -- self:add()
+        self:add()
     end
     water = water()
 
@@ -112,14 +111,15 @@ function race:init()
         track.super.init(self)
         self:setImage(img_track)
         self:moveTo(track_start_x, track_start_y)
-        -- self:add()
+        self:add()
     end
     track = track()
     
     class('react').extends(gfx.sprite)-- The reaction sprite in the bottom right
     function react:init()
         react.super.init(self)
-        self:setCenter(0, 0)
+        self:setCenter(1, 1)
+        self:moveTo(400, 240)
         self:setIgnoresDrawOffset(true)
         self:add()
     end

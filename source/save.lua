@@ -23,7 +23,7 @@ function save:init()
     end)
 
     -- Grab the save template, and shove it into a data file!
-    local freshsave = json.decode('{"aa":false,"ct":0,"mt":0,"t1":5999,"t2":5999,"t3":5999,"t4":5999,"t5":5999,"t6":5999,"t7":5999}')
+    local freshsave = json.decode('{"aa":false,"ct":0,"mt":0,"t1":17970,"t2":17970,"t3":17970,"t4":17970,"t5":17970,"t6":17970,"t7":17970}')
     pd.datastore.write(freshsave)
 
     -- After a couple of seconds (so it feels like it's doing something bigger), switch away from this scene.

@@ -13,13 +13,13 @@ local gfx <const> = pd.graphics
 
 showcrankindicator = false
 
-stage_1_best_time = 5999
-stage_2_best_time = 5999
-stage_3_best_time = 5999
-stage_4_best_time = 5999
-stage_5_best_time = 5999
-stage_6_best_time = 5999
-stage_7_best_time = 5999
+stage_1_best_time = 17970
+stage_2_best_time = 17970
+stage_3_best_time = 17970
+stage_4_best_time = 17970
+stage_5_best_time = 17970
+stage_6_best_time = 17970
+stage_7_best_time = 17970
 active_adventure = false
 current_track = 0
 max_track = 0
@@ -27,6 +27,7 @@ max_track = 0
 -- Setting up the scene manager, and all the scenes
 import "scenemanager"
 import "save"
+import "cutscene"
 import "race"
 scenemanager = scenemanager()
 
@@ -44,7 +45,7 @@ else
     active_adventure = checksave["aa"]
     current_track = checksave["ct"]
     max_track = checksave["mt"]
-    scenemanager:switchscene(race)
+    scenemanager:switchscene(cutscene)
 end
 -- Setting up important stuff
 pd.display.setRefreshRate(30)

@@ -9,16 +9,26 @@ local gfx <const> = pd.graphics
 -- Defining some stuff for the race
 local race_ongoing = false
 local race_finished = false
-elapsed_time = 0
+local elapsed_time = 0
+local laps = 0
 local track_start_x = 710
 local track_start_y = 100
 
 -- Pictures!
-local img_track_col = gfx.image.new('images/tracks/track_river_col') -- The bit of the track that checks collision
+local img_track_river_col = gfx.image.new('images/tracks/track_river_col') -- The bit of the track that checks collision
+local img_track_river = gfx.image.new('images/tracks/track_river') -- The bit of the track you can actually see
+
+local img_boat_wooden = gfx.imagetable.new('images/boats/boat_wooden') -- The boat!
+local img_boat_rower = gfx.imagetable.new('images/boats/boat_rower') -- The boat!
+local img_boat_tug = gfx.imagetable.new('images/boats/boat_tug') -- The boat!
+local img_boat_raft = gfx.imagetable.new('images/boats/boat_raft') -- The boat!
+local img_boat_swan = gfx.imagetable.new('images/boats/boat_swan') -- The boat!
+local img_boat_pedal = gfx.imagetable.new('images/boats/boat_pedal') -- The boat!
+local img_boat_hoverjet = gfx.imagetable.new('images/boats/boat_hoverjet') -- The boat!
+
 local img_water = gfx.image.new('images/tracks/water') -- The water you row on
-local img_track = gfx.image.new('images/tracks/track_river') -- The bit of the track you can actually see
-local img_boat = gfx.imagetable.new('images/boats/boat_wooden') -- The boat!
-local img_wake = gfx.image.new('images.boats/wake.png') -- The wake behind the boat
+local img_wake = gfx.image.new('images/boats/wake.png') -- The wake behind the boat
+local img_hud = gfx.image.new('images/race/hud')
 local img_meter = gfx.image.new('images/race/meter') -- The meter that shows each sides' power
 local img_meter_mask = gfx.image.new('images/race/meter_mask') -- The mask for that aforementioned meter
 local img_react_idle = gfx.imagetable.new('images/race/react_idle') -- Idle reaction
@@ -28,14 +38,58 @@ local img_react_crash = gfx.imagetable.new('images/race/react_crash') -- Reactio
 local img_countdown = gfx.imagetable.new('images/screen_effects/countdown/countdown') -- Countdown overlay for the start of the race
 local img_finish = gfx.imagetable.new('images/screen_effects/fadefromwhite100/fadefromwhite100') -- Photo finish overlay for the end of the race
 
-local react_idle_loop = gfx.animation.loop.new(500, img_react_idle, true)
-local react_crash_loop = gfx.animation.loop.new(10, img_react_crash, true)
+local times_new_rally = gfx.font.new('fonts/times_new_rally')
+gfx.setFont(times_new_rally)
 
 -- Now, let's fire up the scene!
 class('race').extends(gfx.sprite)
-function race:init()
+function race:init(track_type, boat_type, race_mode)
     race.super.init(self)
     showcrankindicator = true
+
+    local img_track_col = gfx.image.new(1, 1)
+    if track_type == 1 then
+        local img_track_col = img_track_river_col
+    elseif track_type == 2 then
+    elseif track_type == 3 then
+    elseif track_type == 4 then
+    elseif track_type == 5 then
+    elseif track_type == 6 then
+    elseif track_type == 7 then
+    end
+
+    local img_track = gfx.image.new(1, 1)
+    if track_type == 1 then
+        local img_track = img_track_river
+    elseif track_type == 2 then
+    elseif track_type == 3 then
+    elseif track_type == 4 then
+    elseif track_type == 5 then
+    elseif track_type == 6 then
+    elseif track_type == 7 then
+    end
+
+    local img_boat = img_boat_wooden
+    if boat_type == 1 then
+        img_boat = img_boat_wooden
+    elseif boat_type == 2 then
+        img_boat = img_boat_rower
+    elseif boat_type == 3 then
+        img_boat = img_boat_tug
+    elseif boat_type == 4 then
+        img_boat = img_boat_raft
+    elseif boat_type == 5 then
+        img_boat = img_boat_swan
+    elseif boat_type == 6 then
+        img_boat = img_boat_pedal
+    elseif boat_type == 7 then
+        img_boat = img_boat_hoverjet
+    end
+
+    if race_mode == story then
+    elseif race_mode == timetrials then
+    elseif race_mode == tutorial then
+    end
 
     -- Boat variables
     local boat_speed = 0 -- How fast the boat's going
@@ -115,7 +169,34 @@ function race:init()
     end
     track = track()
     
-    class('react').extends(gfx.sprite)-- The reaction sprite in the bottom right
+    class('hud').extends(gfx.sprite) -- The HUD bit that shows the current time and lap count
+    function hud:init()
+        hud.super.init(self)
+        self:setCenter(0, 0)
+        self:setIgnoresDrawOffset(true)
+        self:moveTo(10, 10)
+        self:add()
+    end
+    function hud:update()
+        local mins = string.format("%02.f", math.floor((elapsed_time/30) / 60))
+        local secs = string.format("%02.f", math.floor((elapsed_time/30) - mins * 60))
+        local mils = string.format("%02.f", (elapsed_time/30)*99 - mins * 5940 - secs * 99)
+        local hud_image = gfx.image.new(102, 45)
+        gfx.pushContext(hud_image)
+            img_hud:draw(0, 0)
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            gfx.drawText('O ' .. mins .. ':' .. secs .. ':' .. mils, 10, 4)
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+            gfx.drawTextAligned('C AB ' .. laps .. "!", 39, 24, kTextAlignment.center)
+        gfx.popContext()
+        self:setImage(hud_image)
+        if race_finished then
+            self:remove()
+        end
+    end
+    hud = hud()
+    
+    class('react').extends(gfx.sprite) -- The reaction sprite in the bottom right
     function react:init()
         react.super.init(self)
         self:setCenter(1, 1)
@@ -125,8 +206,10 @@ function race:init()
     end
     function react:update()
         if crashed then -- If the boat's crashed...
+            local react_crash_loop = gfx.animation.loop.new(10, img_react_crash, true)
             self:setImage(react_crash_loop:image()) -- Show the crash sprite.
         else -- If it's not...
+            local react_idle_loop = gfx.animation.loop.new(500, img_react_idle, true)
             self:setImage(react_idle_loop:image()) -- Show the idle sprite.
         end
         if pd.isCrankDocked() then
@@ -161,8 +244,7 @@ function race:init()
             race_finished = true -- Also, tell everything that the race is in fact done.
             overlay_anim = gfx.animation.loop.new(66, img_finish, false) -- Play the photo finish animation
             boat_drift_anim = gfx.animator.new(1500, 0, 20*boat_speed, pd.easingFunctions.outQuad)
-            pd.timer.performAfterDelay(1499, function() lastraceimage = gfx.getDisplayImage() end) -- After exactly 1.499 seconds, grab a snippet of the current screen
-            pd.timer.performAfterDelay(1500, function() scenemanager:switchscene(results, elapsed_time, lastraceimage) end) -- Then, move over to the results page with that image and the total time in tow.
+            pd.timer.performAfterDelay(1500, function() local lastraceimage = gfx.getDisplayImage() print(elapsed_time) scenemanager:switchscene(results, elapsed_time, lastraceimage) end) -- Then, move over to the results page with that image and the total time in tow.
         end
     end
     function restartrace() -- Restart the race!

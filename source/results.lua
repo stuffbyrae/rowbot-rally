@@ -13,12 +13,15 @@ local img_new_best = gfx.image.new('images/results/new_best') -- "New best!" gra
 
 local img_win_react = gfx.image.new('images/results/win_react') -- Reaction if you win,
 
-local double_time = gfx.font.new('fonts/double_time') -- big-boy timer font
+local times_new_rally = gfx.font.new('fonts/times_new_rally') -- Regular timer font
+local double_time = gfx.font.new('fonts/double_time') -- Big-boy timer font
 
 class('results').extends(gfx.sprite)
-function results:init()
+function results:init(elapsed_time, lastraceimage)
     results.super.init(self)
     showcrankindicator = false
+
+    local elapsed_time = elapsedtime
 
     local plate_anim = gfx.animator.new(500, -120, 120, pd.easingFunctions.outBack)
     local underlay_anim = gfx.animation.loop.new(66, img_underlay, false)
@@ -28,6 +31,10 @@ function results:init()
     local mins = string.format("%02.f", math.floor((elapsed_time/30) / 60))
     local secs = string.format("%02.f", math.floor((elapsed_time/30) - mins * 60))
     local mils = string.format("%02.f", (elapsed_time/30)*99 - mins * 5940 - secs * 99)
+
+    local best_mins = string.format("%02.f", math.floor((stage_1_best_time/30) / 60))
+    local best_secs = string.format("%02.f", math.floor((stage_1_best_time/30) - best_mins * 60))
+    local best_mils = string.format("%02.f", (stage_1_best_time/30)*99 - best_mins * 5940 - best_secs * 99)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         gfx.fillRect(0, 0, 400, 240) -- Fill the background with black...
@@ -54,8 +61,10 @@ function results:init()
         gfx.pushContext(plate_image)
             img_win_plate:draw(0, 0)
             gfx.setFont(double_time)
-            gfx.drawTextAligned("O "..mins..":"..secs.."."..mils, 245, 105, kTextAlignment.center)
-            img_new_best:draw(155, 75)
+            img_new_best:draw(155, 65)
+            gfx.drawTextAligned("O "..mins..":"..secs.."."..mils, 245, 95, kTextAlignment.center)
+            gfx.setFont(times_new_rally)
+            gfx.drawTextAligned("D "..best_mins..":"..best_secs.."."..best_mils, 245, 130, kTextAlignment.center)
         gfx.popContext()
         self:setImage(plate_image)
     end
@@ -78,6 +87,9 @@ function results:init()
     react = react()
 
     self:add()
+end
+
+function pd.AButtonDown()
 end
 
 function results:update()

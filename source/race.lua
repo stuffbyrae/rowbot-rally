@@ -273,11 +273,10 @@ function race:init(track_type, boat_type, race_mode)
     self:add()
 end
 
-function pd.AButtonDown()
-    endrace()
-end
-
 function race:update()
+    function pd.AButtonDown()
+        endrace()
+    end
     if race_ongoing == true then
         elapsed_time += 1
         gfx.setDrawOffset(-boat.x+200, -boat.y+120)

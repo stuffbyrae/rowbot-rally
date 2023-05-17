@@ -1,6 +1,6 @@
 name=RowBot Rally
 author=rae
 description=Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
-bundleID=com.stuffbyrae.rowbotrally
+bundleID=wtf.rae.rowbotrally
 imagePath=images/system
 version=Beta!! 0.0.0

@@ -45,7 +45,7 @@ else
     active_adventure = checksave["aa"]
     current_track = checksave["ct"]
     max_track = checksave["mt"]
-    scenemanager:switchscene(title, false, "bitch")
+    scenemanager:switchscene(title, false)
 end
 -- Setting up important stuff
 pd.display.setRefreshRate(30)

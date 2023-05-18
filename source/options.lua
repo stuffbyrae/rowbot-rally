@@ -2,6 +2,7 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+class('options').extends(gfx.sprite)
 local bg = gfx.image.new('images/options/bg')
 local gear_large = gfx.imagetable.new('images/options/gear_large/gear_large')
 local gear_small = gfx.imagetable.new('images/options/gear_small/gear_small')
@@ -20,13 +21,9 @@ local text_replay_cutscene = gfx.image.new('images/options/text_replay_cutscene'
 local text_replay_credits = gfx.image.new('images/options/text_replay_credits')
 local text_reset = gfx.image.new('images/options/text_reset')
 
-local pedallica = gfx.font.new('fonts/pedallica')
-gfx.setFont('pedallica')
-
 local menu_list = {"music", "sfx", "replay_cutscene", "replay_credits", "reset"}
 local current_menu_item = 1
 
-class('options').extends(gfx.sprite)
 function options:init()
     options.super.init(self)
     local arrive = gfx.animator.new(100, 400, 0)
@@ -99,6 +96,9 @@ function options:init()
 end
 
 function options:update()
+    if pd.buttonJustPressed('b') then
+        scenemanager:transitionscene(title, true)
+    end
     if pd.buttonJustPressed('up') then
         current_menu_item = math.clamp(current_menu_item - 1, 1, #menu_list)
         change_selection(-1)

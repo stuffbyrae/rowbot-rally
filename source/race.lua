@@ -14,7 +14,13 @@ local laps = 0
 local track_start_x = 710
 local track_start_y = 100
 
--- Pictures!
+-- Now, let's fire up the scene!
+class('race').extends(gfx.sprite)
+function race:init(track_type, boat_type, race_mode)
+    race.super.init(self)
+    showcrankindicator = true
+
+    -- Pictures!
 local img_track_river_col = gfx.image.new('images/tracks/track_river_col') -- The bit of the track that checks collision
 local img_track_river = gfx.image.new('images/tracks/track_river') -- The bit of the track you can actually see
 
@@ -40,12 +46,6 @@ local img_finish = gfx.imagetable.new('images/screen_effects/fadefromwhite100/fa
 
 local times_new_rally = gfx.font.new('fonts/times_new_rally')
 gfx.setFont(times_new_rally)
-
--- Now, let's fire up the scene!
-class('race').extends(gfx.sprite)
-function race:init(track_type, boat_type, race_mode)
-    race.super.init(self)
-    showcrankindicator = true
 
     local img_track_col = gfx.image.new(1, 1)
     if track_type == 1 then

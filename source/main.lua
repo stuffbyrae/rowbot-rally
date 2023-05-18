@@ -27,8 +27,8 @@ max_track = 0
 -- Setting up the scene manager, and all the scenes
 import "scenemanager"
 import "save"
-import "cutscene"
-import "race"
+import "title"
+import "options"
 scenemanager = scenemanager()
 
 checksave = pd.datastore.read()
@@ -45,11 +45,15 @@ else
     active_adventure = checksave["aa"]
     current_track = checksave["ct"]
     max_track = checksave["mt"]
-    scenemanager:switchscene(cutscene)
+    scenemanager:switchscene(options)
 end
 -- Setting up important stuff
 pd.display.setRefreshRate(30)
 pd.ui.crankIndicator:start()
+
+function math.clamp(val, lower, upper)
+    return math.max(lower, math.min(upper, val))
+end
 
 -- Update!
 function pd.update()

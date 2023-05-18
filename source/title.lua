@@ -17,10 +17,10 @@ else
 end
 local current_menu_item = 1
 
-function title:init(args)
-    local doinstastart = args[1]
-    printTable(args)
-    print(doinstastart)
+function title:init(...)
+    local args = {...}
+    local do_instastart = args[1]
+    -- print(do_instastart)
     local img_bg = gfx.image.new('images/title/bg')
     local img_wave = gfx.image.new('images/title/wave')
     local img_selector = gfx.image.new('images/title/selector')

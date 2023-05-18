@@ -9,13 +9,15 @@ end
 
 function scenemanager:switchscene(scene, ...)
     self.newscene = scene
-    self.sceneargs = ...
+    local args = {...}
+    self.sceneargs = args
     self:loadnewscene()
 end
 
 function scenemanager:transitionscene(scene, ...)
     self.newscene = scene
-    self.sceneargs = ...
+    local args = {...}
+    self.sceneargs = args
     local transitiontimer = self:transition(750, 200)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
@@ -45,7 +47,7 @@ end
 
 function scenemanager:loadnewscene()
     self:cleanupscene()
-    self:newscene(self.sceneargs)
+    self.newscene(table.unpack(self.sceneargs))
 end
 
 function scenemanager:cleanupscene()

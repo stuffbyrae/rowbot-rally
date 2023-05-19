@@ -62,7 +62,5 @@ function pd.update()
         pd.ui.crankIndicator:update()
     end
     pd.timer.updateTimers()
-end
-function pd.debugDraw()
     pd.drawFPS(0, 0)
 end

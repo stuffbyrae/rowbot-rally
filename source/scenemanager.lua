@@ -18,10 +18,10 @@ function scenemanager:transitionscene(scene, ...)
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
-    local transitiontimer = self:transition(750, 200)
+    local transitiontimer = self:transition(750, 250)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
-        transitiontimer = self:transition(200, -450)
+        transitiontimer = self:transition(250, -450)
     end
 end
 

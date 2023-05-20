@@ -33,6 +33,7 @@ import "scenemanager"
 import "race"
 import "title"
 import "options"
+import "garage"
 scenemanager = scenemanager()
 
 checksave = pd.datastore.read()
@@ -64,7 +65,7 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(title, false)
+scenemanager:switchscene(garage)
 
 -- Update!
 function pd.update()

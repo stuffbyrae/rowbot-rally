@@ -43,7 +43,6 @@ function opening:init()
         fade_anim = gfx.animator.new(1000, 0, 1)
         pd.timer.performAfterDelay(1000, function() scenemanager:switchscene(cutscene) end)
     end
-
     self:add()
 end
 
@@ -51,7 +50,7 @@ end
 function opening:update()
     -- When the A button's pressed, progress through the table.
     function pd.AButtonDown()
-        if opening_progress <= img_opening:getLength() then
+        if opening_progress < img_opening:getLength() then
             opening_progress += 1
             gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
                 img_opening:drawImage(opening_progress, 0, 0)

@@ -261,13 +261,7 @@ gfx.setFont(times_new_rally)
     end
     function crash() -- CRASH!!!
     end
-    
-    function pd.gameWillPause() -- If the game's being paused...
-        local menu = pd.getSystemMenu() -- MENU!!
-        menu:removeAllMenuItems() -- Clear all the stuff out of there.
-        if race_ongoing then menu:addMenuItem('restart race', function() restartrace() end) end -- If the race is going, add an option to restart it
-        menu:addMenuItem('back to title', function() scenemanager:transitionscene(title, false) end) -- an option to go back to the title screen
-    end
+
     
     startrace()
     self:add()

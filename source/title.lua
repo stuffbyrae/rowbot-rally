@@ -1,4 +1,7 @@
 -- Setting up scenes
+import "cutscene"
+import "opening"
+import "garage"
 import "options"
 
 -- Handy shorthands
@@ -31,7 +34,7 @@ function title:init(...)
     menu_list_story = {"continue", "new", "time_trials", "options"} -- Menu list, if you've got an active story going on
     menu_list_no_story = {"new", "time_trials", "options"} -- Menu list if you haven't done a game
     menu_list = menu_list_no_story -- Fall back to the no-story menu
-    if active_adventure then -- If you've got an active adventure...
+    if active_story then -- If you've got an active adventure...
         menu_list = menu_list_story -- Use the story one instead.
     end
     current_menu_item = 1 -- Set the menu item to the start
@@ -214,39 +217,22 @@ function title:update()
             if current_name == "continue" then
             end
             if current_name == "new" then
+                if active_story then
+                    return
+                else
+                    scenemanager:transitionsceneoneway(opening)
+                end
             end
             if current_name == "time_trials" then
+                if max_track < 1 then
+                    return
+                else
+                    scenemanager:transitionscene(garage)
+                end
             end
             if current_name == "options" then
                 scenemanager:transitionscene(options)
             end
         end
     end
-end
-
-function title:cleanup()
-    started = nil
-    isstarting = nil
-    menu_scrollable = nil
-    menu_list_story = nil
-    menu_list_no_story = nil
-    menu_list = nil
-    current_menu_item = nil
-    current_name = nil
-    
-    checker_anim_x = nil
-    checker_anim_y = nil
-
-    wave_anim_x = nil
-    wave_anim_y = nil
-    
-    bg_anim = nil
-
-    startscreen_image = nil
-    
-    wave = nil
-    startscreen = nil
-    checker = nil
-    bg = nil
-    selector = nil
 end

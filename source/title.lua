@@ -5,11 +5,24 @@ import "options"
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+-- Defining images
+title_img_logo = gfx.image.new('images/ui/logo') -- Logo image
+title_img_button_start = gfx.image.new('images/ui/button_start') -- Start button image
+title_img_wave = gfx.image.new('images/title/wave') -- Wave image
+title_img_bg = gfx.image.new('images/title/bg') -- Background image
+title_img_checker = gfx.image.new('images/title/checker') -- Checkerboard loop image
+title_img_sel_continue = gfx.image.new('images/title/sel_continue')
+title_img_sel_new = gfx.image.new('images/title/sel_new')
+title_img_sel_time_trials = gfx.image.new('images/title/sel_time_trials')
+title_img_sel_options = gfx.image.new('images/title/sel_options')
+title_img_sel_locked = gfx.image.new('images/title/sel_locked')
+
 class('title').extends(gfx.sprite)
 function title:init(...)
     title.super.init(self)
     args = {...} -- Very heated argument
     do_instastart = args[1] -- do_instastart: a boolean checking if it should instastart or not
+    show_crank = false -- Show the crank indicator?
 
     -- Defining variables
     started = false -- Whether the 'start' menu has been passed or not
@@ -22,54 +35,51 @@ function title:init(...)
         menu_list = menu_list_story -- Use the story one instead.
     end
     current_menu_item = 1 -- Set the menu item to the start
-    
-    -- Defining images
-    img_logo = gfx.image.new('images/ui/logo') -- Logo image
-    img_button_start = gfx.image.new('images/ui/button_start') -- Start button image
-    img_bg = gfx.image.new('images/title/bg') -- Background image
-    img_wave = gfx.image.new('images/title/wave') -- Wave image
-    img_checker = gfx.image.new('images/title/checker') -- Checkerboard loop image
-    img_selector = gfx.image.new('images/title/selector') -- Items to select
-    if max_track == 0 then -- Wait!! If there's no progress in the story yet...
-        img_selector = gfx.image.new('images/title/selector_locked') -- Then use the locked image instead.
-    end
 
-    checker_anim_x = gfx.animator.new(2300, 0, -124)
-    checker_anim_x.repeatCount = -1
-    checker_anim_y = gfx.animator.new(2300, 0, -32)
-    checker_anim_y.repeatCount = -1
+    checker_anim_x = gfx.animator.new(2300, 0, -124) -- Checker animation on the X-axis
+    checker_anim_x.repeatCount = -1 -- make sure it loops forever
+    checker_anim_y = gfx.animator.new(2300, 0, -32) -- Checker animation on the Y-axis
+    checker_anim_y.repeatCount = -1 -- Make sure that loops forever as well
 
-    wave_anim_x = gfx.animator.new(1000, 0, -72)
-    wave_anim_x.repeatCount = -1
+    wave_anim_x = gfx.animator.new(1000, 0, -72) -- Wave animation on the X-axis
+    wave_anim_x.repeatCount = -1 -- Man, it's like these COMMENTS are looping forever! [laugh track]
 
-    class('wave').extends(gfx.sprite)
+    class('wave').extends(gfx.sprite) -- Wave sprite
     function wave:init()
         wave.super.init(self)
         self:setSize(472, 260)
-        self:setImage(img_wave)
+        local image = gfx.image.new(576, 252)
+        gfx.pushContext(image)
+            title_img_wave:drawTiled(0, 0, 576, 252)
+        gfx.popContext()
+        self:setImage(image)
+        local image = nil
         self:setCenter(0, 0)
         self:setZIndex(-1)
         self:add()
     end
     function wave:update()
-        if started == false then
-            self:moveTo(math.floor(wave_anim_x:currentValue()/2) * 4, 185)
+        if started == false then -- If it hasn't started yet...
+            self:moveTo(math.floor(wave_anim_x:currentValue()/2) * 4, 185) -- ...keep it in a place.
         else
-            if isstarting then
-                self:moveTo(math.floor(wave_anim_x:currentValue()/2) * 4, wave_anim_y:currentValue())
+            if isstarting then -- If it's currently starting,
+                self:moveTo(math.floor(wave_anim_x:currentValue()/2) * 4, wave_anim_y:currentValue()) -- move it somewhere else!
+            else
+                self:moveTo(0, -12) -- Actually, never mind.
             end
         end
     end
 
-    class('startscreen').extends(gfx.sprite)
+    class('startscreen').extends(gfx.sprite) -- Start screen!
     function startscreen:init()
         startscreen.super.init(self)
-        startscreen_image = gfx.image.new(290, 200)
-        gfx.pushContext(startscreen_image)
-            img_logo:draw(0, 0)
-            img_button_start:draw(25, 150)
+        local image = gfx.image.new(290, 200)
+        gfx.pushContext(image)
+            title_img_logo:draw(0, 0)
+            title_img_button_start:draw(30, 150)
         gfx.popContext()
-        self:setImage(startscreen_image)
+        self:setImage(image)
+        local image = nil
         self:moveTo(200, 120)
         self:setZIndex(0)
         self:add()
@@ -83,7 +93,7 @@ function title:init(...)
     class('checker').extends(gfx.sprite)
     function checker:init()
         checker.super.init(self)
-        self:setImage(img_checker)
+        self:setImage(title_img_checker)
         self:setSize(525, 170)
         self:setZIndex(1)
         self:setCenter(0, 0)
@@ -97,7 +107,7 @@ function title:init(...)
         bg.super.init(self)
         self:setCenter(0, 0)
         self:setZIndex(2)
-        self:setImage(img_bg)
+        self:setImage(title_img_bg)
     end
     function bg:update()
         if isstarting then
@@ -110,26 +120,30 @@ function title:init(...)
         selector.super.init(self)
         current_name = menu_list[current_menu_item]
         if current_name == "continue" then
-            self:moveTo(800, 165)
+            self:setImage(title_img_sel_continue)
         end
         if current_name == "new" then
-            self:moveTo(400, 165)
+            self:setImage(title_img_sel_new)
         end
-        self:setImage(img_selector)
+        self:moveTo(200, 160)
         self:setZIndex(3)
     end
     function selector:change_selection()
         if current_name == "continue" then
-            self:moveTo(800, 165)
+            self:setImage(title_img_sel_continue)
         end
         if current_name == "new" then
-            self:moveTo(400, 165)
+            self:setImage(title_img_sel_new)
         end
         if current_name == "time_trials" then
-            self:moveTo(0, 165)
+            if max_track < 1 then
+                self:setImage(title_img_sel_locked)
+            else
+            self:setImage(title_img_sel_time_trials)
+            end
         end
         if current_name == "options" then
-            self:moveTo(-400, 165)
+            self:setImage(title_img_sel_options)
         end
     end
 
@@ -155,7 +169,6 @@ function title:instastart()
     bg:add()
     checker:add()
     selector:add()
-    wave:moveTo(0, -20)
     startscreen:remove()
 end
 
@@ -163,7 +176,7 @@ end
 function title:start()
     started = true
     isstarting = true
-    wave_anim_y = gfx.animator.new(800, 185, -20, pd.easingFunctions.inBack)
+    wave_anim_y = gfx.animator.new(800, 185, -12, pd.easingFunctions.inBack)
     startscreen_anim = gfx.animator.new(800, 120, -120, pd.easingFunctions.inBack)
     pd.timer.performAfterDelay(1000, function()
         bg:add()
@@ -176,7 +189,6 @@ function title:start()
     pd.timer.performAfterDelay(1750, function()
         startscreen:remove()
         isstarting = false
-        wave:moveTo(0, -20)
         menu_scrollable = true
     end)
 end
@@ -221,13 +233,6 @@ function title:cleanup()
     menu_list = nil
     current_menu_item = nil
     current_name = nil
-
-    img_logo = nil
-    img_button_start = nil
-    img_bg = nil
-    img_wave = nil
-    img_checker = nil
-    img_selector = nil
     
     checker_anim_x = nil
     checker_anim_y = nil

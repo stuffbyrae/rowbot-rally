@@ -3,8 +3,12 @@ local gfx <const> = pd.graphics
 
 class('scenemanager').extends()
 
+img_loading = gfx.image.new('images/ui/loading')
+
 function scenemanager:init()
-    self.transitiontime = 1000
+    self.transitiontime = 800
+    self.offsettime = 800
+    self.transitioning = false
 end
 
 function scenemanager:switchscene(scene, ...)
@@ -15,28 +19,33 @@ function scenemanager:switchscene(scene, ...)
 end
 
 function scenemanager:transitionscene(scene, ...)
+    show_crank = false
+    if self.transitioning then return end
+    self.transitioning = true
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
-    local transitiontimer = self:transition(750, 250)
+    local transitiontimer = self:transition(750, 250, 0, -20)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
-        transitiontimer = self:transition(250, -450)
+        transitiontimer = self:transition(250, -350, 20, 0)
+        transitiontimer.timerEndedCallback = function()
+            self.transitioning = false
+        end
     end
 end
 
-function scenemanager:transition(startvalue, endvalue)
+function scenemanager:transition(startvalue, endvalue, offsetstartvalue, offsetendvalue)
     local loading = self:loadingsprite()
     loading:moveTo(startvalue, 120)
     local transitiontimer = pd.timer.new(self.transitiontime, startvalue, endvalue, pd.easingFunctions.inOutCirc)
-    transitiontimer.updateCallback = function(timer)
-        loading:moveTo(timer.value, 120)
-    end
+    local offsettimer = pd.timer.new(self.offsettime, offsetstartvalue, offsetendvalue, pd.easingFunctions.inOutCirc)
+    transitiontimer.updateCallback = function(timer) loading:moveTo(timer.value, 120) end
+    offsettimer.updateCallback = function(timer) gfx.setDrawOffset(timer.value, 0) end
     return transitiontimer
 end
 
 function scenemanager:loadingsprite()
-    local img_loading = gfx.image.new('images/ui/loading')
     local loading = gfx.sprite.new(img_loading)
     loading:setZIndex(26000)
     loading:moveTo(750, 120)

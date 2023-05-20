@@ -18,7 +18,7 @@ local track_start_y = 100
 class('race').extends(gfx.sprite)
 function race:init(track_type, boat_type, race_mode)
     race.super.init(self)
-    showcrankindicator = true
+    show_crank = true
 
     -- Pictures!
 local img_track_river_col = gfx.image.new('images/tracks/track_river_col') -- The bit of the track that checks collision
@@ -266,7 +266,7 @@ gfx.setFont(times_new_rally)
         local menu = pd.getSystemMenu() -- MENU!!
         menu:removeAllMenuItems() -- Clear all the stuff out of there.
         if race_ongoing then menu:addMenuItem('restart race', function() restartrace() end) end -- If the race is going, add an option to restart it
-        menu:addMenuItem('back to title', function() scenemanager:switchscene(title) end) -- an option to go back to the title screen
+        menu:addMenuItem('back to title', function() scenemanager:transitionscene(title, false) end) -- an option to go back to the title screen
     end
     
     startrace()

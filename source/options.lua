@@ -3,7 +3,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 class('options').extends(gfx.sprite)
-local bg = gfx.image.new('images/options/bg')
+local img_bg = gfx.image.new('images/options/bg')
 local gear_large = gfx.imagetable.new('images/options/gear_large/gear_large')
 local gear_small = gfx.imagetable.new('images/options/gear_small/gear_small')
 local gear_large_anim = gfx.animation.loop.new(25, gear_large, true)
@@ -27,11 +27,15 @@ local current_menu_item = 1
 function options:init()
     options.super.init(self)
     local arrive = gfx.animator.new(100, 400, 0)
-    gfx.sprite.setBackgroundDrawingCallback(
-        function(x, y, width, height)
-            bg:draw(0, 0)
-        end
-    )
+
+    class('bg').extends(gfx.sprite)
+    function bg:init()
+        bg.super.init(self)
+        self:setImage(img_bg)
+        self:setCenter(0, 0)
+        self:add()
+    end
+    bg = bg()
 
     class('gears').extends(gfx.sprite)
     function gears:init()
@@ -97,7 +101,7 @@ end
 
 function options:update()
     if pd.buttonJustPressed('b') then
-        scenemanager:transitionscene(title, true)
+        scenemanager:transitionscene(title, false)
     end
     if pd.buttonJustPressed('up') then
         current_menu_item = math.clamp(current_menu_item - 1, 1, #menu_list)

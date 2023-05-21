@@ -98,6 +98,11 @@ end
 function scenemanager:cleanupscene()
     gfx.sprite.removeAll()
     self:removealltimers()
+    title_assets = nil
+    title_vars = nil
+    options_assets = nil
+    options_vars = nil
+    collectgarbage('collect')
     gfx.setDrawOffset(0, 0)
 end
 

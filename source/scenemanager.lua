@@ -9,6 +9,7 @@ img_loading_oneway = gfx.image.new('images/ui/loading_oneway')
 function scenemanager:init()
     self.transitiontime = 1000
     self.offsettime = 1000
+    self.blasttime = 250
     self.transitioning = false
 end
 
@@ -98,10 +99,8 @@ end
 function scenemanager:cleanupscene()
     gfx.sprite.removeAll()
     self:removealltimers()
-    title_assets = nil
-    title_vars = nil
-    options_assets = nil
-    options_vars = nil
+    assets = nil
+    vars = nil
     collectgarbage('collect')
     gfx.setDrawOffset(0, 0)
 end

@@ -62,6 +62,24 @@ function pd.gameWillTerminate()
     playdate.datastore.write(save)
 end
 
+function pd.keyPressed(p)
+    save.t1 = 17970
+    save.t2 = 17970
+    save.t3 = 17970
+    save.t4 = 17970
+    save.t5 = 17970
+    save.t6 = 17970
+    save.t7 = 17970
+    save.as = false
+    save.ct = 0
+    save.mt = 0
+    save.cc = 0
+    save.mc = 0
+    save.mu = 5
+    save.fx = 5
+    pd.datastore.write(save)
+end
+
 function pd.update()
     gfx.sprite.update()
     if pd.isCrankDocked() and show_crank then

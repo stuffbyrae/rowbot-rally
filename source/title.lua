@@ -1,3 +1,5 @@
+import 'cutscene'
+import 'opening'
 import 'garage'
 import 'options'
 
@@ -11,7 +13,7 @@ function title:init(...)
     local do_instastart = args[1]
     show_crank = false
 
-    title_assets = {
+    assets = {
         img_logo = gfx.image.new('images/ui/logo'),
         img_button_start = gfx.image.new('images/ui/button_start'),
         img_wave = gfx.image.new('images/title/wave'),
@@ -24,7 +26,7 @@ function title:init(...)
         img_sel_locked = gfx.image.new('images/title/sel_locked')
     }
 
-    title_vars = {
+    vars = {
         started = false,
         isstarting = false,
         menu_scrollable = false,
@@ -35,14 +37,14 @@ function title:init(...)
         wave_anim_x = gfx.animator.new(1000, 0, -72)
     }
 
-    title_vars.current_name = title_vars.menu_list[title_vars.current_menu_item]
+    vars.current_name = vars.menu_list[vars.current_menu_item]
     if save.as then
-        title_vars.menu_list = {'continue', 'new', 'time_trials', 'options'}
+        vars.menu_list = {'continue', 'new', 'time_trials', 'options'}
     end
     
-    title_vars.checker_anim_x.repeatCount = -1
-    title_vars.checker_anim_y.repeatCount = -1
-    title_vars.wave_anim_x.repeatCount = -1
+    vars.checker_anim_x.repeatCount = -1
+    vars.checker_anim_y.repeatCount = -1
+    vars.wave_anim_x.repeatCount = -1
 
     class('wave').extends(gfx.sprite)
     function wave:init()
@@ -52,17 +54,17 @@ function title:init(...)
         self:setCenter(0, 0)
         local image = gfx.image.new(576, 252)
         gfx.pushContext(image)
-            title_assets.img_wave:drawTiled(0, 0, 576, 252)
+            assets.img_wave:drawTiled(0, 0, 576, 252)
         gfx.popContext()
         self:setImage(image)
         self:add()
     end
     function wave:update()
-        if title_vars.started == false then
-            self:moveTo(math.floor(title_vars.wave_anim_x:currentValue()/2) * 4, 185)
+        if vars.started == false then
+            self:moveTo(math.floor(vars.wave_anim_x:currentValue()/2) * 4, 185)
         else
-            if title_vars.isstarting then
-                self:moveTo(math.floor(title_vars.wave_anim_x:currentValue()/2) * 4, title_vars.wave_anim_y:currentValue())
+            if vars.isstarting then
+                self:moveTo(math.floor(vars.wave_anim_x:currentValue()/2) * 4, vars.wave_anim_y:currentValue())
             else
                 self:moveTo(0, -12)
             end
@@ -76,72 +78,72 @@ function title:init(...)
         self:moveTo(200, 120)
         local image = gfx.image.new(290, 200)
         gfx.pushContext(image)
-            title_assets.img_logo:draw(0, 0)
-            title_assets.img_button_start:draw(30, 150)
+            assets.img_logo:draw(0, 0)
+            assets.img_button_start:draw(30, 150)
         gfx.popContext()
         self:setImage(image)
         self:add()
     end
     function startscreen:update()
-        if title_vars.isstarting then
-            self:moveTo(200, title_vars.startscreen_anim:currentValue())
+        if vars.isstarting then
+            self:moveTo(200, vars.startscreen_anim:currentValue())
         end
     end
 
     class('checker').extends(gfx.sprite)
     function checker:init()
         checker.super.init(self)
-        self:setImage(title_assets.img_checker)
+        self:setImage(assets.img_checker)
         self:setSize(525, 170)
         self:setZIndex(1)
         self:setCenter(0, 0)
     end
     function checker:update()
-        self:moveTo(title_vars.checker_anim_x:currentValue(), title_vars.checker_anim_y:currentValue())
+        self:moveTo(vars.checker_anim_x:currentValue(), vars.checker_anim_y:currentValue())
     end
 
     class('bg').extends(gfx.sprite)
     function bg:init()
         bg.super.init(self)
-        self:setImage(title_assets.img_bg)
+        self:setImage(assets.img_bg)
         self:setZIndex(2)
         self:setCenter(0, 0)
     end
     function bg:update()
-        if title_vars.isstarting then
-            self:moveTo(0, title_vars.bg_anim:currentValue())
+        if vars.isstarting then
+            self:moveTo(0, vars.bg_anim:currentValue())
         end
     end
 
     class('selector').extends(gfx.sprite)
     function selector:init()
         selector.super.init(self)
-        local current_name = title_vars.menu_list[title_vars.current_menu_item]
+        local current_name = vars.menu_list[vars.current_menu_item]
         self:setZIndex(3)
         self:moveTo(200, 160)
         if current_name == 'continue' then
-            self:setImage(title_assets.img_sel_continue)
+            self:setImage(assets.img_sel_continue)
         end
         if current_name == 'new' then
-            self:setImage(title_assets.img_sel_new)
+            self:setImage(assets.img_sel_new)
         end
     end
     function selector:change_sel()
-        if title_vars.current_name == 'continue' then
-            self:setImage(title_assets.img_sel_continue)
+        if vars.current_name == 'continue' then
+            self:setImage(assets.img_sel_continue)
         end
-        if title_vars.current_name == 'new' then
-            self:setImage(title_assets.img_sel_new)
+        if vars.current_name == 'new' then
+            self:setImage(assets.img_sel_new)
         end
-        if title_vars.current_name == 'time_trials' then
+        if vars.current_name == 'time_trials' then
             if save.mt < 1 then
-                self:setImage(title_assets.img_sel_locked)
+                self:setImage(assets.img_sel_locked)
             else
-            self:setImage(title_assets.img_sel_time_trials)
+            self:setImage(assets.img_sel_time_trials)
             end
         end
-        if title_vars.current_name == 'options' then
-            self:setImage(title_assets.img_sel_options)
+        if vars.current_name == 'options' then
+            self:setImage(assets.img_sel_options)
         end
     end
 
@@ -160,8 +162,8 @@ function title:init(...)
 end
 
 function title:instastart()
-    title_vars.started = true
-    title_vars.menu_scrollable = true
+    vars.started = true
+    vars.menu_scrollable = true
     self.bg:add()
     self.checker:add()
     self.selector:add()
@@ -169,13 +171,13 @@ function title:instastart()
 end
 
 function title:start()
-    title_vars.started = true
-    title_vars.isstarting = true
-    title_vars.wave_anim_y = gfx.animator.new(800, 185, -12, pd.easingFunctions.inBack)
-    title_vars.startscreen_anim = gfx.animator.new(800, 120, -120, pd.easingFunctions.inBack)
+    vars.started = true
+    vars.isstarting = true
+    vars.wave_anim_y = gfx.animator.new(800, 185, -12, pd.easingFunctions.inBack)
+    vars.startscreen_anim = gfx.animator.new(800, 120, -120, pd.easingFunctions.inBack)
     pd.timer.performAfterDelay(1000, function()
         self.bg:add()
-        title_vars.bg_anim = gfx.animator.new(750, -800, 0, pd.easingFunctions.outSine)
+        vars.bg_anim = gfx.animator.new(750, -800, 0, pd.easingFunctions.outSine)
     end)
     pd.timer.performAfterDelay(1500, function()
         self.checker:add()
@@ -183,46 +185,51 @@ function title:start()
     end)
     pd.timer.performAfterDelay(1750, function()
         self.startscreen:remove()
-        title_vars.isstarting = false
-        title_vars.menu_scrollable = true
+        vars.isstarting = false
+        vars.menu_scrollable = true
     end)
 end
 
 function title:update()
     if pd.buttonJustPressed('a') then
-        if title_vars.started == false then
+        if vars.started == false then
             self:start()
         end
     end
-    if title_vars.menu_scrollable then
+    if vars.menu_scrollable then
         if pd.buttonJustPressed('left') then
-            title_vars.current_menu_item = math.clamp(title_vars.current_menu_item - 1, 1, #title_vars.menu_list)
-            title_vars.current_name = title_vars.menu_list[title_vars.current_menu_item]
+            vars.current_menu_item = math.clamp(vars.current_menu_item - 1, 1, #vars.menu_list)
+            vars.current_name = vars.menu_list[vars.current_menu_item]
             self.selector:change_sel()
         end
         if pd.buttonJustPressed('right') then
-            title_vars.current_menu_item = math.clamp(title_vars.current_menu_item + 1, 1, #title_vars.menu_list)
-            title_vars.current_name = title_vars.menu_list[title_vars.current_menu_item]
+            vars.current_menu_item = math.clamp(vars.current_menu_item + 1, 1, #vars.menu_list)
+            vars.current_name = vars.menu_list[vars.current_menu_item]
             self.selector:change_sel()
         end
         if pd.buttonJustPressed('a') then
-            if title_vars.current_name == 'continue' then
+            if vars.current_name == 'continue' then
+                if save.cc == 0 then
+                    scenemanager:transitionsceneoneway(opening)
+                else
+                    scenemanager:transitionsceneoneway(cutscene, save.cc, race)
+                end
             end
-            if title_vars.current_name == 'new' then
+            if vars.current_name == 'new' then
                 if save.as then
-                    return
+                    scenemanager:transitionsceneoneway(opening)
                 else
                     scenemanager:transitionsceneoneway(opening)
                 end
             end
-            if title_vars.current_name == 'time_trials' then
+            if vars.current_name == 'time_trials' then
                 if save.mt < 1 then
                     return
                 else
                     scenemanager:transitionscene(garage)
                 end
             end
-            if title_vars.current_name == 'options' then
+            if vars.current_name == 'options' then
                 scenemanager:transitionscene(options)
             end
         end

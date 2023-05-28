@@ -14,6 +14,7 @@ pd.ui.crankIndicator:start()
 show_crank = false
 
 import 'scenemanager'
+import 'cutscene'
 import 'title'
 scenemanager = scenemanager()
 
@@ -56,7 +57,7 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(title)
+scenemanager:switchscene(cutscene)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

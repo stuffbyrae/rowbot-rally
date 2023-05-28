@@ -9,6 +9,9 @@ function cutscene:init(...)
     local move = args[2]
     show_crank = false
 
+    local test_vid = gfx.video.new('images/story/scene1')
+    local test_sfx = pd.sound.fileplayer.new('audio/story/scene1_sfx')
+
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()

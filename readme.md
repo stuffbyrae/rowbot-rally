@@ -129,7 +129,6 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
   * Arg to tell what scene to go to aftewards
 * Addtl. stuff
   * System assets
-    * Launcher card
     * Launch animation
     * Launch sound effect
     * New wrapping paper

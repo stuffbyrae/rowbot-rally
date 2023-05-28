@@ -12,6 +12,11 @@ function title:init(...)
     local args = {...}
     local do_instastart = args[1]
     show_crank = false
+    
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+    end
 
     assets = {
         img_logo = gfx.image.new('images/ui/logo'),

@@ -6,6 +6,17 @@ function credits:init(...)
     credits.super.init(self)
     local args = {...}
     show_crank = false
+
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        menu:addMenuItem("skip credits", function()
+            scenemanager:switchscene(title, false)
+        end)
+        menu:addMenuItem("back to title", function()
+            scenemanager:switchscene(title, true)
+        end)
+    end
     
     self:add()
 end

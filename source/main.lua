@@ -56,7 +56,7 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(garage)
+scenemanager:switchscene(title)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

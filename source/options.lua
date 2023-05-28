@@ -11,6 +11,14 @@ function options:init(...)
     options.super.init(self)
     local args = {...}
     show_crank = false
+
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        menu:addMenuItem("back to title", function()
+            scenemanager:switchscene(title, true)
+        end)
+    end
     
     assets = {
         img_bg = gfx.image.new('images/options/bg'),

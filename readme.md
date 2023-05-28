@@ -30,11 +30,6 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
     * Delete save data, show new prompt, return to title
   * Save music/SFX changes upon leaving
 * Boat garage
-  * Make selector
-  * Gray out/disable OK button if boat is locked
-  * Back to title slide button
-  * Animation of boats driving in and out
-    * Peel out/skid overlay effects
   * Blast-doors transition out of the garage
 * Track select
   * Make graphics
@@ -46,8 +41,6 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
   * Smooth transition between items
   * Gray out and disable go button if stage is locked
   * Hide stage info and art if stage is locked - obscured by dog?
-  * New boat slide button
-  * Back to title slide button
 * Race intro
   * Make graphics
     * Spinning 3D models of each rowbot? or just character portraits?
@@ -133,9 +126,6 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
   * Credits music (w/ lyrics?)
   * Post-story sequence in polaroids
   * Write out actual game credits
-  * Skip slide button that immediately moves to next scene
-  * Back to options slide button if replaying
-  * Back to title slide button if seen before
   * Arg to tell what scene to go to aftewards
 * Addtl. stuff
   * System assets

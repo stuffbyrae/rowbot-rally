@@ -9,6 +9,17 @@ function cutscene:init(...)
     local move = args[2]
     show_crank = false
 
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        menu:addMenuItem("skip scene", function()
+            
+        end)
+        menu:addMenuItem("back to title", function()
+            scenemanager:switchscene(title, true)
+        end)
+    end
+
     self:add()
 end
 

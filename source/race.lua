@@ -7,6 +7,17 @@ function race:init(...)
     local args = {...}
     show_crank = true
 
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        menu:addMenuItem("restart race", function()
+            
+        end)
+        menu:addMenuItem("back to title", function()
+            scenemanager:switchscene(title, true)
+        end)
+    end
+
     self:add()
 end
 

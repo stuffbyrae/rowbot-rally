@@ -7,6 +7,17 @@ function opening:init(...)
     local args = {...}
     show_crank = false
 
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        menu:addMenuItem("skip opening", function()
+            self:finish()
+        end)
+        menu:addMenuItem("back to title", function()
+            scenemanager:switchscene(title, true)
+        end)
+    end
+
     if save.as then
         save.cc = 0
         save.ct = 0
@@ -25,8 +36,8 @@ function opening:init(...)
         progress = 1
     }
 
-    vars.fade_anim = gfx.animator.new(1000, 1, #assets.img_fade)
-    pd.timer.performAfterDelay(1000, function() fading = false self.fade:remove() end)
+    vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
+    pd.timer.performAfterDelay(500, function() fading = false self.fade:remove() end)
 
     class('images').extends(gfx.sprite)
     function images:init()
@@ -63,9 +74,9 @@ function opening:finish()
     fading = true
     finished = true
     self.fade:add()
-    vars.fade_anim = gfx.animator.new(1000, #assets.img_fade, 1)
+    vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 1)
     vars.fade_anim:reset()
-    pd.timer.performAfterDelay(1000, function() scenemanager:switchscene(cutscene, 1, race) end)
+    pd.timer.performAfterDelay(500, function() scenemanager:switchscene(cutscene, 1, race) end)
 end
 
 function opening:update()

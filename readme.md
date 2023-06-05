@@ -81,6 +81,8 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
     * Check if they're ahead of or behind you
     * Track what lap they're on currently
   * Delta time
+  * Arg of what course to load in
+  * Arg of what mode to be in (tutorial? race? time trials?)
 * Race Results
   * Get snapshot of last race frame to display in background arg
   * Arg of race time
@@ -115,12 +117,9 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
   * End after a certain (random?) amt of time
   * Crash logic
 * Cutscene viewer
-  * Play border intro animation before cutscene starts (hang on first frame till then)
-  * Figure out how PDV files work - ask nino for help?
-  * Play border outro animation after cutscene ends (hang on last frame)
-  * Skip button that immediately plays border outro, moves onwards
-  * Back to title slide button
-  * Mark cutscene in save data
+  * Use music/SFX vol data on audio files
+  * Mark current cutscene in save data if moving to a race screen - mark max if it's bigger than the current max
+  * Figure out how to move to next cutscene
   * Make the actual cutscenes (lol that this is one single entry)
 * Credits sequence
   * Credits music (w/ lyrics?)

@@ -5,6 +5,11 @@ class('results').extends(gfx.sprite)
 function results:init(...)
     results.super.init(self)
     local args = {...}
+    local track = args[1]
+    local mode = args[2]
+    local boat = args[3]
+    local time = args[4]
+    local bg = args[5]
     show_crank = false
     
     function pd.gameWillPause()

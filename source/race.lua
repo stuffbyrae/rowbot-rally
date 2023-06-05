@@ -5,6 +5,9 @@ class('race').extends(gfx.sprite)
 function race:init(...)
     race.super.init(self)
     local args = {...}
+    local track = args[1]
+    local mode = args[2]
+    local boat = args[3]
     show_crank = true
 
     function pd.gameWillPause()

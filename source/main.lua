@@ -57,13 +57,13 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(cutscene)
+scenemanager:switchscene(title)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)
 end
 
-function pd.keyPressed(p)
+function pd.keyPressed()
     save.t1 = 17970
     save.t2 = 17970
     save.t3 = 17970
@@ -79,7 +79,10 @@ function pd.keyPressed(p)
     save.mu = 5
     save.fx = 5
     pd.datastore.write(save)
+    print("Special cheat code!! Save data cleared.")
 end
+
+printTable(save)
 
 function pd.update()
     gfx.sprite.update()

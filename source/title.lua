@@ -28,13 +28,15 @@ function title:init(...)
         img_sel_new = gfx.image.new('images/title/sel_new'),
         img_sel_time_trials = gfx.image.new('images/title/sel_time_trials'),
         img_sel_options = gfx.image.new('images/title/sel_options'),
-        img_sel_locked = gfx.image.new('images/title/sel_locked')
+        img_sel_locked = gfx.image.new('images/title/sel_locked'),
+        img_new_warn = gfx.image.new('images/ui/new_warn')
     }
 
     vars = {
         started = false,
         isstarting = false,
         menu_scrollable = false,
+        new_warn_open = false,
         menu_list = {'new', 'time_trials', 'options'},
         current_menu_item = 1,
         checker_anim_x = gfx.animator.new(2300, 0, -124),
@@ -42,10 +44,10 @@ function title:init(...)
         wave_anim_x = gfx.animator.new(1000, 0, -72)
     }
 
-    vars.current_name = vars.menu_list[vars.current_menu_item]
     if save.as then
         vars.menu_list = {'continue', 'new', 'time_trials', 'options'}
     end
+    vars.current_name = vars.menu_list[vars.current_menu_item]
     
     vars.checker_anim_x.repeatCount = -1
     vars.checker_anim_y.repeatCount = -1
@@ -152,6 +154,13 @@ function title:init(...)
         end
     end
 
+    class('ui').extends(gfx.sprite)
+    function ui:init()
+        ui.super.init(self)
+    end
+    function ui:update()
+    end
+
     self.wave = wave()
     self.startscreen = startscreen()
     self.checker = checker()
@@ -217,12 +226,12 @@ function title:update()
                 if save.cc == 0 then
                     scenemanager:transitionsceneoneway(opening)
                 else
-                    scenemanager:transitionsceneoneway(cutscene, save.cc, race)
+                    scenemanager:transitionsceneoneway(cutscene, save.cc, "story")
                 end
             end
             if vars.current_name == 'new' then
                 if save.as then
-                    scenemanager:transitionsceneoneway(opening)
+                    return
                 else
                     scenemanager:transitionsceneoneway(opening)
                 end

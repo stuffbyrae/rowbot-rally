@@ -76,7 +76,7 @@ function opening:finish()
     self.fade:add()
     vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 1)
     vars.fade_anim:reset()
-    pd.timer.performAfterDelay(500, function() scenemanager:switchscene(cutscene, 1, race) end)
+    pd.timer.performAfterDelay(500, function() scenemanager:switchscene(cutscene, 1, "story") end)
 end
 
 function opening:update()

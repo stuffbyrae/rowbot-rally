@@ -5,7 +5,6 @@ Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
 * Title screen
   * Sound effects
   * Music
-  * Smooth transition between options
   * Animation on the side arrows
   * Lock shake animation when trying to open a hidden item
   * "Reset progress?" prompt if starting new game with an existing file

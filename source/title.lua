@@ -36,12 +36,18 @@ function title:init(...)
         started = false,
         isstarting = false,
         menu_scrollable = false,
+        selector_moving = false,
         new_warn_open = false,
         menu_list = {'new', 'time_trials', 'options'},
         current_menu_item = 1,
+        last_menu_item = 1,
         checker_anim_x = gfx.animator.new(2300, 0, -124),
         checker_anim_y = gfx.animator.new(2300, 0, -32),
-        wave_anim_x = gfx.animator.new(1000, 0, -72)
+        wave_anim_x = gfx.animator.new(1000, 0, -72),
+        selector_anim_out_left = gfx.animator.new(150, 200, -200, pd.easingFunctions.inSine),
+        selector_anim_in_left = gfx.animator.new(150, -200, 200, pd.easingFunctions.outBack),
+        selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),
+        selector_anim_in_right = gfx.animator.new(150, 600, 200, pd.easingFunctions.outBack)
     }
 
     if save.as then
@@ -135,28 +141,59 @@ function title:init(...)
             self:setImage(assets.img_sel_new)
         end
     end
-    function selector:change_sel()
-        if vars.current_name == 'continue' then
-            self:setImage(assets.img_sel_continue)
+    function selector:update()
+        if vars.selector_moving then
+            self:moveTo(selector_anim:currentValue(), 160)
         end
-        if vars.current_name == 'new' then
-            self:setImage(assets.img_sel_new)
+    end
+    function selector:change_sel(dir)
+        if vars.last_menu_item == vars.current_menu_item then
+            return
         end
-        if vars.current_name == 'time_trials' then
-            if save.mt < 1 then
-                self:setImage(assets.img_sel_locked)
-            else
-            self:setImage(assets.img_sel_time_trials)
+        vars.selector_moving = true
+        if dir then
+            selector_anim = vars.selector_anim_out_left
+            selector_anim:reset()
+            pd.timer.performAfterDelay(150, function()
+                selector_anim = vars.selector_anim_in_right
+                selector_anim:reset()
+            end)
+        else
+            selector_anim = vars.selector_anim_out_right
+            selector_anim:reset()
+            pd.timer.performAfterDelay(150, function()
+                selector_anim = vars.selector_anim_in_left
+                selector_anim:reset()
+            end)
+        end
+        pd.timer.performAfterDelay(150, function()
+            if vars.current_name == 'continue' then
+                self:setImage(assets.img_sel_continue)
             end
-        end
-        if vars.current_name == 'options' then
-            self:setImage(assets.img_sel_options)
-        end
+            if vars.current_name == 'new' then
+                self:setImage(assets.img_sel_new)
+            end
+            if vars.current_name == 'time_trials' then
+                if save.mt < 1 then
+                    self:setImage(assets.img_sel_locked)
+                else
+                self:setImage(assets.img_sel_time_trials)
+                end
+            end
+            if vars.current_name == 'options' then
+                self:setImage(assets.img_sel_options)
+            end
+        end)
+        pd.timer.performAfterDelay(301, function() vars.selector_moving = false end)
+        vars.last_menu_item = vars.current_menu_item
     end
 
     class('ui').extends(gfx.sprite)
     function ui:init()
         ui.super.init(self)
+        self:setImage(assets.img_new_warn)
+        self:moveTo(200, 120)
+        self:setZIndex(99)
     end
     function ui:update()
     end
@@ -166,11 +203,11 @@ function title:init(...)
     self.checker = checker()
     self.bg = bg()
     self.selector = selector()
+    self.ui = ui()
 
     if do_instastart then
         self:instastart()
     end
-    -- 🏆 GUYS I JUST WON THIS AWARD FOR 'BEST COMMENT' IM SO EXCITED!!!!
 
     self:add()
 end
@@ -210,16 +247,26 @@ function title:update()
             self:start()
         end
     end
-    if vars.menu_scrollable then
+    if vars.new_warn_open == true then
+        if pd.buttonJustPressed('a') then
+            scenemanager:transitionsceneoneway(opening)
+        end
+        if pd.buttonJustPressed('b') then
+            self.ui:remove()
+            vars.menu_scrollable = true
+            vars.new_warn_open = false
+        end
+    end
+    if vars.menu_scrollable and vars.selector_moving == false then
         if pd.buttonJustPressed('left') then
             vars.current_menu_item = math.clamp(vars.current_menu_item - 1, 1, #vars.menu_list)
             vars.current_name = vars.menu_list[vars.current_menu_item]
-            self.selector:change_sel()
+            self.selector:change_sel(false)
         end
         if pd.buttonJustPressed('right') then
             vars.current_menu_item = math.clamp(vars.current_menu_item + 1, 1, #vars.menu_list)
             vars.current_name = vars.menu_list[vars.current_menu_item]
-            self.selector:change_sel()
+            self.selector:change_sel(true)
         end
         if pd.buttonJustPressed('a') then
             if vars.current_name == 'continue' then
@@ -231,7 +278,9 @@ function title:update()
             end
             if vars.current_name == 'new' then
                 if save.as then
-                    return
+                    self.ui:add()
+                    vars.new_warn_open = true
+                    vars.menu_scrollable = false
                 else
                     scenemanager:transitionsceneoneway(opening)
                 end

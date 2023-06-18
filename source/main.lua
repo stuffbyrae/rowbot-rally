@@ -82,8 +82,6 @@ function pd.keyPressed()
     print("Special cheat code!! Save data cleared.")
 end
 
-printTable(save)
-
 function pd.update()
     gfx.sprite.update()
     if pd.isCrankDocked() and show_crank then

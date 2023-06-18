@@ -9,7 +9,7 @@ function race:init(...)
     local mode = args[2]
     local boat = args[3]
     show_crank = true
-
+    
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -21,7 +21,25 @@ function race:init(...)
         end)
     end
 
+    assets = {
+
+    }
+
+    vars = {
+
+    }
+
+
     self:add()
+end
+
+function race:start()
+end
+
+function race:finish()
+end
+
+function race:restart()
 end
 
 function race:update()

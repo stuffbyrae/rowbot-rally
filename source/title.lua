@@ -44,6 +44,8 @@ function title:init(...)
         checker_anim_x = gfx.animator.new(2300, 0, -124),
         checker_anim_y = gfx.animator.new(2300, 0, -32),
         wave_anim_x = gfx.animator.new(1000, 0, -72),
+        wave_anim_y = gfx.animator.new(800, 300, 185, pd.easingFunctions.outBack),
+        startscreen_anim = gfx.animator.new(800, 400, 120, pd.easingFunctions.outSine),
         selector_anim_out_left = gfx.animator.new(150, 200, -200, pd.easingFunctions.inSine),
         selector_anim_in_left = gfx.animator.new(150, -200, 200, pd.easingFunctions.outBack),
         selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),
@@ -73,15 +75,7 @@ function title:init(...)
         self:add()
     end
     function wave:update()
-        if vars.started == false then
-            self:moveTo(math.floor(vars.wave_anim_x:currentValue()/2) * 4, 185)
-        else
-            if vars.isstarting then
-                self:moveTo(math.floor(vars.wave_anim_x:currentValue()/2) * 4, vars.wave_anim_y:currentValue())
-            else
-                self:moveTo(0, -12)
-            end
-        end
+            self:moveTo(math.floor(vars.wave_anim_x:currentValue()/2) * 4, vars.wave_anim_y:currentValue())
     end
 
     class('startscreen').extends(gfx.sprite)
@@ -98,9 +92,7 @@ function title:init(...)
         self:add()
     end
     function startscreen:update()
-        if vars.isstarting then
-            self:moveTo(200, vars.startscreen_anim:currentValue())
-        end
+        self:moveTo(200, vars.startscreen_anim:currentValue())
     end
 
     class('checker').extends(gfx.sprite)
@@ -123,9 +115,7 @@ function title:init(...)
         self:setCenter(0, 0)
     end
     function bg:update()
-        if vars.isstarting then
-            self:moveTo(0, vars.bg_anim:currentValue())
-        end
+        self:moveTo(0, vars.bg_anim:currentValue())
     end
 
     class('selector').extends(gfx.sprite)
@@ -236,7 +226,6 @@ function title:start()
     end)
     pd.timer.performAfterDelay(1750, function()
         self.startscreen:remove()
-        vars.isstarting = false
         vars.menu_scrollable = true
     end)
 end

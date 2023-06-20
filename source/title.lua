@@ -46,10 +46,13 @@ function title:init(...)
         wave_anim_x = gfx.animator.new(1000, 0, -72),
         wave_anim_y = gfx.animator.new(800, 300, 185, pd.easingFunctions.outBack),
         startscreen_anim = gfx.animator.new(800, 400, 120, pd.easingFunctions.outSine),
+        ui_anim_in = gfx.animator.new(250, 250, 120, pd.easingFunctions.outBack),
+        ui_anim_out = gfx.animator.new(100, 120, 500, pd.easingFunctions.inSine),
         selector_anim_out_left = gfx.animator.new(150, 200, -200, pd.easingFunctions.inSine),
         selector_anim_in_left = gfx.animator.new(150, -200, 200, pd.easingFunctions.outBack),
         selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),
-        selector_anim_in_right = gfx.animator.new(150, 600, 200, pd.easingFunctions.outBack)
+        selector_anim_in_right = gfx.animator.new(150, 600, 200, pd.easingFunctions.outBack),
+        selector_anim_locked = gfx.animator.new(250, pd.geometry.polygon.new(200, 160, 180, 160, 220, 160, 190, 160, 210, 160, 195, 160, 205, 160, 198, 160, 202, 160, 199, 160, 201, 160, 200, 160))
     }
 
     if save.as then
@@ -75,7 +78,9 @@ function title:init(...)
         self:add()
     end
     function wave:update()
+        if vars.started == false or vars.isstarting then    
             self:moveTo(math.floor(vars.wave_anim_x:currentValue()/2) * 4, vars.wave_anim_y:currentValue())
+        end
     end
 
     class('startscreen').extends(gfx.sprite)
@@ -115,7 +120,9 @@ function title:init(...)
         self:setCenter(0, 0)
     end
     function bg:update()
-        self:moveTo(0, vars.bg_anim:currentValue())
+        if vars.isstarting then
+            self:moveTo(0, vars.bg_anim:currentValue())
+        end
     end
 
     class('selector').extends(gfx.sprite)
@@ -137,10 +144,13 @@ function title:init(...)
         end
     end
     function selector:change_sel(dir)
+        vars.selector_moving = true
         if vars.last_menu_item == vars.current_menu_item then
+            selector_anim = vars.selector_anim_locked
+            selector_anim:reset()
+            pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
             return
         end
-        vars.selector_moving = true
         if dir then
             selector_anim = vars.selector_anim_out_left
             selector_anim:reset()
@@ -182,10 +192,16 @@ function title:init(...)
     function ui:init()
         ui.super.init(self)
         self:setImage(assets.img_new_warn)
-        self:moveTo(200, 120)
+        self:moveTo(200, 400)
         self:setZIndex(99)
     end
     function ui:update()
+        if vars.ui_anim_in:ended() == false then
+            self:moveTo(200, vars.ui_anim_in:currentValue())
+        end
+        if vars.ui_anim_out:ended() == false then
+            self:moveTo(200, vars.ui_anim_out:currentValue())
+        end
     end
 
     self.wave = wave()
@@ -209,6 +225,7 @@ function title:instastart()
     self.checker:add()
     self.selector:add()
     self.startscreen:remove()
+    self.wave:moveTo(0, -12)
 end
 
 function title:start()
@@ -226,7 +243,9 @@ function title:start()
     end)
     pd.timer.performAfterDelay(1750, function()
         self.startscreen:remove()
+        vars.isstarting = false
         vars.menu_scrollable = true
+        self.wave:moveTo(0, -12)
     end)
 end
 
@@ -241,8 +260,11 @@ function title:update()
             scenemanager:transitionsceneoneway(opening)
         end
         if pd.buttonJustPressed('b') then
-            self.ui:remove()
-            vars.menu_scrollable = true
+            vars.ui_anim_out:reset()
+            pd.timer.performAfterDelay(100, function()
+                self.ui:remove()
+                vars.menu_scrollable = true
+            end)
             vars.new_warn_open = false
         end
     end
@@ -268,6 +290,7 @@ function title:update()
             if vars.current_name == 'new' then
                 if save.as then
                     self.ui:add()
+                    vars.ui_anim_in:reset()
                     vars.new_warn_open = true
                     vars.menu_scrollable = false
                 else
@@ -276,7 +299,10 @@ function title:update()
             end
             if vars.current_name == 'time_trials' then
                 if save.mt < 1 then
-                    return
+                    vars.selector_moving = true
+                    selector_anim = vars.selector_anim_locked
+                    selector_anim:reset()
+                    pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
                 else
                     scenemanager:transitionscene(garage)
                 end

@@ -16,6 +16,7 @@ show_crank = false
 import 'scenemanager'
 import 'cutscene'
 import 'title'
+import 'race'
 scenemanager = scenemanager()
 
 save = {}
@@ -57,7 +58,7 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(title)
+scenemanager:switchscene(race)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

@@ -32,15 +32,22 @@ function race:init(...)
         img_boat_swan = gfx.imagetable.new('images/race/boats/5r'),
         img_boat_gold = gfx.imagetable.new('images/race/boats/6r'),
         img_boat_hover = gfx.imagetable.new('images/race/boats/7r'),
-        img_meter = gfx.image.new('images/race/meter'),
-        img_meter_mask = gfx.image.new('images/race/meter_mask'),
+        img_timer = gfx.image.new('images/race/timer'),
+        img_timer_tt = gfx.image.new('images/race/timer_tt'),
+        img_timer_1 = gfx.image.new('images/race/timer_1'),
+        img_timer_2 = gfx.image.new('images/race/timer_2'),
+        img_timer_3 = gfx.image.new('images/race/timer_3'),
         img_item = gfx.image.new('images/race/item'),
         img_item_active = gfx.image.new('images/race/item_active'),
         img_item_used = gfx.image.new('images/race/item_used'),
-        img_test = gfx.image.new('images/race/test')
+        img_test = gfx.image.new('images/race/test'),
+        img_wake = gfx.image.new('images/race/wake'),
+        img_overlay_boost = gfx.imagetable.new('images/race/boost/boost')
     }
 
     vars = {
+        anim_camera = gfx.animator.new(1, 30, 30),
+        anim_overlay_boost = nil,
         boat_speed_stat = 2,
         boat_turn_stat = 2,
         boat_speed = 0,
@@ -55,12 +62,14 @@ function race:init(...)
         elapsed_time = 0,
         laps = 0
     }
-
+    
     class('track').extends(gfx.sprite)
     function track:init()
         track.super.init(self)
         self:setImage(assets.img_test)
         self:add()
+        self:setZIndex(-99)
+        self:setCenter(0, 0)
     end
     function track:update()
     end
@@ -70,6 +79,7 @@ function race:init(...)
         boat.super.init(self)
         self:setImage(assets.img_boat_wooden[1])
         self:moveTo(200, 120)
+        self:setupcol(9, 32)
         self:add()
     end
     function boat:update()
@@ -86,18 +96,30 @@ function race:init(...)
         end
 
         self:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed_stat*speedMultiplier, math.cos(vars.boat_radtation)*-vars.boat_speed_stat*speedMultiplier)
-        
     end
 
-    class('meter').extends(gfx.sprite)
-    function meter:init()
-        meter.super.init(self)
-        self:moveTo(200, 120)
+    function boat:setupcol(num, dis)
+        for n = 1, num do
+            local deg = (360 / num) * n
+            local rad = math.rad(deg)
+            local offset_x = math.sin(rad) * dis
+            local offset_y = math.cos(rad) * dis
+            local sprite = gfx.sprite.new(gfx.image.new(2, 2, gfx.kColorWhite))
+            sprite:moveTo(self.x + offset_x, self.y + offset_y)
+            sprite:add()
+        end
+    end
+
+    class('timer').extends(gfx.sprite)
+    function timer:init()
+        timer.super.init(self)
+        self:setCenter(0, 0)
+        self:moveTo(0, 5)
         self:setIgnoresDrawOffset(true)
-        self:setImage(img_meter)
+        self:setImage(assets.img_timer)
         self:add()
     end
-    function meter:update()
+    function timer:update()
     end
 
     class('item').extends(gfx.sprite)
@@ -108,11 +130,26 @@ function race:init(...)
         self:setIgnoresDrawOffset(true)
         self:setCenter(1, 0)
     end
+
+    class('overlay').extends(gfx.sprite)
+    function overlay:init()
+        overlay.super.init(self)
+        self:moveTo(200, 120)
+        self:setIgnoresDrawOffset(true)
+        self:setZIndex(99)
+        self:add()
+    end
+    function overlay:update()
+        if vars.anim_overlay then
+            self:setImage(vars.anim_overlay:image())
+        end
+    end
     
     self.track = track()
     self.boat = boat()
-    self.meter = meter()
+    self.timer = timer()
     self.item = item()
+    self.overlay = overlay()
     
     if vars.boost_available then self.item:add() end
 
@@ -129,15 +166,22 @@ function race:restart()
 end
 
 function race:update()
-    local cameraDistance = 20
-    gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(vars.boat_radtation)*-cameraDistance), 120+(-self.boat.y)+(math.cos(vars.boat_radtation)*cameraDistance))
+    vars.camera_distance = vars.anim_camera:currentValue()
+    gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(vars.boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(vars.boat_radtation)*vars.camera_distance))
     if pd.buttonJustPressed('a') then
         if vars.boost_available and vars.boost_active then
             vars.boost_active = false
             vars.boosting = true
+            vars.anim_camera = gfx.animator.new(500, 30, -30, pd.easingFunctions.outSine)
+            vars.anim_overlay = gfx.animation.loop.new(115, assets.img_overlay_boost, true)
             self.item:setImage(assets.img_item_active)
             pd.timer.performAfterDelay(75, function() self.item:setImage(assets.img_item_used) end)
-            pd.timer.performAfterDelay(2000, function() vars.boosting = false end)
+            pd.timer.performAfterDelay(1750, function() vars.anim_camera = gfx.animator.new(1000, -30, 30, pd.easingFunctions.inOutSine) end)
+            pd.timer.performAfterDelay(2000, function()
+                vars.boosting = false
+                vars.anim_overlay = nil
+                self.overlay:setImage(nil)
+            end)
         end
     end
 end

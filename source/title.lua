@@ -30,7 +30,8 @@ function title:init(...)
         img_sel_options = gfx.image.new('images/title/sel_options'),
         img_sel_locked = gfx.image.new('images/title/sel_locked'),
         img_new_warn = gfx.image.new('images/ui/new_warn'),
-        img_fade = gfx.imagetable.new('images/ui/fade/fade')
+        img_fade = gfx.imagetable.new('images/ui/fade/fade'),
+        img_arrow = gfx.image.new('images/title/arrow')
     }
 
     vars = {
@@ -50,6 +51,8 @@ function title:init(...)
         startscreen_anim = gfx.animator.new(800, 400, 120, pd.easingFunctions.outSine),
         ui_anim_in = gfx.animator.new(250, 250, 120, pd.easingFunctions.outBack),
         ui_anim_out = gfx.animator.new(100, 120, 500, pd.easingFunctions.inSine),
+        anim_arrow_l = gfx.animator.new(1, 10, 25, pd.easingFunctions.outSine),
+        anim_arrow_r = gfx.animator.new(1, 390, 375, pd.easingFunctions.outSine),
         selector_anim_out_left = gfx.animator.new(150, 200, -200, pd.easingFunctions.inSine),
         selector_anim_in_left = gfx.animator.new(150, -200, 200, pd.easingFunctions.outBack),
         selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),
@@ -128,6 +131,42 @@ function title:init(...)
         if vars.isstarting then
             self:moveTo(0, vars.bg_anim:currentValue())
         end
+    end
+
+    class('arrow_l').extends(gfx.sprite)
+    function arrow_l:init()
+        arrow_l.super.init(self)
+        self:setImage(assets.img_arrow)
+        self:setZIndex(50)
+    end
+    function arrow_l:update()
+        self:moveTo(vars.anim_arrow_l:currentValue(), 180)
+        if vars.current_menu_item == 1 then
+            self:setImage(assets.img_arrow:fadedImage(0.5, gfx.image.kDitherTypeBayer2x2))
+        else
+            self:setImage(assets.img_arrow)
+        end
+    end
+    function arrow_l:move()
+        vars.anim_arrow_l:reset(150)
+    end
+
+    class('arrow_r').extends(gfx.sprite)
+    function arrow_r:init()
+        arrow_r.super.init(self)
+        self:setImage(assets.img_arrow, gfx.kImageFlippedX)
+        self:setZIndex(50)
+    end
+    function arrow_r:update()
+        self:moveTo(vars.anim_arrow_r:currentValue(), 150)
+        if vars.current_name == "options" then
+            self:setImage(assets.img_arrow:fadedImage(0.5, gfx.image.kDitherTypeBayer2x2), gfx.kImageFlippedX)
+        else
+            self:setImage(assets.img_arrow, gfx.kImageFlippedX)
+        end
+    end
+    function arrow_r:move()
+        vars.anim_arrow_r:reset(150)
     end
 
     class('selector').extends(gfx.sprite)
@@ -230,6 +269,8 @@ function title:init(...)
     self.startscreen = startscreen()
     self.checker = checker()
     self.bg = bg()
+    self.arrow_l = arrow_l()
+    self.arrow_r = arrow_r()
     self.selector = selector()
     self.ui = ui()
     self.fade = fade()
@@ -253,6 +294,8 @@ function title:instastart()
     self.bg:add()
     self.checker:add()
     self.selector:add()
+    self.arrow_l:add()
+    self.arrow_r:add()
     self.startscreen:remove()
     self.wave:moveTo(0, -12)
 end
@@ -269,6 +312,8 @@ function title:start()
     pd.timer.performAfterDelay(1500, function()
         self.checker:add()
         self.selector:add()
+        self.arrow_l:add()
+        self.arrow_r:add()
     end)
     pd.timer.performAfterDelay(1750, function()
         self.startscreen:remove()
@@ -302,18 +347,24 @@ function title:update()
             vars.current_menu_item = math.clamp(vars.current_menu_item - 1, 1, #vars.menu_list)
             vars.current_name = vars.menu_list[vars.current_menu_item]
             self.selector:change_sel(false)
+            arrow_l:move()
         end
         if pd.buttonJustPressed('right') then
             vars.current_menu_item = math.clamp(vars.current_menu_item + 1, 1, #vars.menu_list)
             vars.current_name = vars.menu_list[vars.current_menu_item]
             self.selector:change_sel(true)
+            arrow_r:move()
         end
         if pd.buttonJustPressed('a') then
             if vars.current_name == 'continue' then
                 if save.cc == 0 then
                     scenemanager:transitionsceneoneway(opening)
                 else
-                    scenemanager:transitionsceneoneway(cutscene, save.cc, "story")
+                    if save.mt >= 1 and save.ts == false then
+                        scenemanager:transitionsceneoneway(notif, "tt", "story")
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, save.cc, "story")
+                    end
                 end
             end
             if vars.current_name == 'new' then

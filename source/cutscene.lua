@@ -12,12 +12,15 @@ class('cutscene').extends(gfx.sprite)
 
 function cutscene:init(...)
     local args = {...}
-    local play = args[1]
-    local move = args[2]
+    local play = args[1] -- 1 through 10
+    local move = args[2] -- "story" or "options"
     show_crank = false
 
     if move == "story" then
         save.cc = play
+        if save.cc > save.mc then
+            save.mc = save.cc
+        end
     end
 
     function pd.gameWillPause()
@@ -37,20 +40,65 @@ function cutscene:init(...)
         img_border_intro = gfx.imagetable.new('images/story/border_intro'),
         img_border = gfx.imagetable.new('images/story/border'),
         img_border_outro = gfx.imagetable.new('images/story/border_outro'),
-        video = gfx.video.new('images/story/scene1'),
-        audio = pd.sound.fileplayer.new('audio/story/scene1_sfx'),
     }
 
     vars = {
         lastframe = 0,
         transition = true
     }
+
+    if play == 1 then
+        assets.video = gfx.video.new('images/story/scene1')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene1_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene1_music')
+    elseif play == 2 then
+        assets.video = gfx.video.new('images/story/scene2')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene2_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene2_music')
+    elseif play == 3 then
+        assets.video = gfx.video.new('images/story/scene3')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene3_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene3_music')
+    elseif play == 4 then
+        assets.video = gfx.video.new('images/story/scene4')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene4_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene4_music')
+    elseif play == 5 then
+        assets.video = gfx.video.new('images/story/scene5')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene5_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene5_music')
+    elseif play == 6 then
+        assets.video = gfx.video.new('images/story/scene6')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene6_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene6_music')
+    elseif play == 7 then
+        assets.video = gfx.video.new('images/story/scene7')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene7_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene7_music')
+    elseif play == 8 then
+        assets.video = gfx.video.new('images/story/scene8')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene8_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene8_music')
+    elseif play == 9 then
+        assets.video = gfx.video.new('images/story/scene9')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene9_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene9_music')
+    elseif play == 10 then
+        assets.video = gfx.video.new('images/story/scene10')
+        assets.audio = pd.sound.fileplayer.new('audio/story/scene10_sfx')
+        assets.music = pd.sound.fileplayer.new('audio/story/scene10_music')
+    else
+        print('no cutscene given!! somethings gone wrong.')
+        scenemanager:switchscene(title, false)
+    end
     vars.border_anim = gfx.animation.loop.new(70, assets.img_border_intro, false)
     pd.timer.performAfterDelay(560, function()
         vars.border_anim = gfx.animation.loop.new(400, assets.img_border, true)
     end)
     
     assets.video:renderFrame(0)
+    assets.audio:setVolume(save.fx/5)
+    assets.music:setVolume(save.mu/5)
     assets.audio:play(1)
 
     assets.audio:setFinishCallback(function()

@@ -65,6 +65,8 @@ function race:init(...)
     vars = {
         anim_camera = gfx.animator.new(1, 30, 30),
         anim_overlay_boost = nil,
+        boat_start_x = 0,
+        boat_start_y = 0,
         boat_speed = 0,
         boat_turn = 0,
         boat_rotation = 0,
@@ -117,6 +119,8 @@ function race:init(...)
     if track_arg == 1 then
         assets.img_track = gfx.image.new('images/race/tracks/track_1')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_1c')
+        vars.boat_start_x = 270
+        vars.boat_start_y = 830
     elseif track_arg == 2 then
     elseif track_arg == 3 then
     elseif track_arg == 4 then
@@ -146,7 +150,7 @@ function race:init(...)
     function boat:init()
         boat.super.init(self)
         self:setZIndex(0)
-        self:moveTo(200, 120)
+        self:moveTo(vars.boat_start_x, vars.boat_start_y)
         self:add()
     end
     function boat:update()

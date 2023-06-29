@@ -5,17 +5,17 @@ class('credits').extends(gfx.sprite)
 function credits:init(...)
     credits.super.init(self)
     local args = {...}
+    local move = args[1] -- "title" or "options"
     show_crank = false
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        menu:addMenuItem("skip credits", function()
-            scenemanager:switchscene(title, false)
-        end)
-        menu:addMenuItem("back to title", function()
-            scenemanager:transitionsceneoneway(title, false)
-        end)
+        if save.cs then
+            menu:addMenuItem("skip credits", function()
+                scenemanager:transitionsceneoneway(title, false)
+            end)
+        end
     end
     
     self:add()

@@ -10,8 +10,8 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 pd.display.setRefreshRate(30)
-pd.ui.crankIndicator:start()
 show_crank = false
+launch = true
 
 import 'scenemanager'
 import 'cutscene'
@@ -74,7 +74,7 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(race)
+scenemanager:switchscene(race, 1, story, 5, false)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)
@@ -101,9 +101,9 @@ end
 
 function pd.update()
     gfx.sprite.update()
+    pd.timer.updateTimers()
     if pd.isCrankDocked() and show_crank then
         pd.ui.crankIndicator:update()
     end
-    pd.timer.updateTimers()
     pd.drawFPS(0, 0)
 end

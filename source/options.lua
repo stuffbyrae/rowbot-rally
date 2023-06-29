@@ -16,7 +16,7 @@ function options:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         menu:addMenuItem("back to title", function()
-            scenemanager:switchscene(title, true)
+            scenemanager:transitionsceneoneway(title, false)
         end)
     end
     

@@ -25,7 +25,7 @@ function results:init(...)
 
         end)
         menu:addMenuItem("back to title", function()
-            scenemanager:switchscene(title, true)
+            scenemanager:transitionsceneoneway(title, false)
         end)
     end
 

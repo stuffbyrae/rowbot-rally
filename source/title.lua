@@ -29,10 +29,12 @@ function title:init(...)
         img_sel_time_trials = gfx.image.new('images/title/sel_time_trials'),
         img_sel_options = gfx.image.new('images/title/sel_options'),
         img_sel_locked = gfx.image.new('images/title/sel_locked'),
-        img_new_warn = gfx.image.new('images/ui/new_warn')
+        img_new_warn = gfx.image.new('images/ui/new_warn'),
+        img_fade = gfx.imagetable.new('images/ui/fade/fade')
     }
 
     vars = {
+        fading = true,
         started = false,
         isstarting = false,
         menu_scrollable = false,
@@ -63,6 +65,9 @@ function title:init(...)
     vars.checker_anim_x.repeatCount = -1
     vars.checker_anim_y.repeatCount = -1
     vars.wave_anim_x.repeatCount = -1
+
+    vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
+    pd.timer.performAfterDelay(500, function() fading = false self.fade:remove() end)
 
     class('wave').extends(gfx.sprite)
     function wave:init()
@@ -204,12 +209,36 @@ function title:init(...)
         end
     end
 
+    class('fade').extends(gfx.sprite)
+    function fade:init()
+        fade.super.init(self)
+        self:setZIndex(99)
+        self:setCenter(0, 0)
+    end
+    function fade:update()
+        if vars.fading then
+            local image = gfx.image.new(400, 240)
+            gfx.pushContext(image)
+                assets.img_fade[math.floor(vars.fade_anim:currentValue())]:drawTiled(0, 0, 400, 240)
+            gfx.popContext()
+            self:setImage(image)
+        end
+    end
+
+    
     self.wave = wave()
     self.startscreen = startscreen()
     self.checker = checker()
     self.bg = bg()
     self.selector = selector()
     self.ui = ui()
+    self.fade = fade()
+    
+    if launch == false then
+        self.fade:add()
+    else
+        launch = false
+    end
 
     if do_instastart then
         self:instastart()

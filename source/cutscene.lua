@@ -29,7 +29,7 @@ function cutscene:init(...)
         menu:addMenuItem("back to title", function()
             vars.transition = false
             assets.audio:stop()
-            scenemanager:switchscene(title, true)
+            scenemanager:transitionsceneoneway(title, false)
         end)
     end
 
@@ -54,13 +54,13 @@ function cutscene:init(...)
     assets.audio:play(1)
 
     assets.audio:setFinishCallback(function()
-        vars.border_anim = gfx.animation.loop.new(70, assets.img_border_outro, false)
         if vars.transition then
+            vars.border_anim = gfx.animation.loop.new(70, assets.img_border_outro, false)
             pd.timer.performAfterDelay(560, function()
                 if move == "options" then
                     scenemanager:transitionsceneotherway(options)
                 else
-                    if play == 1 then scenemanager:switchscene(tutorial) end
+                    if play == 1 then scenemanager:switchscene(race) end
                     if play == 2 then scenemanager:switchscene(intro, 1) end
                     if play == 3 then scenemanager:switchscene(intro, 2) end
                     if play == 4 then scenemanager:switchscene(intro, 3) end

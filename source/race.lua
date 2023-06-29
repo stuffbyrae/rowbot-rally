@@ -11,6 +11,8 @@ function race:init(...)
     local track_arg = args[1]
     local mode_arg = args[2]
     local boat_arg = args[3]
+    local mirror_arg = args[4]
+    pd.ui.crankIndicator:start()
     show_crank = true
     
     function pd.gameWillPause()
@@ -22,7 +24,7 @@ function race:init(...)
         end
         if vars.race_finished == false then
             menu:addMenuItem("back to title", function()
-                scenemanager:switchscene(title, true)
+                scenemanager:transitionsceneoneway(title, false)
             end)
             menu:addCheckmarkMenuItem("show ui", save.ui, function()
                 save.ui = not save.ui
@@ -38,13 +40,6 @@ function race:init(...)
     end
     
     assets = {
-        img_boat_wooden = gfx.imagetable.new('images/race/boats/1r'),
-        img_boat_pro = gfx.imagetable.new('images/race/boats/2r'),
-        img_boat_surf = gfx.imagetable.new('images/race/boats/3r'),
-        img_boat_raft = gfx.imagetable.new('images/race/boats/4r'),
-        img_boat_swan = gfx.imagetable.new('images/race/boats/5r'),
-        img_boat_gold = gfx.imagetable.new('images/race/boats/6r'),
-        img_boat_hover = gfx.imagetable.new('images/race/boats/7r'),
         img_timer = gfx.image.new('images/race/timer'),
         img_timer_tt = gfx.image.new('images/race/timer_tt'),
         img_timer_1 = gfx.image.new('images/race/timer_1'),
@@ -60,9 +55,9 @@ function race:init(...)
         img_react_crash = gfx.image.new('images/race/react_crash'),
         img_meter = gfx.image.new('images/race/meter'),
         img_meter_mask = gfx.image.new('images/race/meter_mask'),
-        img_test = gfx.image.new('images/race/test'),
         img_wake = gfx.image.new('images/race/wake'),
         img_overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
+        img_water = gfx.image.new('images/race/tracks/water'),
         times_new_rally = gfx.font.new('fonts/times_new_rally')
     }
     gfx.setFont(assets.times_new_rally)
@@ -70,8 +65,6 @@ function race:init(...)
     vars = {
         anim_camera = gfx.animator.new(1, 30, 30),
         anim_overlay_boost = nil,
-        boat_speed_stat = 2,
-        boat_turn_stat = 2,
         boat_speed = 0,
         boat_turn = 0,
         boat_rotation = 0,
@@ -85,24 +78,74 @@ function race:init(...)
         reacting = false,
         anim_react = nil
     }
+    
+    if boat_arg == 1 then
+        assets.img_boat = gfx.imagetable.new('images/race/boats/1r')
+        vars.boat_speed_stat = 2
+        vars.boat_turn_stat = 2
+    elseif boat_arg == 2 then
+        assets.img_boat = gfx.imagetable.new('images/race/boats/2r')
+        vars.boat_speed_stat = 2
+        vars.boat_turn_stat = 3
+    elseif boat_arg == 3 then
+        assets.img_boat = gfx.imagetable.new('images/race/boats/3r')
+        vars.boat_speed_stat = 2.5
+        vars.boat_turn_stat = 2
+    elseif boat_arg == 4 then
+        assets.img_boat = gfx.imagetable.new('images/race/boats/4r')
+        vars.boat_speed_stat = 1.5
+        vars.boat_turn_stat = 4
+    elseif boat_arg == 5 then
+        assets.img_boat = gfx.imagetable.new('images/race/boats/5r')
+        vars.boat_speed_stat = 2.5
+        vars.boat_turn_stat = 3
+    elseif boat_arg == 6 then
+        assets.img_boat = gfx.imagetable.new('images/race/boats/6r')
+        vars.boat_speed_stat = 2
+        vars.boat_turn_stat = 4
+    elseif boat_arg == 7 then
+        assets.img_boat = gfx.imagetable.new('images/race/boats/7r')
+        vars.boat_speed_stat = 3
+        vars.boat_turn_stat = 2
+    else
+        print("hey, we didn't get told which boat to use. something is CATASTROPHIC!! use the wooden one to save face, but figure out what the hell's going wrong pronto")
+        assets.img_boat = gfx.imagetable.new('images/race/boats/1r')
+        vars.boat_speed_stat = 2
+        vars.boat_turn_stat = 2
+    end
+
+    if track_arg == 1 then
+        assets.img_track = gfx.image.new('images/race/tracks/track_1')
+        assets.img_track_c = gfx.image.new('images/race/tracks/track_1c')
+    elseif track_arg == 2 then
+    elseif track_arg == 3 then
+    elseif track_arg == 4 then
+    elseif track_arg == 5 then
+    elseif track_arg == 6 then
+    elseif track_arg == 7 then
+    else
+    end
+    
     vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
     vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
+
+    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
+        assets.img_water:draw(0, 0)
+    end)
     
-    class('track').extends(gfx.sprite)
-    function track:init()
-        track.super.init(self)
-        self:setImage(assets.img_test)
+    class('trackc').extends(gfx.sprite)
+    function trackc:init()
+        trackc.super.init(self)
+        self:setImage(assets.img_track_c)
         self:add()
         self:setZIndex(-99)
         self:setCenter(0, 0)
-    end
-    function track:update()
     end
 
     class('boat').extends(gfx.sprite)
     function boat:init()
         boat.super.init(self)
-        self:setImage(assets.img_boat_wooden[1])
+        self:setZIndex(0)
         self:moveTo(200, 120)
         self:add()
     end
@@ -110,14 +153,23 @@ function race:init(...)
         change = pd.getCrankChange()/2
         if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
         if vars.boat_turn < 0 then vars.boat_turn = 0 end
-        vars.boat_rotation += vars.boat_turn -= vars.anim_boat_turn:currentValue()*3
+        vars.boat_rotation += vars.boat_turn*vars.boat_turn_stat*0.56 -= vars.anim_boat_turn:currentValue()*3
         vars.boat_radtation = math.rad(vars.boat_rotation%360)
-        self:setImage(assets.img_boat_wooden[math.floor((vars.boat_rotation%360) / 6)+1])
+        self:setImage(assets.img_boat[math.floor((vars.boat_rotation%360) / 6)+1])
         if vars.boosting then
-            self:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed*5, math.cos(vars.boat_radtation)*-vars.boat_speed*5)
+            self:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed*4.5, math.cos(vars.boat_radtation)*-vars.boat_speed*4.5)
         else
-            self:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed*2, math.cos(vars.boat_radtation)*-vars.boat_speed*2)
+            self:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed*2.5, math.cos(vars.boat_radtation)*-vars.boat_speed*2.5)
         end
+    end
+
+    class('track').extends(gfx.sprite)
+    function track:init()
+        track.super.init(self)
+        self:setImage(assets.img_track)
+        self:add()
+        self:setZIndex(1)
+        self:setCenter(0, 0)
     end
 
     class('timer').extends(gfx.sprite)
@@ -209,8 +261,8 @@ function race:init(...)
         local img = gfx.image.new(195, 38)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
+            gfx.fillRect(195, 0, -vars.boat_turn*7, 38)
             gfx.fillRect(0, 0, vars.boat_speed_stat*20, 38)
-            gfx.fillRect(195, 0, -vars.boat_speed*20, 38)
             img:setMaskImage(assets.img_meter_mask)
             assets.img_meter:draw(0, 0)
         gfx.popContext()
@@ -231,8 +283,9 @@ function race:init(...)
         end
     end
     
-    self.track = track()
+    self.trackc = trackc()
     self.boat = boat()
+    self.track = track()
     self.timer = timer()
     self.item = item()
     self.react = react()

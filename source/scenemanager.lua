@@ -9,7 +9,6 @@ img_loading_oneway = gfx.image.new('images/ui/loading_oneway')
 function scenemanager:init()
     self.transitiontime = 1000
     self.offsettime = 1000
-    self.blasttime = 250
     self.transitioning = false
 end
 
@@ -27,10 +26,10 @@ function scenemanager:transitionscene(scene, ...)
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
-    local transitiontimer = self:transition(750, 250, 0, -20)
+    local transitiontimer = self:transition(750, 250, 0, -10)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
-        transitiontimer = self:transition(250, -350, 20, 0)
+        transitiontimer = self:transition(250, -350, 10, 0)
         transitiontimer.timerEndedCallback = function()
             self.transitioning = false
         end
@@ -44,7 +43,7 @@ function scenemanager:transitionsceneoneway(scene, ...)
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
-    local transitiontimer = self:transitiononeway(441, -41, 0, -20)
+    local transitiontimer = self:transitiononeway(441, -41, 0, -10)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
         self.transitioning = false
@@ -59,7 +58,7 @@ function scenemanager:transitionsceneotherway(scene, ...)
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
-    local transitiontimer = self:transitionotherway(0, -441, 20, 0)
+    local transitiontimer = self:transitionotherway(0, -441, 10, 0)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
         self.transitioning = false

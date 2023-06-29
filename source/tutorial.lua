@@ -13,7 +13,7 @@ function tutorial:init()
             scenemanager:switchscene(title, false)
         end)
         menu:addMenuItem("back to title", function()
-            scenemanager:switchscene(title, true)
+            scenemanager:transitionsceneoneway(title, false)
         end)
     end
     

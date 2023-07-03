@@ -32,7 +32,11 @@ function options:init(...)
         img_button_blanky = gfx.image.new('images/ui/button_blanky'),
         kapel = gfx.font.new('fonts/kapel_doubleup'),
         pedallica = gfx.font.new('fonts/pedallica'),
+        music = pd.sound.fileplayer.new('audio/music/options')
     }
+    assets.music:setLoopRange(2.672)
+    assets.music:setVolume(save.mu/5)
+    assets.music:play(0)
     
     gfx.setFont(assets.pedallica)
     assets.text_img = gfx.imageWithText('Adjust the volume of music throughout the game - this applies to gameplay and cutscenes.', 200, 75)
@@ -50,6 +54,7 @@ function options:init(...)
         menu_list = {'music', 'sfx', 'replay_tutorial', 'replay_cutscene', 'replay_credits', 'ui', 'reset'},
         current_menu_item = 1
     }
+    print(vars.menu_scrollable)
 
     vars.current_name = vars.menu_list[vars.current_menu_item]
     
@@ -217,7 +222,7 @@ function options:change_sel()
     if vars.current_name == 'ui' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 146, pd.easingFunctions.outBack)
         vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 97, pd.easingFunctions.outBack)
-        assets.text_img = gfx.imageWithText('Show or hide the detailed UI during races, such as the Row Power meter and reaction images.', 200, 75)
+        assets.text_img = gfx.imageWithText('Show or hide the detailed UI during races. You can also change this setting during races, in the Slide menu.', 200, 75)
     end
     if vars.current_name == 'reset' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 201, pd.easingFunctions.outBack)
@@ -231,7 +236,7 @@ function options:update()
     if vars.menu_scrollable then
         if pd.buttonJustPressed('b') then
             vars.menu_scrollable = false
-            scenemanager:transitionscene(title, true)
+            scenemanager:transitionsceneoneway(title, false)
         end
         if pd.buttonJustPressed('up') then
             vars.current_menu_item = math.clamp(vars.current_menu_item - 1, 1, #vars.menu_list)
@@ -247,6 +252,7 @@ function options:update()
             if vars.current_name == 'music' then
                 if save.mu > 0 then
                     save.mu -= 1
+                    assets.music:setVolume(save.mu/5)
                     self.volume:setImage(assets.img_music_slider[save.mu+1])
                 end
             end
@@ -261,6 +267,7 @@ function options:update()
             if vars.current_name == 'music' then
                 if save.mu < 5 then
                     save.mu += 1
+                    assets.music:setVolume(save.mu/5)
                     self.volume:setImage(assets.img_music_slider[save.mu+1])
                 end
             end

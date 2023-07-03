@@ -100,6 +100,7 @@ function cutscene:init(...)
     assets.audio:setVolume(save.fx/5)
     assets.music:setVolume(save.mu/5)
     assets.audio:play(1)
+    assets.music:play(1)
 
     assets.audio:setFinishCallback(function()
         if vars.transition then

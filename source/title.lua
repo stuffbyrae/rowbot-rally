@@ -31,8 +31,24 @@ function title:init(...)
         img_sel_locked = gfx.image.new('images/title/sel_locked'),
         img_new_warn = gfx.image.new('images/ui/new_warn'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
-        img_arrow = gfx.image.new('images/title/arrow')
+        img_arrow = gfx.image.new('images/title/arrow'),
+        music = pd.sound.fileplayer.new('audio/music/title'),
+        sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
+        sfx_locked = pd.sound.sampleplayer.new('audio/sfx/locked'),
+        sfx_ui = pd.sound.sampleplayer.new('audio/sfx/ui'),
+        sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
+        sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
+        sfx_start = pd.sound.sampleplayer.new('audio/sfx/start')
     }
+    assets.music:setVolume(save.mu/5)
+    assets.sfx_bonk:setVolume(save.fx/5)
+    assets.sfx_locked:setVolume(save.fx/5)
+    assets.sfx_ui:setVolume(save.fx/5)
+    assets.sfx_proceed:setVolume(save.fx/5)
+    assets.sfx_whoosh:setVolume(save.fx/5)
+    assets.sfx_start:setVolume(save.fx/5)
+    assets.music:setLoopRange(1.1)
+    assets.music:play(0)
 
     vars = {
         fading = true,
@@ -192,9 +208,11 @@ function title:init(...)
         if vars.last_menu_item == vars.current_menu_item then
             selector_anim = vars.selector_anim_locked
             selector_anim:reset()
+            assets.sfx_bonk:play()
             pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
             return
         end
+        assets.sfx_whoosh:play()
         if dir then
             selector_anim = vars.selector_anim_out_left
             selector_anim:reset()
@@ -301,6 +319,7 @@ function title:instastart()
 end
 
 function title:start()
+    assets.sfx_start:play()
     vars.started = true
     vars.isstarting = true
     vars.wave_anim_y = gfx.animator.new(800, 185, -12, pd.easingFunctions.inBack)
@@ -332,9 +351,11 @@ function title:update()
     if vars.new_warn_open == true then
         if pd.buttonJustPressed('a') then
             scenemanager:transitionsceneoneway(opening)
+            assets.sfx_proceed:play()
         end
         if pd.buttonJustPressed('b') then
             vars.ui_anim_out:reset()
+            assets.sfx_whoosh:play()
             pd.timer.performAfterDelay(100, function()
                 self.ui:remove()
                 vars.menu_scrollable = true
@@ -357,6 +378,7 @@ function title:update()
         end
         if pd.buttonJustPressed('a') then
             if vars.current_name == 'continue' then
+                assets.sfx_proceed:play()
                 if save.cc == 0 then
                     scenemanager:transitionsceneoneway(opening)
                 else
@@ -370,11 +392,13 @@ function title:update()
             if vars.current_name == 'new' then
                 if save.as then
                     self.ui:add()
+                    assets.sfx_ui:play()
                     vars.ui_anim_in:reset()
                     vars.new_warn_open = true
                     vars.menu_scrollable = false
                 else
                     scenemanager:transitionsceneoneway(opening)
+                    assets.sfx_proceed:play()
                 end
             end
             if vars.current_name == 'time_trials' then
@@ -382,13 +406,16 @@ function title:update()
                     vars.selector_moving = true
                     selector_anim = vars.selector_anim_locked
                     selector_anim:reset()
+                    assets.sfx_locked:play()
                     pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
                 else
                     scenemanager:transitionscene(garage)
+                    assets.sfx_proceed:play()
                 end
             end
             if vars.current_name == 'options' then
                 scenemanager:transitionscene(options)
+                assets.sfx_proceed:play()
             end
         end
     end

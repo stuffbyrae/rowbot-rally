@@ -57,7 +57,7 @@ function title:init(...)
         selector_anim_in_left = gfx.animator.new(150, -200, 200, pd.easingFunctions.outBack),
         selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),
         selector_anim_in_right = gfx.animator.new(150, 600, 200, pd.easingFunctions.outBack),
-        selector_anim_locked = gfx.animator.new(250, pd.geometry.polygon.new(200, 160, 180, 160, 220, 160, 190, 160, 210, 160, 195, 160, 205, 160, 198, 160, 202, 160, 199, 160, 201, 160, 200, 160))
+        selector_anim_locked = gfx.animator.new(200, pd.geometry.polygon.new(200, 160, 180, 160, 220, 160, 190, 160, 210, 160, 190, 160, 200, 160), pd.easingFunctions.linear)
     }
 
     if save.as then

@@ -42,6 +42,7 @@ if checksave == nil then
     save.cc = 0
     save.mc = 0
     save.cs = false
+    save.ss = false
     save.mu = 5
     save.fx = 5
     save.ts = false
@@ -69,6 +70,7 @@ else
     save.cc = checksave['cc'] -- Current cutscene
     save.mc = checksave['mc'] -- Max cutscene
     save.cs = checksave['cs'] -- Credits seen?
+    save.ss = checksave['ss'] -- Tutorial seen?
     save.mu = checksave['mu'] -- Music
     save.fx = checksave['fx'] -- SFX
     save.ts = checksave['ts'] -- Has the time trials notif been seen?
@@ -80,7 +82,7 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(title)
+scenemanager:switchscene(title, false)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

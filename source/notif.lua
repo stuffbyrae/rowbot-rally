@@ -85,7 +85,7 @@ end
 
 function notif:update()
     if pd.buttonJustPressed('a') then
-        vars.ui_anim_out = gfx.animator.new(100, 120, 500, pd.easingFunctions.inSine)
+        vars.ui_anim_out = gfx.animator.new(101, 120, 500, pd.easingFunctions.inSine)
         pd.timer.performAfterDelay(100, function()
             self.ui:remove()
             if move == "story" then

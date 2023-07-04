@@ -97,7 +97,7 @@ function cutscene:init(...)
     end)
     
     assets.video:renderFrame(0)
-    assets.audio:setVolume(save.fx/5)
+    assets.audio:setVolume((save.fx/5)+0.01)
     assets.music:setVolume(save.mu/5)
     assets.audio:play(1)
     assets.music:play(1)

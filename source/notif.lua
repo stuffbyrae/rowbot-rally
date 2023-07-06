@@ -72,6 +72,7 @@ function notif:init(...)
         save.cc = 0
         save.mc = 0
         save.cs = false
+        save.ss = false
         save.mu = 5
         save.fx = 5
         save.ts = false

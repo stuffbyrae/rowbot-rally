@@ -19,6 +19,8 @@ import 'title'
 import 'race'
 scenemanager = scenemanager()
 
+gfx.setBackgroundColor(gfx.kColorBlack)
+
 save = {}
 checksave = pd.datastore.read()
 if checksave == nil then
@@ -82,7 +84,35 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(title, false)
+function shakiesx()
+    if playdate.getReduceFlashing() then
+        return
+    else
+        pd.display.setOffset(0, 0)
+        pd.timer.performAfterDelay(20, function() pd.display.setOffset(4, 0) end)
+        pd.timer.performAfterDelay(60, function() pd.display.setOffset(-4, 0) end)
+        pd.timer.performAfterDelay(100, function() pd.display.setOffset(2, 0) end)
+        pd.timer.performAfterDelay(140, function() pd.display.setOffset(-2, 0) end)
+        pd.timer.performAfterDelay(160, function() pd.display.setOffset(1, 0) end)
+        pd.timer.performAfterDelay(180, function() pd.display.setOffset(0, 0) end)
+    end
+end
+
+function shakiesy()
+    if playdate.getReduceFlashing() then
+        return
+    else
+        pd.display.setOffset(0, 0)
+        pd.timer.performAfterDelay(20, function() pd.display.setOffset(0, 4) end)
+        pd.timer.performAfterDelay(60, function() pd.display.setOffset(0, -4) end)
+        pd.timer.performAfterDelay(100, function() pd.display.setOffset(0, 2) end)
+        pd.timer.performAfterDelay(140, function() pd.display.setOffset(0, -2) end)
+        pd.timer.performAfterDelay(160, function() pd.display.setOffset(0, 1) end)
+        pd.timer.performAfterDelay(180, function() pd.display.setOffset(0, 0) end)
+    end
+end
+
+scenemanager:switchscene(options, false)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

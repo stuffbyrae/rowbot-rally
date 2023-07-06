@@ -31,22 +31,24 @@ function title:init(...)
         img_sel_locked = gfx.image.new('images/title/sel_locked'),
         img_new_warn = gfx.image.new('images/ui/new_warn'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
-        img_arrow = gfx.image.new('images/title/arrow'),
+        img_arrow = gfx.image.new('images/ui/arrow'),
         music = pd.sound.fileplayer.new('audio/music/title'),
         sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
         sfx_locked = pd.sound.sampleplayer.new('audio/sfx/locked'),
         sfx_ui = pd.sound.sampleplayer.new('audio/sfx/ui'),
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
-        sfx_start = pd.sound.sampleplayer.new('audio/sfx/start')
+        sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
+        sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu')
     }
-    assets.music:setVolume(save.mu/5)
     assets.sfx_bonk:setVolume(save.fx/5)
     assets.sfx_locked:setVolume(save.fx/5)
     assets.sfx_ui:setVolume(save.fx/5)
     assets.sfx_proceed:setVolume(save.fx/5)
     assets.sfx_whoosh:setVolume(save.fx/5)
     assets.sfx_start:setVolume(save.fx/5)
+    assets.sfx_menu:setVolume(save.fx/5)
+    assets.music:setVolume(save.mu/5)
     assets.music:setLoopRange(1.1)
     assets.music:play(0)
 
@@ -87,6 +89,10 @@ function title:init(...)
 
     vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
     pd.timer.performAfterDelay(500, function() fading = false self.fade:remove() end)
+
+    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
+        gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
+    end)
 
     class('wave').extends(gfx.sprite)
     function wave:init()
@@ -212,7 +218,7 @@ function title:init(...)
             pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
             return
         end
-        assets.sfx_whoosh:play()
+        assets.sfx_menu:play()
         if dir then
             selector_anim = vars.selector_anim_out_left
             selector_anim:reset()

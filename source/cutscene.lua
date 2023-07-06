@@ -103,11 +103,12 @@ function cutscene:init(...)
     assets.music:play(1)
 
     assets.audio:setFinishCallback(function()
+        assets.music:stop()
         if vars.transition then
             vars.border_anim = gfx.animation.loop.new(70, assets.img_border_outro, false)
             pd.timer.performAfterDelay(560, function()
                 if move == "options" then
-                    scenemanager:transitionsceneotherway(options)
+                    scenemanager:transitionscene(options)
                 else
                     if play == 1 then scenemanager:switchscene(race) end
                     if play == 2 then scenemanager:switchscene(intro, 1) end

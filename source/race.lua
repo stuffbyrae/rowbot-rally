@@ -8,10 +8,10 @@ class('race').extends(gfx.sprite)
 function race:init(...)
     race.super.init(self)
     local args = {...}
-    local track_arg = args[1]
-    local mode_arg = args[2]
-    local boat_arg = args[3]
-    local mirror_arg = args[4]
+    local track_arg = args[1] -- 1, 2, 3, 4, 5, 6, or 7
+    local mode_arg = args[2] -- "story" or "tt"
+    local boat_arg = args[3] -- 1, 2, 3, 4, 5, 6, or 7
+    local mirror_arg = args[4] -- true or false
     pd.ui.crankIndicator:start()
     show_crank = true
     
@@ -154,7 +154,7 @@ function race:init(...)
         self:add()
     end
     function boat:update()
-        change = pd.getCrankChange()/2
+        local change = pd.getCrankChange()/2
         if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
         if vars.boat_turn < 0 then vars.boat_turn = 0 end
         vars.boat_rotation += vars.boat_turn*vars.boat_turn_stat*0.56 -= vars.anim_boat_turn:currentValue()*3

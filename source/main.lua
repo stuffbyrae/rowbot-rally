@@ -39,6 +39,7 @@ if checksave == nil then
     save.m6 = 17970
     save.m7 = 17970
     save.as = false
+    savs.sc = 0
     save.ct = 0
     save.mt = 0
     save.cc = 0
@@ -66,6 +67,7 @@ else
     save.t5 = checksave['m5'] -- Track 5 mirror time
     save.t6 = checksave['m6'] -- Track 6 mirror time
     save.t7 = checksave['m7'] -- Track 7 mirror time
+    save.sc = checksave['sc'] -- Shark Chase+ score
     save.as = checksave['as'] -- Active story?
     save.ct = checksave['ct'] -- Current track
     save.mt = checksave['mt'] -- Max track
@@ -112,7 +114,7 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(options, false)
+scenemanager:switchscene(chase)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

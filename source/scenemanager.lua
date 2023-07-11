@@ -16,6 +16,11 @@ function scenemanager:switchscene(scene, ...)
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
+    if assets ~= nil then
+        if assets.music ~= nil then
+            assets.music:stop()
+        end
+    end
     self:loadnewscene()
 end
 

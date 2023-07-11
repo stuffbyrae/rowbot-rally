@@ -1,3 +1,6 @@
+import 'cutscene'
+import 'title'
+
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
@@ -7,12 +10,26 @@ function chase:init()
     pd.ui.crankIndicator:start()
     show_crank = true
 
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        if save.mc >= 7 then
+            menu:addMenuItem("skip chase", function()
+                self:win()
+            end)
+        end
+        menu:addMenuItem("back to title", function()
+            scenemanager:transitionsceneoneway(title, false)
+        end)
+    end
+
     assets = {
+        img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         img_sky = gfx.image.new('images/chase/sky'),
         img_bg = gfx.imagetable.new('images/chase/bg'),
         img_bg_mask = gfx.image.new('images/chase/bg_mask'),
         img_water = gfx.image.new('images/chase/water'),
-        img_boat = gfx.image.new('images/chase/boat'),
+        img_boat = gfx.imagetable.new('images/chase/boat'),
         img_crash_s = gfx.image.new('images/chase/crash_s'),
         img_crash_l = gfx.image.new('images/chase/crash_l'),
         img_shark = gfx.image.new('images/chase/shark'),
@@ -34,6 +51,8 @@ function chase:init()
         sfx_rock = pd.sound.sampleplayer.new('audio/sfx/rock'),
         sfx_blips = pd.sound.sampleplayer.new('audio/sfx/blips'),
         sfx_cymbal = pd.sound.sampleplayer.new('audio/sfx/cymbal'),
+        sfx_ui = pd.sound.sampleplayer.new('audio/sfx/ui'),
+        sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
         music = pd.sound.fileplayer.new('audio/music/chase')
     }
     assets.sfx_crash:setVolume(save.fx/5)
@@ -43,11 +62,15 @@ function chase:init()
     assets.sfx_rock:setVolume(save.fx/5)
     assets.sfx_blips:setVolume(save.fx/5)
     assets.sfx_cymbal:setVolume(save.fx/5)
+    assets.sfx_ui:setVolume(save.fx/5)
+    assets.sfx_whoosh:setVolume(save.fx/5)
     assets.music:setVolume(save.mu/5)
     assets.music:setLoopRange(1.954)
     assets.music:play(0)
 
     vars = {
+        rowbot_multi = gfx.animator.new(1, 0, 0),
+        crank_touched = false,
         boat_pos = 0,
         boat_min_pos = -140,
         boat_max_pos = 140,
@@ -59,7 +82,7 @@ function chase:init()
         boat_speed_rate = 0.25,
         boat_crashed = false,
         boat_y_anim = gfx.animator.new(1500, 350, 230, pd.easingFunctions.outBack),
-        shark_y_anim = gfx.animator.new(1500, 430, 385, pd.easingFunctions.outBack, 200),
+        shark_y_anim = gfx.animator.new(1500, 430, 405, pd.easingFunctions.outBack, 200),
         shark_pos = 0,
         shark_follow_boat = false,
         rock_moving = false,
@@ -69,10 +92,11 @@ function chase:init()
         crashes = 0,
         max_crashes = 3,
         passes = 0,
-        max_passes = 100,
+        max_passes = 3,
         playing = true,
         lost_actions_open = false,
-        water_anim = gfx.animator.new(350, -131, 0)
+        water_anim = gfx.animator.new(350, -131, 0),
+        fading = true,
     }
     
     vars.warn_anim = gfx.animation.loop.new(100, assets.img_warn, true)
@@ -80,12 +104,17 @@ function chase:init()
     vars.bg_anim = gfx.animation.loop.new(15, assets.img_bg, true)
     vars.anim_overlay = gfx.animation.loop.new(115, assets.img_overlay_boost, true)
 
+    vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
+    pd.timer.performAfterDelay(500, function() fading = false self.fade:remove() end)
+
     pd.timer.performAfterDelay(vars.next_rock_time, function() self:newrock() end)
     pd.timer.performAfterDelay(1000, function()
         self.dir:add()
+        assets.sfx_ui:play()
         vars.dir_anim = gfx.animator.new(500, -30, 50, pd.easingFunctions.outBack)
         pd.timer.performAfterDelay(2000, function()
             vars.dir_anim = gfx.animator.new(500, 50, -30, pd.easingFunctions.inBack)
+            assets.sfx_whoosh:play()
             pd.timer.performAfterDelay(500, function()
                 self.dir:remove()
             end)
@@ -147,25 +176,25 @@ function chase:init()
     class('boat').extends(gfx.sprite)
     function boat:init()
         boat.super.init(self)
-        self:setImage(assets.img_boat)
+        self:setImage(assets.img_boat[1])
         self:setZIndex(5)
-        self:setCenter(0.5, 1)
+        self:setCenter(0.5, 0.75)
         self:add()
     end
     function boat:update()
-        self:moveTo(vars.boat_pos+200, vars.boat_y_anim:currentValue())
+        self:moveTo(vars.boat_pos+200, vars.boat_y_anim:currentValue()+vars.crashes*10)
         if vars.boat_crashed == false then
             if vars.playing then
                 local change = pd.getCrankChange()/2
-                if vars.boat_speed <= change then vars.boat_speed += vars.boat_speed_rate/2 end
-                if vars.boat_speed >= change then vars.boat_speed -= vars.boat_speed_rate/2 end
-                vars.boat_pos += vars.boat_speed*4 - vars.boat_speed_rate*28
-                if vars.boat_pos <= vars.boat_min_pos then assets.sfx_crash:play(1, 1.5) vars.boat_pos = vars.boat_min_pos vars.boat_speed = 3 end
-                if vars.boat_pos >= vars.boat_max_pos then assets.sfx_crash:play(1, 1.5) vars.boat_pos = vars.boat_max_pos vars.boat_speed = 0 end
-                vars.boat_rot += change - 2.2
-                if vars.boat_rot <= vars.boat_min_rot then vars.boat_rot = vars.boat_min_rot end
-                if vars.boat_rot >= vars.boat_max_rot then vars.boat_rot = vars.boat_max_rot end
-                self:setRotation(vars.boat_rot)
+                if vars.crank_touched and change >= 0 then
+                    if vars.boat_speed <= change then vars.boat_speed += vars.boat_speed_rate/2 end
+                    if vars.boat_speed >= change then vars.boat_speed -= vars.boat_speed_rate/2 end
+                    vars.boat_pos += vars.boat_speed*4 - (vars.boat_speed_rate*28)*vars.rowbot_multi:currentValue()
+                    vars.boat_rot += change - 2.2*vars.rowbot_multi:currentValue()
+                    if vars.boat_rot <= vars.boat_min_rot then vars.boat_rot = vars.boat_min_rot end
+                    if vars.boat_rot >= vars.boat_max_rot then vars.boat_rot = vars.boat_max_rot end
+                    self:setImage(assets.img_boat[math.floor((vars.boat_rot%360) / 4.5)+1])
+                end
             else
                 if vars.boat_pos+200 < 200 then
                     vars.boat_pos += 1
@@ -176,7 +205,7 @@ function chase:init()
                 end
             end
         else
-            self:setRotation(vars.boat_crash_rotate_anim:currentValue())
+            self:setImage(assets.img_boat[math.floor((vars.boat_crash_rotate_anim:currentValue()%360) /4.5)+1])
         end
         if vars.boat_scale_anim ~= nil then
             self:setScale(vars.boat_scale_anim:currentValue())
@@ -192,7 +221,7 @@ function chase:init()
         self:add()
     end
     function shark:update()
-        self:moveTo(vars.shark_pos+200, vars.shark_y_anim:currentValue())
+        self:moveTo(vars.shark_pos+200, vars.shark_y_anim:currentValue()-vars.crashes*10)
     end
 
     class('chomp').extends(gfx.sprite)
@@ -233,6 +262,24 @@ function chase:init()
             self:moveTo(200, vars.dir_anim:currentValue())
         end
     end
+
+    class('fade').extends(gfx.sprite)
+    function fade:init()
+        fade.super.init(self)
+        self:setZIndex(99)
+        self:setCenter(0, 0)
+        self:setIgnoresDrawOffset(true)
+        self:add()
+    end
+    function fade:update()
+        if vars.fading then
+            local image = gfx.image.new(400, 240)
+            gfx.pushContext(image)
+                assets.img_fade[math.floor(vars.fade_anim:currentValue())]:drawTiled(0, 0, 400, 240)
+            gfx.popContext()
+            self:setImage(image)
+        end
+    end
     
     self.bg = bg()
     self.warn = warn()
@@ -243,6 +290,7 @@ function chase:init()
     self.chomp = chomp()
     self.overlay = overlay()
     self.dir = dir()
+    self.fade = fade()
     
     self:add()
 end
@@ -250,10 +298,16 @@ end
 function chase:newrock()
     if vars.playing then
         vars.rock_setting = math.floor(math.random(1, 4))
-        vars.rock_pos = math.random(140, 260)
+        if vars.crank_touched == false then
+            vars.rock_pos = 200
+        else
+            vars.rock_pos = math.random(140, 260)
+        end
         vars.next_rock_time = math.random(vars.rock_wait_time-(vars.rock_wait_time+1), vars.rock_wait_time+vars.rock_wait_time)
-        if vars.rock_pos <= 200 then
+        if vars.rock_pos < 200 then
             vars.rock_new_pos = vars.rock_pos - vars.rock_pos * 0.30
+        elseif vars.rock_pos == 200 then
+            vars.rock_new_pos = vars.rock_pos
         else
             vars.rock_new_pos = vars.rock_pos + vars.rock_pos * 0.30
         end
@@ -300,15 +354,19 @@ function chase:crashcheck()
 end
 
 function chase:crash_effect_small(dir)
-    self:setImage(assets.img_crash_s)
+    self.crash_effect:setScale(1.5)
+    self.crash_effect:setImage(assets.img_crash_s)
     if dir then
-        self:moveTo(vars.boat_pos+220, 230)
+        self.crash_effect:moveTo(vars.boat_pos+215, 190)
     else
-        self:moveTo(vars.boat_pos+180, 230)
+        self.crash_effect:moveTo(vars.boat_pos+155, 190)
     end
-    self:add()
-    pd.timer.performAfterDelay(20, function()
-        self:remove()
+    self.crash_effect:add()
+    pd.timer.performAfterDelay(30, function()
+        self.crash_effect:setScale(1)
+    end)
+    pd.timer.performAfterDelay(60, function()
+        self.crash_effect:remove()
     end)
 end
 
@@ -316,6 +374,7 @@ function chase:crash()
     shakiesx()
     assets.sfx_crash:play()
     assets.sfx_air:play()
+    assets.music:setRate(1+vars.crashes/9)
     vars.boat_crashed = true
     self.boat:setCenter(0.5, 0.5)
     vars.boat_y_anim = gfx.animator.new(500, 185, 10, pd.easingFunctions.outSine)
@@ -334,70 +393,97 @@ function chase:crash()
     pd.timer.performAfterDelay(500, function()
         vars.boat_y_anim = gfx.animator.new(500, 10, 210, pd.easingFunctions.inSine)
     end)
-    if vars.crashes == vars.max_crashes then
+    if vars.crashes >= vars.max_crashes then
         self:lose()
     end
     pd.timer.performAfterDelay(1000, function()
         assets.sfx_splash:play()
         vars.boat_y_anim = gfx.animator.new(1500, 260, 230, pd.easingFunctions.outElastic)
-        self.boat:setCenter(0.5, 1)
+        self.boat:setCenter(0.5, 0.75)
         vars.boat_crashed = false
         vars.boat_rot = 0
     end)
 end
 
 function chase:win()
+    self.rock:remove()
+    self.warn:remove()
+    assets.sfx_rock:stop()
+    assets.sfx_air:stop()
+    assets.sfx_blips:stop()
     vars.playing = false
+    assets.music:setRate(1)
     vars.boat_scale_anim = gfx.animator.new(1200, 1, 0.2, pd.easingFunctions.inSine)
     vars.boat_y_anim = gfx.animator.new(600, 230, 90, pd.easingFunctions.inOutSine)
-    vars.shark_y_anim = gfx.animator.new(750, 385, 430, pd.easingFunctions.inBack)
+    vars.shark_y_anim = gfx.animator.new(750, 405, 430, pd.easingFunctions.inBack)
     pd.timer.performAfterDelay(600, function()
         self.boat:setZIndex(0)
         vars.boat_y_anim = gfx.animator.new(400,90, 230, pd.easingFunctions.inSine)
     end)
     pd.timer.performAfterDelay(1200, function()
         self.boat:remove()
+        vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 1)
+        self.fade:add()
+        assets.music:setVolume(0, 0, 499, function() assets.music:stop() end)
+        pd.timer.performAfterDelay(500, function()
+            scenemanager:switchscene(cutscene, 7, "story")
+        end)
     end)
 end
 
 function chase:lose()
-    vars.shark_y_anim = gfx.animator.new(1100, 385, 285, pd.easingFunctions.inOutBack)
-    vars.playing = false
-    pd.timer.performAfterDelay(900, function()
-        self.chomp:add()
-        pd.timer.performAfterDelay(20, function()
-            assets.music:stop()
-            assets.sfx_chomp:play()
-            assets.sfx_cymbal:play()
-            gfx.setDrawOffset(0, 0)
-            show_crank = false
-            vars.overlay_scale_anim = gfx.animator.new(700, 0.5, 1, pd.easingFunctions.outElastic)
-            self.chomp:setImage(assets.img_chomp_2)
-            vars.anim_overlay = gfx.animation.loop.new(100, assets.img_chomp_bubble, true)
-            shakiesy()
+    if vars.playing then
+        vars.shark_y_anim = gfx.animator.new(1100, 405, 305, pd.easingFunctions.inOutBack)
+        vars.playing = false
+        pd.timer.performAfterDelay(900, function()
+            self.chomp:add()
+            pd.timer.performAfterDelay(20, function()
+                assets.music:setRate(1)
+                assets.music:stop()
+                assets.sfx_chomp:play()
+                assets.sfx_cymbal:play()
+                gfx.setDrawOffset(0, 0)
+                show_crank = false
+                vars.overlay_scale_anim = gfx.animator.new(700, 0.5, 1, pd.easingFunctions.outElastic)
+                self.chomp:setImage(assets.img_chomp_2)
+                vars.anim_overlay = gfx.animation.loop.new(100, assets.img_chomp_bubble, true)
+                shakiesy()
+            end)
         end)
-    end)
-    pd.timer.performAfterDelay(2000, function()
-        vars.overlay_scale_anim = gfx.animator.new(350, 1, 0, pd.easingFunctions.inBack)
-        pd.timer.performAfterDelay(350, function()
-            vars.anim_overlay = nil
-            self.overlay:remove()
+        pd.timer.performAfterDelay(2000, function()
+            vars.overlay_scale_anim = gfx.animator.new(350, 1, 0, pd.easingFunctions.inBack)
+            pd.timer.performAfterDelay(350, function()
+                vars.anim_overlay = nil
+                self.overlay:remove()
+            end)
+            self.bg:remove()
+            self.boat:remove()
+            self.shark:remove()
+            self.rock:remove()
+            self.warn:remove()
+            assets.sfx_rock:stop()
+            assets.sfx_air:stop()
+            assets.sfx_blips:stop()
+            assets.sfx_crash:stop()
+            self.chomp:setImage(assets.img_chomp_3)
+            self.chomp:setIgnoresDrawOffset(false)
+            vars.lost_actions_open = true
         end)
-        self.bg:remove()
-        self.boat:remove()
-        self.shark:remove()
-        self.rock:remove()
-        self.warn:remove()
-        self.chomp:setImage(assets.img_chomp_3)
-        self.chomp:setIgnoresDrawOffset(false)
-        vars.lost_actions_open = true
-    end)
+    end
 end
 
 function chase:update()
+    local change = pd.getCrankChange()/2
+    if change > 0 and vars.crank_touched == false then
+        vars.crank_touched = true
+        vars.boat_speed = change/4
+        vars.boat_rot = change/4
+        change = nil
+        vars.rowbot_multi = gfx.animator.new(1000, 0, 1, pd.easingFunctions.inOutSine)
+    end
     if vars.lost_actions_open then
         if pd.buttonJustPressed('a') then
-            scenemanager:transitionscene(chase)
+            scenemanager:transitionsceneoneway(chase)
         end
         if pd.buttonJustPressed('b') then
             scenemanager:transitionsceneoneway(title, false)
@@ -412,4 +498,26 @@ function chase:update()
     end
     table.insert(vars.boat_pos_cache, vars.boat_pos)
     pd.timer.performAfterDelay(75, function() vars.shark_follow_boat = true end)
+    if vars.boat_pos <= vars.boat_min_pos then
+        self:crash_effect_small(false)
+        assets.sfx_crash:play(1, math.random()+1)
+        vars.crashes += 0.2
+        vars.boat_pos = vars.boat_min_pos
+        vars.boat_speed = 3
+        assets.music:setRate(1+vars.crashes/9)
+        if vars.crashes >= vars.max_crashes then
+            self:lose()
+        end
+    end
+    if vars.boat_pos >= vars.boat_max_pos then
+        self:crash_effect_small(true)
+        assets.sfx_crash:play(1, math.random()+1)
+        vars.crashes += 0.2
+        vars.boat_pos = vars.boat_max_pos
+        vars.boat_speed = 0
+        assets.music:setRate(1+vars.crashes/9)
+        if vars.crashes >= vars.max_crashes then
+            self:lose()
+        end
+    end
 end

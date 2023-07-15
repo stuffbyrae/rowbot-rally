@@ -57,6 +57,6 @@ Thanks to SquidGod for the awesome Playdate/gamedev tutorials!
 
 Thanks to Nick, Orkn and Toad for playtesting and squashing ALL THE BUGS!!!1!
 
-Thanks to Guv, Nick, Mustard, Gamma, Pizza, scratch, aperson, TheMediocritist, Fra, budpinkmin, Nino, Randomshelf, and everyone else in the Playdate Squad and elsewhere for cheering me on!
+Thanks to Guv, Nick, Mustard, Gamma, Pizza, scratch, aperson, TheMediocritist, Fra, budpikmin, Nino, Randomshelf, and everyone else in the Playdate Squad and elsewhere for cheering me on!
 
 And…you! Thanks for buying, playing, and (hopefully) enjoying my silly boating game.

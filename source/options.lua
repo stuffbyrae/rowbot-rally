@@ -607,7 +607,7 @@ function options:update()
             if pd.getReduceFlashing() then
                 return
             else
-                pd.display.setOffset(vars.reset_progress/25*vars.posneg_anim:currentValue(), vars.reset_progress/25*vars.posneg_anim:currentValue())
+                gfx.setDrawOffset(vars.reset_progress/25*vars.posneg_anim:currentValue(), vars.reset_progress/25*vars.posneg_anim:currentValue())
             end
         end
         if pd.buttonJustReleased('a') then

@@ -63,23 +63,30 @@ function race:init(...)
     gfx.setFont(assets.times_new_rally)
 
     vars = {
-        anim_camera = gfx.animator.new(1, 30, 30),
+        anim_camera = gfx.animator.new(1, 0, 0),
         anim_overlay_boost = nil,
         boat_start_x = 0,
         boat_start_y = 0,
         boat_speed = 0,
         boat_turn = 0,
         boat_rotation = 0,
-        boost_available = true,
+        boost_available = false,
         boosting = false,
         race_started = false,
         race_in_progress = false,
         race_finished = false,
         elapsed_time = 0,
-        laps = 0,
+        laps = 1,
+        check_1 = false,
+        check_2 = false,
+        check_3 = false,
         reacting = false,
         anim_react = nil
     }
+
+    if mode_arg == "tt" then
+        vars.boost_available = true
+    end
     
     if boat_arg == 1 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/1r')
@@ -110,10 +117,8 @@ function race:init(...)
         vars.boat_speed_stat = 3
         vars.boat_turn_stat = 2
     else
-        print("hey, we didn't get told which boat to use. something is CATASTROPHIC!! use the wooden one to save face, but figure out what the hell's going wrong pronto")
-        assets.img_boat = gfx.imagetable.new('images/race/boats/1r')
-        vars.boat_speed_stat = 2
-        vars.boat_turn_stat = 2
+        print("hey, there's no boat here!! figure out what the hell you missed pronto")
+        playdate.stop()
     end
 
     if track_arg == 1 then
@@ -121,17 +126,75 @@ function race:init(...)
         assets.img_track_c = gfx.image.new('images/race/tracks/track_1c')
         vars.boat_start_x = 270
         vars.boat_start_y = 830
+        vars.track_linear = false
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite(169, 677, 200, 50)
+        vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite(614, 125, 50, 200)
+        vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite(973, 457, 200, 50)
+        vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite(536, 989, 50, 200)
     elseif track_arg == 2 then
+        assets.img_track = gfx.image.new('images/race/tracks/track_2')
+        assets.img_track_c = gfx.image.new('images/race/tracks/track_2c')
+        vars.boat_start_x = 0
+        vars.boat_start_y = 0
+        vars.track_linear = false
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
     elseif track_arg == 3 then
+        assets.img_track = gfx.image.new('images/race/tracks/track_3')
+        assets.img_track_c = gfx.image.new('images/race/tracks/track_3c')
+        vars.boat_start_x = 0
+        vars.boat_start_y = 0
+        vars.track_linear = false
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
     elseif track_arg == 4 then
+        assets.img_track = gfx.image.new('images/race/tracks/track_4')
+        assets.img_track_c = gfx.image.new('images/race/tracks/track_4c')
+        vars.boat_start_x = 0
+        vars.boat_start_y = 0
+        vars.track_linear = true
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
     elseif track_arg == 5 then
+        assets.img_track = gfx.image.new('images/race/tracks/track_5')
+        assets.img_track_c = gfx.image.new('images/race/tracks/track_5c')
+        vars.boat_start_x = 0
+        vars.boat_start_y = 0
+        vars.track_linear = false
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
     elseif track_arg == 6 then
+        assets.img_track = gfx.image.new('images/race/tracks/track_6')
+        assets.img_track_c = gfx.image.new('images/race/tracks/track_6c')
+        vars.boat_start_x = 0
+        vars.boat_start_y = 0
+        vars.track_linear = true
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
     elseif track_arg == 7 then
+        assets.img_track = gfx.image.new('images/race/tracks/track_7')
+        assets.img_track_c = gfx.image.new('images/race/tracks/track_7c')
+        vars.boat_start_x = 0
+        vars.boat_start_y = 0
+        vars.track_linear = true
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
+        vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
     else
+        print("hey, there's no track here!! figure out what the hell you missed pronto")
+        playdate.stop()
     end
-    
-    vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
-    vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         assets.img_water:draw(0, 0)
@@ -150,21 +213,10 @@ function race:init(...)
     function boat:init()
         boat.super.init(self)
         self:setZIndex(0)
+        self:setImage(assets.img_boat[1])
         self:moveTo(vars.boat_start_x, vars.boat_start_y)
+        self:setCollideRect(0, 0, self:getSize())
         self:add()
-    end
-    function boat:update()
-        local change = pd.getCrankChange()/2
-        if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
-        if vars.boat_turn < 0 then vars.boat_turn = 0 end
-        vars.boat_rotation += vars.boat_turn*vars.boat_turn_stat*0.56 -= vars.anim_boat_turn:currentValue()*3
-        vars.boat_radtation = math.rad(vars.boat_rotation%360)
-        self:setImage(assets.img_boat[math.floor((vars.boat_rotation%360) / 6)+1])
-        if vars.boosting then
-            self:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed*4.5, math.cos(vars.boat_radtation)*-vars.boat_speed*4.5)
-        else
-            self:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed*2.5, math.cos(vars.boat_radtation)*-vars.boat_speed*2.5)
-        end
     end
 
     class('track').extends(gfx.sprite)
@@ -191,7 +243,15 @@ function race:init(...)
         local mils = string.format("%02.f", (vars.elapsed_time/30)*99 - mins * 5940 - secs * 99)
         local img = gfx.image.new(121, 60)
         gfx.pushContext(img)
-        assets.img_timer:draw(0, 0)
+        if vars.laps == 1 then
+            assets.img_timer_1:draw(0, 0)
+        elseif vars.laps == 2 then
+            assets.img_timer_2:draw(0, 0)
+        elseif vars.laps == 3 then
+            assets.img_timer_3:draw(0, 0)
+        else
+            assets.img_timer:draw(0, 0)
+        end
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
         gfx.drawText(mins..":"..secs.."."..mils, 44, 15)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
@@ -303,12 +363,21 @@ function race:init(...)
 end
 
 function race:start()
+    vars.race_started = true
+    vars.race_in_progress = true
+    vars.anim_camera = gfx.animator.new(1000, 0, 30)
+    vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
+    vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
 end
 
 function race:finish()
+    vars.race_in_progress = false
+    vars.race_finished = true
 end
 
 function race:restart()
+    vars.started = false
+    vars.race_in_progress = false
 end
 
 function race:boost()
@@ -328,14 +397,73 @@ function race:boost()
     end)
 end
 
+function race:checkcheck(coralx, coraly) -- 1 2 1 2
+    print('test ' .. coralx .. ' ' .. coraly .. ' ' .. vars.check_1_sprite.x .. ' ' .. vars.check_1_sprite.y)
+    if coralx == vars.line_sprite.x and coraly == vars.line_sprite.y then
+        if vars.check_1 and vars.check_2 and vars.check_3 then
+            vars.laps += 1
+            vars.check_1 = false
+            vars.check_2 = false
+            vars.check_3 = false
+            if vars.laps > 3 then
+                race:finish()
+            end
+        end
+        return
+    elseif coralx == vars.check_1_sprite.x and coraly == vars.check_1_sprite.y then
+        if vars.check_1 == false then
+            vars.check_1 = true
+            print('checkpoint 1 hit!!')
+        end
+        return
+    elseif coralx == vars.check_2_sprite.x and coraly == vars.check_2_sprite.y then
+        if vars.check_1 and vars.check_2 == false then
+            vars.check_2 = true
+            print('checkpoint 2 hit!!')
+        end
+        return
+    elseif coralx == vars.check_3_sprite.x and coraly == vars.check_3_sprite.y then
+        if vars.check_1 and vars.check_2 and vars.check_3 == false then
+            vars.check_3 = true
+            print('checkpoint 3 hit!!')
+        end
+        return
+    end
+end
+
 function race:update()
-    vars.elapsed_time += 1
-    vars.camera_distance = vars.anim_camera:currentValue()
-    vars.boat_speed = vars.anim_boat_speed:currentValue()
-    gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(vars.boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(vars.boat_radtation)*vars.camera_distance))
-    if pd.buttonJustPressed('b') then
-        if vars.boost_available then
-            self:boost()
+    local boat_radtation = math.rad(vars.boat_rotation%360)
+    if pd.buttonJustPressed('a') then
+        if vars.race_started == false then
+            self:start()
         end
     end
+    if vars.race_in_progress then
+        vars.boat_speed = vars.anim_boat_speed:currentValue()
+        vars.elapsed_time += 1
+        local change = pd.getCrankChange()/2
+        if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
+        if vars.boat_turn < 0 then vars.boat_turn = 0 end
+        vars.boat_rotation += vars.boat_turn*vars.boat_turn_stat*0.56 -= vars.anim_boat_turn:currentValue()*3
+        vars.boat_radtation = math.rad(vars.boat_rotation%360)
+        if pd.buttonJustPressed('b') then
+            if vars.boost_available then
+                self:boost()
+            end
+        end
+        self.boat:setImage(assets.img_boat[math.floor((vars.boat_rotation%360) / 6)+1])
+        local coral = self.boat:overlappingSprites()
+        if #coral > 0 then
+            for i = 1, #coral do
+                self:checkcheck(coral[i].x, coral[i].y)
+            end
+        end
+        if vars.boosting then
+            self.boat:moveBy(math.sin(boat_radtation)*vars.boat_speed*4.5, math.cos(boat_radtation)*-vars.boat_speed*4.5)
+        else
+            self.boat:moveBy(math.sin(boat_radtation)*vars.boat_speed*2.5, math.cos(boat_radtation)*-vars.boat_speed*2.5)
+        end
+    end
+    vars.camera_distance = vars.anim_camera:currentValue()
+    gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(boat_radtation)*vars.camera_distance))
 end

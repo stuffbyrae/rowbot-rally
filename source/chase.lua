@@ -89,7 +89,7 @@ function chase:init()
         crashes = 0,
         max_crashes = 3,
         passes = 0,
-        max_passes = 3,
+        max_passes = math.random(15, 25),
         playing = true,
         lost_actions_open = false,
         water_anim = gfx.animator.new(350, -131, 0),
@@ -324,8 +324,15 @@ end
 
 function chase:crashcheck()
     if vars.playing then
-        if vars.boat_pos+200 >= vars.rock_x_anim:currentValue() - vars.rock_width / 2 and vars.boat_pos+200 <= vars.rock_x_anim:currentValue() + vars.rock_width / 2 or vars.boat_pos+180 >= vars.rock_x_anim:currentValue() - vars.rock_width / 2 and vars.boat_pos+180 <= vars.rock_x_anim:currentValue() + vars.rock_width / 2 or vars.boat_pos+220 >= vars.rock_x_anim:currentValue() - vars.rock_width / 2 and vars.boat_pos+220 <= vars.rock_x_anim:currentValue() + vars.rock_width / 2 then
-            self:crash()
+        if vars.boat_pos+180 >= vars.rock_x_anim:currentValue() - vars.rock_width / 2 and vars.boat_pos+180 <= vars.rock_x_anim:currentValue() + vars.rock_width / 2 then
+            self:crash(3)
+            return
+        elseif vars.boat_pos+220 >= vars.rock_x_anim:currentValue() - vars.rock_width / 2 and vars.boat_pos+220 <= vars.rock_x_anim:currentValue() + vars.rock_width / 2 then
+            self:crash(1)
+            return
+        elseif vars.boat_pos+200 >= vars.rock_x_anim:currentValue() - vars.rock_width / 2 and vars.boat_pos+200 <= vars.rock_x_anim:currentValue() + vars.rock_width / 2 then
+            self:crash(2)
+            return
         else
             vars.passes += 1
             if vars.passes == vars.max_passes then
@@ -353,7 +360,7 @@ function chase:crash_small(dir)
     end
 end
 
-function chase:crash()
+function chase:crash(dir)
     shakiesx()
     assets.sfx_crash:play()
     assets.sfx_air:play()
@@ -361,7 +368,15 @@ function chase:crash()
     vars.boat_crashed = true
     self.boat:setCenter(0.5, 0.5)
     vars.boat_y_anim = gfx.animator.new(500, 185, 10, pd.easingFunctions.outSine)
-    vars.boat_crash_rotate_anim = gfx.animator.new(1000, 0, 720)
+    if dir == 1 then
+        vars.boat_crash_rotate_anim = gfx.animator.new(1000, 0, -380)
+    elseif dir == 2 then
+        vars.boat_crash_rotate_anim = gfx.animator.new(1000, 0, 20)
+    elseif dir == 3 then
+        vars.boat_crash_rotate_anim = gfx.animator.new(1000, 0, 380)
+    else
+        vars.boat_crash_rotate_anim = gfx.animator.new(1000, 0, 380)
+    end
     vars.crashes += 1
     self.crash_effect:moveTo(vars.boat_pos+200, 135)
     self.crash_effect:add()
@@ -473,10 +488,15 @@ function chase:update()
         if vars.boat_crashed then
             self.boat:setImage(assets.img_boat[math.floor((vars.boat_crash_rotate_anim:currentValue()%360) /4.5)+1])
         else
-            if vars.cranked and change >= 0 then
-                if vars.boat_speed <= change then vars.boat_speed += vars.boat_speed_rate/2 end
-                if vars.boat_speed >= change then vars.boat_speed -= vars.boat_speed_rate/2 end
-                vars.boat_pos += vars.boat_speed*4 - (vars.boat_speed_rate*28)*vars.rowbot_multi:currentValue()
+            if vars.cranked then
+                if change >= 0 then
+                    if vars.boat_speed <= change then vars.boat_speed += vars.boat_speed_rate/2 end
+                    if vars.boat_speed >= change then vars.boat_speed -= vars.boat_speed_rate/2 end
+                else
+                    if vars.boat_speed >= 0 then vars.boat_speed -= vars.boat_speed_rate/2 end
+                end
+                vars.boat_pos += vars.boat_speed*4
+                vars.boat_pos -= (vars.boat_speed_rate*28)*vars.rowbot_multi:currentValue()
                 vars.boat_rot += change - 2.2*vars.rowbot_multi:currentValue()
                 if vars.boat_rot <= vars.boat_min_rot then vars.boat_rot = vars.boat_min_rot end
                 if vars.boat_rot >= vars.boat_max_rot then vars.boat_rot = vars.boat_max_rot end

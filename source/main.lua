@@ -106,7 +106,7 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(chase)
+scenemanager:switchscene(race, 1, "story", 1, false)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

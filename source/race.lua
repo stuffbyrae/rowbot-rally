@@ -58,6 +58,7 @@ function race:init(...)
         img_wake = gfx.image.new('images/race/wake'),
         img_overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
         img_water = gfx.image.new('images/race/tracks/water'),
+        img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         times_new_rally = gfx.font.new('fonts/times_new_rally')
     }
     gfx.setFont(assets.times_new_rally)
@@ -343,7 +344,11 @@ function race:init(...)
     end
     function overlay:update()
         if vars.anim_overlay then
-            self:setImage(vars.anim_overlay:image())
+            if vars.race_finished then
+                self:setImage(vars.anim_overlay:image():invertedImage())
+            else
+                self:setImage(vars.anim_overlay:image())
+            end
         end
     end
     
@@ -360,12 +365,13 @@ function race:init(...)
     if save.ui then self.react:add() self.meter:add() end
 
     self:add()
+    race:start()
 end
 
 function race:start()
     vars.race_started = true
     vars.race_in_progress = true
-    vars.anim_camera = gfx.animator.new(1000, 0, 30)
+    vars.anim_camera = gfx.animator.new(1000, 0, vars.boat_speed_stat*15)
     vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
     vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
 end
@@ -373,6 +379,18 @@ end
 function race:finish()
     vars.race_in_progress = false
     vars.race_finished = true
+    vars.anim_camera = gfx.animator.new(1050, vars.boat_speed_stat*15, vars.boat_speed_stat*-15, pd.easingFunctions.outSine)
+    vars.anim_boat_speed = gfx.animator.new(1250, vars.boat_speed_stat*1.5, 0, pd.easingFunctions.inOutSine)
+    vars.anim_finish_turn = gfx.animator.new(1250, vars.boat_rotation, vars.boat_rotation+50, pd.easingFunctions.outSine)
+    self.item:remove()
+    self.react:remove()
+    self.meter:remove()
+    self.timer:remove()
+    if pd.getReduceFlashing() then
+        return
+    else
+        vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
+    end
 end
 
 function race:restart()
@@ -383,12 +401,12 @@ end
 function race:boost()
     vars.boost_available = false
     vars.boosting = true
-    vars.anim_camera = gfx.animator.new(500, 30, -30, pd.easingFunctions.outSine)
+    vars.anim_camera = gfx.animator.new(500, vars.boat_speed_stat*15, vars.boat_speed_stat*-15, pd.easingFunctions.outSine)
     vars.anim_overlay = gfx.animation.loop.new(115, assets.img_overlay_boost, true)
     self.react:change("happy")
     self.item:setImage(assets.img_item_active)
     pd.timer.performAfterDelay(75, function() self.item:setImage(assets.img_item_used) end)
-    pd.timer.performAfterDelay(1750, function() vars.anim_camera = gfx.animator.new(1000, -30, 30, pd.easingFunctions.inOutSine) end)
+    pd.timer.performAfterDelay(1750, function() vars.anim_camera = gfx.animator.new(1000, vars.boat_speed_stat*-15, vars.boat_speed_stat*15, pd.easingFunctions.inOutSine) end)
     pd.timer.performAfterDelay(2000, function()
         vars.boosting = false
         vars.anim_overlay = nil
@@ -398,34 +416,30 @@ function race:boost()
 end
 
 function race:checkcheck(coralx, coraly) -- 1 2 1 2
-    print('test ' .. coralx .. ' ' .. coraly .. ' ' .. vars.check_1_sprite.x .. ' ' .. vars.check_1_sprite.y)
     if coralx == vars.line_sprite.x and coraly == vars.line_sprite.y then
         if vars.check_1 and vars.check_2 and vars.check_3 then
             vars.laps += 1
             vars.check_1 = false
             vars.check_2 = false
             vars.check_3 = false
-            if vars.laps > 3 then
-                race:finish()
+            if vars.laps > 3 or vars.track_linear then
+                self:finish()
             end
         end
         return
     elseif coralx == vars.check_1_sprite.x and coraly == vars.check_1_sprite.y then
         if vars.check_1 == false then
             vars.check_1 = true
-            print('checkpoint 1 hit!!')
         end
         return
     elseif coralx == vars.check_2_sprite.x and coraly == vars.check_2_sprite.y then
         if vars.check_1 and vars.check_2 == false then
             vars.check_2 = true
-            print('checkpoint 2 hit!!')
         end
         return
     elseif coralx == vars.check_3_sprite.x and coraly == vars.check_3_sprite.y then
         if vars.check_1 and vars.check_2 and vars.check_3 == false then
             vars.check_3 = true
-            print('checkpoint 3 hit!!')
         end
         return
     end
@@ -433,13 +447,14 @@ end
 
 function race:update()
     local boat_radtation = math.rad(vars.boat_rotation%360)
+    vars.boat_speed = vars.anim_boat_speed:currentValue()
+    vars.camera_distance = vars.anim_camera:currentValue()
     if pd.buttonJustPressed('a') then
-        if vars.race_started == false then
-            self:start()
+        if vars.race_in_progress == true then
+            self:finish()
         end
     end
     if vars.race_in_progress then
-        vars.boat_speed = vars.anim_boat_speed:currentValue()
         vars.elapsed_time += 1
         local change = pd.getCrankChange()/2
         if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
@@ -463,7 +478,11 @@ function race:update()
         else
             self.boat:moveBy(math.sin(boat_radtation)*vars.boat_speed*2.5, math.cos(boat_radtation)*-vars.boat_speed*2.5)
         end
+        gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(boat_radtation)*vars.camera_distance))
     end
-    vars.camera_distance = vars.anim_camera:currentValue()
-    gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(boat_radtation)*vars.camera_distance))
+    if vars.race_finished then
+        self.boat:moveBy(0, -vars.boat_speed*2.5)
+        self.boat:setImage(assets.img_boat[math.floor((vars.anim_finish_turn:currentValue()%360) / 6)+1])
+        gfx.setDrawOffset(200+(-self.boat.x), 120+(-self.boat.y)+(vars.camera_distance))
+    end
 end

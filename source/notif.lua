@@ -52,33 +52,7 @@ function notif:init(...)
         save.ts = true
     elseif warn == "reset" then
         self.ui:setImage(assets.img_reset_confirmed)
-        save.t1 = 17970
-        save.t2 = 17970
-        save.t3 = 17970
-        save.t4 = 17970
-        save.t5 = 17970
-        save.t6 = 17970
-        save.t7 = 17970
-        save.m1 = 17970
-        save.m2 = 17970
-        save.m3 = 17970
-        save.m4 = 17970
-        save.m5 = 17970
-        save.m6 = 17970
-        save.m7 = 17970
-        save.as = false
-        save.ct = 0
-        save.mt = 0
-        save.cc = 0
-        save.mc = 0
-        save.cs = false
-        save.ss = false
-        save.mu = 5
-        save.fx = 5
-        save.ts = false
-        save.ms = false
-        save.ui = true
-        pd.datastore.write(save)
+        clearALLthesaves()
     end
 
     self:add()

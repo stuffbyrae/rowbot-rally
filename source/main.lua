@@ -21,9 +21,7 @@ scenemanager = scenemanager()
 
 gfx.setBackgroundColor(gfx.kColorBlack)
 
-save = {}
-checksave = pd.datastore.read()
-if checksave == nil then
+function clearALLthesaves()
     save.t1 = 17970
     save.t2 = 17970
     save.t3 = 17970
@@ -39,7 +37,7 @@ if checksave == nil then
     save.m6 = 17970
     save.m7 = 17970
     save.as = false
-    savs.sc = 0
+    save.sc = 0
     save.ct = 0
     save.mt = 0
     save.cc = 0
@@ -52,6 +50,12 @@ if checksave == nil then
     save.ms = false
     save.ui = true
     pd.datastore.write(save)
+end
+
+save = {}
+checksave = pd.datastore.read()
+if checksave == nil then
+    clearALLthesaves()
 else
     save.t1 = checksave['t1'] -- Track 1 time
     save.t2 = checksave['t2'] -- Track 2 time
@@ -60,25 +64,25 @@ else
     save.t5 = checksave['t5'] -- Track 5 time
     save.t6 = checksave['t6'] -- Track 6 time
     save.t7 = checksave['t7'] -- Track 7 time
-    save.t1 = checksave['m1'] -- Track 1 mirror time
-    save.t2 = checksave['m2'] -- Track 2 mirror time
-    save.t3 = checksave['m3'] -- Track 3 mirror time
-    save.t4 = checksave['m4'] -- Track 4 mirror time
-    save.t5 = checksave['m5'] -- Track 5 mirror time
-    save.t6 = checksave['m6'] -- Track 6 mirror time
-    save.t7 = checksave['m7'] -- Track 7 mirror time
-    save.sc = checksave['sc'] -- Shark Chase+ score
+    save.t1 = checksave['m1'] -- Track 1 mirror time - this is for the post-launch update. if you're seeing this, shh!
+    save.t2 = checksave['m2'] -- Track 2 mirror time - this is for the post-launch update. if you're seeing this, shh!
+    save.t3 = checksave['m3'] -- Track 3 mirror time - this is for the post-launch update. if you're seeing this, shh!
+    save.t4 = checksave['m4'] -- Track 4 mirror time - this is for the post-launch update. if you're seeing this, shh!
+    save.t5 = checksave['m5'] -- Track 5 mirror time - this is for the post-launch update. if you're seeing this, shh!
+    save.t6 = checksave['m6'] -- Track 6 mirror time - this is for the post-launch update. if you're seeing this, shh!
+    save.t7 = checksave['m7'] -- Track 7 mirror time - this is for the post-launch update. if you're seeing this, shh!
+    save.sc = checksave['sc'] -- Shark Chase+ score - this is for the post-launch update. if you're seeing this, shh!
     save.as = checksave['as'] -- Active story?
-    save.ct = checksave['ct'] -- Current track
-    save.mt = checksave['mt'] -- Max track
-    save.cc = checksave['cc'] -- Current cutscene
-    save.mc = checksave['mc'] -- Max cutscene
+    save.ct = checksave['ct'] -- Current story track
+    save.mt = checksave['mt'] -- Highest-seen story track
+    save.cc = checksave['cc'] -- Current story cutscene
+    save.mc = checksave['mc'] -- Highest-seen story cutscene
     save.cs = checksave['cs'] -- Credits seen?
     save.ss = checksave['ss'] -- Tutorial seen?
     save.mu = checksave['mu'] -- Music
     save.fx = checksave['fx'] -- SFX
     save.ts = checksave['ts'] -- Has the time trials notif been seen?
-    save.ms = checksave['ms'] -- Has the mirror mode notif been seen?
+    save.ms = checksave['ms'] -- Has the mirror mode notif been seen? - this is for the post-launch update. if you're seeing this, shh!
     save.ui = checksave['ui'] -- Show detailed race UI?
 end
 
@@ -93,7 +97,7 @@ function shakiesx()
         return
     else
         shakies_anim_dir = true
-        shakies_anim = gfx.animator.new(500, 15, 0, pd.easingFunctions.outElastic)
+        shakies_anim = gfx.animator.new(500, 10, 0, pd.easingFunctions.outElastic)
     end
 end
 
@@ -102,11 +106,11 @@ function shakiesy()
         return
     else
         shakies_anim_dir = false
-        shakies_anim = gfx.animator.new(500, 15, 0, pd.easingFunctions.outElastic)
+        shakies_anim = gfx.animator.new(500, 10, 0, pd.easingFunctions.outElastic)
     end
 end
 
-scenemanager:switchscene(race, 1, "story", 1, false)
+scenemanager:switchscene(garage)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

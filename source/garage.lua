@@ -21,40 +21,56 @@ function garage:init(...)
         img_bg = gfx.image.new('images/garage/bg'),
         img_button_ok = gfx.image.new('images/ui/button_ok'),
         img_button_back = gfx.image.new('images/garage/button_back'),
-        img_boat_ui_1 = gfx.image.new('images/garage/boat_ui_1'),
-        img_boat_ui_2 = gfx.image.new('images/garage/boat_ui_2'),
-        img_boat_ui_3 = gfx.image.new('images/garage/boat_ui_3'),
-        img_boat_ui_4 = gfx.image.new('images/garage/boat_ui_4'),
-        img_boat_ui_5 = gfx.image.new('images/garage/boat_ui_5'),
-        img_boat_ui_6 = gfx.image.new('images/garage/boat_ui_6'),
-        img_boat_ui_7 = gfx.image.new('images/garage/boat_ui_7'),
+        img_arrow = gfx.image.new('images/ui/arrow'),
+        img_boat_ui = gfx.image.new('images/garage/boat_ui'),
         img_boat_ui_locked = gfx.image.new('images/garage/boat_ui_locked'),
+        spd = gfx.imagetable.new('images/garage/spd'),
+        trn = gfx.imagetable.new('images/garage/trn'),
         img_classic = gfx.imagetable.new('images/garage/classic/classic'),
         img_pro = gfx.imagetable.new('images/garage/pro/pro'),
         img_surf = gfx.imagetable.new('images/garage/surf/surf'),
         img_raft = gfx.imagetable.new('images/garage/raft/raft'),
         img_swan = gfx.imagetable.new('images/garage/swan/swan'),
         img_gold = gfx.imagetable.new('images/garage/gold/gold'),
-        img_hover = gfx.imagetable.new('images/garage/hover/hover')
+        img_hover = gfx.imagetable.new('images/garage/hover/hover'),
+        sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
+        sfx_locked = pd.sound.sampleplayer.new('audio/sfx/locked'),
+        sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
+        kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
+        pedallica = gfx.font.new('fonts/pedallica')
     }
+    assets.sfx_bonk:setVolume(save.fx/5)
+    assets.sfx_locked:setVolume(save.fx/5)
+    assets.sfx_menu:setVolume(save.fx/5)
 
     vars = {
         locked = false,
         menu_list = {'classic'},
         current_menu_item = 1,
+        boat_transitioning = false
     }
-    if save.mt >= 2 then table.insert(vars.menu_list, 'pro') else table.insert(vars.menu_list, 'pro_locked') end
-    if save.mt >= 3 then table.insert(vars.menu_list, 'surf') else table.insert(vars.menu_list, 'surf_locked') end
-    if save.mt >= 4 then table.insert(vars.menu_list, 'raft') else table.insert(vars.menu_list, 'raft_locked') end
-    if save.mt >= 5 then table.insert(vars.menu_list, 'swan') else table.insert(vars.menu_list, 'swan_locked') end
-    if save.mt >= 6 then table.insert(vars.menu_list, 'gold') else table.insert(vars.menu_list, 'gold_locked') end
-    if save.mt >= 7 then table.insert(vars.menu_list, 'hover') else table.insert(vars.menu_list, 'hover_locked') end
-    vars.boat_anim = gfx.animation.loop.new(20, assets.img_classic, true)
+
+    local boats = {'pro', 'surf', 'raft', 'swan', 'gold', 'hover'}
+    for index = 1, #boats do
+        if save.mt >= index then
+            key = boats[index]
+        else
+            key = boats[index] .. '_locked'
+        end
+        table.insert(vars.menu_list, key)
+        key = nil
+    end
+    assets.img_boat = assets.img_classic
+    vars.boat_anim = gfx.animation.loop.new(40, assets.img_boat, true)
 
     class('bg').extends(gfx.sprite)
     function bg:init()
         bg.super.init(self)
-        self:setImage(assets.img_bg)
+        local img = gfx.image.new(400, 240)
+        gfx.pushContext(img)
+            assets.img_bg:drawTiled(0, 0, 400, 240)
+        gfx.popContext()
+        self:setImage(img)
         self:setCenter(0, 0)
         self:setZIndex(-5)
         self:add()
@@ -69,8 +85,36 @@ function garage:init(...)
         self:add()
     end
     function boat:update()
+        if vars.boat_transitioning then
+            self:setImage(assets.img_boat[math.floor(vars.anim_boat_transition_turn:currentValue())])
+            self:moveTo(vars.anim_boat_transition_move:currentValue(), 40)
+            if vars.locked then
+                if pd.getReduceFlashing() then
+                    local img = gfx.image.new(130, 130)
+                    gfx.pushContext(img)
+                        gfx.setColor(gfx.kColorWhite)
+                        gfx.fillRect(0, 0, 130, 130)
+                        img:setMaskImage(assets.img_boat[math.floor(vars.anim_boat_transition_turn:currentValue())])
+                    gfx.popContext()
+                    self:setImage(img:fadedImage(0.25, gfx.image.kDitherTypeDiagonalLine))
+                else
+                    self:setImage(assets.img_boat[math.floor(vars.anim_boat_transition_turn:currentValue())]:vcrPauseFilterImage():fadedImage(0.5, gfx.image.kDitherTypeDiagonalLine))
+                end
+            end
+            return
+        end
         if vars.locked then
-            self:setImage(vars.boat_anim:image():vcrPauseFilterImage():fadedImage(0.5, gfx.image.kDitherTypeDiagonalLine))
+            if pd.getReduceFlashing() then
+                local img = gfx.image.new(130, 130)
+                gfx.pushContext(img)
+                    gfx.setColor(gfx.kColorWhite)
+                    gfx.fillRect(0, 0, 130, 130)
+                    img:setMaskImage(vars.boat_anim:image())
+                gfx.popContext()
+                self:setImage(img:fadedImage(0.25, gfx.image.kDitherTypeDiagonalLine))
+            else
+                self:setImage(vars.boat_anim:image():vcrPauseFilterImage():fadedImage(0.5, gfx.image.kDitherTypeDiagonalLine))
+            end
         else
             self:setImage(vars.boat_anim:image())
         end
@@ -85,27 +129,102 @@ function garage:init(...)
         self:add()
     end
     function ui:refresh()
-        local image = gfx.image.new(373, 50)
+        local image = gfx.image.new(373, 250)
         gfx.pushContext(image)
             if vars.locked then
-                assets.img_button_ok:drawFaded(10, 0, 0.5, gfx.image.kDitherTypeDiagonalLine)
+                assets.img_button_ok:drawFaded(10, 100, 0.5, gfx.image.kDitherTypeDiagonalLine)
             else
-                assets.img_button_ok:draw(10, 0)
+                assets.img_button_ok:draw(10, 100)
             end
-            assets.img_button_back:draw(274, 27)
+            assets.img_button_back:draw(274, 127)
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            if vars.current_menu_item == 1 then
+                assets.img_arrow:draw(166, 0, gfx.kImageFlippedX)
+            elseif vars.current_menu_item == 7 then
+                assets.img_arrow:draw(0, 0)
+            else
+                assets.img_arrow:draw(0, 0)
+                assets.img_arrow:draw(166, 0, gfx.kImageFlippedX)
+            end
         gfx.popContext()
         self:setImage(image)
     end
-
+    
     class('boat_ui').extends(gfx.sprite)
     function boat_ui:init()
         boat_ui.super.init(self)
         self:moveTo(200, 80)
-        self:setImage(assets.img_boat_ui_1)
+        assets.img_boat_ui_full = gfx.image.new(400, 130)
+        gfx.pushContext(assets.img_boat_ui_full)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 0, kTextAlignment.center)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        assets.img_boat_ui:draw(213, 0)
+        assets.pedallica:drawText('A classic in the line\nof boats - perfect for\na good mid-lake\nfishing trip.', 223, 25)
+        assets.spd:drawImage(2, 223, 97)
+        assets.trn:drawImage(2, 223, 110)
+        gfx.popContext()
+        self:setImage(assets.img_boat_ui_full)
         self:setZIndex(5)
         self:add()
     end
-    function boat_ui:update()
+    function boat_ui:refresh(boatname)
+        if vars.locked then
+            self:setImage(assets.img_boat_ui_locked)
+            return
+        else
+            assets.img_boat_ui_full = gfx.image.new(400, 130)
+            gfx.pushContext(assets.img_boat_ui_full)
+                gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+                if string.find(boatname, '^classic') then
+                    assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 0, kTextAlignment.center)
+                elseif string.find(boatname, '^pro') then
+                    assets.kapel_doubleup:drawTextAligned('Pro Rower', 107, 0, kTextAlignment.center)
+                elseif string.find(boatname, '^surf') then
+                    assets.kapel_doubleup:drawTextAligned('Surfboat', 107, 0, kTextAlignment.center)
+                elseif string.find(boatname, '^raft') then
+                    assets.kapel_doubleup:drawTextAligned('Log Rafter', 107, 0, kTextAlignment.center)
+                elseif string.find(boatname, '^swan') then
+                    assets.kapel_doubleup:drawTextAligned('Swan Paddler', 107, 0, kTextAlignment.center)
+                elseif string.find(boatname, '^gold') then
+                    assets.kapel_doubleup:drawTextAligned('Gold Digger', 107, 0, kTextAlignment.center)
+                elseif string.find(boatname, '^hover') then
+                    assets.kapel_doubleup:drawTextAligned('Hovercraft-X', 107, 0, kTextAlignment.center)
+                end
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                assets.img_boat_ui:draw(213, 0)
+                if string.find(boatname, '^classic') then
+                    assets.pedallica:drawText('A classic in the line\nof boats - perfect for\na good mid-lake\nfishing trip.', 223, 25)
+                    assets.spd:drawImage(2, 223, 97)
+                    assets.trn:drawImage(2, 223, 110)
+                elseif string.find(boatname, '^pro') then
+                    assets.pedallica:drawText('A decked-out boat\nwith tighter turns,\nwell-suited for pro\nboat racing.', 223, 25)
+                    assets.spd:drawImage(2, 223, 97)
+                    assets.trn:drawImage(3, 223, 110)
+                elseif string.find(boatname, '^surf') then
+                    assets.pedallica:drawText('Hang ten in this\nwave-surfing vessel\nthat\'s definitely not\njust a surfboard.', 223, 25)
+                    assets.spd:drawImage(3, 223, 97)
+                    assets.trn:drawImage(2, 223, 110)
+                elseif string.find(boatname, '^raft') then
+                    assets.pedallica:drawText('Keeps you alive, and\ndoes it well - good\nfor maneuvering\ntight corners.', 223, 25)
+                    assets.spd:drawImage(1, 223, 97)
+                    assets.trn:drawImage(4, 223, 110)
+                elseif string.find(boatname, '^swan') then
+                    assets.pedallica:drawText('A double-pedal boat\nthat\'s almost as\nmajestic as a real\nswan. ...Almost.', 223, 25)
+                    assets.spd:drawImage(3, 223, 97)
+                    assets.trn:drawImage(3, 223, 110)
+                elseif string.find(boatname, '^gold') then
+                    assets.pedallica:drawText('An old minecart,\nturned rowing\nhotrod. Slow, but\npulls wonderful turns.', 223, 25)
+                    assets.spd:drawImage(2, 223, 97)
+                    assets.trn:drawImage(4, 223, 110)
+                elseif string.find(boatname, '^hover') then
+                    assets.pedallica:drawText('Why row on top of\nthe water, when you \ncould just drift\nabove it instead?', 223, 25)
+                    assets.spd:drawImage(4, 223, 97)
+                    assets.trn:drawImage(1, 223, 110)
+                end
+            gfx.popContext()
+            self:setImage(assets.img_boat_ui_full)
+        end
     end
 
     self.bg = bg()
@@ -116,93 +235,94 @@ function garage:init(...)
     self:add()
 end
 
-function garage:changeboat(boatname)
-    if string.find(boatname, "locked") then
-        vars.locked = true
-        self.boat_ui:setImage(assets.img_boat_ui_locked)
-        self.ui:refresh()
-        if boatname == 'classic_locked' then
-            vars.boat_anim:setImageTable(assets.img_classic)
-            return
-        elseif boatname == 'pro_locked' then
-            vars.boat_anim:setImageTable(assets.img_pro)
-            return
-        elseif boatname == 'surf_locked' then
-            vars.boat_anim:setImageTable(assets.img_surf)
-            return
-        elseif boatname == 'raft_locked' then
-            vars.boat_anim:setImageTable(assets.img_raft)
-            return
-        elseif boatname == 'swan_locked' then
-            vars.boat_anim:setImageTable(assets.img_swan)
-            return
-        elseif boatname == 'gold_locked' then
-            vars.boat_anim:setImageTable(assets.img_gold)
-            return
-        elseif boatname == 'hover_locked' then
-            vars.boat_anim:setImageTable(assets.img_hover)
-            return
-        end
+function garage:changeboat(boatname, dir)
+    vars.boat_transitioning = true
+    if dir then
+        vars.anim_boat_transition_turn = gfx.animator.new(300, vars.boat_anim.frame, 12, pd.easingFunctions.outSine)
+        vars.anim_boat_transition_move = gfx.animator.new(300, 42, 542, pd.easingFunctions.inBack, 100)
     else
-        vars.locked = false
-        self.ui:refresh()
-        if boatname == 'classic' then
-            vars.boat_anim:setImageTable(assets.img_classic)
-            self.boat_ui:setImage(assets.img_boat_ui_1)
-            return
-        elseif boatname == 'pro' then
-            vars.boat_anim:setImageTable(assets.img_pro)
-            self.boat_ui:setImage(assets.img_boat_ui_2)
-            return
-        elseif boatname == 'surf' then
-            vars.boat_anim:setImageTable(assets.img_surf)
-            self.boat_ui:setImage(assets.img_boat_ui_3)
-            return
-        elseif boatname == 'raft' then
-            vars.boat_anim:setImageTable(assets.img_raft)
-            self.boat_ui:setImage(assets.img_boat_ui_4)
-            return
-        elseif boatname == 'swan' then
-            vars.boat_anim:setImageTable(assets.img_swan)
-            self.boat_ui:setImage(assets.img_boat_ui_5)
-            return
-        elseif boatname == 'gold' then
-            vars.boat_anim:setImageTable(assets.img_gold)
-            self.boat_ui:setImage(assets.img_boat_ui_6)
-            return
-        elseif boatname == 'hover' then
-            vars.boat_anim:setImageTable(assets.img_hover)
-            self.boat_ui:setImage(assets.img_boat_ui_7)
-            return
-        end
+        vars.anim_boat_transition_turn = gfx.animator.new(300, vars.boat_anim.frame, 26, pd.easingFunctions.outSine)
+        vars.anim_boat_transition_move = gfx.animator.new(300, 42, -142, pd.easingFunctions.inBack, 100)
     end
+    pd.timer.performAfterDelay(400, function()
+        if string.find(boatname, 'locked') then
+            vars.locked = true
+        else
+            vars.locked = false
+        end
+        if dir then
+            vars.anim_boat_transition_turn = gfx.animator.new(200, 26, 30)
+            vars.anim_boat_transition_move = gfx.animator.new(200, -142, 42, pd.easingFunctions.outSine)
+        else
+            vars.anim_boat_transition_turn = gfx.animator.new(200, 12, 30)
+            vars.anim_boat_transition_move = gfx.animator.new(200, 542, 42, pd.easingFunctions.outSine)
+        end
+        pd.timer.performAfterDelay(200, function()
+            vars.boat_transitioning = false
+            vars.boat_anim = gfx.animation.loop.new(40, assets.img_boat, true)
+        end)
+        if string.find(boatname, '^classic') then
+            assets.img_boat = assets.img_classic
+        elseif string.find(boatname, '^pro') then
+            assets.img_boat = assets.img_pro
+        elseif string.find(boatname, '^surf') then
+            assets.img_boat = assets.img_surf
+        elseif string.find(boatname, '^raft') then
+            assets.img_boat = assets.img_raft
+        elseif string.find(boatname, '^swan') then
+            assets.img_boat = assets.img_swan
+        elseif string.find(boatname, '^gold') then
+            assets.img_boat = assets.img_gold
+        elseif string.find(boatname, '^hover') then
+            assets.img_boat = assets.img_hover
+        end
+        self.ui:refresh()
+        self.boat_ui:refresh(boatname)
+    end)
 end
 
 function garage:update()
     if pd.buttonJustPressed('a') then
-        if vars.locked then
-            return
-        else
-            local boat = vars.current_menu_item
-            scenemanager:transitionscene(tracks, boat)
+        if vars.boat_transitioning == false then
+            if vars.locked then
+                assets.sfx_locked:play()
+                shakiesx()
+                return
+            else
+                local boat = vars.current_menu_item
+                scenemanager:transitionscene(tracks, boat)
+            end
         end
     end
     if pd.buttonJustPressed('b') then
-        scenemanager:transitionscene(title, true)
+        scenemanager:transitionsceneoneway(title, false)
     end
     if pd.buttonJustPressed('left') then
-        vars.current_menu_item = math.clamp(vars.current_menu_item - 1, 1, #vars.menu_list)
-        vars.current_name = vars.menu_list[vars.current_menu_item]
-        self:changeboat(vars.current_name)
+        if vars.boat_transitioning == false then
+            if vars.current_menu_item == 1 then
+                assets.sfx_bonk:play()
+                shakiesx()
+                return
+            else
+                assets.sfx_menu:play()
+                vars.current_menu_item = math.clamp(vars.current_menu_item - 1, 1, #vars.menu_list)
+                vars.current_name = vars.menu_list[vars.current_menu_item]
+                self:changeboat(vars.current_name, true)
+            end
+        end
     end
     if pd.buttonJustPressed('right') then
-        vars.current_menu_item = math.clamp(vars.current_menu_item + 1, 1, #vars.menu_list)
-        vars.current_name = vars.menu_list[vars.current_menu_item]
-        self:changeboat(vars.current_name)
-    end
-    if pd.buttonJustPressed('a') then
-        if vars.current_name == 'continue' then
-            
+        if vars.boat_transitioning == false then
+            if vars.current_menu_item == 7 then
+                assets.sfx_bonk:play()
+                shakiesx()
+                return
+            else
+                assets.sfx_menu:play()
+                vars.current_menu_item = math.clamp(vars.current_menu_item + 1, 1, #vars.menu_list)
+                vars.current_name = vars.menu_list[vars.current_menu_item]
+                self:changeboat(vars.current_name, false)
+            end
         end
     end
 end

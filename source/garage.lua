@@ -22,6 +22,7 @@ function garage:init(...)
         img_button_ok = gfx.image.new('images/ui/button_ok'),
         img_button_back = gfx.image.new('images/garage/button_back'),
         img_arrow = gfx.image.new('images/ui/arrow'),
+        img_spotlight = gfx.image.new('images/garage/spotlight'),
         img_boat_ui = gfx.image.new('images/garage/boat_ui'),
         img_boat_ui_locked = gfx.image.new('images/garage/boat_ui_locked'),
         spd = gfx.imagetable.new('images/garage/spd'),
@@ -33,6 +34,7 @@ function garage:init(...)
         img_swan = gfx.imagetable.new('images/garage/swan/swan'),
         img_gold = gfx.imagetable.new('images/garage/gold/gold'),
         img_hover = gfx.imagetable.new('images/garage/hover/hover'),
+        music = pd.sound.fileplayer.new('audio/music/garage'),
         sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
         sfx_locked = pd.sound.sampleplayer.new('audio/sfx/locked'),
         sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
@@ -42,12 +44,18 @@ function garage:init(...)
     assets.sfx_bonk:setVolume(save.fx/5)
     assets.sfx_locked:setVolume(save.fx/5)
     assets.sfx_menu:setVolume(save.fx/5)
+    blastdoors_1:setVolume(save.fx/5)
+    blastdoors_2:setVolume(save.fx/5)
+    assets.music:setVolume(save.mu/5)
+    assets.music:setLoopRange(3.890)
+    assets.music:play(0)
 
     vars = {
         locked = false,
         menu_list = {'classic'},
         current_menu_item = 1,
-        boat_transitioning = false
+        boat_transitioning = false,
+        spotlight_fade_anim = gfx.animator.new(500, 0, 1, pd.easingFunctions.inElastic)
     }
 
     local boats = {'pro', 'surf', 'raft', 'swan', 'gold', 'hover'}
@@ -74,6 +82,18 @@ function garage:init(...)
         self:setCenter(0, 0)
         self:setZIndex(-5)
         self:add()
+    end
+
+    class('spotlight').extends(gfx.sprite)
+    function spotlight:init()
+        spotlight.super.init(self)
+        self:setZIndex(-4)
+        self:setCenter(0, 0)
+        self:moveTo(25, 0)
+        self:add()
+    end
+    function spotlight:update()
+        self:setImage(assets.img_spotlight:fadedImage(vars.spotlight_fade_anim:currentValue(), gfx.image.kDitherTypeBayer8x8))
     end
 
     class('boat').extends(gfx.sprite)
@@ -155,14 +175,15 @@ function garage:init(...)
         boat_ui.super.init(self)
         self:moveTo(200, 80)
         assets.img_boat_ui_full = gfx.image.new(400, 130)
-        gfx.pushContext(assets.img_boat_ui_full)
-        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 0, kTextAlignment.center)
-        gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        assets.img_boat_ui:draw(213, 0)
-        assets.pedallica:drawText('A classic in the line\nof boats - perfect for\na good mid-lake\nfishing trip.', 223, 25)
-        assets.spd:drawImage(2, 223, 97)
-        assets.trn:drawImage(2, 223, 110)
+            gfx.pushContext(assets.img_boat_ui_full)
+            assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 3, kTextAlignment.center)
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 0, kTextAlignment.center)
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+            assets.img_boat_ui:draw(213, 0)
+            assets.pedallica:drawText('A classic in the line\nof boats - perfect for\na good mid-lake\nfishing trip.', 223, 25)
+            assets.spd:drawImage(2, 223, 97)
+            assets.trn:drawImage(2, 223, 110)
         gfx.popContext()
         self:setImage(assets.img_boat_ui_full)
         self:setZIndex(5)
@@ -175,6 +196,21 @@ function garage:init(...)
         else
             assets.img_boat_ui_full = gfx.image.new(400, 130)
             gfx.pushContext(assets.img_boat_ui_full)
+                if string.find(boatname, '^classic') then
+                    assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 3, kTextAlignment.center)
+                elseif string.find(boatname, '^pro') then
+                    assets.kapel_doubleup:drawTextAligned('Pro Rower', 107, 3, kTextAlignment.center)
+                elseif string.find(boatname, '^surf') then
+                    assets.kapel_doubleup:drawTextAligned('Surfboat', 107, 3, kTextAlignment.center)
+                elseif string.find(boatname, '^raft') then
+                    assets.kapel_doubleup:drawTextAligned('Log Rafter', 107, 3, kTextAlignment.center)
+                elseif string.find(boatname, '^swan') then
+                    assets.kapel_doubleup:drawTextAligned('Swan Paddler', 107, 3, kTextAlignment.center)
+                elseif string.find(boatname, '^gold') then
+                    assets.kapel_doubleup:drawTextAligned('Gold Digger', 107, 3, kTextAlignment.center)
+                elseif string.find(boatname, '^hover') then
+                    assets.kapel_doubleup:drawTextAligned('Hovercraft-X', 107, 3, kTextAlignment.center)
+                end
                 gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
                 if string.find(boatname, '^classic') then
                     assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 0, kTextAlignment.center)
@@ -228,6 +264,7 @@ function garage:init(...)
     end
 
     self.bg = bg()
+    self.spotlight = spotlight()
     self.boat = boat()
     self.ui = ui()
     self.boat_ui = boat_ui()
@@ -246,9 +283,15 @@ function garage:changeboat(boatname, dir)
     end
     pd.timer.performAfterDelay(400, function()
         if string.find(boatname, 'locked') then
-            vars.locked = true
+            if vars.locked == false then
+                vars.locked = true
+                vars.spotlight_fade_anim = gfx.animator.new(100, 1, 0, pd.easingFunctions.outSine)
+            end
         else
-            vars.locked = false
+            if vars.locked then
+                vars.locked = false
+                vars.spotlight_fade_anim = gfx.animator.new(500, 0, 1, pd.easingFunctions.inElastic)
+            end
         end
         if dir then
             vars.anim_boat_transition_turn = gfx.animator.new(200, 26, 30)
@@ -290,7 +333,7 @@ function garage:update()
                 return
             else
                 local boat = vars.current_menu_item
-                scenemanager:transitionscene(tracks, boat)
+                scenemanager:transitionsceneblastdoors(tracks, boat)
             end
         end
     end

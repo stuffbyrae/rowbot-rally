@@ -18,6 +18,10 @@ function tracks:init(...)
             scenemanager:transitionsceneoneway(title, false)
         end)
     end
+    
+    assets = {}
+
+    vars = {}
 
     self:add()
 end

@@ -110,7 +110,7 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(garage)
+scenemanager:switchscene(title, false)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)

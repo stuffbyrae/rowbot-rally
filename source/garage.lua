@@ -52,13 +52,13 @@ function garage:init(...)
 
     vars = {
         locked = false,
-        menu_list = {'classic'},
+        menu_list = {},
         current_menu_item = 1,
         boat_transitioning = false,
         spotlight_fade_anim = gfx.animator.new(500, 0, 1, pd.easingFunctions.inElastic)
     }
 
-    local boats = {'pro', 'surf', 'raft', 'swan', 'gold', 'hover'}
+    local boats = {'classic', 'pro', 'surf', 'raft', 'swan', 'gold', 'hover'}
     for index = 1, #boats do
         if save.mt >= index then
             key = boats[index]
@@ -174,18 +174,6 @@ function garage:init(...)
     function boat_ui:init()
         boat_ui.super.init(self)
         self:moveTo(200, 80)
-        assets.img_boat_ui_full = gfx.image.new(400, 130)
-            gfx.pushContext(assets.img_boat_ui_full)
-            assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 3, kTextAlignment.center)
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 0, kTextAlignment.center)
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            assets.img_boat_ui:draw(213, 0)
-            assets.pedallica:drawText('A classic in the line\nof boats - perfect for\na good mid-lake\nfishing trip.', 223, 25)
-            assets.spd:drawImage(2, 223, 97)
-            assets.trn:drawImage(2, 223, 110)
-        gfx.popContext()
-        self:setImage(assets.img_boat_ui_full)
         self:setZIndex(5)
         self:add()
     end
@@ -196,12 +184,12 @@ function garage:init(...)
         else
             assets.img_boat_ui_full = gfx.image.new(400, 130)
             gfx.pushContext(assets.img_boat_ui_full)
-                if string.find(boatname, '^classic') then
-                    assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 3, kTextAlignment.center)
-                elseif string.find(boatname, '^pro') then
-                    assets.kapel_doubleup:drawTextAligned('Pro Rower', 107, 3, kTextAlignment.center)
-                elseif string.find(boatname, '^surf') then
-                    assets.kapel_doubleup:drawTextAligned('Surfboat', 107, 3, kTextAlignment.center)
+            if string.find(boatname, '^classic') then
+                assets.kapel_doubleup:drawTextAligned('Wooden Classic', 107, 3, kTextAlignment.center)
+            elseif string.find(boatname, '^pro') then
+                assets.kapel_doubleup:drawTextAligned('Pro Rower', 107, 3, kTextAlignment.center)
+            elseif string.find(boatname, '^surf') then
+                assets.kapel_doubleup:drawTextAligned('Surfboat', 107, 3, kTextAlignment.center)
                 elseif string.find(boatname, '^raft') then
                     assets.kapel_doubleup:drawTextAligned('Log Rafter', 107, 3, kTextAlignment.center)
                 elseif string.find(boatname, '^swan') then
@@ -262,12 +250,15 @@ function garage:init(...)
             self:setImage(assets.img_boat_ui_full)
         end
     end
-
+    
     self.bg = bg()
     self.spotlight = spotlight()
     self.boat = boat()
     self.ui = ui()
     self.boat_ui = boat_ui()
+    
+    self.ui:refresh()
+    self.boat_ui:refresh('classic')
 
     self:add()
 end

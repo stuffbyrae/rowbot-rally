@@ -5,9 +5,16 @@ class('intro').extends(gfx.sprite)
 function intro:init(...)
     intro.super.init(self)
     args = {...}
-    local track = args[1]
     show_crank = false
     
+    assets = {
+        
+    }
+    
+    vars = {
+        arg_track = args[1] -- 1 through 7
+    }
+
     self:add()
 end
 

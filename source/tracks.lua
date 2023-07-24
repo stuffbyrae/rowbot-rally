@@ -5,9 +5,8 @@ class('tracks').extends(gfx.sprite)
 function tracks:init(...)
     tracks.super.init(self)
     local args = {...}
-    local boat = args[1]
     show_crank = false
-
+    
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -19,9 +18,13 @@ function tracks:init(...)
         end)
     end
     
-    assets = {}
+    assets = {
 
-    vars = {}
+    }
+    
+    vars = {
+        arg_boat = args[1] -- 1 through 7
+    }
 
     self:add()
 end

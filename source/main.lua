@@ -14,9 +14,7 @@ show_crank = false
 launch = true
 
 import 'scenemanager'
-import 'cutscene'
 import 'title'
-import 'chase'
 scenemanager = scenemanager()
 
 gfx.setBackgroundColor(gfx.kColorBlack)

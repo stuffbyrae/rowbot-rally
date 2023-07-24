@@ -7,9 +7,8 @@ local gfx <const> = pd.graphics
 
 class('options').extends(gfx.sprite)
 
-function options:init(...)
+function options:init()
     options.super.init(self)
-    local args = {...}
     show_crank = false
 
     function pd.gameWillPause()

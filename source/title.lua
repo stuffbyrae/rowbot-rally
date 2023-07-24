@@ -10,14 +10,13 @@ class('title').extends(gfx.sprite)
 function title:init(...)
     title.super.init(self)
     local args = {...}
-    local do_instastart = args[1]
     show_crank = false
     
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
     end
-
+    
     assets = {
         img_logo = gfx.image.new('images/ui/logo'),
         img_button_start = gfx.image.new('images/ui/button_start'),
@@ -51,8 +50,9 @@ function title:init(...)
     assets.music:setVolume(save.mu/5)
     assets.music:setLoopRange(1.1)
     assets.music:play(0)
-
+    
     vars = {
+        arg_instastart = args[1],
         fading = true,
         started = false,
         isstarting = false,
@@ -305,7 +305,7 @@ function title:init(...)
         launch = false
     end
 
-    if do_instastart then
+    if vars.arg_instastart then
         self:instastart()
     end
 
@@ -388,7 +388,7 @@ function title:update()
                 if save.cc == 0 then
                     scenemanager:transitionsceneoneway(opening)
                 else
-                    if save.mt >= 1 and save.ts == false then
+                    if save.mt > 1 and save.ts == false then
                         scenemanager:transitionsceneoneway(notif, "tt", "story")
                     else
                         scenemanager:transitionsceneoneway(cutscene, save.cc, "story")
@@ -415,8 +415,7 @@ function title:update()
                     assets.sfx_locked:play()
                     pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
                 else
-                    scenemanager:transitionscene(garage)
-                    assets.sfx_proceed:play()
+                    scenemanager:transitionsceneblastdoors(garage)
                 end
             end
             if vars.current_name == 'options' then

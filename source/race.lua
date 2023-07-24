@@ -8,10 +8,6 @@ class('race').extends(gfx.sprite)
 function race:init(...)
     race.super.init(self)
     local args = {...}
-    local track_arg = args[1] -- 1, 2, 3, 4, 5, 6, or 7
-    local mode_arg = args[2] -- "story" or "tt"
-    local boat_arg = args[3] -- 1, 2, 3, 4, 5, 6, or 7
-    local mirror_arg = args[4] -- true or false
     pd.ui.crankIndicator:start()
     show_crank = true
     
@@ -62,8 +58,12 @@ function race:init(...)
         times_new_rally = gfx.font.new('fonts/times_new_rally')
     }
     gfx.setFont(assets.times_new_rally)
-
+    
     vars = {
+        arg_track = args[1], -- 1, 2, 3, 4, 5, 6, or 7
+        arg_mode = args[2], -- "story" or "tt"
+        arg_boat = args[3], -- 1, 2, 3, 4, 5, 6, or 7
+        arg_mirror = args[4], -- true or false. this is for v1.1!
         anim_camera = gfx.animator.new(1, 0, 0),
         anim_overlay_boost = nil,
         boat_start_x = 0,
@@ -85,44 +85,41 @@ function race:init(...)
         anim_react = nil
     }
 
-    if mode_arg == "tt" then
+    if vars.arg_mode == "tt" then
         vars.boost_available = true
     end
     
-    if boat_arg == 1 then
+    if vars.arg_boat == 1 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/1r')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 2
-    elseif boat_arg == 2 then
+    elseif vars.arg_boat == 2 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/2r')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 3
-    elseif boat_arg == 3 then
+    elseif vars.arg_boat == 3 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/3r')
         vars.boat_speed_stat = 2.5
         vars.boat_turn_stat = 2
-    elseif boat_arg == 4 then
+    elseif vars.arg_boat == 4 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/4r')
         vars.boat_speed_stat = 1.5
         vars.boat_turn_stat = 4
-    elseif boat_arg == 5 then
+    elseif vars.arg_boat == 5 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/5r')
         vars.boat_speed_stat = 2.5
         vars.boat_turn_stat = 3
-    elseif boat_arg == 6 then
+    elseif vars.arg_boat == 6 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/6r')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 4
-    elseif boat_arg == 7 then
+    elseif vars.arg_boat == 7 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/7r')
         vars.boat_speed_stat = 3
         vars.boat_turn_stat = 2
-    else
-        print("hey, there's no boat here!! figure out what the hell you missed pronto")
-        playdate.stop()
     end
 
-    if track_arg == 1 then
+    if vars.arg_track == 1 then
         assets.img_track = gfx.image.new('images/race/tracks/track_1')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_1c')
         vars.boat_start_x = 270
@@ -132,7 +129,7 @@ function race:init(...)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite(614, 125, 50, 200)
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite(973, 457, 200, 50)
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite(536, 989, 50, 200)
-    elseif track_arg == 2 then
+    elseif vars.arg_track == 2 then
         assets.img_track = gfx.image.new('images/race/tracks/track_2')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_2c')
         vars.boat_start_x = 0
@@ -142,7 +139,7 @@ function race:init(...)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
-    elseif track_arg == 3 then
+    elseif vars.arg_track == 3 then
         assets.img_track = gfx.image.new('images/race/tracks/track_3')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_3c')
         vars.boat_start_x = 0
@@ -152,7 +149,7 @@ function race:init(...)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
-    elseif track_arg == 4 then
+    elseif vars.arg_track == 4 then
         assets.img_track = gfx.image.new('images/race/tracks/track_4')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_4c')
         vars.boat_start_x = 0
@@ -162,7 +159,7 @@ function race:init(...)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
-    elseif track_arg == 5 then
+    elseif vars.arg_track == 5 then
         assets.img_track = gfx.image.new('images/race/tracks/track_5')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_5c')
         vars.boat_start_x = 0
@@ -172,7 +169,7 @@ function race:init(...)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
-    elseif track_arg == 6 then
+    elseif vars.arg_track == 6 then
         assets.img_track = gfx.image.new('images/race/tracks/track_6')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_6c')
         vars.boat_start_x = 0
@@ -182,7 +179,7 @@ function race:init(...)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
-    elseif track_arg == 7 then
+    elseif vars.arg_track == 7 then
         assets.img_track = gfx.image.new('images/race/tracks/track_7')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_7c')
         vars.boat_start_x = 0
@@ -192,9 +189,6 @@ function race:init(...)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite()
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite()
-    else
-        print("hey, there's no track here!! figure out what the hell you missed pronto")
-        playdate.stop()
     end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)

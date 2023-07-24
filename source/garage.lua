@@ -4,9 +4,8 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 class('garage').extends(gfx.sprite)
-function garage:init(...)
+function garage:init()
     garage.super.init(self)
-    local args = {...}
     show_crank = false
 
     function pd.gameWillPause()

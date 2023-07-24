@@ -2,9 +2,8 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 class('opening').extends(gfx.sprite)
-function opening:init(...)
+function opening:init()
     opening.super.init(self)
-    local args = {...}
     show_crank = false
 
     function pd.gameWillPause()

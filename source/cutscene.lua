@@ -108,16 +108,16 @@ function cutscene:init(...)
                 if vars.arg_move == "options" then
                     scenemanager:transitionscene(options)
                 else
-                    if play == 1 then scenemanager:switchscene(race, 1, "story", 1, false) end
-                    if play == 2 then scenemanager:switchscene(intro, 1) end
-                    if play == 3 then scenemanager:switchscene(intro, 2) end
-                    if play == 4 then scenemanager:switchscene(intro, 3) end
-                    if play == 5 then scenemanager:switchscene(intro, 4) end
-                    if play == 6 then scenemanager:switchscene(chase) end
-                    if play == 7 then scenemanager:switchscene(intro, 5) end
-                    if play == 8 then scenemanager:switchscene(intro, 6) end
-                    if play == 9 then scenemanager:switchscene(intro, 7) end
-                    if play == 10 then scenemanager:switchscene(credits) end
+                    if vars.arg_play == 1 then scenemanager:switchscene(intro, 1) end
+                    if vars.arg_play == 2 then scenemanager:switchscene(intro, 1) end
+                    if vars.arg_play == 3 then scenemanager:switchscene(intro, 2) end
+                    if vars.arg_play == 4 then scenemanager:switchscene(intro, 3) end
+                    if vars.arg_play == 5 then scenemanager:switchscene(intro, 4) end
+                    if vars.arg_play == 6 then scenemanager:switchscene(chase) end
+                    if vars.arg_play == 7 then scenemanager:switchscene(intro, 5) end
+                    if vars.arg_play == 8 then scenemanager:switchscene(intro, 6) end
+                    if vars.arg_play == 9 then scenemanager:switchscene(intro, 7) end
+                    if vars.arg_play == 10 then scenemanager:switchscene(credits) end
                 end
             end)
         end

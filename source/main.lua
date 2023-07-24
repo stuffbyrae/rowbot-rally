@@ -15,6 +15,7 @@ launch = true
 
 import 'scenemanager'
 import 'title'
+import 'intro'
 scenemanager = scenemanager()
 
 gfx.setBackgroundColor(gfx.kColorBlack)
@@ -108,7 +109,7 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(title, false)
+scenemanager:switchscene(intro, 3)
 
 function pd.gameWillTerminate()
     playdate.datastore.write(save)
@@ -120,7 +121,6 @@ function pd.update()
     if pd.isCrankDocked() and show_crank then
         pd.ui.crankIndicator:update()
     end
-    pd.drawFPS(0, 0)
     if shakies_anim ~= nil then
         if shakies_anim_dir then
             pd.display.setOffset(shakies_anim:currentValue(), 0)
@@ -128,4 +128,4 @@ function pd.update()
             pd.display.setOffset(0, shakies_anim:currentValue())
         end
     end
-end 
+end

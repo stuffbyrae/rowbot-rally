@@ -87,8 +87,8 @@ function title:init(...)
     vars.checker_anim_y.repeatCount = -1
     vars.wave_anim_x.repeatCount = -1
 
-    vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
-    pd.timer.performAfterDelay(500, function() fading = false self.fade:remove() end)
+    vars.fade_anim = gfx.animator.new(350, 1, #assets.img_fade)
+    pd.timer.performAfterDelay(350, function() fading = false self.fade:remove() end)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
@@ -282,12 +282,17 @@ function title:init(...)
         if vars.fading then
             local image = gfx.image.new(400, 240)
             gfx.pushContext(image)
-                assets.img_fade[math.floor(vars.fade_anim:currentValue())]:drawTiled(0, 0, 400, 240)
+            assets.img_fade[math.floor(vars.fade_anim:currentValue())]:drawTiled(0, 0, 400, 240)
             gfx.popContext()
             self:setImage(image)
         end
     end
-
+    
+    if launch == false then
+        self:add()
+    else
+        launch = false
+    end
     
     self.wave = wave()
     self.startscreen = startscreen()
@@ -298,12 +303,6 @@ function title:init(...)
     self.selector = selector()
     self.ui = ui()
     self.fade = fade()
-    
-    if launch == false then
-        self.fade:add()
-    else
-        launch = false
-    end
 
     if vars.arg_instastart then
         self:instastart()

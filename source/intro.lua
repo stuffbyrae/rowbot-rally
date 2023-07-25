@@ -11,7 +11,6 @@ function intro:init(...)
         img_prompt = gfx.image.new('images/intro/prompt'),
         img_prompt_icons = gfx.imagetable.new('images/intro/prompt_icons'),
         img_a = gfx.image.new('images/intro/a'),
-        img_transition = gfx.imagetable.new('images/intro/transition'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         kapel = gfx.font.new('fonts/kapel'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
@@ -54,7 +53,7 @@ function intro:init(...)
     end)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
-        assets.img_transition:drawImage(1, 0, 0)
+        gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
     end)
     
     class('bg').extends(gfx.sprite)
@@ -135,7 +134,7 @@ function intro:init(...)
             elseif vars.arg_track == 4 then
                 assets.img_prompt_icons:drawImage(4, 13, 7)
                 assets.kapel_doubleup:drawText('Maze Mayhem', 85, 9)
-                assets.pedallica:drawText('  Try to escape the turns\n of this winding maze!', 75, 32)
+                assets.pedallica:drawText('  Try to escape the turns\nof this winding maze!', 75, 32)
             elseif vars.arg_track == 5 then
                 assets.img_prompt_icons:drawImage(5, 13, 7)
                 assets.kapel_doubleup:drawText('Leap Pad', 85, 9)

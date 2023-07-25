@@ -1,5 +1,6 @@
 import 'options'
 import 'title'
+import 'intro'
 import 'tutorial'
 import 'race'
 import 'chase'

@@ -15,7 +15,6 @@ launch = true
 
 import 'scenemanager'
 import 'title'
-import 'intro'
 scenemanager = scenemanager()
 
 gfx.setBackgroundColor(gfx.kColorBlack)
@@ -109,10 +108,21 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(intro, 3)
+scenemanager:switchscene(title, false)
 
 function pd.gameWillTerminate()
-    playdate.datastore.write(save)
+    pd.datastore.write(save)
+    local img = gfx.getDisplayImage()
+    local byebye = gfx.image.new('images/ui/byebye')
+    local fade = gfx.imagetable.new('images/ui/fade/fade')
+    local imgslide = gfx.animator.new(350, 1, 400, pd.easingFunctions.outSine)
+    local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1500)
+    while not fadeout:ended() do
+        byebye:draw(0, 0)
+        img:draw(imgslide:currentValue(), 0)
+        fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
+        pd.display.flush()
+    end
 end
 
 function pd.update()

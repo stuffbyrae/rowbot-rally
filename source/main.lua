@@ -117,6 +117,7 @@ function pd.gameWillTerminate()
     local fade = gfx.imagetable.new('images/ui/fade/fade')
     local imgslide = gfx.animator.new(350, 1, 400, pd.easingFunctions.outSine)
     local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1500)
+    gfx.setDrawOffset(0, 0)
     while not fadeout:ended() do
         byebye:draw(0, 0)
         img:draw(imgslide:currentValue(), 0)

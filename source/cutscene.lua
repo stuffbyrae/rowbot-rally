@@ -15,7 +15,6 @@ function cutscene:init(...)
     local args = {...}
     show_crank = false
     
-    
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()

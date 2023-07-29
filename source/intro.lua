@@ -6,6 +6,14 @@ function intro:init(...)
     intro.super.init(self)
     args = {...}
     show_crank = false
+
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        menu:addMenuItem("back to title", function()
+            scenemanager:transitionsceneoneway(title, false)
+        end)
+    end
     
     assets = {
         img_prompt = gfx.image.new('images/intro/prompt'),

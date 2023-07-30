@@ -328,7 +328,7 @@ function garage:update()
         end
     end
     if pd.buttonJustPressed('b') then
-        scenemanager:transitionsceneoneway(title, false)
+        scenemanager:transitionsceneblastdoors(title, false)
     end
     if pd.buttonJustPressed('left') then
         if vars.boat_transitioning == false then

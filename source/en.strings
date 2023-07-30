@@ -94,6 +94,7 @@
 "stage5_num" = "Stage 5"
 "stage6_num" = "Stage 6"
 "stage7_num" = "Final Stage"
+"stagex_num" = "LOCKED STAGE"
 -- Stage names
 "stage1_name" = "Short Circuit"
 "stage2_name" = "Surf Sanctuary"
@@ -102,6 +103,7 @@
 "stage5_name" = "Roguebot Jungle"
 "stage6_name" = "Cavern Canal"
 "stage7_name" = "Robo-X Factory"
+"stagex_name" = "???"
 -- VS opponent names
 "stage1_vs" = "Model R-01"
 "stage2_vs" = "Robuzz"
@@ -110,6 +112,7 @@
 "stage5_vs" = "Twitcher"
 "stage6_vs" = "Acolite"
 "stage7_vs" = "Shark Boss"
+"stagex_vs" = "???"
 -- Stage descriptions
 "stage1_desc" = "A speedway-style river loop,\nperfect for putting your\nnovice rowing skills to the test.\nEnjoy the view!"
 "stage2_desc" = "A lush garden race sanctuary;\na wonderful home for all\nkinds of flora, fauna, and\nkiller RowBot bees alike."
@@ -118,6 +121,7 @@
 "stage5_desc" = "A lush jungle, with a very\nconvenient raceway. Hop\nthe fallen logs! There may\nbe secrets afoot, as well..."
 "stage6_desc" = "A dark, damp cave that leads\nstraight to the depths\nof the Robo-X factory.\nKeep that lantern close!"
 "stage7_desc" = "You've finally made it!\nChase after the Shark Boss, and\nfigure out what they're\nhiding once and for all!"
+"stagex_desc" = "Woah, uncharted territory!\nDoesn't seem like you've\nbeen here yet. Play some more\nstory, and come back later!"
 -- Stage gimmick names
 "gimmick1_name" = "First Rally"
 "gimmick2_name" = "Currents"

@@ -19,38 +19,40 @@ scenemanager = scenemanager()
 
 gfx.setBackgroundColor(gfx.kColorBlack)
 
+save = {
+    t1 = 17970,
+    t2 = 17970,
+    t3 = 17970,
+    t4 = 17970,
+    t5 = 17970,
+    t6 = 17970,
+    t7 = 17970,
+    m1 = 17970,
+    m2 = 17970,
+    m3 = 17970,
+    m4 = 17970,
+    m5 = 17970,
+    m6 = 17970,
+    m7 = 17970,
+    as = false,
+    sc = 0,
+    ct = 0,
+    mt = 0,
+    cc = 0,
+    mc = 0,
+    cs = false,
+    ss = false,
+    mu = 5,
+    fx = 5,
+    ts = false,
+    ms = false,
+    ui = true,
+}
+
 function clearALLthesaves()
-    save.t1 = 17970
-    save.t2 = 17970
-    save.t3 = 17970
-    save.t4 = 17970
-    save.t5 = 17970
-    save.t6 = 17970
-    save.t7 = 17970
-    save.m1 = 17970
-    save.m2 = 17970
-    save.m3 = 17970
-    save.m4 = 17970
-    save.m5 = 17970
-    save.m6 = 17970
-    save.m7 = 17970
-    save.as = false
-    save.sc = 0
-    save.ct = 0
-    save.mt = 0
-    save.cc = 0
-    save.mc = 0
-    save.cs = false
-    save.ss = false
-    save.mu = 5
-    save.fx = 5
-    save.ts = false
-    save.ms = false
-    save.ui = true
     pd.datastore.write(save)
 end
 
-save = {}
 checksave = pd.datastore.read()
 if checksave == nil then
     clearALLthesaves()
@@ -108,22 +110,56 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(title, false)
+scenemanager:switchscene(garage)
 
 function pd.gameWillTerminate()
     pd.datastore.write(save)
-    local img = gfx.getDisplayImage()
-    local byebye = gfx.image.new('images/ui/byebye')
-    local fade = gfx.imagetable.new('images/ui/fade/fade')
-    local imgslide = gfx.animator.new(350, 1, 400, pd.easingFunctions.outSine)
-    local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1500)
-    gfx.setDrawOffset(0, 0)
-    while not fadeout:ended() do
-        byebye:draw(0, 0)
-        img:draw(imgslide:currentValue(), 0)
-        fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
-        pd.display.flush()
-    end
+--     local img = gfx.getDisplayImage()
+--     local byebye = gfx.image.new('images/ui/byebye')
+--     local fade = gfx.imagetable.new('images/ui/fade/fade')
+--     local imgslide = gfx.animator.new(350, 1, 400, pd.easingFunctions.outSine)
+--     local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1500)
+--     gfx.setDrawOffset(0, 0)
+--     while not fadeout:ended() do
+--         byebye:draw(0, 0)
+--         img:draw(imgslide:currentValue(), 0)
+--         fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
+--         pd.display.flush()
+--     end
+end
+
+function pd.keyPressed()
+    save = {
+        t1 = 17970,
+        t2 = 17970,
+        t3 = 17970,
+        t4 = 17970,
+        t5 = 17970,
+        t6 = 17970,
+        t7 = 17970,
+        m1 = 17970,
+        m2 = 17970,
+        m3 = 17970,
+        m4 = 17970,
+        m5 = 17970,
+        m6 = 17970,
+        m7 = 17970,
+        as = false,
+        sc = 0,
+        ct = 7,
+        mt = 7,
+        cc = 10,
+        mc = 10,
+        cs = true,
+        ss = true,
+        mu = 5,
+        fx = 5,
+        ts = true,
+        ms = true,
+        ui = true
+    }
+    pd.datastore.write(save)
+    print('cheat code!! everything unlocked')
 end
 
 function pd.update()

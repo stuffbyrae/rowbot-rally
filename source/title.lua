@@ -280,11 +280,7 @@ function title:init(...)
     end
     function fade:update()
         if vars.fading then
-            local image = gfx.image.new(400, 240)
-            gfx.pushContext(image)
-            assets.img_fade[math.floor(vars.fade_anim:currentValue())]:drawTiled(0, 0, 400, 240)
-            gfx.popContext()
-            self:setImage(image)
+            self:setImage(assets.img_fade[math.floor(vars.fade_anim:currentValue())])
         end
     end
     

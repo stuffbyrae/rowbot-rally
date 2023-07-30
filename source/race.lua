@@ -58,7 +58,6 @@ function race:init(...)
         times_new_rally = gfx.font.new('fonts/times_new_rally')
     }
     gfx.setFont(assets.times_new_rally)
-    
     vars = {
         arg_track = args[1], -- 1, 2, 3, 4, 5, 6, or 7
         arg_mode = args[2], -- "story" or "tt"

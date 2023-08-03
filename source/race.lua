@@ -19,11 +19,8 @@ function race:init(...)
             end)
         end
         if vars.race_finished == false then
-            menu:addMenuItem("back to title", function()
-                scenemanager:transitionsceneoneway(title, false)
-            end)
-            menu:addCheckmarkMenuItem("show ui", save.ui, function()
-                save.ui = not save.ui
+            menu:addCheckmarkMenuItem("show ui", save.ui, function(new)
+                save.ui = new
                 if save.ui then
                     self.react:add()
                     self.meter:add()
@@ -31,6 +28,14 @@ function race:init(...)
                     self.react:remove()
                     self.meter:remove()
                 end
+            end)
+            if vars.race_in_progress then
+                menu:addMenuItem("restart race", function()
+                    self:restart()
+                end)
+            end
+            menu:addMenuItem("back to title", function()
+                scenemanager:transitionsceneoneway(title, false)
             end)
         end
     end
@@ -53,7 +58,9 @@ function race:init(...)
         img_meter_mask = gfx.image.new('images/race/meter_mask'),
         img_wake = gfx.image.new('images/race/wake'),
         img_overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
-        img_water = gfx.image.new('images/race/tracks/water'),
+        img_water_bg = gfx.image.new('images/race/tracks/water_bg'),
+        img_water_1 = gfx.image.new('images/race/tracks/water_1'),
+        img_water_2 = gfx.image.new('images/race/tracks/water_2'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         times_new_rally = gfx.font.new('fonts/times_new_rally')
     }
@@ -83,15 +90,20 @@ function race:init(...)
         check_2 = false,
         check_3 = false,
         reacting = false,
-        anim_react = nil
+        anim_react = nil,
+        anim_water_1_x = gfx.animator.new(15000, 0, -400),
+        anim_water_1_y = gfx.animator.new(15000, 0, -240),
+        anim_water_2_x = gfx.animator.new(30000, 0, -400),
+        anim_water_2_y = gfx.animator.new(30000, 0, -240),
     }
+
+    vars.anim_water_1_x.repeatCount = -1
+    vars.anim_water_1_y.repeatCount = -1
+    vars.anim_water_2_x.repeatCount = -1
+    vars.anim_water_2_y.repeatCount = -1
 
     vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
     pd.timer.performAfterDelay(500, function() self.fade:remove() end)
-
-    if vars.arg_mode == "tt" then
-        vars.boost_available = true
-    end
     
     if vars.arg_boat == 1 then
         assets.img_boat = gfx.imagetable.new('images/race/boats/1r')
@@ -196,8 +208,32 @@ function race:init(...)
     end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
-        assets.img_water:draw(0, 0)
+        assets.img_water_bg:draw(0, 0)
     end)
+
+    class('water_1').extends(gfx.sprite)
+    function water_1:init()
+        water_1.super.init(self)
+        self:setCenter(0, 0)
+        self:setIgnoresDrawOffset(true)
+        self:setImage(assets.img_water_1)
+    end
+    function water_1:update()
+        self:moveTo(vars.anim_water_1_x:currentValue(), vars.anim_water_1_y:currentValue())
+    end
+
+
+    class('water_2').extends(gfx.sprite)
+    function water_2:init()
+        water_2.super.init(self)
+        self:setCenter(0, 0)
+        self:setIgnoresDrawOffset(true)
+        self:setImage(assets.img_water_2)
+        self:add()
+    end
+    function water_2:update()
+        self:moveTo(vars.anim_water_2_x:currentValue(), vars.anim_water_2_y:currentValue())
+    end
     
     class('trackc').extends(gfx.sprite)
     function trackc:init()
@@ -363,6 +399,8 @@ function race:init(...)
         self:setImage(assets.img_fade[math.floor(vars.fade_anim:currentValue())]:invertedImage())
     end
     
+    self.water_1 = water_1()
+    self.water_2 = water_2()
     self.trackc = trackc()
     self.boat = boat()
     self.track = track()
@@ -373,8 +411,15 @@ function race:init(...)
     self.overlay = overlay()
     self.fade = fade()
     
-    if vars.boost_available then self.item:add() end
-    if save.ui then self.react:add() self.meter:add() end
+    if vars.arg_mode == "tt" then
+        vars.boost_available = true
+        self.item:add()
+    end
+
+    if save.ui then
+        self.react:add()
+        self.meter:add()
+    end
 
     self:add()
 end
@@ -412,7 +457,7 @@ function race:finish()
         self.meter:remove()
         self.timer:remove()
         if pd.getReduceFlashing() then
-            return
+            vars.anim_overlay = nil
         else
             vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
         end
@@ -424,7 +469,25 @@ function race:finish()
 end
 
 function race:restart()
-    vars.started = false
+    self.boat:moveTo(vars.boat_start_x, vars.boat_start_y)
+    vars.laps = 1
+    vars.check_1 = false
+    vars.check_2 = false
+    vars.check_3 = false
+    vars.boat_rotation = 0
+    self.boat:setImage(assets.img_boat[1])
+    vars.boat_turn = 0
+    vars.anim_camera = gfx.animator.new(2000, -150, 0, pd.easingFunctions.outSine)
+    vars.anim_boat_speed = gfx.animator.new(1, 0, 0)
+    vars.reacting = false
+    vars.anim_react = nil
+    vars.boosting = false
+    if vars.arg_mode == "tt" then
+        vars.boost_available = true
+    end
+    vars.anim_overlay = nil
+    vars.elapsed_time = 0
+    vars.race_started = false
     vars.race_in_progress = false
 end
 

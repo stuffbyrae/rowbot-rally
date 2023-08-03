@@ -35,11 +35,14 @@ function tracks:init(...)
         sfx_locked = pd.sound.sampleplayer.new('audio/sfx/locked'),
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
+        music = pd.sound.fileplayer.new('audio/music/tracks')
     }
     assets.sfx_bonk:setVolume(save.fx/5)
     assets.sfx_locked:setVolume(save.fx/5)
     assets.sfx_proceed:setVolume(save.fx/5)
     assets.sfx_whoosh:setVolume(save.fx/5)
+    assets.music:setVolume(save.mu/5)
+    assets.music:play(0)
     
     vars = {
         arg_boat = args[1], -- 1 through 7

@@ -71,7 +71,7 @@ end
 shakies_anim = nil
 
 function shakiesx()
-    if playdate.getReduceFlashing() then
+    if pd.getReduceFlashing() then
         return
     else
         shakies_anim_dir = true
@@ -80,7 +80,7 @@ function shakiesx()
 end
 
 function shakiesy()
-    if playdate.getReduceFlashing() then
+    if pd.getReduceFlashing() then
         return
     else
         shakies_anim_dir = false

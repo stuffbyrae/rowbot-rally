@@ -39,11 +39,11 @@ function results:init(...)
                 end)
             end
         else
-            menu:addMenuItem("change boat", function()
-                scenemanager:transitionsceneblastdoors(garage)
-            end)
             menu:addMenuItem("change track", function()
                 scenemanager:transitionscene(tracks, vars.arg_boat)
+            end)
+            menu:addMenuItem("change boat", function()
+                scenemanager:transitionsceneblastdoors(garage)
             end)
         end
         menu:addMenuItem("back to title", function()
@@ -55,6 +55,8 @@ function results:init(...)
         bg = args[7], -- last frame shown in the race
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         img_plate = gfx.image.new('images/results/plate'),
+        img_react_win = gfx.image.new('images/results/react_win'),
+        img_react_lose = gfx.image.new('images/results/react_lose'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         kapel = gfx.font.new('fonts/kapel'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
@@ -69,8 +71,12 @@ function results:init(...)
         arg_mirror = args[4], -- true or false
         arg_win = args[5], -- true or false. only matters when arg_mode is "story"
         arg_time = args[6], -- time in the race
-        besttime = 0
+        besttime = 0,
+        plate_anim = gfx.animator.new(750, 400, 120, pd.easingFunctions.outBack),
+        react_anim = gfx.animator.new(500, -200, 0, pd.easingFunctions.outSine)
     }
+
+    vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 10)
 
     if vars.arg_track == 1 then
         vars.besttime = save.t1
@@ -115,8 +121,11 @@ function results:init(...)
     class('fade').extends(gfx.sprite)
     function fade:init()
         fade.super.init(self)
+        self:moveTo(200, 120)
+        self:add()
     end
     function fade:update()
+        self:setImage(assets.img_fade[math.floor(vars.fade_anim:currentValue())])
     end
 
     class('plate').extends(gfx.sprite)
@@ -181,10 +190,32 @@ function results:init(...)
         self:add()
     end
     function plate:update()
+        if vars.plate_anim ~= nil then
+            self:moveTo(200, vars.plate_anim:currentValue())
+        end
+    end
+
+    class('react').extends(gfx.sprite)
+    function react:init()
+        react.super.init(self)
+        self:setCenter(0, 1)
+        self:moveTo(0, 240)
+        if vars.arg_mode == "story" and vars.arg_win == false then
+            self:setImage(assets.img_react_lose)
+        else
+            self:setImage(assets.img_react_win)
+        end
+        self:add()
+    end
+    function react:update()
+        if vars.react_anim ~= nil then
+            self:moveTo(vars.react_anim:currentValue(), 240)
+        end
     end
 
     self.fade = fade()
     self.plate = plate()
+    self.react = react()
 
     self:add()
 end

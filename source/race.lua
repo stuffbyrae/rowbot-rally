@@ -57,14 +57,15 @@ function race:init(...)
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         times_new_rally = gfx.font.new('fonts/times_new_rally')
     }
-    gfx.setFont(assets.times_new_rally)
+    
     vars = {
         arg_track = args[1], -- 1, 2, 3, 4, 5, 6, or 7
         arg_mode = args[2], -- "story" or "tt"
         arg_boat = args[3], -- 1, 2, 3, 4, 5, 6, or 7
         arg_mirror = args[4], -- true or false. this is for v1.1!
-        anim_camera = gfx.animator.new(1, 0, 0),
+        anim_camera = gfx.animator.new(2000, -150, 0, pd.easingFunctions.outSine),
         anim_overlay_boost = nil,
+        anim_boat_speed = gfx.animator.new(1, 0, 0),
         boat_start_x = 0,
         boat_start_y = 0,
         boat_speed = 0,
@@ -77,12 +78,16 @@ function race:init(...)
         race_finished = false,
         elapsed_time = 0,
         laps = 1,
+        timer_scale_anim = gfx.animator.new(1, 1, 1),
         check_1 = false,
         check_2 = false,
         check_3 = false,
         reacting = false,
         anim_react = nil
     }
+
+    vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
+    pd.timer.performAfterDelay(500, function() self.fade:remove() end)
 
     if vars.arg_mode == "tt" then
         vars.boost_available = true
@@ -247,10 +252,11 @@ function race:init(...)
             assets.img_timer:draw(0, 0)
         end
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawText(mins..":"..secs.."."..mils, 44, 15)
+        assets.times_new_rally:drawText(mins..":"..secs.."."..mils, 44, 15)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
         gfx.popContext()
         self:setImage(img)
+        self:setScale(vars.timer_scale_anim:currentValue())
     end
 
     class('item').extends(gfx.sprite)
@@ -344,6 +350,18 @@ function race:init(...)
             end
         end
     end
+
+    class('fade').extends(gfx.sprite)
+    function fade:init()
+        fade.super.init(self)
+        self:setZIndex(102)
+        self:setIgnoresDrawOffset(true)
+        self:moveTo(200, 120)
+        self:add()
+    end
+    function fade:update()
+        self:setImage(assets.img_fade[math.floor(vars.fade_anim:currentValue())]:invertedImage())
+    end
     
     self.trackc = trackc()
     self.boat = boat()
@@ -353,36 +371,55 @@ function race:init(...)
     self.react = react()
     self.meter = meter()
     self.overlay = overlay()
+    self.fade = fade()
     
     if vars.boost_available then self.item:add() end
     if save.ui then self.react:add() self.meter:add() end
 
     self:add()
-    race:start()
 end
 
 function race:start()
-    vars.race_started = true
-    vars.race_in_progress = true
-    vars.anim_camera = gfx.animator.new(1000, 0, vars.boat_speed_stat*15)
-    vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
-    vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
+    -- Don't need these prints later
+    print("3...")
+    pd.timer.performAfterDelay(1000, function()
+        print("2...")
+    end)
+    pd.timer.performAfterDelay(2000, function()
+        print("1...")
+    end)
+    pd.timer.performAfterDelay(3000, function()
+        print("GO!!!")
+        if vars.race_started == false then
+            vars.race_started = true
+            vars.race_in_progress = true
+            vars.anim_camera = gfx.animator.new(1000, 0, vars.boat_speed_stat*15)
+            vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
+            vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
+        end
+    end)
 end
 
 function race:finish()
-    vars.race_in_progress = false
-    vars.race_finished = true
-    vars.anim_camera = gfx.animator.new(1050, vars.boat_speed_stat*15, vars.boat_speed_stat*-15, pd.easingFunctions.outSine)
-    vars.anim_boat_speed = gfx.animator.new(1250, vars.boat_speed_stat*1.5, 0, pd.easingFunctions.inOutSine)
-    vars.anim_finish_turn = gfx.animator.new(1250, vars.boat_rotation, vars.boat_rotation+50, pd.easingFunctions.outSine)
-    self.item:remove()
-    self.react:remove()
-    self.meter:remove()
-    self.timer:remove()
-    if pd.getReduceFlashing() then
-        return
-    else
-        vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
+    if vars.race_in_progress == true then
+        vars.race_in_progress = false
+        vars.race_finished = true
+        vars.anim_camera = gfx.animator.new(1050, vars.boat_speed_stat*15, vars.boat_speed_stat*-15, pd.easingFunctions.outSine)
+        vars.anim_boat_speed = gfx.animator.new(1250, vars.boat_speed_stat*1.5, 0, pd.easingFunctions.inOutSine)
+        vars.anim_finish_turn = gfx.animator.new(1250, vars.boat_rotation, vars.boat_rotation+50, pd.easingFunctions.outSine)
+        self.item:remove()
+        self.react:remove()
+        self.meter:remove()
+        self.timer:remove()
+        if pd.getReduceFlashing() then
+            return
+        else
+            vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
+        end
+        pd.timer.performAfterDelay(1500, function()
+            assets.snap = gfx.getDisplayImage()
+            scenemanager:switchscene(results, vars.arg_track, vars.arg_mode, vars.arg_boat, vars.arg_mirror, true, vars.elapsed_time, assets.snap)
+        end)
     end
 end
 
@@ -412,6 +449,7 @@ function race:checkcheck(coralx, coraly) -- 1 2 1 2
     if coralx == vars.line_sprite.x and coraly == vars.line_sprite.y then
         if vars.check_1 and vars.check_2 and vars.check_3 then
             vars.laps += 1
+            vars.timer_scale_anim = gfx.animator.new(1000, 1.1, 1, pd.easingFunctions.outElastic)
             vars.check_1 = false
             vars.check_2 = false
             vars.check_3 = false
@@ -440,12 +478,16 @@ end
 
 function race:update()
     local boat_radtation = math.rad(vars.boat_rotation%360)
-    vars.boat_speed = vars.anim_boat_speed:currentValue()
     vars.camera_distance = vars.anim_camera:currentValue()
-    if pd.buttonJustPressed('a') then
-        if vars.race_in_progress == true then
-            self:finish()
-        end
+    vars.boat_speed = vars.anim_boat_speed:currentValue()
+    if vars.race_started == false then
+        gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(boat_radtation)*vars.camera_distance))
+    end
+    if pd.buttonJustPressed('up') then
+        self:start()
+    end
+    if pd.buttonJustPressed('down') then
+        self:finish()
     end
     if vars.race_in_progress then
         vars.elapsed_time += 1

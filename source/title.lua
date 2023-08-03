@@ -277,6 +277,11 @@ function title:init(...)
         fade.super.init(self)
         self:setZIndex(99)
         self:setCenter(0, 0)
+        if launch == false then
+            self:add()
+        else
+            launch = false
+        end
     end
     function fade:update()
         if vars.fading then
@@ -284,11 +289,6 @@ function title:init(...)
         end
     end
     
-    if launch == false then
-        self:add()
-    else
-        launch = false
-    end
     
     self.wave = wave()
     self.startscreen = startscreen()
@@ -383,7 +383,7 @@ function title:update()
                 if save.cc == 0 then
                     scenemanager:transitionsceneoneway(opening)
                 else
-                    if save.mt > 1 and save.ts == false then
+                    if save.mt >= 1 and save.ts == false then
                         scenemanager:transitionsceneoneway(notif, "tt", "story")
                     else
                         scenemanager:transitionsceneoneway(cutscene, save.cc, "story")

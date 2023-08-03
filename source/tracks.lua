@@ -51,8 +51,7 @@ function tracks:init(...)
         wave_anim = gfx.animator.new(1000, 0, -50)
     }
     
-    vars.besttime = save.t1 or 17970
-    print(vars.besttime)
+    vars.besttime = save.t1
     vars.boat_y_anim.reverses = true
     vars.boat_y_anim.repeatCount = -1
     vars.wave_anim.repeatCount = -1
@@ -165,7 +164,6 @@ function tracks:changetrack(dir)
             vars.stage_x_anim = gfx.animator.new(300, 550, 285, pd.easingFunctions.outSine)
         end
         local img = gfx.image.new(400, 240)
-        print(vars.current_menu_item .. save.mt)
         gfx.pushContext(img)
             if vars.current_menu_item <= save.mt then
                 assets.img_prompt:drawImage(vars.current_menu_item, -13, -1)

@@ -232,7 +232,8 @@ function race:init(...)
         self:add()
     end
     function water_2:update()
-        self:moveTo(vars.anim_water_2_x:currentValue(), vars.anim_water_2_y:currentValue())
+        local testx, testy = gfx.getDrawOffset()
+        self:moveTo(testx%-400, testy%-240)
     end
     
     class('trackc').extends(gfx.sprite)

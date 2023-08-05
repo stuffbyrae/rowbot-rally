@@ -18,6 +18,11 @@ function chase:init()
                 self:win()
             end)
         end
+        if vars.lost_actions_open then
+            menu:addMenuItem("retry?", function()
+                scenemanager:transitionsceneoneway(chase)
+            )
+        end
         menu:addMenuItem("back to title", function()
             scenemanager:transitionsceneoneway(title, false)
         end)
@@ -296,29 +301,33 @@ function chase:newrock()
         assets.sfx_blips:play()
         self.warn:add()
         pd.timer.performAfterDelay(vars.rock_wait_time, function()
-            if vars.rock_setting == 1 then
-                self.rock:setImage(assets.img_rock_1)
-                vars.rock_width = 111
-            elseif vars.rock_setting == 2 then
-                self.rock:setImage(assets.img_rock_2)
-                vars.rock_width = 111
-            elseif vars.rock_setting == 3 then
-                self.rock:setImage(assets.img_rock_3)
-                vars.rock_width = 78
-            elseif vars.rock_setting == 4 then
-                self.rock:setImage(assets.img_rock_4)
-                vars.rock_width = 79
+            if vars.playing then
+                if vars.rock_setting == 1 then
+                    self.rock:setImage(assets.img_rock_1)
+                    vars.rock_width = 111
+                elseif vars.rock_setting == 2 then
+                    self.rock:setImage(assets.img_rock_2)
+                    vars.rock_width = 111
+                elseif vars.rock_setting == 3 then
+                    self.rock:setImage(assets.img_rock_3)
+                    vars.rock_width = 78
+                elseif vars.rock_setting == 4 then
+                    self.rock:setImage(assets.img_rock_4)
+                    vars.rock_width = 79
+                end
+                self.warn:remove()
+                self.rock:add()
+                assets.sfx_blips:stop()
+                assets.sfx_rock:play()
+                vars.rock_scale_anim = gfx.animator.new(vars.rock_move_time, 0, 1.1, pd.easingFunctions.outSine)
+                vars.rock_x_anim = gfx.animator.new(vars.rock_move_time, vars.rock_pos, vars.rock_new_pos, pd.easingFunctions.inSine)
+                vars.rock_y_anim = gfx.animator.new(vars.rock_move_time*0.75, 115, 355, pd.easingFunctions.inSine, vars.rock_move_time*0.25)
             end
-            self.warn:remove()
-            self.rock:add()
-            assets.sfx_blips:stop()
-            assets.sfx_rock:play()
-            vars.rock_scale_anim = gfx.animator.new(vars.rock_move_time, 0, 1.1, pd.easingFunctions.outSine)
-            vars.rock_x_anim = gfx.animator.new(vars.rock_move_time, vars.rock_pos, vars.rock_new_pos, pd.easingFunctions.inSine)
-            vars.rock_y_anim = gfx.animator.new(vars.rock_move_time*0.75, 115, 355, pd.easingFunctions.inSine, vars.rock_move_time*0.25)
         end)
-        pd.timer.performAfterDelay(vars.rock_wait_time+vars.rock_move_time*0.7, function() self:crashcheck() end)
+        pd.timer.performAfterDelay(vars.rock_wait_time+vars.rock_move_time*0.7, function() if vars.playing then self:crashcheck() end end)
         pd.timer.performAfterDelay(vars.rock_wait_time+vars.next_rock_time, function() self:newrock() end)
+    else
+        return
     end
 end
 
@@ -428,10 +437,10 @@ function chase:lose()
     if vars.playing then
         vars.playing = false
         vars.shark_y_anim = gfx.animator.new(1100, 405, 305, pd.easingFunctions.inOutBack)
-        pd.timer.performAfterDelay(900, function()
+        pd.timer.performAfterDelay(825, function()
             self.chomp:add()
         end)
-        pd.timer.performAfterDelay(920, function()
+        pd.timer.performAfterDelay(925, function()
             shakiesy()
             self.chomp:setImage(assets.img_chomp_2)
             assets.music:stop()
@@ -441,6 +450,10 @@ function chase:lose()
             self.rock:remove()
             self.warn:remove()
             show_crank = false
+            assets.sfx_rock:stop()
+            assets.sfx_air:stop()
+            assets.sfx_blips:stop()
+            assets.sfx_crash:stop()
             vars.anim_overlay = gfx.animation.loop.new(100, assets.img_chomp_bubble, true)
         end)
         pd.timer.performAfterDelay(2000, function()
@@ -450,10 +463,6 @@ function chase:lose()
             self.water:remove()
             self.shark:remove()
             self.bg:remove()
-            assets.sfx_rock:stop()
-            assets.sfx_air:stop()
-            assets.sfx_blips:stop()
-            assets.sfx_crash:stop()
             self.chomp:setIgnoresDrawOffset(false)
             self.chomp:setImage(assets.img_chomp_3)
             vars.lost_actions_open = true

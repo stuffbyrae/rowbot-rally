@@ -88,7 +88,7 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(race, 1, "tt", 1, false)
+scenemanager:switchscene(chase)
 
 function pd.gameWillTerminate()
     pd.datastore.write(save)

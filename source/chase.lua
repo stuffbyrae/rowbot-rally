@@ -21,7 +21,7 @@ function chase:init()
         if vars.lost_actions_open then
             menu:addMenuItem("retry?", function()
                 scenemanager:transitionsceneoneway(chase)
-            )
+            end)
         end
         menu:addMenuItem("back to title", function()
             scenemanager:transitionsceneoneway(title, false)

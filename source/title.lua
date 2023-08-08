@@ -277,11 +277,7 @@ function title:init(...)
         fade.super.init(self)
         self:setZIndex(99)
         self:setCenter(0, 0)
-        if launch == false then
-            self:add()
-        else
-            launch = false
-        end
+        self:add()
     end
     function fade:update()
         if vars.fading then

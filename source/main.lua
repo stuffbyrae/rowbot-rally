@@ -11,7 +11,6 @@ local gfx <const> = pd.graphics
 
 pd.display.setRefreshRate(30)
 show_crank = false
-launch = true
 
 import 'scenemanager'
 import 'title'

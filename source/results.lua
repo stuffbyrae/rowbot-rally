@@ -73,7 +73,7 @@ function results:init(...)
         arg_time = args[6], -- time in the race
         besttime = 0,
         plate_anim = gfx.animator.new(750, 400, 120, pd.easingFunctions.outBack),
-        react_anim = gfx.animator.new(500, -200, 0, pd.easingFunctions.outSine)
+        react_anim = gfx.animator.new(500, -200, -20, pd.easingFunctions.outSine)
     }
 
     vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 10)
@@ -175,15 +175,17 @@ function results:init(...)
             end
             if vars.arg_mode == "story" then
                 if vars.arg_win then
-                    assets.pedallica:drawTextAligned('Ⓐ Onwards!', 340, 170, kTextAlignment.right)
+                    assets.kapel_doubleup:drawTextAligned('Ⓐ Onwards!', 340, 157, kTextAlignment.right)
                 else
-                    assets.pedallica:drawTextAligned('Ⓐ Retry?', 340, 170, kTextAlignment.right)
+                    assets.kapel_doubleup:drawTextAligned('Ⓐ Again?', 340, 157, kTextAlignment.right)
                 end
-                assets.pedallica:drawTextAligned('Ⓑ Back to Title', 340, 185, kTextAlignment.right)
+                assets.kapel_doubleup:drawTextAligned('Ⓑack to Title', 340, 177, kTextAlignment.right)
             else
-                assets.pedallica:drawTextAligned('Ⓐ Replay Race', 340, 170, kTextAlignment.right)
-                assets.pedallica:drawTextAligned('Ⓑ Change Track', 340, 185, kTextAlignment.right)
+                assets.kapel_doubleup:drawTextAligned('Ⓐ Again?', 340, 157, kTextAlignment.right)
+                assets.kapel_doubleup:drawTextAligned('Ⓑ New Track', 340, 177, kTextAlignment.right)
             end
+            gfx.setColor(gfx.kColorXOR)
+            gfx.fillRect(0, 158, 347, 45)
         gfx.popContext()
         self:setImage(img)
         self:moveTo(200, 120)

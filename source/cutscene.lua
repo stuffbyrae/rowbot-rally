@@ -108,7 +108,7 @@ function cutscene:init(...)
                 if vars.arg_move == "options" then
                     scenemanager:transitionscene(options)
                 else
-                    if vars.arg_play == 1 then scenemanager:switchscene(intro, 1) end
+                    if vars.arg_play == 1 then scenemanager:switchscene(tutorial, "story") end
                     if vars.arg_play == 2 then scenemanager:switchscene(intro, 1) end
                     if vars.arg_play == 3 then scenemanager:switchscene(intro, 2) end
                     if vars.arg_play == 4 then scenemanager:switchscene(intro, 3) end

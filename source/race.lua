@@ -9,7 +9,7 @@ function race:init(...)
     race.super.init(self)
     local args = {...}
     pd.ui.crankIndicator:start()
-    show_crank = true
+    show_crank = false
     
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -72,12 +72,15 @@ function race:init(...)
         arg_mirror = args[4], -- true or false. this is for v1.1!
         anim_camera = gfx.animator.new(2000, -150, 0, pd.easingFunctions.outSine),
         anim_overlay_boost = nil,
+        anim_boat_turn = gfx.animator.new(1, 0, 0),
         anim_boat_speed = gfx.animator.new(1, 0, 0),
         boat_start_x = 0,
         boat_start_y = 0,
         boat_speed = 0,
         boat_turn = 0,
         boat_rotation = 0,
+        boatcols = {},
+        boat_crashed = false,
         boost_available = false,
         boosting = false,
         race_started = false,
@@ -104,33 +107,34 @@ function race:init(...)
 
     vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
     pd.timer.performAfterDelay(500, function() self.fade:remove() end)
+    pd.timer.performAfterDelay(2500, function() self:start() end)
     
     if vars.arg_boat == 1 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/1r')
+        assets.img_boat = gfx.imagetable.new('images/race/boats/boat1')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 2
     elseif vars.arg_boat == 2 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/2r')
+        assets.img_boat = gfx.imagetable.new('images/race/boats/boat2')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 3
     elseif vars.arg_boat == 3 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/3r')
+        assets.img_boat = gfx.imagetable.new('images/race/boats/boat3')
         vars.boat_speed_stat = 2.5
         vars.boat_turn_stat = 2
     elseif vars.arg_boat == 4 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/4r')
+        assets.img_boat = gfx.imagetable.new('images/race/boats/boat4')
         vars.boat_speed_stat = 1.5
         vars.boat_turn_stat = 4
     elseif vars.arg_boat == 5 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/5r')
+        assets.img_boat = gfx.imagetable.new('images/race/boats/boat5')
         vars.boat_speed_stat = 2.5
         vars.boat_turn_stat = 3
     elseif vars.arg_boat == 6 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/6r')
+        assets.img_boat = gfx.imagetable.new('images/race/boats/boat6')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 4
     elseif vars.arg_boat == 7 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/7r')
+        assets.img_boat = gfx.imagetable.new('images/race/boats/boat7')
         vars.boat_speed_stat = 3
         vars.boat_turn_stat = 2
     end
@@ -138,7 +142,7 @@ function race:init(...)
     if vars.arg_track == 1 then
         assets.img_track = gfx.image.new('images/race/tracks/track_1')
         assets.img_track_c = gfx.image.new('images/race/tracks/track_1c')
-        vars.boat_start_x = 270
+        vars.boat_start_x = 300
         vars.boat_start_y = 830
         vars.track_linear = false
         vars.line_sprite = gfx.sprite.addEmptyCollisionSprite(169, 677, 200, 50)
@@ -269,6 +273,22 @@ function race:init(...)
         self:setCollideRect(0, 0, self:getSize())
         self:add()
     end
+    function boat:col(count, dis)
+        for c = 1, count do
+            local deg = (360 / count) * c
+            local rad = math.rad(deg)
+            local offsetX = math.sin(rad) * dis
+            local offsetY = -math.cos(rad) * dis
+            local boatcol = gfx.sprite.new(gfx.image.new(4, 4, gfx.kColorBlack))
+            boatcol:setVisible(false)
+            boatcol:setCenter(0.5, 0.5)
+            boatcol:moveTo(vars.boat_start_x + offsetX, vars.boat_start_y + offsetY)
+            boatcol:add()
+
+            vars.boatcols[c] = {boatcol, offsetX, offsetY, deg}
+        end
+    end
+    boat:col(8, 40)
 
     class('track').extends(gfx.sprite)
     function track:init()
@@ -378,7 +398,7 @@ function race:init(...)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
             gfx.fillRect(195, 0, -vars.boat_turn*7, 38)
-            gfx.fillRect(0, 0, vars.boat_speed_stat*20, 38)
+            gfx.fillRect(0, 0, vars.anim_boat_turn:currentValue()*20, 38)
             img:setMaskImage(assets.img_meter_mask)
             assets.img_meter:draw(0, 0)
         gfx.popContext()
@@ -453,11 +473,12 @@ function race:start()
     pd.timer.performAfterDelay(3000, function()
         print("GO!!!")
         if vars.race_started == false then
+            show_crank = true
             vars.race_started = true
             vars.race_in_progress = true
             vars.anim_camera = gfx.animator.new(1000, 0, vars.boat_speed_stat*15)
             vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
-            vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
+            vars.anim_boat_turn = gfx.animator.new(3000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
         end
     end)
 end
@@ -525,6 +546,82 @@ function race:boost()
     end)
 end
 
+function race:crash()
+    print("WHAM!! " .. self.boat.x .. " " .. self.boat.y)
+    local cols = {}
+    local colno = 0
+    for key, box in pairs(vars.boatcols) do
+        if gfx.checkAlphaCollision(box[1]:getImage(), self.boat.x + box[2], self.boat.y + box[3], 0, self.trackc:getImage(), 0, 0, 0) then
+            cols[#cols + 1] = true
+            if colno == 0 then
+                colno = 1
+            else
+                colno = colno + 1
+            end
+        else
+            cols[#cols + 1] = false
+        end
+    end
+    if colno > 0 then
+        local reflectdeg = (self:reflectangle(cols) + 180) % 360
+        local reflectrad = math.rad(reflectdeg)
+        vars.boat_crashed = true
+
+        local boatspeedRIGHTNOW = vars.anim_boat_speed:currentValue() or vars.boat_turn_stat / 2
+        local offsetX = math.sin(reflectrad) * boatspeedRIGHTNOW * 30
+        local offsetY = -math.cos(reflectrad) * boatspeedRIGHTNOW * 30
+
+        vars.anim_boat_speed = gfx.animator.new(1, boatspeedRIGHTNOW, 0)
+
+        vars.anim_boat_crash_x = gfx.animator.new(1200, self.boat.x, self.boat.x + offsetX, pd.easingFunctions.outCubic)
+        vars.anim_boat_crash_y = gfx.animator.new(1200, self.boat.y, self.boat.y + offsetY, pd.easingFunctions.outCubic)
+        vars.anim_boat_crash_rot = gfx.animator.new(1000, vars.boat_rotation, vars.boat_rotation + 20, pd.easingFunctions.outCubic)
+    end
+end
+
+function race:reflectangle(c)
+    local index = 1
+    if c[1] and c[#c] then
+        local lowindex = 0
+        for i = 1, #c do
+            if not (c[i]) then
+                lowindex = i
+            end
+        end
+
+        local highindex = 0
+        for i = #c, 1, -1 do
+            if not (c[i]) then
+                highindex = i
+            end
+        end
+        index = ((lowindex + highindex + #c) % #c) - 1
+    else
+        local indexstart
+        local indexend
+        for i = 1, #c do
+            if c[i] and indexstart == nil then
+                indexstart = i
+            elseif not (c[i]) and indexstart ~= nil and indexend == nil then
+                indexend = i - 1
+            end
+            if indexend == nil and i == #c then
+                indexend = #c
+            end
+        end
+
+        index = math.ceil(indexstart + (indexend - indexstart) / 2)
+    end
+
+    if index < 1 then
+        index = 1
+    elseif index > #vars.boatcols then
+        index = #vars.boatcols
+    end
+
+    return vars.boatcols[index][4]
+end
+
 function race:checkcheck(coralx, coraly) -- 1 2 1 2
     if coralx == vars.line_sprite.x and coraly == vars.line_sprite.y then
         if vars.check_1 and vars.check_2 and vars.check_3 then
@@ -563,36 +660,56 @@ function race:update()
     if vars.race_started == false then
         gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(boat_radtation)*vars.camera_distance))
     end
-    if pd.buttonJustPressed('up') then
-        self:start()
-    end
     if pd.buttonJustPressed('down') then
         self:finish()
     end
     if vars.race_in_progress then
         vars.elapsed_time += 1
         local change = pd.getCrankChange()/2
-        if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
-        if vars.boat_turn < 0 then vars.boat_turn = 0 end
-        vars.boat_rotation += vars.boat_turn*vars.boat_turn_stat*0.56 -= vars.anim_boat_turn:currentValue()*3
-        vars.boat_radtation = math.rad(vars.boat_rotation%360)
-        if pd.buttonJustPressed('b') then
-            if vars.boost_available then
-                self:boost()
+        if vars.boat_crashed == false then
+            if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
+            vars.boat_rotation += vars.boat_turn*vars.boat_turn_stat*0.56 -= vars.anim_boat_turn:currentValue()*3
+            vars.boat_radtation = math.rad(vars.boat_rotation%360)
+            for _, box in pairs(vars.boatcols) do
+                box[1]:moveTo(self.boat.x + box[2], self.boat.y + box[3])
+            end
+            if pd.buttonJustPressed('b') then
+                if vars.boost_available then
+                    self:boost()
+                end
+            end
+            if vars.boosting then
+                self.boat:moveBy(math.sin(boat_radtation)*vars.boat_speed*4.5, math.cos(boat_radtation)*-vars.boat_speed*4.5)
+            else
+                self.boat:moveBy(math.sin(boat_radtation)*vars.boat_speed*2.5, math.cos(boat_radtation)*-vars.boat_speed*2.5)
+            end
+            if gfx.checkAlphaCollision(self.boat:getImage(), self.boat.x - (self.boat.width / 2), self.boat.y - (self.boat.height / 2), 0, self.trackc:getImage(), 0, 0, 0) then
+                self:crash()
+            end
+        else
+            self.boat:moveTo(vars.anim_boat_crash_x:currentValue(), vars.anim_boat_crash_y:currentValue())
+            vars.boat_rotation = vars.anim_boat_crash_rot:currentValue()
+            vars.boat_turn -= vars.boat_turn_stat/5
+            vars.anim_boat_turn = gfx.animator.new(1000, vars.boat_turn_stat, 0, pd.easingFunctions.inOutSine)
+
+            if vars.anim_boat_crash_x:ended() then
+                vars.boat_crashed = false
+                vars.anim_boat_crash_x = nil
+                vars.anim_boat_crash_y = nil
+                vars.anim_boat_crash_rot = nil
+                vars.anim_boat_speed = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
+                vars.anim_boat_turn = gfx.animator.new(1000, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
+                vars.boat_turn = 0
             end
         end
-        self.boat:setImage(assets.img_boat[math.floor((vars.boat_rotation%360) / 6)+1])
         local coral = self.boat:overlappingSprites()
         if #coral > 0 then
             for i = 1, #coral do
                 self:checkcheck(coral[i].x, coral[i].y)
             end
         end
-        if vars.boosting then
-            self.boat:moveBy(math.sin(boat_radtation)*vars.boat_speed*4.5, math.cos(boat_radtation)*-vars.boat_speed*4.5)
-        else
-            self.boat:moveBy(math.sin(boat_radtation)*vars.boat_speed*2.5, math.cos(boat_radtation)*-vars.boat_speed*2.5)
-        end
+        if vars.boat_turn < 0 then vars.boat_turn = 0 end
+        self.boat:setImage(assets.img_boat[math.floor((vars.boat_rotation%360) / 6)+1])
         gfx.setDrawOffset(200+(-self.boat.x)+(math.sin(boat_radtation)*-vars.camera_distance), 120+(-self.boat.y)+(math.cos(boat_radtation)*vars.camera_distance))
     end
     if vars.race_finished then

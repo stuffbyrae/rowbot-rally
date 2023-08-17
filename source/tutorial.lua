@@ -11,11 +11,7 @@ function tutorial:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         menu:addMenuItem("skip tutorial", function()
-            if vars.arg_move == "story" then
-                scenemanager:transitionsceneoneway(cutscene, 2)
-            else
-                scenemanager:transitionscene(options)
-            end
+            self:finish()
         end)
         menu:addMenuItem("back to title", function()
             scenemanager:transitionsceneoneway(title, false)
@@ -31,6 +27,18 @@ function tutorial:init(...)
     }
     
     self:add()
+end
+
+function tutorial:finish()
+    if vars.arg_move == "story" then
+        save.cc = 2
+        if save.cc > save.mc then
+            save.mc = save.cc
+        end
+        scenemanager:transitionsceneoneway(cutscene, 2)
+    else
+        scenemanager:transitionscene(options)
+    end
 end
 
 function tutorial:update()

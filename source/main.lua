@@ -128,4 +128,5 @@ function pd.update()
             pd.display.setOffset(0, shakies_anim:currentValue())
         end
     end
+    playdate:drawFPS(0, 0)
 end

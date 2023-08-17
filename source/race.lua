@@ -145,7 +145,7 @@ function race:init(...)
         vars.boat_start_x = 300
         vars.boat_start_y = 830
         vars.track_linear = false
-        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite(169, 677, 200, 50)
+        vars.line_sprite = gfx.sprite.addEmptyCollisionSprite(169, 667, 200, 50)
         vars.check_1_sprite = gfx.sprite.addEmptyCollisionSprite(614, 125, 50, 200)
         vars.check_2_sprite = gfx.sprite.addEmptyCollisionSprite(973, 457, 200, 50)
         vars.check_3_sprite = gfx.sprite.addEmptyCollisionSprite(536, 989, 50, 200)
@@ -288,7 +288,7 @@ function race:init(...)
             vars.boatcols[c] = {boatcol, offsetX, offsetY, deg}
         end
     end
-    boat:col(8, 40)
+    boat:col(10, 38)
 
     class('track').extends(gfx.sprite)
     function track:init()
@@ -547,10 +547,10 @@ function race:boost()
 end
 
 function race:crash()
-    print("WHAM!! " .. self.boat.x .. " " .. self.boat.y)
     local cols = {}
     local colno = 0
     for key, box in pairs(vars.boatcols) do
+        box[1]:moveTo(self.boat.x + box[2], self.boat.y + box[3])
         if gfx.checkAlphaCollision(box[1]:getImage(), self.boat.x + box[2], self.boat.y + box[3], 0, self.trackc:getImage(), 0, 0, 0) then
             cols[#cols + 1] = true
             if colno == 0 then
@@ -573,6 +573,7 @@ function race:crash()
 
         vars.anim_boat_speed = gfx.animator.new(1, boatspeedRIGHTNOW, 0)
 
+        vars.anim_boat_turn = gfx.animator.new(1000, vars.boat_turn_stat, 0, pd.easingFunctions.inOutSine)
         vars.anim_boat_crash_x = gfx.animator.new(1200, self.boat.x, self.boat.x + offsetX, pd.easingFunctions.outCubic)
         vars.anim_boat_crash_y = gfx.animator.new(1200, self.boat.y, self.boat.y + offsetY, pd.easingFunctions.outCubic)
         vars.anim_boat_crash_rot = gfx.animator.new(1000, vars.boat_rotation, vars.boat_rotation + 20, pd.easingFunctions.outCubic)
@@ -670,9 +671,6 @@ function race:update()
             if vars.boat_turn < change then vars.boat_turn += vars.boat_turn_stat/5 else vars.boat_turn -= vars.boat_turn_stat/5 end
             vars.boat_rotation += vars.boat_turn*vars.boat_turn_stat*0.56 -= vars.anim_boat_turn:currentValue()*3
             vars.boat_radtation = math.rad(vars.boat_rotation%360)
-            for _, box in pairs(vars.boatcols) do
-                box[1]:moveTo(self.boat.x + box[2], self.boat.y + box[3])
-            end
             if pd.buttonJustPressed('b') then
                 if vars.boost_available then
                     self:boost()
@@ -690,7 +688,6 @@ function race:update()
             self.boat:moveTo(vars.anim_boat_crash_x:currentValue(), vars.anim_boat_crash_y:currentValue())
             vars.boat_rotation = vars.anim_boat_crash_rot:currentValue()
             vars.boat_turn -= vars.boat_turn_stat/5
-            vars.anim_boat_turn = gfx.animator.new(1000, vars.boat_turn_stat, 0, pd.easingFunctions.inOutSine)
 
             if vars.anim_boat_crash_x:ended() then
                 vars.boat_crashed = false

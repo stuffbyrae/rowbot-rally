@@ -10,6 +10,9 @@ function results:init(...)
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        local img = gfx.image.new(400, 240)
+        xoffset = 200
+        pd.setMenuImage(img, xoffset)
         if vars.arg_mode == "story" then
             if vars.arg_win then
                 menu:addMenuItem("onwards!", function()

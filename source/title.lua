@@ -15,6 +15,9 @@ function title:init(...)
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        local img = gfx.image.new(400, 240)
+        xoffset = 0
+        pd.setMenuImage(img, xoffset)
     end
     
     assets = {

@@ -10,6 +10,18 @@ function tutorial:init(...)
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        local img = gfx.image.new(400, 240)
+        xoffset = 100
+        pauserand = math.random(1, 8)
+        if first_pause == false then
+            pauserand = 1
+            first_pause = true
+        end
+        local paused = gfx.image.new('images/ui/paused' .. pauserand)
+        gfx.pushContext(img)
+            paused:draw(-200 + xoffset, 0)
+        gfx.popContext()
+        pd.setMenuImage(img, xoffset)
         menu:addMenuItem("skip tutorial", function()
             self:finish()
         end)

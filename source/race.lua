@@ -14,10 +14,18 @@ function race:init(...)
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        if vars.race_ongoing then
-            menu:addMenuItem("restart race", function()
-            end)
+        local img = gfx.image.new(400, 240)
+        xoffset = 100
+        pauserand = math.random(1, 8)
+        if first_pause == true then
+            pauserand = 1
+            first_pause = false
         end
+        local paused = gfx.image.new('images/ui/paused' .. pauserand)
+        gfx.pushContext(img)
+            paused:draw(-200 + xoffset, 0)
+        gfx.popContext()
+        pd.setMenuImage(img, xoffset)
         if vars.race_finished == false then
             menu:addCheckmarkMenuItem("show ui", save.ui, function(new)
                 save.ui = new
@@ -108,33 +116,27 @@ function race:init(...)
     vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
     pd.timer.performAfterDelay(500, function() self.fade:remove() end)
     pd.timer.performAfterDelay(2500, function() self:start() end)
+    assets.img_boat = gfx.imagetable.new('images/race/boats/boat' .. vars.arg_boat)
     
     if vars.arg_boat == 1 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/boat1')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 2
     elseif vars.arg_boat == 2 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/boat2')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 3
     elseif vars.arg_boat == 3 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/boat3')
         vars.boat_speed_stat = 2.5
         vars.boat_turn_stat = 2
     elseif vars.arg_boat == 4 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/boat4')
         vars.boat_speed_stat = 1.5
         vars.boat_turn_stat = 4
     elseif vars.arg_boat == 5 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/boat5')
         vars.boat_speed_stat = 2.5
         vars.boat_turn_stat = 3
     elseif vars.arg_boat == 6 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/boat6')
         vars.boat_speed_stat = 2
         vars.boat_turn_stat = 4
     elseif vars.arg_boat == 7 then
-        assets.img_boat = gfx.imagetable.new('images/race/boats/boat7')
         vars.boat_speed_stat = 3
         vars.boat_turn_stat = 2
     end
@@ -221,9 +223,7 @@ function race:init(...)
         self:setCenter(0, 0)
         self:setIgnoresDrawOffset(true)
         self:setImage(assets.img_water_1)
-    end
-    function water_1:update()
-        self:moveTo(vars.anim_water_1_x:currentValue(), vars.anim_water_1_y:currentValue())
+        self:add()
     end
 
 
@@ -234,10 +234,6 @@ function race:init(...)
         self:setIgnoresDrawOffset(true)
         self:setImage(assets.img_water_2)
         self:add()
-    end
-    function water_2:update()
-        local testx, testy = gfx.getDrawOffset()
-        self:moveTo(testx%-400, testy%-240)
     end
     
     class('trackc').extends(gfx.sprite)
@@ -656,6 +652,9 @@ end
 
 function race:update()
     local boat_radtation = math.rad(vars.boat_rotation%360)
+    local gfx_x, gfx_y = gfx.getDrawOffset()
+    self.water_1:moveTo(gfx_x%-400, gfx_y%-240)
+    self.water_2:moveTo(gfx_x%-400, gfx_y%-240)
     vars.camera_distance = vars.anim_camera:currentValue()
     vars.boat_speed = vars.anim_boat_speed:currentValue()
     if vars.race_started == false then

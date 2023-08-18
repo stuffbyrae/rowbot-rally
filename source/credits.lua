@@ -18,6 +18,9 @@ function credits:init(...)
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        local img = gfx.image.new(400, 240)
+        xoffset = 100
+        pd.setMenuImage(img, xoffset)
         if save.cs then
             menu:addMenuItem("skip credits", function()
                 self:finish()

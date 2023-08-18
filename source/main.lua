@@ -11,6 +11,7 @@ local gfx <const> = pd.graphics
 
 pd.display.setRefreshRate(30)
 show_crank = false
+first_pause = true
 
 import 'scenemanager'
 import 'title'
@@ -87,7 +88,7 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(race, 1, "story", 1, false)
+scenemanager:switchscene(chase)
 
 function pd.gameWillTerminate()
     pd.datastore.write(save)

@@ -9,6 +9,14 @@ function notif:init(...)
     notif.super.init(self)
     local args = {...}
     show_crank = false
+
+    function pd.gameWillPause()
+        local menu = pd.getSystemMenu()
+        menu:removeAllMenuItems()
+        local img = gfx.image.new(400, 240)
+        xoffset = 0
+        pd.setMenuImage(img, xoffset)
+    end
     
     assets = {
         img_mirror_warn = gfx.image.new('images/ui/mirror_warn'),

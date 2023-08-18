@@ -13,6 +13,21 @@ function chase:init()
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        xoffset = 30
+        local img = gfx.image.new(400, 240)
+        if vars.lost_actions_open == false then
+            xoffset = math.clamp(math.floor(vars.boat_pos) + 100, 0, 200)
+            pauserand = math.random(1, 8)
+            if first_pause == true then
+                pauserand = 1
+                first_pause = false
+            end
+            local paused = gfx.image.new('images/ui/paused' .. pauserand)
+            gfx.pushContext(img)
+            paused:draw(-200 + xoffset, 0)
+            gfx.popContext()
+        end
+        pd.setMenuImage(img, xoffset)
         if save.mc >= 7 then
             menu:addMenuItem("skip chase", function()
                 self:win()

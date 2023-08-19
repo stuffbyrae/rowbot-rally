@@ -87,6 +87,7 @@ function race:init(...)
         boat_speed_rate = gfx.animator.new(1, 0, 0),
         boat_turn_rate = gfx.animator.new(1, 0, 0),
         boat_rotation = 0,
+        boat_old_rotation = 0,
         boat_cols = {},
         boat_crashed = false,
         reacting = false,
@@ -97,6 +98,7 @@ function race:init(...)
 
     pd.timer.performAfterDelay(1, function() vars.camera_target_offset = 0 end)
     vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
+    pd.timer.performAfterDelay(1200, function() vars.anim_overlay = nil self.overlay:setImage(nil) end)
     pd.timer.performAfterDelay(2500, function() self:start(false) end)
     
     assets.img_boat = gfx.imagetable.new('images/race/boats/boat' .. vars.arg_boat)
@@ -236,6 +238,11 @@ function race:init(...)
             self:add()
         end
     end
+    function react:update()
+        if vars.anim_react ~= nil then
+            self:moveTo(200, vars.anim_react:currentValue())
+        end
+    end
     
     class('meter').extends(gfx.sprite)
     function meter:init()
@@ -323,6 +330,7 @@ function race:start(restart)
             vars.boat_crashed = false
             self.boat:moveTo(vars.boat_start_x, vars.boat_start_y)
             vars.laps = 1
+            vars.camera_target_offset = 0
             vars.checkpoints = {false, false, false}
             vars.boat_rotation = 0
             self.boat:setImage(assets.img_boat[1])
@@ -330,13 +338,22 @@ function race:start(restart)
             vars.boat_turn_rate = gfx.animator.new(1, 0, 0)
             vars.reacting = false
             vars.anim_react = nil
+            vars.anim_overlay = nil
+            self.overlay:setImage(nil)
             vars.boosting = false
-            vars.overlay_anim = gfx.animation.loop.new(30, assets.img_fade, false)
             vars.elapsed_time = 0
             vars.race_started = false
             vars.race_in_progress = false
+            show_crank = false
             if vars.arg_mode == "tt" then
                 vars.boost_ready = true
+                if vars.track_linear then
+                    vars.boosts_available = 1
+                else
+                    vars.boosts_available = 3
+                end
+                assets.img_item = gfx.image.new('images/race/item_' .. vars.boosts_available)
+                self.item:setImage(assets.img_item)
             end
         end
     end
@@ -406,6 +423,7 @@ function race:finish(win)
         self.react:remove()
         self.meter:remove()
         self.timer:remove()
+        show_crank = false
         if pd.getReduceFlashing() then
             vars.anim_overlay = nil
         else
@@ -436,6 +454,8 @@ function race:crash()
     end
     if colno > 0 then
         vars.boat_crashed = true
+        self:reaction("crash")
+        shakiesx()
         local reflectdeg = (self:reflectangle(cols) + 180) % 360
         local reflectrad = math.rad(reflectdeg)
         local current_boat_speed = vars.boat_speed_rate:currentValue() or vars.boat_speed_stat
@@ -446,14 +466,15 @@ function race:crash()
         vars.boat_turn_rate = gfx.animator.new(1000, current_boat_turn, 0, pd.easingFunctions.inOutSine)
         vars.anim_boat_crash_x = gfx.animator.new(1000, self.boat.x, self.boat.x + off_x, pd.easingFunctions.outCubic)
         vars.anim_boat_crash_y = gfx.animator.new(1000, self.boat.y, self.boat.y + off_y, pd.easingFunctions.outCubic)
-        vars.anim_boat_crash_r = gfx.animator.new(1000, vars.boat_rotation, (vars.boat_rotation + (vars.boat_old_rotation - vars.boat_rotation * 1.25)), pd.easingFunctions.outCubic)
+        vars.anim_boat_crash_r = gfx.animator.new(1000, vars.boat_rotation, math.clamp(vars.boat_old_rotation, vars.boat_rotation-40, vars.boat_rotation+40), pd.easingFunctions.outCubic)
         vars.camera_target_offset = 0
     end
     pd.timer.performAfterDelay(1000, function()
         vars.boat_crashed = false
         if vars.race_in_progress then
+            self:reaction("idle")
             vars.camera_target_offset = vars.boat_speed_stat*15
-            vars.boat_speed_rate = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
+            vars.boat_speed_rate = gfx.animator.new(2000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
             vars.boat_turn_rate = gfx.animator.new(500, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
             vars.boat_turn = 0
         end
@@ -516,18 +537,19 @@ function race:boost()
                 self.item:setImage(assets.img_item)
             end
         end)
-        pd.timer.performAfterDelay(1750, function()
-            if not vars.race_finished then
-                vars.anim_camera = vars.boat_speed_stat*15
-            end
-        end)
         pd.timer.performAfterDelay(2000, function()
             vars.boosting = false
             vars.boost_ready = true
-            vars.anim_overlay = nil
-            self:reaction("idle")
-            self.overlay:setImage(nil)
-            vars.camera_target_offset = vars.boat_speed_stat*15
+            if vars.race_in_progress then
+                vars.anim_overlay = nil
+                self.overlay:setImage(nil)
+            end
+            if not vars.boat_crashed then
+                self:reaction("idle")
+            end
+            if vars.race_in_progress and not vars.boat_crashed then
+                vars.camera_target_offset = vars.boat_speed_stat*15
+            end
         end)
     end
 end
@@ -537,7 +559,7 @@ function race:reaction(new)
         self.react:setImage(assets.img_react_idle)
         vars.reacting = false
         vars.anim_react = nil
-        self:moveTo(200, 152)
+        self.react:moveTo(200, 152)
     elseif new == "happy" then
         self.react:setImage(assets.img_react_happy)
         vars.reacting = true
@@ -545,11 +567,20 @@ function race:reaction(new)
         vars.anim_react.reverses = true
         vars.anim_react.repeatCount = -1
     elseif new == "shocked" then
-
-    elseif new == "curious" then
-
+        self.react:setImage(assets.img_react_shocked)
+        vars.reacting = true
+        vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine)
+        vars.anim_react.reverses = true
+        vars.anim_react.repeatCount = -1
+    elseif new == "confused" then
+        self.react:setImage(assets.img_react_confused)
+        vars.reacting = true
     elseif new == "crash" then
-
+        self.react:setImage(assets.img_react_crash)
+        vars.reacting = true
+        vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine)
+        vars.anim_react.reverses = true
+        vars.anim_react.repeatCount = -1
     end
 end
 
@@ -557,11 +588,16 @@ function race:update()
     local gfx_x, gfx_y = gfx.getDrawOffset()
     self.water_1:moveTo(gfx_x%-400, gfx_y%-240)
     self.water_2:moveTo(gfx_x%-400, gfx_y%-240)
-    vars.boat_old_rotation = vars.boat_rotation
     vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.05
+    vars.boat_old_rotation += (vars.boat_rotation - vars.boat_old_rotation) * 0.20
     if not vars.race_started then
         gfx.setDrawOffset(200-self.boat.x, 120-self.boat.y+vars.camera_offset)
     end
+
+    if pd.buttonJustPressed('up') then self:reaction("idle") end
+    if pd.buttonJustPressed('left') then self:reaction("happy") end
+    if pd.buttonJustPressed('down') then self:reaction("shocked") end
+    if pd.buttonJustPressed('right') then self:reaction("confused") end
     if vars.race_in_progress then
         vars.elapsed_time += 1
         local c = self.boat:overlappingSprites()
@@ -572,7 +608,7 @@ function race:update()
         end
         local change = pd.getCrankChange()/2
         if vars.boat_crashed then
-            vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.10
+            vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.20
             self.boat:moveTo(vars.anim_boat_crash_x:currentValue(), vars.anim_boat_crash_y:currentValue())
             vars.boat_rotation = vars.anim_boat_crash_r:currentValue()
             vars.player_turn -= vars.boat_turn_stat/5

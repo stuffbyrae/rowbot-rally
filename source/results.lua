@@ -135,14 +135,14 @@ function results:init(...)
     function plate:init()
         plate.super.init(self)
         local img = gfx.image.new(400, 240)
-        if vars.arg_mode == "story" then
-            if vars.arg_win then
+        if vars.arg_win then
+            if vars.arg_mode == "story" then
                 assets.header = gfx.imageWithText('You Win!', 200, 120)
             else
-                assets.header = gfx.imageWithText('You Lost...', 200, 120)
+                assets.header = gfx.imageWithText('Finish!', 200, 120)
             end
         else
-            assets.header = gfx.imageWithText('Finish!', 200, 120)
+            assets.header = gfx.imageWithText('You Lost...', 200, 120)
         end
         gfx.pushContext(img)
             assets.img_plate:draw(9, 10)
@@ -152,7 +152,7 @@ function results:init(...)
             local secs = string.format("%02.f", math.floor((vars.arg_time/30) - mins * 60))
             local mils = string.format("%02.f", (vars.arg_time/30)*99 - mins * 5940 - secs * 99)
             assets.double_time:drawTextAligned('O ' .. mins..":"..secs.."."..mils, 340, 90, kTextAlignment.right)
-            if vars.arg_time < vars.besttime then
+            if vars.arg_time < vars.besttime and vars.arg_win then
                 assets.kapel_doubleup:drawTextAligned('NEW BEST!!', 340, 120, kTextAlignment.right)
                 if vars.arg_track == 1 then
                     save.t1 = vars.arg_time
@@ -205,10 +205,10 @@ function results:init(...)
         react.super.init(self)
         self:setCenter(0, 1)
         self:moveTo(0, 240)
-        if vars.arg_mode == "story" and vars.arg_win == false then
-            self:setImage(assets.img_react_lose)
-        else
+        if vars.arg_win then
             self:setImage(assets.img_react_win)
+        else
+            self:setImage(assets.img_react_lose)
         end
         self:add()
     end

@@ -12,6 +12,11 @@ local gfx <const> = pd.graphics
 pd.display.setRefreshRate(30)
 show_crank = false
 first_pause = true
+print(pd.metadata.bundleID)
+demo = false -- just so you know mr. funny man, changing this variable in the demo will only break things. if you're interested in the full game, i (obviously) implore you to buy it! <3
+if pd.metadata.bundleID == "wtf.rae.rowbotrallydemo" then
+    demo = true
+end
 
 import 'scenemanager'
 import 'title'
@@ -88,10 +93,12 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(race, 1, "tt", 1, false)
+scenemanager:switchscene(title, false)
 
 function pd.gameWillTerminate()
-    pd.datastore.write(save)
+    if not demo then
+        pd.datastore.write(save)
+    end
     local img = gfx.getDisplayImage()
     local byebye = gfx.image.new('images/ui/byebye')
     local fade = gfx.imagetable.new('images/ui/fade/fade')

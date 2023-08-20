@@ -21,7 +21,6 @@ function title:init(...)
     end
     
     assets = {
-        img_logo = gfx.image.new('images/ui/logo'),
         img_button_start = gfx.image.new('images/ui/button_start'),
         img_wave = gfx.image.new('images/title/wave'),
         img_bg = gfx.image.new('images/title/bg'),
@@ -53,6 +52,12 @@ function title:init(...)
     assets.music:setVolume(save.mu/5)
     assets.music:setLoopRange(1.1)
     assets.music:play(0)
+
+    if demo then
+        assets.img_logo = gfx.image.new('images/ui/logo_demo')
+    else
+        assets.img_logo = gfx.image.new('images/ui/logo')
+    end
     
     vars = {
         arg_instastart = args[1],
@@ -245,7 +250,7 @@ function title:init(...)
                 self:setImage(assets.img_sel_new)
             end
             if vars.current_name == 'time_trials' then
-                if save.mt < 1 then
+                if save.mt < 1 or demo then
                     self:setImage(assets.img_sel_locked)
                 else
                 self:setImage(assets.img_sel_time_trials)
@@ -402,7 +407,7 @@ function title:update()
                 end
             end
             if vars.current_name == 'time_trials' then
-                if save.mt < 1 then
+                if save.mt < 1 or demo then
                     vars.selector_moving = true
                     selector_anim = vars.selector_anim_locked
                     selector_anim:reset()

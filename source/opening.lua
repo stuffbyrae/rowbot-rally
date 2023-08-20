@@ -20,12 +20,14 @@ function opening:init()
         end)
     end
 
-    if save.as then
-        save.cc = 0
-        save.ct = 0
-    else
-        save.as = true
-    end
+    if not demo then
+        if save.as then
+            save.cc = 0
+            save.ct = 0
+        else
+            save.as = true
+        end
+        end
 
     assets = {
         img_opening = gfx.imagetable.new('images/story/opening'),

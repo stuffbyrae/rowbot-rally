@@ -230,10 +230,14 @@ function results:update()
         if vars.arg_mode == "story" then
             if vars.arg_win then
                 if vars.arg_track == 1 then
-                    if save.ts == false then
-                        scenemanager:transitionsceneoneway(notif, "tt", "story")
+                    if demo then
+                        scenemanager:transitionsceneoneway(notif, "demo", "title")
                     else
-                        scenemanager:transitionsceneoneway(cutscene, 3, "story")
+                        if save.ts == false then
+                            scenemanager:transitionsceneoneway(notif, "tt", "story")
+                        else
+                            scenemanager:transitionsceneoneway(cutscene, 3, "story")
+                        end
                     end
                 elseif vars.arg_track == 2 then
                     scenemanager:transitionsceneoneway(cutscene, 4, "story")

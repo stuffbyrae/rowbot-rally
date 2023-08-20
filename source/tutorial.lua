@@ -43,6 +43,7 @@ end
 
 function tutorial:finish()
     if vars.arg_move == "story" then
+        save.ss = true
         save.cc = 2
         if save.cc > save.mc then
             save.mc = save.cc

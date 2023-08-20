@@ -22,6 +22,7 @@ function notif:init(...)
         img_mirror_warn = gfx.image.new('images/ui/mirror_warn'),
         img_tt_warn = gfx.image.new('images/ui/tt_warn'),
         img_reset_confirmed = gfx.image.new('images/ui/reset_confirmed'),
+        img_demo_warn = gfx.image.new('images/ui/demo_warn'),
         sfx_ui = pd.sound.sampleplayer.new('audio/sfx/ui'),
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
@@ -67,13 +68,18 @@ function notif:init(...)
     elseif vars.arg_warn == "reset" then
         self.ui:setImage(assets.img_reset_confirmed)
         clearALLthesaves()
+    elseif vars.arg_warn == "demo" then
+        self.ui:setImage(assets.img_demo_warn)
+        clearALLthesaves()
     end
 
+    assets.sfx_ui:play()
     self:add()
 end
 
 function notif:update()
     if pd.buttonJustPressed('a') then
+        assets.sfx_whoosh:play()
         vars.ui_anim_out = gfx.animator.new(101, 120, 500, pd.easingFunctions.inSine)
         pd.timer.performAfterDelay(100, function()
             self.ui:remove()

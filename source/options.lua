@@ -513,6 +513,7 @@ function options:update()
             end
             if vars.current_name == 'replay_tutorial' then
                 if save.ss then
+                    scenemanager:transitionsceneoneway(tutorial, "options")
                 else
                     assets.sfx_locked:play()
                     shakiesx()

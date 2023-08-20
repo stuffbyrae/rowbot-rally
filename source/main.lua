@@ -113,16 +113,6 @@ function pd.gameWillTerminate()
     end
 end
 
-function pd.keyPressed(key)
-    if key == "q" then
-        unlockeverything()
-        print('cheat code!! everything unlocked')
-    elseif key == "w" then
-        clearALLthesaves()
-        print('cheat code!! everything cleared')
-    end
-end
-
 function pd.update()
     gfx.sprite.update()
     pd.timer.updateTimers()

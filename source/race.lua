@@ -15,6 +15,9 @@ function race:init(...)
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        if vars.arg_mode == "story" and not save.pr then
+            save.pr = true
+        end
         local img = gfx.image.new(400, 240)
         xoffset = 100
         pauserand = math.random(1, 8)
@@ -28,14 +31,16 @@ function race:init(...)
         gfx.popContext()
         pd.setMenuImage(img, xoffset)
         if not vars.race_finished then
-            menu:addCheckmarkMenuItem("show ui", save.ui, function(new)
+            menu:addCheckmarkMenuItem("pro ui", save.ui, function(new)
                 save.ui = new
                 if save.ui then
-                    self.react:add()
-                    self.meter:add()
-                else
                     self.react:remove()
                     self.meter:remove()
+                    self.timer:moveTo(-42, -11)
+                else
+                    self.react:add()
+                    self.meter:add()
+                    self.timer:moveTo(0, 5)
                 end
             end)
             if vars.race_in_progress then
@@ -46,6 +51,12 @@ function race:init(...)
             menu:addMenuItem("back to title", function()
                 scenemanager:transitionsceneoneway(title, false)
             end)
+        end
+    end
+
+    function pd.deviceWillLock()
+        if vars.arg_mode == "story" and not save.pr then
+            save.pr = true
         end
     end
 
@@ -64,6 +75,7 @@ function race:init(...)
         img_wake = gfx.image.new('images/race/wake'),
         img_overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
         img_water_bg = gfx.image.new('images/race/tracks/water_bg'),
+        img_water = gfx.image.new('images/race/tracks/water'),
         img_water_1 = gfx.image.new('images/race/tracks/water_1'),
         img_water_2 = gfx.image.new('images/race/tracks/water_2'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
@@ -81,6 +93,7 @@ function race:init(...)
         elapsed_time = 0,
         laps = 1,
         checkpoints = {false, false, false},
+        latest_checkpoint = 0,
         camera_offset = 0,
         camera_target_offset = -1000,
         player_turn = 0,
@@ -93,7 +106,8 @@ function race:init(...)
         reacting = false,
         boost_ready = false,
         boosts_available = 0,
-        boosting = false
+        boosting = false,
+        losttocpu = false
     }
 
     pd.timer.performAfterDelay(1, function() vars.camera_target_offset = 0 end)
@@ -106,6 +120,11 @@ function race:init(...)
     local atbt = {2, 3, 2, 4, 3, 4, 2}
     vars.boat_speed_stat = atbs[vars.arg_boat]
     vars.boat_turn_stat = atbt[vars.arg_boat]
+
+    if vars.arg_mode == "story" then
+        vars.totalcpucoords = #s1r1
+        vars.cpuboat_progression = 1
+    end
 
     assets.img_track = gfx.image.new('images/race/tracks/track' .. vars.arg_track)
     assets.img_trackc = gfx.image.new('images/race/tracks/trackc' .. vars.arg_track)
@@ -141,33 +160,26 @@ function race:init(...)
         assets.img_water_bg:draw(0, 0)
     end)
 
-    class('water_1').extends(gfx.sprite)
-    function water_1:init()
-        water_1.super.init(self)
-        self:setZIndex(-101)
-        self:setCenter(0, 0)
-        self:setIgnoresDrawOffset(true)
-        self:setImage(assets.img_water_1)
-        self:add()
-    end
-
-    class('water_2').extends(gfx.sprite)
-    function water_2:init()
-        water_2.super.init(self)
+    class('water').extends(gfx.sprite)
+    function water:init()
+        water.super.init(self)
         self:setZIndex(-100)
         self:setCenter(0, 0)
         self:setIgnoresDrawOffset(true)
-        self:setImage(assets.img_water_2)
+        self:setImage(assets.img_water)
         self:add()
     end
 
-    class('trackc').extends(gfx.sprite)
-    function trackc:init()
-        trackc.super.init(self)
-        self:setZIndex(-99)
-        self:setCenter(0, 0)
-        self:setImage(assets.img_trackc)
-        self:add()
+    class('cpuboat').extends(gfx.sprite)
+    function cpuboat:init(c, d)
+        cpuboat.super.init(self)
+        self:setZIndex(0)
+        self:setImage(assets.img_boat[1])
+        self:moveTo(s1r1[1], s1r1[2])
+        self:setCollideRect(0, 0, self:getSize())
+        if vars.arg_mode == "story" then
+            self:add()
+        end
     end
 
     class('boat').extends(gfx.sprite)
@@ -204,9 +216,13 @@ function race:init(...)
     class('timer').extends(gfx.sprite)
     function timer:init()
         timer.super.init(self)
-        self:moveTo(0, 5)
         self:setZIndex(99)
         self:setCenter(0, 0)
+        if save.ui then
+            self:moveTo(-42, -11)
+        else
+            self:moveTo(0, 5)
+        end
         self:setIgnoresDrawOffset(true)
         self:add()
     end
@@ -234,7 +250,7 @@ function race:init(...)
         self:setCenter(0.5, 0)
         self:setIgnoresDrawOffset(true)
         self:setImage(assets.img_react_idle)
-        if save.ui then
+        if not save.ui then
             self:add()
         end
     end
@@ -251,7 +267,7 @@ function race:init(...)
         self:setZIndex(99)
         self:setCenter(0.5, 1)
         self:setIgnoresDrawOffset(true)
-        if save.ui then
+        if not save.ui then
             self:add()
         end
     end
@@ -259,7 +275,7 @@ function race:init(...)
         local img = gfx.image.new(195, 38)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
-            gfx.fillRect(195, 0, -vars.player_turn*7, 38)
+            gfx.fillRect(195, 0, math.clamp(-vars.player_turn*7, 0, -100), 38)
             gfx.fillRect(0, 0, vars.boat_turn_rate:currentValue()*20, 38)
             img:setMaskImage(assets.img_meter_mask)
             assets.img_meter:draw(0, 0)
@@ -294,11 +310,9 @@ function race:init(...)
         end
     end
 
-    
-    self.water_1 = water_1()
-    self.water_2 = water_2()
-    self.trackc = trackc()
+    self.water = water()
     self.boat = boat(10, 40)
+    self.cpuboat = cpuboat()
     self.track = track()
     self.timer = timer()
     self.react = react()
@@ -316,9 +330,6 @@ function race:init(...)
         assets.img_item = gfx.image.new('images/race/item_' .. vars.boosts_available)
         self.item:setImage(assets.img_item)
         self.item:add()
-    end
-
-    if save.ui then
     end
 
     self:add()
@@ -354,6 +365,9 @@ function race:start(restart)
                 end
                 assets.img_item = gfx.image.new('images/race/item_' .. vars.boosts_available)
                 self.item:setImage(assets.img_item)
+            else
+                vars.losttocpu = false
+                vars.cpuboat_progression = 1
             end
         end
     end
@@ -386,34 +400,43 @@ function race:checkpoint(x, y)
                 return
             end
         end
-        if allcheckpointscleared then
+        if allcheckpointscleared and vars.latest_checkpoint == 3 then
             vars.laps += 1
+            vars.latest_checkpoint = 0
             if vars.laps <= 3 or vars.track_linear then
             assets.img_timer = gfx.image.new('images/race/timer_' .. vars.laps)
             vars.anim_timer_scale = gfx.animator.new(1000, 1.25, 1, pd.easingFunctions.outElastic)
             end
             vars.checkpoints = {false, false, false}
             if vars.laps > 3 or vars.track_linear then
-                self:finish(true)
+                if vars.losttocpu then
+                    self:finish(false)
+                else
+                    self:finish(true)
+                end
             end
         end
     elseif x == vars.checkpoint1.x and y == vars.checkpoint1.y then
-        if not vars.checkpoints[1] then
+        if not vars.checkpoints[1] and vars.latest_checkpoint == 0 then
             vars.checkpoints[1] = true
+            vars.latest_checkpoint = 1
         end
     elseif x == vars.checkpoint2.x and y == vars.checkpoint2.y then
-        if not vars.checkpoints[2] then
+        if not vars.checkpoints[2] and vars.latest_checkpoint == 1 then
             vars.checkpoints[2] = true
+            vars.latest_checkpoint = 2
         end
     elseif x == vars.checkpoint3.x and y == vars.checkpoint3.y then
-        if not vars.checkpoints[3] then
+        if not vars.checkpoints[3] and vars.latest_checkpoint == 2 then
             vars.checkpoints[3] = true
+            vars.latest_checkpoint = 3
         end
     end
 end
 
 function race:finish(win)
     if vars.race_in_progress then
+        print("FINISH!!!")
         vars.race_in_progress = false
         vars.race_finished = true
         vars.camera_target_offset = vars.boat_speed_stat*-40
@@ -441,7 +464,7 @@ function race:crash()
     local colno = 0
     for key, box in pairs(vars.boat_cols) do
         box[1]:moveTo(self.boat.x + box[2], self.boat.y + box[3])
-        if gfx.checkAlphaCollision(box[1]:getImage(), self.boat.x + box[2], self.boat.y + box[3], 0, self.trackc:getImage(), 0, 0, 0) then
+        if gfx.checkAlphaCollision(box[1]:getImage(), self.boat.x + box[2], self.boat.y + box[3], 0, assets.img_trackc, 0, 0, 0) then
             cols[#cols + 1] = true
             if colno == 0 then
                 colno = 1
@@ -454,6 +477,10 @@ function race:crash()
     end
     if colno > 0 then
         vars.boat_crashed = true
+        save.cr += 1
+        if not save.sr and vars.arg_mode == "story" then
+            save.sr = true
+        end
         self:reaction("crash")
         shakiesx()
         local reflectdeg = (self:reflectangle(cols) + 180) % 360
@@ -586,19 +613,37 @@ end
 
 function race:update()
     local gfx_x, gfx_y = gfx.getDrawOffset()
-    self.water_1:moveTo(gfx_x%-400, gfx_y%-240)
-    self.water_2:moveTo(gfx_x%-400, gfx_y%-240)
+    self.water:moveTo(gfx_x%-400, gfx_y%-240)
     vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.05
     vars.boat_old_rotation += (vars.boat_rotation - vars.boat_old_rotation) * 0.20
     if not vars.race_started then
         gfx.setDrawOffset(200-self.boat.x, 120-self.boat.y+vars.camera_offset)
+    else
+        if vars.arg_mode == "story" then
+            if vars.cpuboat_progression >= vars.totalcpucoords - 2 then
+                vars.cpuboat_progression = vars.totalcpucoords - 2
+            else
+                vars.cpuboat_progression += 1.5
+            end
+            if (vars.cpuboat_progression - 1) % 3 == 0 then
+                self.cpuboat:moveTo(s1r1[vars.cpuboat_progression], s1r1[vars.cpuboat_progression+1])
+                self.cpuboat:setImage(assets.img_boat[math.floor((s1r1[vars.cpuboat_progression+2]) / 6)+1])
+            else
+                local next = math.clamp(vars.cpuboat_progression+1.5, 2.5, vars.totalcpucoords - 2)
+                local prev = math.clamp(vars.cpuboat_progression-1.5, 1, vars.totalcpucoords - 5)
+                self.cpuboat:moveTo(s1r1[prev] + (s1r1[next] - s1r1[prev]) * 0.5, s1r1[prev+1] + (s1r1[next+1] - s1r1[prev+1]) * 0.5)
+            end
+            if vars.cpuboat_progression >= vars.totalcpucoords - 21 then
+                vars.losttocpu = true
+            end
+        end
     end
-
     if pd.buttonJustPressed('up') then self:reaction("idle") end
     if pd.buttonJustPressed('left') then self:reaction("happy") end
     if pd.buttonJustPressed('down') then self:reaction("shocked") end
     if pd.buttonJustPressed('right') then self:reaction("confused") end
     if vars.race_in_progress then
+        save.tr += 1
         vars.elapsed_time += 1
         local c = self.boat:overlappingSprites()
         if #c > 0 then
@@ -613,7 +658,7 @@ function race:update()
             vars.boat_rotation = vars.anim_boat_crash_r:currentValue()
             vars.player_turn -= vars.boat_turn_stat/5
         else
-            if gfx.checkAlphaCollision(self.boat:getImage(), self.boat.x - (self.boat.width / 2), self.boat.y - (self.boat.height / 2), 0, self.trackc:getImage(), 0, 0, 0) then
+            if gfx.checkAlphaCollision(self.boat:getImage(), self.boat.x - (self.boat.width / 2), self.boat.y - (self.boat.height / 2), 0, assets.img_trackc, 0, 0, 0) then
                 self:crash()
             end
             if vars.player_turn < change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end

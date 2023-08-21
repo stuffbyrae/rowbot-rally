@@ -5,6 +5,7 @@ import 'CoreLibs/sprites'
 import 'CoreLibs/math'
 import 'CoreLibs/animation'
 import 'pdParticles'
+import 'stagecpucoords'
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -12,9 +13,8 @@ local gfx <const> = pd.graphics
 pd.display.setRefreshRate(30)
 show_crank = false
 first_pause = true
-print(pd.metadata.bundleID)
 demo = false -- just so you know mr. funny man, changing this variable in the demo will only break things. if you're interested in the full game, i (obviously) implore you to buy it! <3
-if pd.metadata.bundleID == "wtf.rae.rowbotrallydemo" then
+if string.find(pd.metadata.bundleID, "demo") then
     demo = true
 end
 
@@ -25,15 +25,15 @@ scenemanager = scenemanager()
 gfx.setBackgroundColor(gfx.kColorBlack)
 
 function unlockeverything()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 7, cc = 0, mc = 10, cs = true, ss = true, mu = 5, fx = 5, ts = true, ms = true, ui = true}
+    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 7, cc = 0, mc = 10, cs = true, ss = true, mu = 5, fx = 5, ts = true, ms = true, ui = false, fp = false,  sr = false, cr = 0, tr = 0, pr = false}
 end
 
 function unlocksomethings()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 4, cc = 0, mc = 5, cs = false, ss = true, mu = 5, fx = 5, ts = true, ms = false, ui = true}
+    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 4, cc = 0, mc = 5, cs = false, ss = true, mu = 5, fx = 5, ts = true, ms = false, ui = false, fp = false,  sr = false, cr = 0, tr = 0, pr = false}
 end
 
 function clearALLthesaves()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = true}
+    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = false, fp = false, sr = false, cr = 0, tr = 0, pr = false}
 end
 
 save = pd.datastore.read()
@@ -65,7 +65,12 @@ save = {
     fx = 5, -- SFX
     ts = false, -- Has the time trials notif been seen?
     ms = false, -- Has the mirror mode notif been seen? - this is for the post-launch update. if you're seeing this, shh!
-    ui = true -- Show detailed race UI?
+    ui = false, -- Show detailed race UI?
+    fp = false, -- Show FPS? (hold B, press A!),
+    sr = false, -- crashed during the story at all?
+    cr = 0, -- crash count
+    tr = 0, -- total time spent actively racing
+    pr = false -- paused at all during the active story?
 }
 end
 
@@ -114,6 +119,9 @@ function pd.gameWillTerminate()
 end
 
 function pd.update()
+    if pd.buttonIsPressed('b') and pd.buttonJustPressed('a') then
+        save.fp = not save.fp
+    end
     gfx.sprite.update()
     pd.timer.updateTimers()
     if pd.isCrankDocked() and show_crank then
@@ -126,5 +134,7 @@ function pd.update()
             pd.display.setOffset(0, shakies_anim:currentValue())
         end
     end
-    playdate:drawFPS(0, 0)
+    if save.fp then
+        pd.drawFPS(3, 225)
+    end
 end

@@ -24,6 +24,8 @@ function opening:init()
         if save.as then
             save.cc = 0
             save.ct = 0
+            save.pr = false
+            save.sr = false
         else
             save.as = true
         end

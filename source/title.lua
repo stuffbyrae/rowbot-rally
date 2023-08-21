@@ -23,13 +23,7 @@ function title:init(...)
     assets = {
         img_button_start = gfx.image.new('images/ui/button_start'),
         img_wave = gfx.image.new('images/title/wave'),
-        img_bg = gfx.image.new('images/title/bg'),
         img_checker = gfx.image.new('images/title/checker'),
-        img_sel_continue = gfx.image.new('images/title/sel_continue'),
-        img_sel_new = gfx.image.new('images/title/sel_new'),
-        img_sel_time_trials = gfx.image.new('images/title/sel_time_trials'),
-        img_sel_options = gfx.image.new('images/title/sel_options'),
-        img_sel_locked = gfx.image.new('images/title/sel_locked'),
         img_new_warn = gfx.image.new('images/ui/new_warn'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         img_arrow = gfx.image.new('images/ui/arrow'),
@@ -55,8 +49,10 @@ function title:init(...)
 
     if demo then
         assets.img_logo = gfx.image.new('images/ui/logo_demo')
+        assets.img_bg = gfx.image.new('images/title/bg_demo')
     else
         assets.img_logo = gfx.image.new('images/ui/logo')
+        assets.img_bg = gfx.image.new('images/title/bg')
     end
     
     vars = {
@@ -67,7 +63,7 @@ function title:init(...)
         menu_scrollable = false,
         selector_moving = false,
         new_warn_open = false,
-        menu_list = {'new', 'time_trials', 'options'},
+        menu_list = {},
         current_menu_item = 1,
         last_menu_item = 1,
         checker_anim_x = gfx.animator.new(2300, 0, -124),
@@ -87,8 +83,20 @@ function title:init(...)
     }
 
     if save.as then
-        vars.menu_list = {'continue', 'new', 'time_trials', 'options'}
+        vars.menu_list[#vars.menu_list+1] = 'continue'
+        assets.img_sel_continue = gfx.image.new('images/title/sel_continue')
     end
+    vars.menu_list[#vars.menu_list+1] = 'new'
+    if not demo then
+        assets.img_sel_time_trials = gfx.image.new('images/title/sel_time_trials')
+        assets.img_sel_locked = gfx.image.new('images/title/sel_locked')
+        vars.menu_list[#vars.menu_list+1] = 'time_trials'
+        assets.img_sel_new = gfx.image.new('images/title/sel_new')
+    else
+        assets.img_sel_new = gfx.image.new('images/title/sel_new_demo')
+    end
+    assets.img_sel_options = gfx.image.new('images/title/sel_options')
+    vars.menu_list[#vars.menu_list+1] = 'options'
     vars.current_name = vars.menu_list[vars.current_menu_item]
     
     vars.checker_anim_x.repeatCount = -1

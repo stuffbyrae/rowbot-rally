@@ -17,6 +17,19 @@ function options:init()
         local img = gfx.image.new(400, 240)
         xoffset = 0
         pd.setMenuImage(img, xoffset)
+        menu:addMenuItem("set defaults", function()
+            save.mu = 5
+            save.fx = 5
+            save.ui = false
+            assets.music:setVolume(save.mu/5)
+            adjust_sfx_volume()
+            if vars.current_name == "music" then
+                self.volume:setImage(assets.img_music_slider[save.mu+1])
+            elseif vars.current_name == "sfx" then
+                self.volume:setImage(assets.img_sfx_slider[save.fx+1])
+            end
+            vars.selector_pos_y = gfx.animator.new(1, vars.selector_pos_y:currentValue(), vars.selector_pos_y:currentValue(), pd.easingFunctions.outBack)
+        end)
         menu:addMenuItem("back to title", function()
             scenemanager:transitionsceneoneway(title, false)
         end)
@@ -82,16 +95,21 @@ function options:init()
         assets.sfx_whoosh:setVolume(save.fx/5)
         assets.sfx_menu:setVolume(save.fx/5)
         assets.sfx_ping:setVolume(save.fx/5)
-        assets.sfx_clickon:setVolume(save.fx/5)
-        assets.sfx_clickoff:setVolume(save.fx/5)
-        assets.sfx_build:setVolume(save.fx/5)
-        assets.sfx_cancel:setVolume(save.fx/5)
-        assets.sfx_cancelsmall:setVolume(save.fx/5)
+        if not demo then
+            assets.sfx_clickon:setVolume(save.fx/5)
+            assets.sfx_clickoff:setVolume(save.fx/5)
+            assets.sfx_build:setVolume(save.fx/5)
+            assets.sfx_cancel:setVolume(save.fx/5)
+            assets.sfx_cancelsmall:setVolume(save.fx/5)
+        end
     end
     adjust_sfx_volume()
     assets.music:setVolume(save.mu/5)
     assets.music:setLoopRange(2.672)
     assets.music:play(0)
+
+    if not demo then
+    end
     
     gfx.setFont(assets.pedallica)
     assets.text_img = gfx.imageWithText('Adjust the volume of music throughout the game - this applies to gameplay and cutscenes.', 200, 75)
@@ -189,9 +207,9 @@ function options:init()
                 gfx.drawText('???', 8, 111)
             end
             if save.ui then
-                gfx.drawText('Race UI: Yea', 8, 146)
+                gfx.drawText('Pro UI: Yea', 8, 146)
             else
-                gfx.drawText('Race UI: Nah', 8, 146)
+                gfx.drawText('Pro UI: Nah', 8, 146)
             end
             gfx.drawText('Reset Data', 8, 201)
             gfx.setColor(gfx.kColorXOR)
@@ -429,8 +447,8 @@ function options:change_sel(dir)
     end
     if vars.current_name == 'ui' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 146, pd.easingFunctions.outBack)
-        vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 97, pd.easingFunctions.outBack)
-        assets.text_img = gfx.imageWithText('Show or hide the detailed UI during races. You can also change this setting during races, in the Slide menu.', 200, 75)
+        vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 83, pd.easingFunctions.outBack)
+        assets.text_img = gfx.imageWithText('Toggles a simpler UI while you\'re in a race. You can also change this setting during races, in the Slide menu.', 200, 75)
     end
     if vars.current_name == 'reset' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 201, pd.easingFunctions.outBack)
@@ -548,13 +566,18 @@ function options:update()
                 vars.selector_pos_y = gfx.animator.new(1, 146, 146, pd.easingFunctions.outBack)
             end
             if vars.current_name == 'reset' then
-                self.ui:add()
+                if not demo then
+                    self.ui:add()
                     vars.ui_anim_in:reset()
                     assets.sfx_ui:play()
                     pd.timer.performAfterDelay(200, function()
                         vars.reset_warn_open = true
                     end)
                     vars.menu_scrollable = false
+                else
+                    shakiesx()
+                    assets.sfx_bonk:play()
+                end
             end
         end
     end

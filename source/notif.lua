@@ -23,6 +23,7 @@ function notif:init(...)
         img_tt_warn = gfx.image.new('images/ui/tt_warn'),
         img_reset_confirmed = gfx.image.new('images/ui/reset_confirmed'),
         img_demo_warn = gfx.image.new('images/ui/demo_warn'),
+        img_fullgame_warn = gfx.image.new('images/ui/fullgame_warn'),
         sfx_ui = pd.sound.sampleplayer.new('audio/sfx/ui'),
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
@@ -71,6 +72,8 @@ function notif:init(...)
     elseif vars.arg_warn == "demo" then
         self.ui:setImage(assets.img_demo_warn)
         clearALLthesaves()
+    elseif vars.arg_warn == "fullgame" then
+        self.ui:setImage(assets.img_fullgame_warn)
     end
 
     assets.sfx_ui:play()

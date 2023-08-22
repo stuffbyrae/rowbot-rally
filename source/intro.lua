@@ -75,52 +75,54 @@ function intro:init(...)
         self:add()
     end
     function bg:update()
-        local img = gfx.image.new(400, 240)
-        gfx.pushContext(img)
-            assets.img_fade:drawImage(math.floor(vars.anim_fade:currentValue()), 0, 0)
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            gfx.setColor(gfx.kColorWhite)
-            gfx.fillRect(0, 75, 5*vars.anim_bg:currentValue(), 60)
-            if vars.arg_track == 1 then
-                assets.kapel:drawText('STAGE 1', 15*vars.anim_bg:currentValue(), 10)
-                assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage1_name"), 15*vars.anim_bg:currentValue(), 20)
-                assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage1_vs"), 15*vars.anim_bg:currentValue(), 45)
-                assets.pedallica:drawText(gfx.getLocalizedText("stage1_desc"), 25*vars.anim_bg:currentValue(), 75)
-            elseif vars.arg_track == 2 then
-                assets.kapel:drawText('STAGE 2', 15*vars.anim_bg:currentValue(), 10)
-                assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage2_name"), 15*vars.anim_bg:currentValue(), 20)
-                assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage2_vs"), 15*vars.anim_bg:currentValue(), 45)
-                assets.pedallica:drawText(gfx.getLocalizedText("stage2_desc"), 25*vars.anim_bg:currentValue(), 75)
-            elseif vars.arg_track == 3 then
-                assets.kapel:drawText('STAGE 3', 15*vars.anim_bg:currentValue(), 10)
-                assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage3_name"), 15*vars.anim_bg:currentValue(), 20)
-                assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage3_vs"), 15*vars.anim_bg:currentValue(), 45)
-                assets.pedallica:drawText(gfx.getLocalizedText("stage3_desc"), 25*vars.anim_bg:currentValue(), 75)
-            elseif vars.arg_track == 4 then
-                assets.kapel:drawText('STAGE 4', 15*vars.anim_bg:currentValue(), 10)
-                assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage4_name"), 15*vars.anim_bg:currentValue(), 20)
-                assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage4_vs"), 15*vars.anim_bg:currentValue(), 45)
-                assets.pedallica:drawText(gfx.getLocalizedText("stage4_desc"), 25*vars.anim_bg:currentValue(), 75)
-            elseif vars.arg_track == 5 then
-                assets.kapel:drawText('STAGE 5', 15*vars.anim_bg:currentValue(), 10)
-                assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage5_name"), 15*vars.anim_bg:currentValue(), 20)
-                assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage5_vs"), 15*vars.anim_bg:currentValue(), 45)
-                assets.pedallica:drawText(gfx.getLocalizedText("stage5_desc"), 25*vars.anim_bg:currentValue(), 75)
-            elseif vars.arg_track == 6 then
-                assets.kapel:drawText('STAGE 6', 15*vars.anim_bg:currentValue(), 10)
-                assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage6_name"), 15*vars.anim_bg:currentValue(), 20)
-                assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage6_vs"), 15*vars.anim_bg:currentValue(), 45)
-                assets.pedallica:drawText(gfx.getLocalizedText("stage6_desc"), 25*vars.anim_bg:currentValue(), 75)
-            elseif vars.arg_track == 7 then
-                assets.kapel:drawText('FINAL STAGE', 15*vars.anim_bg:currentValue(), 10)
-                assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage7_name"), 15*vars.anim_bg:currentValue(), 20)
-                assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage7_vs"), 15*vars.anim_bg:currentValue(), 45)
-                assets.pedallica:drawText(gfx.getLocalizedText("stage7_desc"), 25*vars.anim_bg:currentValue(), 75)
-            end
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            vars.img_preview_anim:draw(211*vars.anim_preview:currentValue(), 0)
-        gfx.popContext()
-        self:setImage(img)
+        if not vars.anim_bg:ended() then
+            local img = gfx.image.new(400, 240)
+            gfx.pushContext(img)
+                assets.img_fade:drawImage(math.floor(vars.anim_fade:currentValue()), 0, 0)
+                gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillRect(0, 75, 5*vars.anim_bg:currentValue(), 60)
+                if vars.arg_track == 1 then
+                    assets.kapel:drawText('STAGE 1', 15*vars.anim_bg:currentValue(), 10)
+                    assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage1_name"), 15*vars.anim_bg:currentValue(), 20)
+                    assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage1_vs"), 15*vars.anim_bg:currentValue(), 45)
+                    assets.pedallica:drawText(gfx.getLocalizedText("stage1_desc"), 25*vars.anim_bg:currentValue(), 75)
+                elseif vars.arg_track == 2 then
+                    assets.kapel:drawText('STAGE 2', 15*vars.anim_bg:currentValue(), 10)
+                    assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage2_name"), 15*vars.anim_bg:currentValue(), 20)
+                    assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage2_vs"), 15*vars.anim_bg:currentValue(), 45)
+                    assets.pedallica:drawText(gfx.getLocalizedText("stage2_desc"), 25*vars.anim_bg:currentValue(), 75)
+                elseif vars.arg_track == 3 then
+                    assets.kapel:drawText('STAGE 3', 15*vars.anim_bg:currentValue(), 10)
+                    assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage3_name"), 15*vars.anim_bg:currentValue(), 20)
+                    assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage3_vs"), 15*vars.anim_bg:currentValue(), 45)
+                    assets.pedallica:drawText(gfx.getLocalizedText("stage3_desc"), 25*vars.anim_bg:currentValue(), 75)
+                elseif vars.arg_track == 4 then
+                    assets.kapel:drawText('STAGE 4', 15*vars.anim_bg:currentValue(), 10)
+                    assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage4_name"), 15*vars.anim_bg:currentValue(), 20)
+                    assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage4_vs"), 15*vars.anim_bg:currentValue(), 45)
+                    assets.pedallica:drawText(gfx.getLocalizedText("stage4_desc"), 25*vars.anim_bg:currentValue(), 75)
+                elseif vars.arg_track == 5 then
+                    assets.kapel:drawText('STAGE 5', 15*vars.anim_bg:currentValue(), 10)
+                    assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage5_name"), 15*vars.anim_bg:currentValue(), 20)
+                    assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage5_vs"), 15*vars.anim_bg:currentValue(), 45)
+                    assets.pedallica:drawText(gfx.getLocalizedText("stage5_desc"), 25*vars.anim_bg:currentValue(), 75)
+                elseif vars.arg_track == 6 then
+                    assets.kapel:drawText('STAGE 6', 15*vars.anim_bg:currentValue(), 10)
+                    assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage6_name"), 15*vars.anim_bg:currentValue(), 20)
+                    assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage6_vs"), 15*vars.anim_bg:currentValue(), 45)
+                    assets.pedallica:drawText(gfx.getLocalizedText("stage6_desc"), 25*vars.anim_bg:currentValue(), 75)
+                elseif vars.arg_track == 7 then
+                    assets.kapel:drawText('FINAL STAGE', 15*vars.anim_bg:currentValue(), 10)
+                    assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage7_name"), 15*vars.anim_bg:currentValue(), 20)
+                    assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage7_vs"), 15*vars.anim_bg:currentValue(), 45)
+                    assets.pedallica:drawText(gfx.getLocalizedText("stage7_desc"), 25*vars.anim_bg:currentValue(), 75)
+                end
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                vars.img_preview_anim:draw(211*vars.anim_preview:currentValue(), 0)
+            gfx.popContext()
+            self:setImage(img)
+        end
     end
 
     class('prompt').extends(gfx.sprite)
@@ -165,7 +167,9 @@ function intro:init(...)
         self:add()
     end
     function prompt:update()
-        self:moveTo(10, vars.anim_prompt:currentValue())
+        if not vars.anim_prompt:ended() then
+            self:moveTo(10, vars.anim_prompt:currentValue())
+        end
     end
 
     class('a').extends(gfx.sprite)
@@ -177,7 +181,9 @@ function intro:init(...)
         self:add()
     end
     function a:update()
-        self:moveTo(390, vars.anim_prompt:currentValue())
+        if not vars.anim_prompt:ended() then
+            self:moveTo(390, vars.anim_prompt:currentValue())
+        end
     end
 
     self.bg = bg()

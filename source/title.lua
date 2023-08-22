@@ -18,6 +18,11 @@ function title:init(...)
         local img = gfx.image.new(400, 240)
         xoffset = 0
         pd.setMenuImage(img, xoffset)
+        if demo then
+            menu:addMenuItem("🌐 full game", function()
+                scenemanager:transitionsceneoneway(notif, "fullgame", "title")
+            end)
+        end
     end
     
     assets = {
@@ -363,8 +368,15 @@ function title:update()
     end
     if vars.new_warn_open == true then
         if pd.buttonJustPressed('a') then
-            scenemanager:transitionsceneoneway(opening)
+            scenemanager:transitionsceneoneway(opening, "story")
             assets.sfx_proceed:play()
+            if not demo then
+                save.st += 1
+                save.cc = 0
+                save.ct = 0
+                save.pr = false
+                save.sr = false
+            end
         end
         if pd.buttonJustPressed('b') then
             vars.ui_anim_out:reset()
@@ -393,7 +405,7 @@ function title:update()
             if vars.current_name == 'continue' then
                 assets.sfx_proceed:play()
                 if save.cc == 0 then
-                    scenemanager:transitionsceneoneway(opening)
+                    scenemanager:transitionsceneoneway(opening, "story")
                 else
                     if save.mt >= 1 and save.ts == false then
                         scenemanager:transitionsceneoneway(notif, "tt", "story")
@@ -410,8 +422,14 @@ function title:update()
                     vars.new_warn_open = true
                     vars.menu_scrollable = false
                 else
-                    scenemanager:transitionsceneoneway(opening)
+                    if save.st == 0 then
+                        scenemanager:transitionsceneoneway(cutscene, 1, "story")
+                    else
+                        scenemanager:transitionsceneoneway(opening, "story")
+                    end
                     assets.sfx_proceed:play()
+                    save.as = true
+                    save.st += 1
                 end
             end
             if vars.current_name == 'time_trials' then
@@ -422,7 +440,7 @@ function title:update()
                     assets.sfx_locked:play()
                     pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
                 else
-                    scenemanager:transitionsceneblastdoors(garage)
+                    scenemanager:transitionscene(garage)
                 end
             end
             if vars.current_name == 'options' then

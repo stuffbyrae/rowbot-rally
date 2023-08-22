@@ -107,16 +107,13 @@ function options:init()
     assets.music:setVolume(save.mu/5)
     assets.music:setLoopRange(2.672)
     assets.music:play(0)
-
-    if not demo then
-    end
     
     gfx.setFont(assets.pedallica)
     assets.text_img = gfx.imageWithText('Adjust the volume of music throughout the game - this applies to gameplay and cutscenes.', 200, 75)
     vars = {
         gear_large_anim = gfx.animation.loop.new(25, assets.gear_large, true),
         gear_small_anim = gfx.animation.loop.new(25, assets.gear_small, true),
-        menu_scrollable = true,
+        menu_scrollable = false,
         reset_warn_open = false,
         scenepicker_open = false,
         reset_progress = 0,
@@ -147,6 +144,10 @@ function options:init()
     if save.mc >= 8 then table.insert(vars.scenepicker_list, '8') end
     if save.mc >= 9 then table.insert(vars.scenepicker_list, '9') end
     if save.mc >= 10 then table.insert(vars.scenepicker_list, '10') else table.insert(vars.scenepicker_list, 'more') end
+
+    pd.timer.performAfterDelay(1001, function()
+        vars.menu_scrollable = true
+    end)
 
     vars.current_name = vars.menu_list[vars.current_menu_item]
     vars.scenepicker_name = vars.scenepicker_list[vars.current_scenepicker_item]

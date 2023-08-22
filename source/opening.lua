@@ -2,8 +2,9 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 class('opening').extends(gfx.sprite)
-function opening:init()
+function opening:init(...)
     opening.super.init(self)
+    local args = {...}
     show_crank = false
 
     function pd.gameWillPause()
@@ -20,30 +21,25 @@ function opening:init()
         end)
     end
 
-    if not demo then
-        if save.as then
-            save.cc = 0
-            save.ct = 0
-            save.pr = false
-            save.sr = false
-        else
-            save.as = true
-        end
-        end
-
     assets = {
         img_opening = gfx.imagetable.new('images/story/opening'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade')
     }
 
     vars = {
+        arg_move = args[1],
         fading = true,
         finished = false,
         progress = 1
     }
 
     vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
-    pd.timer.performAfterDelay(500, function() fading = false self.fade:remove() end)
+    pd.timer.performAfterDelay(500, function()
+        if not vars.finished then
+            fading = false
+            self.fade:remove()
+        end
+    end)
 
     class('images').extends(gfx.sprite)
     function images:init()
@@ -73,12 +69,19 @@ function opening:init()
 end
 
 function opening:finish()
-    fading = true
-    finished = true
+    vars.fading = true
+    vars.finished = true
     self.fade:add()
     vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 1)
     vars.fade_anim:reset()
-    pd.timer.performAfterDelay(500, function() scenemanager:switchscene(cutscene, 1, "story") end)
+    pd.timer.performAfterDelay(500, function()
+        if vars.arg_move == "title" then
+            scenemanager:switchscene(title, false)
+            save.fl = false
+        else
+            scenemanager:switchscene(cutscene, 1, "story")
+        end
+    end)
 end
 
 function opening:update()

@@ -15,9 +15,6 @@ function race:init(...)
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        if vars.arg_mode == "story" and not save.pr then
-            save.pr = true
-        end
         local img = gfx.image.new(400, 240)
         xoffset = 100
         pauserand = math.random(1, 8)
@@ -54,14 +51,7 @@ function race:init(...)
         end
     end
 
-    function pd.deviceWillLock()
-        if vars.arg_mode == "story" and not save.pr then
-            save.pr = true
-        end
-    end
-
     assets = {
-        img_item = gfx.image.new('images/race/item'),
         img_item_active = gfx.image.new('images/race/item_active'),
         img_item_used = gfx.image.new('images/race/item_used'),
         anim_timer_scale = gfx.animator.new(1, 1, 1),
@@ -72,7 +62,6 @@ function race:init(...)
         img_react_crash = gfx.image.new('images/race/react_crash'),
         img_meter = gfx.image.new('images/race/meter'),
         img_meter_mask = gfx.image.new('images/race/meter_mask'),
-        img_wake = gfx.image.new('images/race/wake'),
         img_overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
         img_water_bg = gfx.image.new('images/race/tracks/water_bg'),
         img_water = gfx.image.new('images/race/tracks/water'),
@@ -107,8 +96,13 @@ function race:init(...)
         boost_ready = false,
         boosts_available = 0,
         boosting = false,
-        losttocpu = false
+        losttocpu = false,
+        anim_water_x = gfx.animator.new(20000, 0, -400),
+        anim_water_y = gfx.animator.new(20000, 0, -240)
     }
+
+    vars.anim_water_x.repeatCount = -1
+    vars.anim_water_y.repeatCount = -1
 
     pd.timer.performAfterDelay(1, function() vars.camera_target_offset = 0 end)
     vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
@@ -275,7 +269,8 @@ function race:init(...)
         local img = gfx.image.new(195, 38)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
-            gfx.fillRect(195, 0, math.clamp(-vars.player_turn*7, 0, -100), 38)
+            local playerturn = math.clamp(vars.player_turn*7, 0, 100)
+            gfx.fillRect(195, 0, -playerturn, 38)
             gfx.fillRect(0, 0, vars.boat_turn_rate:currentValue()*20, 38)
             img:setMaskImage(assets.img_meter_mask)
             assets.img_meter:draw(0, 0)
@@ -441,7 +436,7 @@ function race:finish(win)
         vars.race_finished = true
         vars.camera_target_offset = vars.boat_speed_stat*-40
         vars.boat_speed_rate = gfx.animator.new(1000, vars.boat_speed_stat*1.5, 0, pd.easingFunctions.inOutSine)
-        vars.anim_finish_turn = gfx.animator.new(1000, vars.boat_rotation, (vars.boat_rotation + (vars.boat_old_rotation - vars.boat_rotation)) * (vars.boat_turn_stat), pd.easingFunctions.outCubic)
+        vars.anim_finish_turn = gfx.animator.new(1000, vars.boat_rotation, math.clamp(vars.boat_old_rotation, vars.boat_rotation-40, vars.boat_rotation+40), pd.easingFunctions.outCubic)
         self.item:remove()
         self.react:remove()
         self.meter:remove()
@@ -613,7 +608,7 @@ end
 
 function race:update()
     local gfx_x, gfx_y = gfx.getDrawOffset()
-    self.water:moveTo(gfx_x%-400, gfx_y%-240)
+    self.water:moveTo(vars.anim_water_x:currentValue()+(gfx_x%-400), vars.anim_water_y:currentValue()+(gfx_y%-240))
     vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.05
     vars.boat_old_rotation += (vars.boat_rotation - vars.boat_old_rotation) * 0.20
     if not vars.race_started then
@@ -638,10 +633,6 @@ function race:update()
             end
         end
     end
-    if pd.buttonJustPressed('up') then self:reaction("idle") end
-    if pd.buttonJustPressed('left') then self:reaction("happy") end
-    if pd.buttonJustPressed('down') then self:reaction("shocked") end
-    if pd.buttonJustPressed('right') then self:reaction("confused") end
     if vars.race_in_progress then
         save.tr += 1
         vars.elapsed_time += 1

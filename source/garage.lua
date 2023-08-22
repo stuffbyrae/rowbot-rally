@@ -326,12 +326,12 @@ function garage:update()
                 return
             else
                 local boat = vars.current_menu_item
-                scenemanager:transitionsceneblastdoors(tracks, boat)
+                scenemanager:transitionscene(tracks, boat)
             end
         end
     end
     if pd.buttonJustPressed('b') then
-        scenemanager:transitionsceneblastdoors(title, false)
+        scenemanager:transitionsceneoneway(title, false)
     end
     if pd.buttonJustPressed('left') then
         if vars.boat_transitioning == false then

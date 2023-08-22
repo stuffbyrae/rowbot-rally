@@ -25,15 +25,11 @@ scenemanager = scenemanager()
 gfx.setBackgroundColor(gfx.kColorBlack)
 
 function unlockeverything()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 7, cc = 0, mc = 10, cs = true, ss = true, mu = 5, fx = 5, ts = true, ms = true, ui = false, fp = false,  sr = false, cr = 0, tr = 0, pr = false}
-end
-
-function unlocksomethings()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 4, cc = 0, mc = 5, cs = false, ss = true, mu = 5, fx = 5, ts = true, ms = false, ui = false, fp = false,  sr = false, cr = 0, tr = 0, pr = false}
+    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 7, cc = 0, mc = 10, cs = true, ss = true, mu = 5, fx = 5, ts = true, ms = true, ui = false, fp = false, fl = false, st = 1, sr = false, cr = 0, tr = 0, pr = false}
 end
 
 function clearALLthesaves()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = false, fp = false, sr = false, cr = 0, tr = 0, pr = false}
+    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = false, fp = false, fl = true, st = 0, sr = false, cr = 0, tr = 0, pr = false}
 end
 
 save = pd.datastore.read()
@@ -61,12 +57,14 @@ save = {
     mc = 0, -- Highest-seen story cutscene
     cs = false, -- Credits seen?
     ss = false, -- Tutorial seen?
-    mu = 5, -- Music
-    fx = 5, -- SFX
+    mu = 5, -- Music volume
+    fx = 5, -- SFX volume
     ts = false, -- Has the time trials notif been seen?
     ms = false, -- Has the mirror mode notif been seen? - this is for the post-launch update. if you're seeing this, shh!
     ui = false, -- Show detailed race UI?
     fp = false, -- Show FPS? (hold B, press A!),
+    fl = true, -- is this the first launch of the game?
+    st = 0, -- Count how many new games they've started
     sr = false, -- crashed during the story at all?
     cr = 0, -- crash count
     tr = 0, -- total time spent actively racing
@@ -98,7 +96,11 @@ function shakiesy()
     end
 end
 
-scenemanager:switchscene(title, false)
+if save.fl then
+    scenemanager:switchscene(opening, "title")
+else
+    scenemanager:switchscene(title, false)
+end
 
 function pd.gameWillTerminate()
     if not demo then

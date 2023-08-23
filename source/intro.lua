@@ -200,7 +200,7 @@ function intro:transition()
     vars.anim_preview = gfx.animator.new(350, 1, 2, pd.easingFunctions.outBack)
     vars.anim_prompt = gfx.animator.new(200, 230, 320, pd.easingFunctions.outBack, 50)
     assets.sfx_whoosh:play()
-    pd.timer.performAfterDelay(355, function()
+    pd.timer.performAfterDelay(400, function()
         if vars.arg_track == 1 then
             scenemanager:switchscene(race, 1, "story", 1, false)
         elseif vars.arg_track == 2 then

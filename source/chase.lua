@@ -29,16 +29,16 @@ function chase:init()
         end
         pd.setMenuImage(img, xoffset)
         if save.mc >= 7 then
-            menu:addMenuItem("skip chase", function()
+            menu:addMenuItem(gfx.getLocalizedText("skipchase"), function()
                 self:win()
             end)
         end
         if vars.lost_actions_open then
-            menu:addMenuItem("retry?", function()
+            menu:addMenuItem(gfx.getLocalizedText("retry"), function()
                 scenemanager:transitionsceneoneway(chase)
             end)
         end
-        menu:addMenuItem("back to title", function()
+        menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
             scenemanager:transitionsceneoneway(title, false)
         end)
     end

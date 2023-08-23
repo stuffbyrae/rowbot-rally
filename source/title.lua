@@ -19,7 +19,7 @@ function title:init(...)
         xoffset = 0
         pd.setMenuImage(img, xoffset)
         if demo then
-            menu:addMenuItem("🌐 full game", function()
+            menu:addMenuItem(gfx.getLocalizedText("fullgame"), function()
                 scenemanager:transitionsceneoneway(notif, "fullgame", "title")
             end)
         end
@@ -377,6 +377,7 @@ function title:update()
                 save.pr = false
                 save.sr = false
             end
+            vars.new_warn_open = false
         end
         if pd.buttonJustPressed('b') then
             vars.ui_anim_out:reset()
@@ -413,6 +414,7 @@ function title:update()
                         scenemanager:transitionsceneoneway(cutscene, save.cc, "story")
                     end
                 end
+                vars.menu_scrollable = false
             end
             if vars.current_name == 'new' then
                 if save.as then
@@ -430,6 +432,7 @@ function title:update()
                     assets.sfx_proceed:play()
                     save.as = true
                     save.st += 1
+                    vars.menu_scrollable = false
                 end
             end
             if vars.current_name == 'time_trials' then
@@ -441,11 +444,13 @@ function title:update()
                     pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
                 else
                     scenemanager:transitionscene(garage)
+                    vars.menu_scrollable = false
                 end
             end
             if vars.current_name == 'options' then
                 scenemanager:transitionscene(options)
                 assets.sfx_proceed:play()
+                vars.menu_scrollable = false
             end
         end
     end

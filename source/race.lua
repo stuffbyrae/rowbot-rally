@@ -28,7 +28,7 @@ function race:init(...)
         gfx.popContext()
         pd.setMenuImage(img, xoffset)
         if not vars.race_finished then
-            menu:addCheckmarkMenuItem("pro ui", save.ui, function(new)
+            menu:addCheckmarkMenuItem(gfx.getLocalizedText("proui"), save.ui, function(new)
                 save.ui = new
                 if save.ui then
                     self.react:remove()
@@ -41,11 +41,11 @@ function race:init(...)
                 end
             end)
             if vars.race_in_progress then
-                menu:addMenuItem("restart race", function()
+                menu:addMenuItem(gfx.getLocalizedText("restartrace"), function()
                     self:start(true)
                 end)
             end
-            menu:addMenuItem("back to title", function()
+            menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
                 scenemanager:transitionsceneoneway(title, false)
             end)
         end
@@ -116,7 +116,48 @@ function race:init(...)
     vars.boat_turn_stat = atbt[vars.arg_boat]
 
     if vars.arg_mode == "story" then
-        vars.totalcpucoords = #s1r1
+        local routerand = math.random(1, 3)
+        if vars.arg_track == 1 then
+            if routerand == 1 then
+                vars.totalcpucoords = #s1r1
+            elseif routerand == 2 then
+                vars.totalcpucoords = #s1r2
+            elseif routerand == 3 then
+                vars.totalcpucoords = #s1r3
+            end
+        elseif vars.arg_track == 2 then
+            if routerand == 1 then
+                vars.totalcpucoords = #s2r1
+            elseif routerand == 2 then
+                vars.totalcpucoords = #s2r2
+            elseif routerand == 3 then
+                vars.totalcpucoords = #s2r3
+            end
+        elseif vars.arg_track == 3 then
+            if routerand == 1 then
+                vars.totalcpucoords = #s3r1
+            elseif routerand == 2 then
+                vars.totalcpucoords = #s3r2
+            elseif routerand == 3 then
+                vars.totalcpucoords = #s3r3
+            end
+        elseif vars.arg_track == 5 then
+            if routerand == 1 then
+                vars.totalcpucoords = #s5r1
+            elseif routerand == 2 then
+                vars.totalcpucoords = #s5r2
+            elseif routerand == 3 then
+                vars.totalcpucoords = #s5r3
+            end
+        elseif vars.arg_track == 6 then
+            if routerand == 1 then
+                vars.totalcpucoords = #s6r1
+            elseif routerand == 2 then
+                vars.totalcpucoords = #s6r2
+            elseif routerand == 3 then
+                vars.totalcpucoords = #s6r3
+            end
+        end
         vars.cpuboat_progression = 1
     end
 
@@ -170,7 +211,6 @@ function race:init(...)
         self:setZIndex(0)
         self:setImage(assets.img_boat[1])
         self:moveTo(s1r1[1], s1r1[2])
-        self:setCollideRect(0, 0, self:getSize())
         if vars.arg_mode == "story" then
             self:add()
         end
@@ -607,6 +647,9 @@ function race:reaction(new)
 end
 
 function race:update()
+    -- if vars.race_started and vars.elapsed_time % 2 == 0 then
+    --     print(self.boat.x .. ', ' .. self.boat.y .. ', ' .. vars.boat_rotation .. ', ')
+    -- end
     local gfx_x, gfx_y = gfx.getDrawOffset()
     self.water:moveTo(vars.anim_water_x:currentValue()+(gfx_x%-400), vars.anim_water_y:currentValue()+(gfx_y%-240))
     vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.05

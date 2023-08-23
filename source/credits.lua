@@ -22,7 +22,7 @@ function credits:init(...)
         xoffset = 100
         pd.setMenuImage(img, xoffset)
         if save.cs then
-            menu:addMenuItem("skip credits", function()
+            menu:addMenuItem(gfx.getLocalizedText("skipcredits"), function()
                 self:finish()
             end)
         end

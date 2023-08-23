@@ -14,7 +14,7 @@ function garage:init()
         local img = gfx.image.new(400, 240)
         xoffset = 0
         pd.setMenuImage(img, xoffset)
-        menu:addMenuItem("back to title", function()
+        menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
             scenemanager:transitionsceneoneway(title, false)
         end)
     end

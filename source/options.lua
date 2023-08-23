@@ -17,7 +17,7 @@ function options:init()
         local img = gfx.image.new(400, 240)
         xoffset = 0
         pd.setMenuImage(img, xoffset)
-        menu:addMenuItem("set defaults", function()
+        menu:addMenuItem(gfx.getLocalizedText("setdefaults"), function()
             save.mu = 5
             save.fx = 5
             save.ui = false
@@ -30,7 +30,7 @@ function options:init()
             end
             vars.selector_pos_y = gfx.animator.new(1, vars.selector_pos_y:currentValue(), vars.selector_pos_y:currentValue(), pd.easingFunctions.outBack)
         end)
-        menu:addMenuItem("back to title", function()
+        menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
             scenemanager:transitionsceneoneway(title, false)
         end)
     end
@@ -109,7 +109,7 @@ function options:init()
     assets.music:play(0)
     
     gfx.setFont(assets.pedallica)
-    assets.text_img = gfx.imageWithText('Adjust the volume of music throughout the game - this applies to gameplay and cutscenes.', 200, 75)
+    assets.text_img = gfx.imageWithText(gfx.getLocalizedText("music_desc"), 200, 75)
     vars = {
         gear_large_anim = gfx.animation.loop.new(25, assets.gear_large, true),
         gear_small_anim = gfx.animation.loop.new(25, assets.gear_small, true),
@@ -190,29 +190,29 @@ function options:init()
             gfx.fillRoundRect(3, vars.selector_pos_y:currentValue(), vars.selector_width:currentValue(), 25, 5)
             gfx.setColor(gfx.kColorBlack)
             gfx.setFont(assets.kapel)
-            gfx.drawText('Music', 8, 10)
-            gfx.drawText('SFX', 8, 32)
+            gfx.drawText(gfx.getLocalizedText("music_name"), 8, 10)
+            gfx.drawText(gfx.getLocalizedText("sfx_name"), 8, 32)
             if save.ss then
-                gfx.drawText('Play Tutorial', 8, 67)
+                gfx.drawText(gfx.getLocalizedText("replay_tutorial_name"), 8, 67)
             else
-                gfx.drawText('???', 8, 67)
+                gfx.drawText(gfx.getLocalizedText("locked_name"), 8, 67)
             end
             if save.mc >= 1 then
-                gfx.drawText('Play Cutscenes', 8, 89)
+                gfx.drawText(gfx.getLocalizedText("replay_cutscene_name"), 8, 89)
             else
-                gfx.drawText('???', 8, 89)
+                gfx.drawText(gfx.getLocalizedText("locked_name"), 8, 89)
             end
             if save.cs then
-                gfx.drawText('Play Credits', 8, 111)
+                gfx.drawText(gfx.getLocalizedText("replay_credits_name"), 8, 111)
             else
-                gfx.drawText('???', 8, 111)
+                gfx.drawText(gfx.getLocalizedText("locked_name"), 8, 111)
             end
             if save.ui then
-                gfx.drawText('Pro UI: Yea', 8, 146)
+                gfx.drawText(gfx.getLocalizedText("ui_on_name"), 8, 146)
             else
-                gfx.drawText('Pro UI: Nah', 8, 146)
+                gfx.drawText(gfx.getLocalizedText("ui_off_name"), 8, 146)
             end
-            gfx.drawText('Reset Data', 8, 201)
+            gfx.drawText(gfx.getLocalizedText("reset_name"), 8, 201)
             gfx.setColor(gfx.kColorXOR)
             gfx.fillRoundRect(3, vars.selector_pos_y:currentValue(), vars.selector_width:currentValue(), 25, 5)
             gfx.popContext()
@@ -257,87 +257,64 @@ function options:init()
             assets.img_fade[math.floor(vars.scenepicker_fade_anim:currentValue())]:drawTiled(0, 0, 400, 240)
                 assets.img_scenepicker:draw(0, 0+vars.scenepicker_anim:currentValue())
                 assets.img_button_back:draw(285, 195+vars.scenepicker_anim:currentValue())
-                gfx.setFont(assets.kapel)
                 if vars.scenepicker_name == 'more' then
                     assets.img_button_ok:drawFaded(57, 185+vars.scenepicker_anim:currentValue(), 0.5, gfx.image.kDitherTypeDiagonalLine)
-                    gfx.drawTextAligned('That\'s it!', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscenex_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_more:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Play some more story mode to\nunlock more cutscenes to watch!', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscenex_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                 else
                     assets.img_button_ok:draw(57, 185+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Scan the QR\nCode to watch\nthis cutscene\nin full color!', 334, 120+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutsceneqr"), 334, 120+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                 end
                 if vars.scenepicker_name == '1' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 1', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene1_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('A bunny on the hunt for scrap, plus\na RowBot left in the junkyard, equals...?', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene1_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '2' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 2', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene2_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene2_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '3' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 3', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene3_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene3_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '4' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 4', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene4_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene4_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '5' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 5', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene5_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene5_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '6' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 6', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene6_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene6_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '7' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 7', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene7_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene7_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '8' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 8', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene8_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene8_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '9' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 9', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene9_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene9_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '10' then
-                    gfx.setFont(assets.kapel)
-                    gfx.drawTextAligned('Cutscene 10', 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene10_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
-                    gfx.setFont(assets.pedallica)
-                    gfx.drawTextAligned('Test description, for\ndescription-y purposes.', 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene10_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
                 end
             gfx.popContext()
@@ -399,7 +376,7 @@ function options:change_sel(dir)
     end
     assets.sfx_menu:play()
     if vars.current_name == 'music' then
-        assets.text_img = gfx.imageWithText('Adjust the volume of music throughout the game - this applies to gameplay and cutscenes.', 200, 75)
+        assets.text_img = gfx.imageWithText(gfx.getLocalizedText("music_desc"), 200, 75)
         self.volume:setImage(assets.img_music_slider[save.mu+1])
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 8, pd.easingFunctions.outBack)
         vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 72, pd.easingFunctions.outBack)
@@ -408,7 +385,7 @@ function options:change_sel(dir)
         if dir then
             vars.slider_scale_anim = gfx.animator.new(200, 0, 1, pd.easingFunctions.outBack)
         end
-        assets.text_img = gfx.imageWithText('Adjust the volume of sound effects throughout the game - this affects gameplay and cutscenes.', 200, 75)
+        assets.text_img = gfx.imageWithText(gfx.getLocalizedText("sfx_desc"), 200, 75)
         self.volume:setImage(assets.img_sfx_slider[save.fx+1])
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 32, pd.easingFunctions.outBack)
         vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 53, pd.easingFunctions.outBack)
@@ -419,42 +396,42 @@ function options:change_sel(dir)
         end
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 67, pd.easingFunctions.outBack)
         if save.ss then
-            assets.text_img = gfx.imageWithText('Replay the tutorial, and get a grip on how to steer alongside your Rowbot.', 200, 75)
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("replay_tutorial_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 163, pd.easingFunctions.outBack)
         else
-            assets.text_img = gfx.imageWithText('Hm, doesn\'t seem like you\'ve unlocked this yet. Come back when you\'ve played some more story!', 200, 75)
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 42, pd.easingFunctions.outBack)
         end
     end
     if vars.current_name == 'replay_cutscene' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 89, pd.easingFunctions.outBack)
         if save.mc >= 1 then
-            assets.text_img = gfx.imageWithText('Replay a cutscene that you\'ve seen before! You can unlock more cutscenes by playing through the story.', 200, 75)
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("replay_cutscene_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 192, pd.easingFunctions.outBack)
         else
-            assets.text_img = gfx.imageWithText('Hm, doesn\'t seem like you\'ve unlocked this yet. Come back when you\'ve played some more story!', 200, 75)
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 42, pd.easingFunctions.outBack)
         end
     end
     if vars.current_name == 'replay_credits' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 111, pd.easingFunctions.outBack)
         if save.cs then
-            assets.text_img = gfx.imageWithText('Replay the credits, and see who all made this game possible!', 200, 75)
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("replay_credits_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 152, pd.easingFunctions.outBack)
         else
-            assets.text_img = gfx.imageWithText('Hm, doesn\'t seem like you\'ve unlocked this yet. Come back when you\'ve played some more story!', 200, 75)
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 42, pd.easingFunctions.outBack)
         end
     end
     if vars.current_name == 'ui' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 146, pd.easingFunctions.outBack)
         vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 83, pd.easingFunctions.outBack)
-        assets.text_img = gfx.imageWithText('Toggles a simpler UI while you\'re in a race. You can also change this setting during races, in the Slide menu.', 200, 75)
+        assets.text_img = gfx.imageWithText(gfx.getLocalizedText("ui_desc"), 200, 75)
     end
     if vars.current_name == 'reset' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 201, pd.easingFunctions.outBack)
         vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 140, pd.easingFunctions.outBack)
-        assets.text_img = gfx.imageWithText('Delete all your save data, including best local times, story progress, and unlocked goodies.', 200, 75)
+        assets.text_img = gfx.imageWithText(gfx.getLocalizedText("reset_desc"), 200, 75)
     end
     self.text:setImage(assets.text_img)
     vars.last_menu_item = vars.current_menu_item

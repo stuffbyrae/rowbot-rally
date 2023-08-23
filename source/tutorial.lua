@@ -26,10 +26,10 @@ function tutorial:init(...)
             paused:draw(-200 + xoffset, 0)
         gfx.popContext()
         pd.setMenuImage(img, xoffset)
-        menu:addMenuItem("skip tutorial", function()
+        menu:addMenuItem(gfx.getLocalizedText("skiptutorial"), function()
             self:finish()
         end)
-        menu:addMenuItem("back to title", function()
+        menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
             scenemanager:transitionsceneoneway(title, false)
         end)
     end
@@ -50,6 +50,7 @@ function tutorial:init(...)
         img_boat = gfx.imagetable.new('images/race/boats/boat1'),
         img_track = gfx.image.new('images/race/tracks/trackt'),
         img_trackc = gfx.image.new('images/race/tracks/trackct'),
+        img_net = gfx.image.new('images/race/net'),
         pedallica = gfx.font.new('fonts/pedallica')
     }
 
@@ -125,12 +126,26 @@ function tutorial:init(...)
             boat_col:add()
             vars.boat_cols[n] = {boat_col, off_x, off_y, de}
         end
+    end    
+    
+    class('net').extends(gfx.sprite)
+    function net:init()
+        net.super.init(self)
+        self:setZIndex(95)
+        self:setCenter(0, 0)
+    end
+    
+    class('net2').extends(gfx.sprite)
+    function net2:init()
+        net2.super.init(self)
+        self:setZIndex(95)
+        self:setCenter(0, 0)
     end
 
     class('track').extends(gfx.sprite)
     function track:init()
         track.super.init(self)
-        self:setZIndex(1)
+        self:setZIndex(96)
         self:setCenter(0.5, 1)
         self:moveTo(10000, 10000)
         self:setImage(assets.img_track)
@@ -198,6 +213,8 @@ function tutorial:init(...)
 
     self.water = water()
     self.boat = boat(10, 40)
+    self.net = net()
+    self.net2 = net2()
     self.track = track()
     self.ui = ui()
     self.react = react()
@@ -440,6 +457,15 @@ function tutorial:progress()
         local trackx, tracky = self.track:getSize()
         vars.line = gfx.sprite.addEmptyCollisionSprite((self.track.x - (trackx / 2)) + 462, (self.track.y - tracky) + 150, 166, 45)
         self.track:add()
+        local img = gfx.image.new(1089, 240)
+        gfx.pushContext(img)
+            assets.img_net:draw((self.track.x - (trackx/2))+150, 0)
+            assets.img_net:draw((self.track.x - (trackx/2))+939, 0, gfx.kImageFlippedX)
+        gfx.popContext()
+        self.net:setImage(img)
+        self.net2:setImage(img)
+        self.net:add()
+        self.net2:add()
     end
 end
 
@@ -448,12 +474,16 @@ function tutorial:finish()
         vars.finishing = true
         vars.boat_controllable = false
         vars.anim_overlay = gfx.animator.new(1200, #assets.img_fade, 1)
-        vars.boat_speed_rate = gfx.animator.new(1000, vars.boat_speed_stat*1.5, 0, pd.easingFunctions.inOutSine)
+        vars.boat_speed_rate = gfx.animator.new(1000, vars.boat_speed_rate:currentValue(), 0, pd.easingFunctions.inOutSine)
         vars.anim_finish_turn = gfx.animator.new(1000, vars.boat_rotation, math.clamp(vars.boat_old_rotation, vars.boat_rotation-40, vars.boat_rotation+40), pd.easingFunctions.outCubic)
         pd.timer.performAfterDelay(1200, function()
             vars.anim_overlay = nil
             self.overlay:setImage(nil)
-            scenemanager:switchscene(cutscene, 2, "story")
+            if vars.arg_move == "story" then
+                scenemanager:switchscene(cutscene, 2, "story")
+            else
+                scenemanager:switchscene(options)
+            end
         end)
     end
 end
@@ -615,7 +645,7 @@ function tutorial:update()
                     if vars.player_turn >= 0 then
                         vars.hang_time += 1
                     end
-                    if vars.hang_time >= 150 then
+                    if vars.hang_time >= 10 then
                         self:progress()
                     end
                 end
@@ -623,7 +653,7 @@ function tutorial:update()
                     if vars.boat_rotation%360 <= 15 or vars.boat_rotation%360 >= 345 then
                         vars.line_time += 1
                     end
-                    if vars.line_time >= 150 then
+                    if vars.line_time >= 10 then
                         self:progress()
                     end
                 end
@@ -631,6 +661,8 @@ function tutorial:update()
                     if self.boat.y <= vars.boat_land_y - 800 then
                         self.ui:remove()
                     end
+                    self.net:moveTo(self.track.x - (self.track.width / 2), self.boat.y - ((240 + self.boat.y) % 240))
+                    self.net2:moveTo(self.track.x - (self.track.width / 2), self.boat.y - ((240 + self.boat.y) % 240))
                 end
             else
                 vars.player_turn -= vars.boat_turn_stat/5

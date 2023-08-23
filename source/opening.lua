@@ -13,7 +13,7 @@ function opening:init(...)
         local img = gfx.image.new(400, 240)
         xoffset = 100
         pd.setMenuImage(img, xoffset)
-        menu:addMenuItem("skip opening", function()
+        menu:addMenuItem(gfx.getLocalizedText("skipopening"), function()
             self:finish()
         end)
         menu:addMenuItem("back to title", function()

@@ -77,6 +77,7 @@ retain_files = [
     "/Users/rae/Developer/PlaydateSDK/Disk/Games/RowBot Rally DEMO.pdx/images/race/tracks/water_bg.pdi",
     "/Users/rae/Developer/PlaydateSDK/Disk/Games/RowBot Rally DEMO.pdx/images/race/meter_mask.pdi",
     "/Users/rae/Developer/PlaydateSDK/Disk/Games/RowBot Rally DEMO.pdx/images/race/meter.pdi",
+    "/Users/rae/Developer/PlaydateSDK/Disk/Games/RowBot Rally DEMO.pdx/images/race/net.pdi",
     "/Users/rae/Developer/PlaydateSDK/Disk/Games/RowBot Rally DEMO.pdx/images/race/react_confused.pdi",
     "/Users/rae/Developer/PlaydateSDK/Disk/Games/RowBot Rally DEMO.pdx/images/race/react_crash.pdi",
     "/Users/rae/Developer/PlaydateSDK/Disk/Games/RowBot Rally DEMO.pdx/images/race/react_happy.pdi",

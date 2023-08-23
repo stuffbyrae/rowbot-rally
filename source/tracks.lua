@@ -13,10 +13,10 @@ function tracks:init(...)
         local img = gfx.image.new(400, 240)
         xoffset = 200
         pd.setMenuImage(img, xoffset)
-        menu:addMenuItem("change boat", function()
-            scenemanager:transitionsceneblastdoors(garage)
+        menu:addMenuItem(gfx.getLocalizedText("changeboat"), function()
+            scenemanager:transitionscene(garage)
         end)
-        menu:addMenuItem("back to title", function()
+        menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
             scenemanager:transitionsceneoneway(title, false)
         end)
     end

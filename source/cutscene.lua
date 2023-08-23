@@ -21,10 +21,10 @@ function cutscene:init(...)
         local img = gfx.image.new(400, 240)
         xoffset = 100
         pd.setMenuImage(img, xoffset)
-        menu:addMenuItem("skip scene", function()
+        menu:addMenuItem(gfx.getLocalizedText("skipscene"), function()
             assets.audio:stop()
         end)
-        menu:addMenuItem("back to title", function()
+        menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
             vars.transition = false
             assets.audio:stop()
             scenemanager:transitionsceneoneway(title, false)

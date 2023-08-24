@@ -6,6 +6,7 @@ function results:init(...)
     results.super.init(self)
     local args = {...}
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
     
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -60,12 +61,17 @@ function results:init(...)
         img_plate = gfx.image.new('images/results/plate'),
         img_react_win = gfx.image.new('images/results/react_win'),
         img_react_lose = gfx.image.new('images/results/react_lose'),
+        img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         kapel = gfx.font.new('fonts/kapel'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         double_time = gfx.font.new('fonts/double_time'),
-        pedallica = gfx.font.new('fonts/pedallica')
+        pedallica = gfx.font.new('fonts/pedallica'),
+        sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
+        sfx_confetti = pd.sound.sampleplayer.new('audio/sfx/confetti')
     }
+    assets.sfx_proceed:setVolume(save.fx/5)
+    assets.sfx_confetti:setVolume(save.fx/5)
     
     vars = {
         arg_track = args[1], -- 1 through 7
@@ -218,15 +224,78 @@ function results:init(...)
         end
     end
 
+    class('confetti').extends(gfx.sprite)
+    function confetti:init()
+        confetti.super.init(self)
+        self:moveTo(200, 120)
+        self:setZIndex(99)
+    end
+    function confetti:update()
+        local img = gfx.image.new(400, 240)
+        gfx.pushContext(img)
+        vars.confetti1:update()
+        vars.confetti2:update()
+        gfx.popContext()
+        self:setImage(img)
+        self:moveBy(0, vars.anim_confetti_grav:currentValue())
+    end
+
+    class('overlay').extends(gfx.sprite)
+    function overlay:init()
+        overlay.super.init(self)
+        self:moveTo(200, 120)
+        self:setZIndex(100)
+        self:add()
+    end
+    function overlay:update()
+        if vars.anim_overlay ~= nil then
+            self:setImage(assets.img_fade[math.floor(vars.anim_overlay:currentValue())]:invertedImage())
+        end
+    end
+
     self.fade = fade()
     self.plate = plate()
     self.react = react()
+    self.confetti = confetti()
+    self.overlay = overlay()
+
+    if vars.arg_win then
+        pd.timer.performAfterDelay(2000, function()
+            self:fireconfetti()
+        end)
+    end
 
     self:add()
 end
 
+function results:fireconfetti()
+    assets.sfx_confetti:play()
+    vars.confetti1 = ParticleCircle(0, 120)
+    vars.confetti2 = ParticleCircle(400, 120)
+    vars.confetti1:setSpread(0, 180)
+    vars.confetti2:setSpread(180, 360)
+    vars.confetti1:setSize(3, 5)
+    vars.confetti2:setSize(3, 5)
+    vars.confetti1:setMode(Particles.modes.DECAY)
+    vars.confetti2:setMode(Particles.modes.DECAY)
+    vars.confetti1:setSpeed(3, 10)
+    vars.confetti2:setSpeed(3, 10)
+    vars.confetti1:setDecay(0.001)
+    vars.confetti2:setDecay(0.001)
+    vars.anim_confetti_grav = gfx.animator.new(4000, 0, 200, pd.easingFunctions.inSine)
+    vars.confetti1:add(50)
+    vars.confetti2:add(50)
+    self.confetti:add()
+    pd.timer.performAfterDelay(4000, function()
+        self.confetti:remove()
+        vars.confetti1:clearParticles()
+        vars.confetti2:clearParticles()
+    end)
+end
+
 function results:update()
     if pd.buttonJustPressed('a') then
+        assets.sfx_proceed:play()
         if vars.arg_mode == "story" then
             if vars.arg_win then
                 if vars.arg_track == 1 then
@@ -253,10 +322,16 @@ function results:update()
                     scenemanager:transitionsceneoneway(cutscene, 10, "story")
                 end
             else
-                scenemanager:transitionscene(race, vars.arg_track, "story", vars.arg_boat, false)
+                vars.anim_overlay = gfx.animator.new(500, #assets.img_fade, 1)
+                pd.timer.performAfterDelay(550, function()
+                    scenemanager:switchscene(race, vars.arg_track, "story", vars.arg_boat, false)
+                end)
             end
         else
-            scenemanager:transitionscene(race, vars.arg_track, "tt", vars.arg_boat, vars.arg_mirror)
+            vars.anim_overlay = gfx.animator.new(500, #assets.img_fade, 1)
+            pd.timer.performAfterDelay(550, function()
+                scenemanager:switchscene(race, vars.arg_track, "tt", vars.arg_boat, vars.arg_mirror)
+            end)
         end
     end
     if pd.buttonJustPressed('b') then

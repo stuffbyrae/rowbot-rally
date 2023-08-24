@@ -6,6 +6,7 @@ function intro:init(...)
     intro.super.init(self)
     args = {...}
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()

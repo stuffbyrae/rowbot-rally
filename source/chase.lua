@@ -9,6 +9,7 @@ function chase:init()
     chase.super.init(self)
     pd.ui.crankIndicator:start()
     show_crank = true
+    gfx.sprite.setAlwaysRedraw(false)
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()

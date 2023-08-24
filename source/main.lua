@@ -4,6 +4,7 @@ import 'CoreLibs/ui'
 import 'CoreLibs/sprites'
 import 'CoreLibs/math'
 import 'CoreLibs/animation'
+import 'CoreLibs/object'
 import 'pdParticles'
 import 'stagecpucoords'
 
@@ -99,7 +100,7 @@ end
 if save.fl then
     scenemanager:switchscene(opening, "title")
 else
-    scenemanager:switchscene(race, 1, "story", 1, false)
+    scenemanager:switchscene(race, 1, "tt", 1, false)
 end
 
 function pd.gameWillTerminate()

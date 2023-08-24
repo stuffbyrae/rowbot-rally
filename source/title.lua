@@ -11,6 +11,7 @@ function title:init(...)
     title.super.init(self)
     local args = {...}
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
     
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -443,6 +444,7 @@ function title:update()
                     assets.sfx_locked:play()
                     pd.timer.performAfterDelay(251, function() vars.selector_moving = false end)
                 else
+                    assets.sfx_proceed:play()
                     scenemanager:transitionscene(garage)
                     vars.menu_scrollable = false
                 end

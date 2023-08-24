@@ -9,6 +9,8 @@ function notif:init(...)
     notif.super.init(self)
     local args = {...}
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
+
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -88,6 +90,8 @@ function notif:update()
             self.ui:remove()
             if vars.arg_move == "story" then
                 scenemanager:switchscene(cutscene, save.cc, "story")
+            elseif vars.arg_move == "opening" then
+                scenemanager:switchscene(opening, "title")
             else
                 scenemanager:switchscene(title, false)
             end

@@ -14,6 +14,7 @@ class('cutscene').extends(gfx.sprite)
 function cutscene:init(...)
     local args = {...}
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
     
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()

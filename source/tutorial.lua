@@ -10,6 +10,7 @@ function tutorial:init(...)
     local args = {...}
     pd.ui.crankIndicator:start()
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(true)
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()

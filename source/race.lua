@@ -11,6 +11,7 @@ function race:init(...)
     local args = {...}
     pd.ui.crankIndicator:start()
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(true)
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -188,6 +189,7 @@ function race:init(...)
     local atbsx = {300, 0, 0, 0, 0, 0, 0}
     local atbsy = {830, 0, 0, 0, 0, 0, 0}
     local attl = {false, false, false, true, false, true, true}
+    local acpu = {true, true, true, false, true, true, true}
     local atl = {rect(169, 667, 200, 50), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0)}
     local atc1 = {rect(614, 125, 50, 200), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0)}
     local atc2 = {rect(973, 457, 200, 50), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0), rect(0, 0, 0, 0)}
@@ -471,7 +473,7 @@ function race:start(restart)
             vars.boat_speed_rate = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
             vars.boat_turn_rate = gfx.animator.new(2500, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
             self.wake:add()
-            if self.cpuwake ~= nil then
+            if vars.has_cpu then
                 self.cpuwake:add()
             end
         end
@@ -534,6 +536,7 @@ function race:finish(win)
         self.meter:remove()
         self.timer:remove()
         self.wake:remove()
+        assets.music:stop()
         show_crank = false
         if pd.getReduceFlashing() then
             vars.anim_overlay = nil
@@ -718,6 +721,9 @@ function race:update()
     -- if vars.race_started and vars.elapsed_time % 2 == 0 or vars.race_finished then
     --     print(self.boat.x .. ', ' .. self.boat.y .. ', ' .. vars.boat_rotation .. ', ' .. self.wake.x .. ', ' .. self.wake.y .. ', ' ..  vars.boat_old_rotation .. ', ' .. vars.wake_setting .. ', ')
     -- end
+    if pd.buttonJustPressed('down') then
+        self:finish(true)
+    end
     assets.sfx_row:setVolume(vars.player_turn)
     local gfx_x, gfx_y = gfx.getDrawOffset()
     self.water:moveTo(gfx_x%-400, gfx_y%-240)

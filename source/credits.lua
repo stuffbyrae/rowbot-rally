@@ -6,6 +6,7 @@ function credits:init(...)
     credits.super.init(self)
     local args = {...}
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
     
     assets = {
         

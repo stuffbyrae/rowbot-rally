@@ -7,6 +7,7 @@ class('garage').extends(gfx.sprite)
 function garage:init()
     garage.super.init(self)
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -40,14 +41,14 @@ function garage:init()
         sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
         sfx_locked = pd.sound.sampleplayer.new('audio/sfx/locked'),
         sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
+        sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         pedallica = gfx.font.new('fonts/pedallica')
     }
     assets.sfx_bonk:setVolume(save.fx/5)
     assets.sfx_locked:setVolume(save.fx/5)
     assets.sfx_menu:setVolume(save.fx/5)
-    blastdoors_1:setVolume(save.fx/5)
-    blastdoors_2:setVolume(save.fx/5)
+    assets.sfx_proceed:setVolume(save.fx/5)
     assets.music:setVolume(save.mu/5)
     assets.music:setLoopRange(3.890)
     assets.music:play(0)
@@ -325,6 +326,7 @@ function garage:update()
                 shakiesx()
                 return
             else
+                assets.sfx_proceed:play()
                 local boat = vars.current_menu_item
                 scenemanager:transitionscene(tracks, boat)
             end

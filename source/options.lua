@@ -10,6 +10,7 @@ class('options').extends(gfx.sprite)
 function options:init()
     options.super.init(self)
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
 
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -626,7 +627,7 @@ function options:update()
             assets.sfx_build:stop()
         end
         if vars.reset_progress >= vars.reset_max_progress then
-            scenemanager:transitionsceneoneway(notif, "reset", "title")
+            scenemanager:transitionsceneoneway(notif, "reset", "opening")
             vars.reset_progress = 0
             vars.reset_warn_open = false
         end

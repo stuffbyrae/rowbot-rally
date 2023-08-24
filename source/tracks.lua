@@ -6,6 +6,7 @@ function tracks:init(...)
     tracks.super.init(self)
     local args = {...}
     show_crank = false
+    gfx.sprite.setAlwaysRedraw(false)
     
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
@@ -268,7 +269,7 @@ function tracks:update()
         end
     end
     if pd.buttonJustPressed('b') then
-        scenemanager:transitionsceneblastdoors(garage)
+        scenemanager:transitionscene(garage)
     end
     if pd.buttonJustPressed('left') then
         if vars.stage_transitioning == false then

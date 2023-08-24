@@ -15,7 +15,7 @@ function results:init(...)
         pd.setMenuImage(img, xoffset)
         if vars.arg_mode == "story" then
             if vars.arg_win then
-                menu:addMenuItem("onwards!", function()
+                menu:addMenuItem(gfx.getLocalizedText("onwards"), function()
                     if vars.arg_track == 1 then
                         if save.ts == false then
                             scenemanager:transitionsceneoneway(notif, "tt", "story")
@@ -37,19 +37,19 @@ function results:init(...)
                     end
                 end)
             else
-                menu:addMenuItem("retry?", function()
+                menu:addMenuItem(gfx.getLocalizedText("retry"), function()
                     scenemanager:transitionsceneoneway(race, vars.arg_track, "story", vars.arg_boat, false)
                 end)
             end
         else
-            menu:addMenuItem("change track", function()
+            menu:addMenuItem(gfx.getLocalizedText("changetrack"), function()
                 scenemanager:transitionscene(tracks, vars.arg_boat)
             end)
-            menu:addMenuItem("change boat", function()
+            menu:addMenuItem(gfx.getLocalizedText("changeboat"), function()
                 scenemanager:transitionsceneblastdoors(garage)
             end)
         end
-        menu:addMenuItem("back to title", function()
+        menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
             scenemanager:transitionsceneoneway(title, false)
         end)
     end
@@ -137,23 +137,23 @@ function results:init(...)
         local img = gfx.image.new(400, 240)
         if vars.arg_win then
             if vars.arg_mode == "story" then
-                assets.header = gfx.imageWithText('You Win!', 200, 120)
+                assets.header = gfx.imageWithText(gfx.getLocalizedText("youwin"), 200, 120)
             else
-                assets.header = gfx.imageWithText('Finish!', 200, 120)
+                assets.header = gfx.imageWithText(gfx.getLocalizedText("finish"), 200, 120)
             end
         else
-            assets.header = gfx.imageWithText('You Lost...', 200, 120)
+            assets.header = gfx.imageWithText(gfx.getLocalizedText("youlost"), 200, 120)
         end
         gfx.pushContext(img)
             assets.img_plate:draw(9, 10)
             assets.header:drawScaled(35, 20, 2)
-            assets.kapel_doubleup:drawTextAligned('Your Time:', 340, 65, kTextAlignment.right)
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("yourtime"), 340, 65, kTextAlignment.right)
             local mins = string.format("%02.f", math.floor((vars.arg_time/30) / 60))
             local secs = string.format("%02.f", math.floor((vars.arg_time/30) - mins * 60))
             local mils = string.format("%02.f", (vars.arg_time/30)*99 - mins * 5940 - secs * 99)
             assets.double_time:drawTextAligned('O ' .. mins..":"..secs.."."..mils, 340, 90, kTextAlignment.right)
             if vars.arg_time < vars.besttime and vars.arg_win then
-                assets.kapel_doubleup:drawTextAligned('NEW BEST!!', 340, 120, kTextAlignment.right)
+                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("newbest"), 340, 120, kTextAlignment.right)
                 if vars.arg_track == 1 then
                     save.t1 = vars.arg_time
                 elseif vars.arg_track == 2 then
@@ -173,19 +173,19 @@ function results:init(...)
                 local bestmins = string.format("%02.f", math.floor((vars.besttime/30) / 60))
                 local bestsecs = string.format("%02.f", math.floor((vars.besttime/30) - bestmins * 60))
                 local bestmils = string.format("%02.f", (vars.besttime/30)*99 - bestmins * 5940 - bestsecs * 99)
-                assets.kapel:drawTextAligned('Best Time:', 340, 125, kTextAlignment.right)
+                assets.kapel:drawTextAligned(gfx.getLocalizedText("besttime"), 340, 125, kTextAlignment.right)
                 assets.times_new_rally:drawTextAligned('D ' .. bestmins..":"..bestsecs.."."..bestmils, 340, 140, kTextAlignment.right)
             end
             if vars.arg_mode == "story" then
                 if vars.arg_win then
-                    assets.kapel_doubleup:drawTextAligned('Ⓐ Onwards!', 340, 157, kTextAlignment.right)
+                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("bonwards"), 340, 157, kTextAlignment.right)
                 else
-                    assets.kapel_doubleup:drawTextAligned('Ⓐ Again?', 340, 157, kTextAlignment.right)
+                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("bretry"), 340, 157, kTextAlignment.right)
                 end
-                assets.kapel_doubleup:drawTextAligned('Ⓑack to Title', 340, 177, kTextAlignment.right)
+                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("bbacktotitle"), 340, 177, kTextAlignment.right)
             else
-                assets.kapel_doubleup:drawTextAligned('Ⓐ Again?', 340, 157, kTextAlignment.right)
-                assets.kapel_doubleup:drawTextAligned('Ⓑ New Track', 340, 177, kTextAlignment.right)
+                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("bretry"), 340, 157, kTextAlignment.right)
+                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("bnewtrack"), 340, 177, kTextAlignment.right)
             end
             gfx.setColor(gfx.kColorXOR)
             gfx.fillRect(0, 158, 347, 45)

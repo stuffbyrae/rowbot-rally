@@ -42,7 +42,7 @@ function cutscene:init(...)
         arg_move = args[2], -- "story" or "options"
         lastframe = 0,
         transition = true,
-        border_exiting = true
+        border_exiting = false
     }
     
     if vars.arg_move == "story" then

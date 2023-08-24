@@ -56,6 +56,7 @@ function race:init(...)
         img_item_used = gfx.image.new('images/race/item_used'),
         anim_timer_scale = gfx.animator.new(1, 1, 1),
         img_react_idle = gfx.image.new('images/race/react_idle'),
+        img_react_idle_blink = gfx.image.new('images/race/react_idle_blink'),
         img_react_happy = gfx.image.new('images/race/react_happy'),
         img_react_shocked = gfx.image.new('images/race/react_shocked'),
         img_react_confused = gfx.image.new('images/race/react_confused'),
@@ -67,9 +68,22 @@ function race:init(...)
         img_water = gfx.image.new('images/race/tracks/water'),
         img_water_1 = gfx.image.new('images/race/tracks/water_1'),
         img_water_2 = gfx.image.new('images/race/tracks/water_2'),
+        img_wake1 = gfx.imagetable.new('images/race/wake1'),
+        img_wake2 = gfx.imagetable.new('images/race/wake2'),
+        img_wake3 = gfx.imagetable.new('images/race/wake3'),
+        img_wake4 = gfx.imagetable.new('images/race/wake4'),
+        img_wake5 = gfx.imagetable.new('images/race/wake5'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
-        times_new_rally = gfx.font.new('fonts/times_new_rally')
+        img_float = gfx.imagetable.new('images/race/float'),
+        times_new_rally = gfx.font.new('fonts/times_new_rally'),
+        sfx_countdown = pd.sound.sampleplayer.new('audio/sfx/countdown'),
+        sfx_crash = pd.sound.sampleplayer.new('audio/sfx/crash'),
+        sfx_row = pd.sound.sampleplayer.new('audio/sfx/row'),
     }
+    assets.sfx_countdown:setVolume(save.fx/5)
+    assets.sfx_crash:setVolume(save.fx/5)
+    assets.sfx_row:setVolume(save.fx/5)
+    assets.sfx_row:play()
 
     vars = {
         arg_track = args[1], -- 1, 2, 3, 4, 5, 6, or 7
@@ -88,8 +102,9 @@ function race:init(...)
         player_turn = 0,
         boat_speed_rate = gfx.animator.new(1, 0, 0),
         boat_turn_rate = gfx.animator.new(1, 0, 0),
-        boat_rotation = 0,
-        boat_old_rotation = 0,
+        boat_rotation = 359,
+        boat_old_rotation = 359,
+        boat_radtation = 0,
         boat_cols = {},
         boat_crashed = false,
         reacting = false,
@@ -97,17 +112,24 @@ function race:init(...)
         boosts_available = 0,
         boosting = false,
         losttocpu = false,
-        anim_water_x = gfx.animator.new(20000, 0, -400),
-        anim_water_y = gfx.animator.new(20000, 0, -240)
+        anim_wake = gfx.animator.new(750, 17, 23),
+        wake_setting = 3,
+        blink_random = math.random()
     }
 
-    vars.anim_water_x.repeatCount = -1
-    vars.anim_water_y.repeatCount = -1
+    vars.anim_wake.reverses = true
+    vars.anim_wake.repeatCount = -1
+    
+    vars.anim_float = gfx.animation.loop.new(100, assets.img_float, true)
 
     pd.timer.performAfterDelay(1, function() vars.camera_target_offset = 0 end)
     vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
     pd.timer.performAfterDelay(1200, function() vars.anim_overlay = nil self.overlay:setImage(nil) end)
     pd.timer.performAfterDelay(2500, function() self:start(false) end)
+
+    assets.music = pd.sound.fileplayer.new('audio/music/stage' .. vars.arg_track)
+    assets.music:setVolume(save.mu/5)
+    assets.music:setLoopRange(0.701)
     
     assets.img_boat = gfx.imagetable.new('images/race/boats/boat' .. vars.arg_boat)
     local atbs = {2, 2, 2.5, 1.5, 2.5, 2, 3}
@@ -121,9 +143,9 @@ function race:init(...)
             if routerand == 1 then
                 vars.totalcpucoords = #s1r1
             elseif routerand == 2 then
-                vars.totalcpucoords = #s1r2
+                vars.totalcpucoords = #s1r1
             elseif routerand == 3 then
-                vars.totalcpucoords = #s1r3
+                vars.totalcpucoords = #s1r1
             end
         elseif vars.arg_track == 2 then
             if routerand == 1 then
@@ -205,15 +227,31 @@ function race:init(...)
         self:add()
     end
 
+    class('cpuwake').extends(gfx.sprite)
+    function cpuwake:init()
+        cpuwake.super.init(self)
+        self:setImage(assets.img_wake3[1])
+        self:setZIndex(-2)
+        self:moveTo(s1r1[1], s1r1[2])
+    end
+
     class('cpuboat').extends(gfx.sprite)
     function cpuboat:init(c, d)
         cpuboat.super.init(self)
-        self:setZIndex(0)
+        self:setZIndex(-1)
         self:setImage(assets.img_boat[1])
         self:moveTo(s1r1[1], s1r1[2])
         if vars.arg_mode == "story" then
             self:add()
         end
+    end
+
+    class('wake').extends(gfx.sprite)
+    function wake:init()
+        wake.super.init(self)
+        self:setImage(assets.img_wake3[1])
+        self:setZIndex(-2)
+        self:moveTo(vars.boat_start_x, vars.boat_start_y)
     end
 
     class('boat').extends(gfx.sprite)
@@ -346,14 +384,20 @@ function race:init(...)
     end
 
     self.water = water()
-    self.boat = boat(10, 40)
+    self.cpuwake = cpuwake()
     self.cpuboat = cpuboat()
+    self.wake = wake()
+    self.boat = boat(10, 40)
     self.track = track()
     self.timer = timer()
     self.react = react()
     self.meter = meter()
     self.item = item()
     self.overlay = overlay()
+
+    pd.timer.performAfterDelay(vars.blink_random*10000, function()
+        self:react_blink()
+    end)
     
     if vars.arg_mode == "tt" then
         vars.boost_ready = true
@@ -384,12 +428,11 @@ function race:start(restart)
             vars.boat_turn_rate = gfx.animator.new(1, 0, 0)
             vars.reacting = false
             vars.anim_react = nil
+            assets.music:stop()
             vars.anim_overlay = nil
             self.overlay:setImage(nil)
             vars.boosting = false
-            vars.elapsed_time = 0
-            vars.race_started = false
-            vars.race_in_progress = false
+            self.wake:remove()
             show_crank = false
             if vars.arg_mode == "tt" then
                 vars.boost_ready = true
@@ -404,8 +447,12 @@ function race:start(restart)
                 vars.losttocpu = false
                 vars.cpuboat_progression = 1
             end
+            vars.elapsed_time = 0
+            vars.race_started = false
+            vars.race_in_progress = false
         end
     end
+    assets.sfx_countdown:play()
     print('3...')
     pd.timer.performAfterDelay(1000, function()
         print('2...')
@@ -416,12 +463,17 @@ function race:start(restart)
     pd.timer.performAfterDelay(3000, function()
         if not vars.race_started then
             print('GO!!!')
+            assets.music:play(0)
             vars.race_started = true
             vars.race_in_progress = true
             show_crank = true
             vars.camera_target_offset = vars.boat_speed_stat*15
             vars.boat_speed_rate = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
             vars.boat_turn_rate = gfx.animator.new(2500, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
+            self.wake:add()
+            if self.cpuwake ~= nil then
+                self.cpuwake:add()
+            end
         end
     end)
 end
@@ -481,6 +533,7 @@ function race:finish(win)
         self.react:remove()
         self.meter:remove()
         self.timer:remove()
+        self.wake:remove()
         show_crank = false
         if pd.getReduceFlashing() then
             vars.anim_overlay = nil
@@ -516,6 +569,7 @@ function race:crash()
         if not save.sr and vars.arg_mode == "story" then
             save.sr = true
         end
+        assets.sfx_crash:play()
         self:reaction("crash")
         shakiesx()
         local reflectdeg = (self:reflectangle(cols) + 180) % 360
@@ -524,7 +578,7 @@ function race:crash()
         local current_boat_turn = vars.boat_turn_rate:currentValue() or vars.boat_turn_stat
         local off_x = math.sin(reflectrad) * (current_boat_speed * 25)
         local off_y = -math.cos(reflectrad) * (current_boat_speed * 25)
-        vars.boat_speed_rate = gfx.animator.new(1, current_boat_speed, 0)
+        vars.boat_speed_rate = gfx.animator.new(100, current_boat_speed, 0)
         vars.boat_turn_rate = gfx.animator.new(1000, current_boat_turn, 0, pd.easingFunctions.inOutSine)
         vars.anim_boat_crash_x = gfx.animator.new(1000, self.boat.x, self.boat.x + off_x, pd.easingFunctions.outCubic)
         vars.anim_boat_crash_y = gfx.animator.new(1000, self.boat.y, self.boat.y + off_y, pd.easingFunctions.outCubic)
@@ -640,36 +694,81 @@ function race:reaction(new)
     elseif new == "crash" then
         self.react:setImage(assets.img_react_crash)
         vars.reacting = true
-        vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine)
+        vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine, 1)
         vars.anim_react.reverses = true
         vars.anim_react.repeatCount = -1
     end
 end
 
+function race:react_blink()
+    local img = self.react:getImage()
+    if not vars.reacting then
+        self.react:setImage(assets.img_react_idle_blink)
+    end
+    pd.timer.performAfterDelay(50, function()
+        self.react:setImage(img)
+        vars.blink_random = math.random()
+        pd.timer.performAfterDelay(vars.blink_random*10000, function()
+            self:react_blink()
+        end)
+    end)
+end
+
 function race:update()
-    -- if vars.race_started and vars.elapsed_time % 2 == 0 then
-    --     print(self.boat.x .. ', ' .. self.boat.y .. ', ' .. vars.boat_rotation .. ', ')
+    -- if vars.race_started and vars.elapsed_time % 2 == 0 or vars.race_finished then
+    --     print(self.boat.x .. ', ' .. self.boat.y .. ', ' .. vars.boat_rotation .. ', ' .. self.wake.x .. ', ' .. self.wake.y .. ', ' ..  vars.boat_old_rotation .. ', ' .. vars.wake_setting .. ', ')
     -- end
+    assets.sfx_row:setVolume(vars.player_turn)
     local gfx_x, gfx_y = gfx.getDrawOffset()
-    self.water:moveTo(vars.anim_water_x:currentValue()+(gfx_x%-400), vars.anim_water_y:currentValue()+(gfx_y%-240))
+    self.water:moveTo(gfx_x%-400, gfx_y%-240)
     vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.05
-    vars.boat_old_rotation += (vars.boat_rotation - vars.boat_old_rotation) * 0.20
+    vars.boat_old_rotation += (vars.boat_rotation - vars.boat_old_rotation) * 0.25
     if not vars.race_started then
         gfx.setDrawOffset(200-self.boat.x, 120-self.boat.y+vars.camera_offset)
     else
+        if vars.boat_old_rotation < vars.boat_rotation - 14 then
+            self.wake:setImage(assets.img_wake5[math.floor((vars.boat_old_rotation%360) / 6)+1])
+            vars.wake_setting = 5
+        elseif vars.boat_old_rotation < vars.boat_rotation - 7 then
+            self.wake:setImage(assets.img_wake4[math.floor((vars.boat_old_rotation%360) / 6)+1])
+            vars.wake_setting = 4
+        elseif vars.boat_old_rotation >= vars.boat_rotation - 7 and vars.boat_old_rotation <= vars.boat_rotation + 7 then
+            self.wake:setImage(assets.img_wake3[math.floor((vars.boat_old_rotation%360) / 6)+1])
+            vars.wake_setting = 3
+        elseif vars.boat_old_rotation > vars.boat_rotation + 7 then
+            self.wake:setImage(assets.img_wake2[math.floor((vars.boat_old_rotation%360) / 6)+1])
+            vars.wake_setting = 2
+        elseif vars.boat_old_rotation > vars.boat_rotation + 14 then
+            self.wake:setImage(assets.img_wake1[math.floor((vars.boat_old_rotation%360) / 6)+1])
+            vars.wake_setting = 1
+        end
+        self.wake:moveTo(self.boat.x-(math.sin(vars.boat_radtation)*(5+vars.boat_speed_rate:currentValue()*vars.anim_wake:currentValue())), self.boat.y+(math.cos(vars.boat_radtation)*(5+vars.boat_speed_rate:currentValue()*vars.anim_wake:currentValue())))
         if vars.arg_mode == "story" then
-            if vars.cpuboat_progression >= vars.totalcpucoords - 2 then
-                vars.cpuboat_progression = vars.totalcpucoords - 2
+            if vars.cpuboat_progression >= vars.totalcpucoords - 6 then
+                vars.cpuboat_progression = vars.totalcpucoords - 6
             else
-                vars.cpuboat_progression += 1.5
+                vars.cpuboat_progression += 3.5
             end
-            if (vars.cpuboat_progression - 1) % 3 == 0 then
+            if (vars.cpuboat_progression - 1) % 7 == 0 then
                 self.cpuboat:moveTo(s1r1[vars.cpuboat_progression], s1r1[vars.cpuboat_progression+1])
-                self.cpuboat:setImage(assets.img_boat[math.floor((s1r1[vars.cpuboat_progression+2]) / 6)+1])
+                self.cpuboat:setImage(assets.img_boat[math.floor((s1r1[(vars.cpuboat_progression+2)]%360) / 6)+1])
+                self.cpuwake:moveTo(s1r1[vars.cpuboat_progression+3], s1r1[vars.cpuboat_progression+4])
+                if s1r1[vars.cpuboat_progression+6] == 1 then
+                    self.cpuwake:setImage(assets.img_wake1[math.floor((s1r1[(vars.cpuboat_progression+5)]%360) / 6)+1])
+                elseif s1r1[vars.cpuboat_progression+6] == 2 then
+                    self.cpuwake:setImage(assets.img_wake2[math.floor((s1r1[(vars.cpuboat_progression+5)]%360) / 6)+1])
+                elseif s1r1[vars.cpuboat_progression+6] == 3 then
+                    self.cpuwake:setImage(assets.img_wake3[math.floor((s1r1[(vars.cpuboat_progression+5)]%360) / 6)+1])
+                elseif s1r1[vars.cpuboat_progression+6] == 4 then
+                    self.cpuwake:setImage(assets.img_wake4[math.floor((s1r1[(vars.cpuboat_progression+5)]%360) / 6)+1])
+                elseif s1r1[vars.cpuboat_progression+6] == 5 then
+                    self.cpuwake:setImage(assets.img_wake5[math.floor((s1r1[(vars.cpuboat_progression+5)]%360) / 6)+1])
+                end
             else
-                local next = math.clamp(vars.cpuboat_progression+1.5, 2.5, vars.totalcpucoords - 2)
-                local prev = math.clamp(vars.cpuboat_progression-1.5, 1, vars.totalcpucoords - 5)
+                local next = math.clamp(vars.cpuboat_progression+3.5, 0.5, vars.totalcpucoords - 6)
+                local prev = math.clamp(vars.cpuboat_progression-3.5, 1, vars.totalcpucoords - 13)
                 self.cpuboat:moveTo(s1r1[prev] + (s1r1[next] - s1r1[prev]) * 0.5, s1r1[prev+1] + (s1r1[next+1] - s1r1[prev+1]) * 0.5)
+                self.cpuwake:moveTo(s1r1[prev+3] + (s1r1[next+3] - s1r1[prev+3]) * 0.5, s1r1[prev+4] + (s1r1[next+4] - s1r1[prev+4]) * 0.5)
             end
             if vars.cpuboat_progression >= vars.totalcpucoords - 21 then
                 vars.losttocpu = true
@@ -697,8 +796,12 @@ function race:update()
             end
             if vars.player_turn < change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
             vars.boat_rotation += vars.player_turn*vars.boat_turn_rate:currentValue()*0.56 -= vars.boat_turn_rate:currentValue()*3
-            vars.boat_rotation = vars.boat_rotation%360
             vars.boat_radtation = math.rad(vars.boat_rotation)
+            if vars.player_turn > 20 then
+                self:reaction("crash")
+            else
+                self.reaction("idle")
+            end
             if vars.boosting then
                 self.boat:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed_rate:currentValue()*4.5, math.cos(vars.boat_radtation)*-vars.boat_speed_rate:currentValue()*4.5)
             else

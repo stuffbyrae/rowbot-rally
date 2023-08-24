@@ -99,7 +99,7 @@ end
 if save.fl then
     scenemanager:switchscene(opening, "title")
 else
-    scenemanager:switchscene(title, false)
+    scenemanager:switchscene(race, 1, "story", 1, false)
 end
 
 function pd.gameWillTerminate()

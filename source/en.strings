@@ -89,6 +89,7 @@
 "tut11" = "...and of course, if you let only the\nRowBot take control, you'll hook to the left."
 "tut12" = "Hey, see if you can go straight\nahead - I think there's land up there!"
 "tut13" = "Cool! See if you can make it up to\nthat boat dock - it's just up ahead."
+"tutcrash" = "By the way - if you crash your boat,\nthen you'll lose all your\nrowing power temporarily."
 -- Boat names
 "boat1_name" = "Wooden Classic"
 "boat2_name" = "Pro Rower"

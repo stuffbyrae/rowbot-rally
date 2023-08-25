@@ -510,6 +510,7 @@ function options:update()
             end
             if vars.current_name == 'replay_tutorial' then
                 if save.ss then
+                    assets.sfx_proceed:play()
                     scenemanager:transitionsceneoneway(tutorial, "options")
                 else
                     assets.sfx_locked:play()
@@ -533,6 +534,7 @@ function options:update()
             end
             if vars.current_name == 'replay_credits' then
                 if save.cs then
+                    assets.sfx_proceed:play()
                     scenemanager:transitionsceneoneway(credits, "options")
                 else
                     assets.sfx_locked:play()

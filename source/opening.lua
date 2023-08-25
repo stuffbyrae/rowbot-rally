@@ -17,9 +17,11 @@ function opening:init(...)
         menu:addMenuItem(gfx.getLocalizedText("skipopening"), function()
             self:finish()
         end)
-        menu:addMenuItem("back to title", function()
-            scenemanager:transitionsceneoneway(title, false)
-        end)
+        if vars.arg_move == "story" then
+            menu:addMenuItem("back to title", function()
+                scenemanager:transitionsceneoneway(title, false)
+            end)
+        end
     end
 
     assets = {

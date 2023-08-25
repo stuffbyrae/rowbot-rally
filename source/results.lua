@@ -58,7 +58,6 @@ function results:init(...)
     assets = {
         bg = args[7], -- last frame shown in the race
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
-        img_plate = gfx.image.new('images/results/plate'),
         img_react_win = gfx.image.new('images/results/react_win'),
         img_react_lose = gfx.image.new('images/results/react_lose'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
@@ -68,10 +67,12 @@ function results:init(...)
         double_time = gfx.font.new('fonts/double_time'),
         pedallica = gfx.font.new('fonts/pedallica'),
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
-        sfx_confetti = pd.sound.sampleplayer.new('audio/sfx/confetti')
+        sfx_confetti = pd.sound.sampleplayer.new('audio/sfx/confetti'),
+        sfx_win = pd.sound.sampleplayer.new('audio/sfx/win')
     }
     assets.sfx_proceed:setVolume(save.fx/5)
     assets.sfx_confetti:setVolume(save.fx/5)
+    assets.sfx_win:setVolume(save.fx/5)
     
     vars = {
         arg_track = args[1], -- 1 through 7
@@ -84,6 +85,17 @@ function results:init(...)
         plate_anim = gfx.animator.new(750, 400, 120, pd.easingFunctions.outBack),
         react_anim = gfx.animator.new(500, -200, -20, pd.easingFunctions.outSine)
     }
+    if vars.arg_mode == "story" then
+        if vars.arg_win then
+            assets.img_plate = gfx.image.new('images/results/plate_win')
+            assets.sfx_win:play()
+        else
+            assets.img_plate = gfx.image.new('images/results/plate_lose')
+        end
+    else
+        assets.img_plate = gfx.image.new('images/results/plate_finish')
+        assets.sfx_win:play()
+    end
 
     vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 10)
 
@@ -280,9 +292,9 @@ function results:fireconfetti()
     vars.confetti2:setMode(Particles.modes.DECAY)
     vars.confetti1:setSpeed(3, 10)
     vars.confetti2:setSpeed(3, 10)
-    vars.confetti1:setDecay(0.001)
-    vars.confetti2:setDecay(0.001)
-    vars.anim_confetti_grav = gfx.animator.new(4000, 0, 200, pd.easingFunctions.inSine)
+    vars.confetti1:setDecay(0.01)
+    vars.confetti2:setDecay(0.01)
+    vars.anim_confetti_grav = gfx.animator.new(4000, 0, 100, pd.easingFunctions.inSine)
     vars.confetti1:add(50)
     vars.confetti2:add(50)
     self.confetti:add()

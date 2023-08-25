@@ -65,14 +65,16 @@ function tutorial:init(...)
         sfx_clickoff = pd.sound.sampleplayer.new('audio/sfx/clickoff'),
         sfx_ui = pd.sound.sampleplayer.new('audio/sfx/ui'),
         sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
-        sfx_row = pd.sound.fileplayer.new('audio/sfx/row')
+        sfx_row = pd.sound.fileplayer.new('audio/sfx/row'),
+        sfx_rowboton = pd.sound.sampleplayer.new('audio/sfx/rowboton')
     }
-    assets.sfx_sea:setVolume(save.fx/5)
+    assets.sfx_sea:setVolume(save.mu/5)
     assets.sfx_crash:setVolume(save.fx/5)
     assets.sfx_clickon:setVolume(save.fx/5)
     assets.sfx_clickoff:setVolume(save.fx/5)
     assets.sfx_ui:setVolume(save.fx/5)
     assets.sfx_start:setVolume(save.fx/5)
+    assets.sfx_rowboton:setVolume(save.fx/5)
     assets.sfx_row:setVolume(save.fx/5)
     assets.sfx_row:play()
     assets.sfx_sea:play(0)
@@ -106,7 +108,8 @@ function tutorial:init(...)
         finishing = false,
         anim_wake = gfx.animator.new(750, 17, 23),
         waittime = 1500,
-        anim_net = gfx.animator.new(1, 0, 0)
+        anim_net = gfx.animator.new(1, 0, 0),
+        crashed_yet = false
     }
 
     vars.anim_wake.reverses = true
@@ -318,6 +321,7 @@ function tutorial:progress()
         end)
     elseif vars.current_step == 3 then
         vars.boat_moving = true
+        assets.sfx_rowboton:play()
         self.wake:add()
         vars.camera_target_offset = vars.boat_speed_stat*15
         vars.boat_speed_rate = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
@@ -541,6 +545,8 @@ function tutorial:finish()
 end
 
 function tutorial:crash(which)
+    self.ui:remove()
+    self.arrows:remove()
     local gfx_x, gfx_y = gfx.getDrawOffset()
     local cols = {}
     local colno = 0
@@ -584,8 +590,12 @@ function tutorial:crash(which)
         shakiesx()
         local reflectdeg = (self:reflectangle(cols) + 180) % 360
         local reflectrad = math.rad(reflectdeg)
-        local current_boat_speed = vars.boat_speed_rate:currentValue() or vars.boat_speed_stat
-        local current_boat_turn = vars.boat_turn_rate:currentValue() or vars.boat_turn_stat
+        if vars.boat_speed_rate:currentValue() > 0.1 then
+            current_boat_speed = vars.boat_speed_rate:currentValue()
+        else
+            current_boat_speed = vars.boat_speed_stat
+        end
+        local current_boat_turn = vars.boat_turn_rate:currentValue()
         local off_x = math.sin(reflectrad) * (current_boat_speed * 25)
         local off_y = -math.cos(reflectrad) * (current_boat_speed * 25)
         vars.boat_speed_rate = gfx.animator.new(1, current_boat_speed, 0)
@@ -594,16 +604,43 @@ function tutorial:crash(which)
         vars.anim_boat_crash_y = gfx.animator.new(1000, self.boat.y, self.boat.y + off_y, pd.easingFunctions.outCubic)
         vars.anim_boat_crash_r = gfx.animator.new(1000, vars.boat_rotation, math.clamp(vars.boat_old_rotation, vars.boat_rotation-40, vars.boat_rotation+40), pd.easingFunctions.outCubic)
         vars.camera_target_offset = 0
+        current_boat_speed = nil
     end
     pd.timer.performAfterDelay(1000, function()
-        vars.boat_crashed = false
-        self:reaction("idle")
-        vars.anim_net = gfx.animator.new(1000, -40, 0, pd.easingFunctions.outElastic)
-        vars.camera_target_offset = vars.boat_speed_stat*15
-        vars.boat_speed_rate = gfx.animator.new(2000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
-        vars.boat_turn_rate = gfx.animator.new(500, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
-        vars.boat_turn = 0
+        if vars.crashed_yet then
+            self:uncrash()
+        else
+            assets.sfx_clickoff:play()
+            vars.ui_open = true
+            assets.img_ui = gfx.image.new(400, 240)
+            gfx.pushContext(assets.img_ui)
+                assets.img_tutui:draw(11, 10)
+                assets.pedallica:drawTextAligned(gfx.getLocalizedText("tutcrash"), 200, 20, kTextAlignment.center)
+            gfx.popContext()
+            self.ui:setImage(assets.img_ui)
+            self.ui:add()
+            pd.timer.performAfterDelay(vars.waittime, function()
+                vars.ui_progressable = true
+                assets.img_ui = gfx.image.new(400, 75)
+                gfx.pushContext(assets.img_ui)
+                    assets.img_tutuia:draw(11, 10)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText("tutcrash"), 200, 20, kTextAlignment.center)
+                gfx.popContext()
+                self.ui:setImage(assets.img_ui)
+            end)
+        end
     end)
+end
+
+function tutorial:uncrash()
+    vars.crashed_yet = true
+    vars.boat_crashed = false
+    self:reaction("idle")
+    vars.anim_net = gfx.animator.new(1000, -40, 0, pd.easingFunctions.outElastic)
+    vars.camera_target_offset = vars.boat_speed_stat*15
+    vars.boat_speed_rate = gfx.animator.new(2000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
+    vars.boat_turn_rate = gfx.animator.new(500, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
+    vars.boat_turn = 0
 end
 
 function tutorial:reflectangle(c)
@@ -695,7 +732,11 @@ function tutorial:update()
             assets.sfx_clickon:play()
             pd.timer.performAfterDelay(300, function()
                 assets.sfx_clickoff:play()
-                self:progress()
+                if vars.current_step < 13 then
+                    self:progress()
+                else
+                    self:uncrash()
+                end
             end)
         end
     end

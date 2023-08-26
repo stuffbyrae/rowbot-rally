@@ -76,7 +76,7 @@ function tutorial:init(...)
     assets.sfx_start:setVolume(save.fx/5)
     assets.sfx_rowboton:setVolume(save.fx/5)
     assets.sfx_row:setVolume(save.fx/5)
-    assets.sfx_row:play()
+    assets.sfx_row:play(0)
     assets.sfx_sea:play(0)
 
     vars = {
@@ -720,7 +720,7 @@ function tutorial:update()
     vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.05
     vars.boat_old_rotation += (vars.boat_rotation - vars.boat_old_rotation) * 0.20
     if vars.current_step == 5 then
-        function pd.crankUndocked()
+        if not pd.isCrankDocked() then
             self:progress()
         end
     end
@@ -793,12 +793,14 @@ function tutorial:update()
                     end
                 end
                 if vars.current_step == 13 then
-                    if self.boat.y <= vars.boat_land_y - 600 then
+                    if self.boat.y <= vars.boat_land_y - 500 then
                         self.ui:remove()
                         self.arrows:remove()
+                        self.net:remove()
                     end
-                    if self.boat.y >= vars.boat_land_y - 200 then
+                    if self.boat.y >= vars.boat_land_y - 500 then
                         self.arrows:add()
+                        self.net:add()
                     end
                     self.net:moveTo((self.track.x - (self.track.width/2)) + gfx_x + vars.anim_net:currentValue(), (gfx_y%240)-240)
                     if gfx.checkAlphaCollision(self.boat:getImage(), self.boat.x - (self.boat.width / 2), self.boat.y - (self.boat.height / 2), 0, assets.img_net_composite, self.track.x - (self.track.width / 2), self.boat.y - (gfx_y % 240), 0) then

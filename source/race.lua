@@ -81,11 +81,15 @@ function race:init(...)
         sfx_countdown = pd.sound.sampleplayer.new('audio/sfx/countdown'),
         sfx_crash = pd.sound.sampleplayer.new('audio/sfx/crash'),
         sfx_row = pd.sound.sampleplayer.new('audio/sfx/row'),
+        sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
+        sfx_finish = pd.sound.sampleplayer.new('audio/sfx/finish')
     }
     assets.sfx_countdown:setVolume(save.fx/5)
     assets.sfx_crash:setVolume(save.fx/5)
+    assets.sfx_start:setVolume(save.fx/5)
+    assets.sfx_finish:setVolume(save.fx/5)
     assets.sfx_row:setVolume(save.fx/5)
-    assets.sfx_row:play()
+    assets.sfx_row:play(0)
 
     vars = {
         arg_track = args[1], -- 1, 2, 3, 4, 5, 6, or 7
@@ -502,11 +506,14 @@ function race:checkpoint(x, y)
             end
             vars.checkpoints = {false, false, false}
             if vars.laps > 3 or vars.track_linear then
+                assets.sfx_finish:play()
                 if vars.losttocpu then
                     self:finish(false)
                 else
                     self:finish(true)
                 end
+            else
+                assets.sfx_start:play()
             end
         end
     elseif x == vars.checkpoint1.x and y == vars.checkpoint1.y then

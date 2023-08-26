@@ -68,11 +68,13 @@ function results:init(...)
         pedallica = gfx.font.new('fonts/pedallica'),
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_confetti = pd.sound.sampleplayer.new('audio/sfx/confetti'),
-        sfx_win = pd.sound.sampleplayer.new('audio/sfx/win')
+        sfx_win = pd.sound.sampleplayer.new('audio/sfx/win'),
+        sfx_lose = pd.sound.sampleplayer.new('audio/sfx/lose')
     }
     assets.sfx_proceed:setVolume(save.fx/5)
     assets.sfx_confetti:setVolume(save.fx/5)
     assets.sfx_win:setVolume(save.fx/5)
+    assets.sfx_lose:setVolume(save.fx/5)
     
     vars = {
         arg_track = args[1], -- 1 through 7
@@ -91,6 +93,7 @@ function results:init(...)
             assets.sfx_win:play()
         else
             assets.img_plate = gfx.image.new('images/results/plate_lose')
+            assets.sfx_lose:play()
         end
     else
         assets.img_plate = gfx.image.new('images/results/plate_finish')
@@ -170,29 +173,31 @@ function results:init(...)
             local secs = string.format("%02.f", math.floor((vars.arg_time/30) - mins * 60))
             local mils = string.format("%02.f", (vars.arg_time/30)*99 - mins * 5940 - secs * 99)
             assets.double_time:drawTextAligned('O ' .. mins..":"..secs.."."..mils, 340, 90, kTextAlignment.right)
-            if vars.arg_time < vars.besttime and vars.arg_win then
-                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("newbest"), 340, 120, kTextAlignment.right)
-                if vars.arg_track == 1 then
-                    save.t1 = vars.arg_time
-                elseif vars.arg_track == 2 then
-                    save.t2 = vars.arg_time
-                elseif vars.arg_track == 3 then
-                    save.t3 = vars.arg_time
-                elseif vars.arg_track == 4 then
-                    save.t4 = vars.arg_time
-                elseif vars.arg_track == 5 then
-                    save.t5 = vars.arg_time
-                elseif vars.arg_track == 6 then
-                    save.t6 = vars.arg_time
-                elseif vars.arg_track == 7 then
-                    save.t7 = vars.arg_time
+            if not demo then
+                if vars.arg_time < vars.besttime and vars.arg_win then
+                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("newbest"), 340, 120, kTextAlignment.right)
+                    if vars.arg_track == 1 then
+                        save.t1 = vars.arg_time
+                    elseif vars.arg_track == 2 then
+                        save.t2 = vars.arg_time
+                    elseif vars.arg_track == 3 then
+                        save.t3 = vars.arg_time
+                    elseif vars.arg_track == 4 then
+                        save.t4 = vars.arg_time
+                    elseif vars.arg_track == 5 then
+                        save.t5 = vars.arg_time
+                    elseif vars.arg_track == 6 then
+                        save.t6 = vars.arg_time
+                    elseif vars.arg_track == 7 then
+                        save.t7 = vars.arg_time
+                    end
+                else
+                    local bestmins = string.format("%02.f", math.floor((vars.besttime/30) / 60))
+                    local bestsecs = string.format("%02.f", math.floor((vars.besttime/30) - bestmins * 60))
+                    local bestmils = string.format("%02.f", (vars.besttime/30)*99 - bestmins * 5940 - bestsecs * 99)
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText("besttime"), 340, 125, kTextAlignment.right)
+                    assets.times_new_rally:drawTextAligned('D ' .. bestmins..":"..bestsecs.."."..bestmils, 340, 140, kTextAlignment.right)
                 end
-            else
-                local bestmins = string.format("%02.f", math.floor((vars.besttime/30) / 60))
-                local bestsecs = string.format("%02.f", math.floor((vars.besttime/30) - bestmins * 60))
-                local bestmils = string.format("%02.f", (vars.besttime/30)*99 - bestmins * 5940 - bestsecs * 99)
-                assets.kapel:drawTextAligned(gfx.getLocalizedText("besttime"), 340, 125, kTextAlignment.right)
-                assets.times_new_rally:drawTextAligned('D ' .. bestmins..":"..bestsecs.."."..bestmils, 340, 140, kTextAlignment.right)
             end
             if vars.arg_mode == "story" then
                 if vars.arg_win then

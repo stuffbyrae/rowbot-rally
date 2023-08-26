@@ -5,8 +5,9 @@ import 'CoreLibs/sprites'
 import 'CoreLibs/math'
 import 'CoreLibs/animation'
 import 'CoreLibs/object'
-import 'pdParticles'
 import 'stagecpucoords'
+import 'pdParticles'
+import 'Tanuk_CodeSequence'
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics

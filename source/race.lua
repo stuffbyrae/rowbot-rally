@@ -35,10 +35,12 @@ function race:init(...)
                     self.react:remove()
                     self.meter:remove()
                     self.timer:moveTo(-42, -11)
+                    self.item:moveTo(400, -40)
                 else
                     self.react:add()
                     self.meter:add()
                     self.timer:moveTo(0, 5)
+                    self.item:moveTo(400, 0)
                 end
             end)
             if vars.race_in_progress then
@@ -130,7 +132,7 @@ function race:init(...)
     
     vars.anim_float = gfx.animation.loop.new(100, assets.img_float, true)
 
-    pd.timer.performAfterDelay(1, function() vars.camera_target_offset = 0 end)
+    pd.timer.performAfterDelay(10, function() vars.camera_target_offset = 0 end)
     vars.anim_overlay = gfx.animation.loop.new(30, assets.img_fade, false)
     pd.timer.performAfterDelay(1200, function() vars.anim_overlay = nil self.overlay:setImage(nil) end)
     pd.timer.performAfterDelay(2500, function() self:start(false) end)
@@ -373,7 +375,11 @@ function race:init(...)
     class('item').extends(gfx.sprite)
     function item:init()
         item.super.init(self)
-        self:moveTo(400, 0)
+        if save.ui then
+            self:moveTo(400, -40)
+        else
+            self:moveTo(400, 0)
+        end
         self:setZIndex(99)
         self:setCenter(1, 0)
         self:setIgnoresDrawOffset(true)
@@ -435,13 +441,20 @@ function race:start(restart)
             self.boat:moveTo(vars.boat_start_x, vars.boat_start_y)
             vars.laps = 1
             vars.camera_target_offset = 0
-            vars.checkpoints = {false, false, false}
+            vars.latest_checkpoint = 0
+            if vars.arg_track == 4 then
+                vars.checkpoints = {true, true, true}
+            else
+                vars.checkpoints = {false, false, false}
+            end
             vars.boat_rotation = 0
             self.boat:setImage(assets.img_boat[1])
             vars.boat_speed_rate = gfx.animator.new(1, 0, 0)
             vars.boat_turn_rate = gfx.animator.new(1, 0, 0)
             vars.reacting = false
             vars.anim_react = nil
+            self.react:moveTo(200, 150)
+            self.react:setImage(assets.img_react_idle)
             assets.music:stop()
             vars.anim_overlay = nil
             self.overlay:setImage(nil)
@@ -459,6 +472,9 @@ function race:start(restart)
                 self.item:setImage(assets.img_item)
             else
                 if vars.cpu_exists then
+                    self.cpuboat:moveTo(s1r1[1], s1r1[2])
+                    self.cpuboat:setImage(assets.img_cpuboat[1])
+                    self.cpuwake:remove()
                     vars.losttocpu = false
                     vars.cpuboat_progression = 1
                 end
@@ -499,10 +515,9 @@ function race:checkpoint(x, y)
         end
         if allcheckpointscleared and vars.latest_checkpoint == 3 then
             vars.laps += 1
-            vars.latest_checkpoint = 0
             if vars.laps <= 3 or vars.track_linear then
-            assets.img_timer = gfx.image.new('images/race/timer_' .. vars.laps)
-            vars.anim_timer_scale = gfx.animator.new(1000, 1.25, 1, pd.easingFunctions.outElastic)
+                assets.img_timer = gfx.image.new('images/race/timer_' .. vars.laps)
+                vars.anim_timer_scale = gfx.animator.new(1000, 1.25, 1, pd.easingFunctions.outElastic)
             end
             vars.checkpoints = {false, false, false}
             if vars.laps > 3 or vars.track_linear then
@@ -516,21 +531,22 @@ function race:checkpoint(x, y)
                 assets.sfx_start:play()
             end
         end
+        vars.latest_checkpoint = 0
     elseif x == vars.checkpoint1.x and y == vars.checkpoint1.y then
         if not vars.checkpoints[1] and vars.latest_checkpoint == 0 then
             vars.checkpoints[1] = true
-            vars.latest_checkpoint = 1
         end
+        vars.latest_checkpoint = 1
     elseif x == vars.checkpoint2.x and y == vars.checkpoint2.y then
         if not vars.checkpoints[2] and vars.latest_checkpoint == 1 then
             vars.checkpoints[2] = true
-            vars.latest_checkpoint = 2
         end
+        vars.latest_checkpoint = 2
     elseif x == vars.checkpoint3.x and y == vars.checkpoint3.y then
         if not vars.checkpoints[3] and vars.latest_checkpoint == 2 then
             vars.checkpoints[3] = true
-            vars.latest_checkpoint = 3
         end
+        vars.latest_checkpoint = 3
     end
 end
 
@@ -548,6 +564,7 @@ function race:finish(win)
         self.timer:remove()
         self.wake:remove()
         assets.music:stop()
+        assets.sfx_row:stop()
         show_crank = false
         if pd.getReduceFlashing() then
             vars.anim_overlay = nil
@@ -734,6 +751,7 @@ function race:react_blink()
 end
 
 function race:update()
+    -- uncomment to record a new CPU!!
     -- if vars.race_started and vars.elapsed_time % 2 == 0 or vars.race_finished then
     --     print(self.boat.x .. ', ' .. self.boat.y .. ', ' .. vars.boat_rotation .. ', ' .. self.wake.x .. ', ' .. self.wake.y .. ', ' ..  vars.boat_old_rotation .. ', ' .. vars.wake_setting .. ', ')
     -- end
@@ -806,7 +824,7 @@ function race:update()
                 self:checkpoint(c[i].x, c[i].y)
             end
         end
-        local change = pd.getCrankChange()/2
+        local change = pd.getCrankChange()/3
         if vars.boat_crashed then
             vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.20
             self.boat:moveTo(vars.anim_boat_crash_x:currentValue(), vars.anim_boat_crash_y:currentValue())

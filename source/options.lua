@@ -193,17 +193,17 @@ function options:init()
             gfx.setFont(assets.kapel)
             gfx.drawText(gfx.getLocalizedText("music_name"), 8, 10)
             gfx.drawText(gfx.getLocalizedText("sfx_name"), 8, 32)
-            if save.ss then
+            if save.ss and not demo then
                 gfx.drawText(gfx.getLocalizedText("replay_tutorial_name"), 8, 67)
             else
                 gfx.drawText(gfx.getLocalizedText("locked_name"), 8, 67)
             end
-            if save.mc >= 1 then
+            if save.mc >= 1 and not demo then
                 gfx.drawText(gfx.getLocalizedText("replay_cutscene_name"), 8, 89)
             else
                 gfx.drawText(gfx.getLocalizedText("locked_name"), 8, 89)
             end
-            if save.cs then
+            if save.cs and not demo then
                 gfx.drawText(gfx.getLocalizedText("replay_credits_name"), 8, 111)
             else
                 gfx.drawText(gfx.getLocalizedText("locked_name"), 8, 111)
@@ -396,31 +396,43 @@ function options:change_sel(dir)
             vars.slider_scale_anim = gfx.animator.new(200, 1, 0, pd.easingFunctions.inBack)
         end
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 67, pd.easingFunctions.outBack)
-        if save.ss then
+        if save.ss and not demo then
             assets.text_img = gfx.imageWithText(gfx.getLocalizedText("replay_tutorial_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 163, pd.easingFunctions.outBack)
         else
-            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
+            if demo then
+                assets.text_img = gfx.imageWithText(gfx.getLocalizedText("demo_locked_desc"), 200, 75)
+            else
+                assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
+            end
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 42, pd.easingFunctions.outBack)
         end
     end
     if vars.current_name == 'replay_cutscene' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 89, pd.easingFunctions.outBack)
-        if save.mc >= 1 then
+        if save.mc >= 1 and not demo then
             assets.text_img = gfx.imageWithText(gfx.getLocalizedText("replay_cutscene_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 192, pd.easingFunctions.outBack)
         else
-            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
+            if demo then
+                assets.text_img = gfx.imageWithText(gfx.getLocalizedText("demo_locked_desc"), 200, 75)
+            else
+                assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
+            end
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 42, pd.easingFunctions.outBack)
         end
     end
     if vars.current_name == 'replay_credits' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 111, pd.easingFunctions.outBack)
-        if save.cs then
+        if save.cs and not demo then
             assets.text_img = gfx.imageWithText(gfx.getLocalizedText("replay_credits_desc"), 200, 75)
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 152, pd.easingFunctions.outBack)
         else
-            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
+            if demo then
+                assets.text_img = gfx.imageWithText(gfx.getLocalizedText("demo_locked_desc"), 200, 75)
+            else
+                assets.text_img = gfx.imageWithText(gfx.getLocalizedText("locked_desc"), 200, 75)
+            end
             vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 42, pd.easingFunctions.outBack)
         end
     end
@@ -432,7 +444,11 @@ function options:change_sel(dir)
     if vars.current_name == 'reset' then
         vars.selector_pos_y = gfx.animator.new(200, vars.selector_pos_y:currentValue(), 201, pd.easingFunctions.outBack)
         vars.selector_width = gfx.animator.new(200, vars.selector_width:currentValue(), 140, pd.easingFunctions.outBack)
-        assets.text_img = gfx.imageWithText(gfx.getLocalizedText("reset_desc"), 200, 75)
+        if demo then
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("demo_locked_desc"), 200, 75)
+        else
+            assets.text_img = gfx.imageWithText(gfx.getLocalizedText("reset_desc"), 200, 75)
+        end
     end
     self.text:setImage(assets.text_img)
     vars.last_menu_item = vars.current_menu_item
@@ -509,7 +525,7 @@ function options:update()
                 assets.sfx_bonk:play()
             end
             if vars.current_name == 'replay_tutorial' then
-                if save.ss then
+                if save.ss and not demo then
                     assets.sfx_proceed:play()
                     scenemanager:transitionsceneoneway(tutorial, "options")
                 else
@@ -518,7 +534,7 @@ function options:update()
                 end
             end
             if vars.current_name == 'replay_cutscene' then
-                if save.mc >= 1 then
+                if save.mc >= 1 and not demo then
                     assets.sfx_ui:play()
                     vars.scenepicker_fade_anim = gfx.animator.new(150, 33, 16)
                     vars.scenepicker_anim = gfx.animator.new(250, 400, 0, pd.easingFunctions.outBack)
@@ -533,7 +549,7 @@ function options:update()
                 end
             end
             if vars.current_name == 'replay_credits' then
-                if save.cs then
+                if save.cs and not demo then
                     assets.sfx_proceed:play()
                     scenemanager:transitionsceneoneway(credits, "options")
                 else
@@ -587,6 +603,7 @@ function options:update()
         end
         if pd.buttonJustPressed('a') then
             if vars.scenepicker_name ~= 'more' then
+                vars.scenepicker_open = false
                 assets.sfx_proceed:play()
                 scenemanager:transitionsceneoneway(cutscene, vars.current_scenepicker_item, "options")
             else
@@ -594,12 +611,12 @@ function options:update()
             end
         end
         if pd.buttonJustPressed('b') then
+            vars.scenepicker_open = false
             assets.sfx_whoosh:play()
             vars.scenepicker_fade_anim = gfx.animator.new(150, 16, 33)
             vars.scenepicker_anim = gfx.animator.new(500, 0, 400, pd.easingFunctions.outBack)
             pd.timer.performAfterDelay(150, function()
             self.scenepicker:remove()
-            vars.scenepicker_open = false
             vars.menu_scrollable = true
             end)
         end
@@ -636,10 +653,10 @@ function options:update()
         if pd.buttonJustPressed('b') then
             vars.ui_anim_out:reset()
             assets.sfx_whoosh:play()
+            vars.reset_warn_open = false
             pd.timer.performAfterDelay(100, function()
                 self.ui:remove()
                 vars.menu_scrollable = true
-                vars.reset_warn_open = false
             end)
         end
     end

@@ -37,6 +37,7 @@ function tutorial:init(...)
 
     assets = {
         img_react_idle = gfx.image.new('images/race/react_idle'),
+        img_react_idle_blink = gfx.image.new('images/race/react_idle_blink'),
         img_react_happy = gfx.image.new('images/race/react_happy'),
         img_react_shocked = gfx.image.new('images/race/react_shocked'),
         img_react_confused = gfx.image.new('images/race/react_confused'),
@@ -108,6 +109,7 @@ function tutorial:init(...)
         finishing = false,
         anim_wake = gfx.animator.new(750, 17, 23),
         waittime = 1500,
+        blink_random = math.random(),
         anim_net = gfx.animator.new(1, 0, 0),
         crashed_yet = false
     }
@@ -267,7 +269,11 @@ function tutorial:init(...)
     self.meter = meter()
     self.overlay = overlay()
 
-    pd.timer.performAfterDelay(1000, function()
+    pd.timer.performAfterDelay(vars.blink_random*10000, function()
+        self:react_blink()
+    end)
+
+    pd.timer.performAfterDelay(1500, function()
         self:progress()
     end)
 
@@ -529,6 +535,7 @@ function tutorial:finish()
         assets.sfx_sea:setVolume(0, 0, 0.79, function()
             assets.sfx_sea:stop()
         end)
+        assets.sfx_row:stop()
         pd.timer.performAfterDelay(800, function()
             if not save.ss then
                 save.ss = true
@@ -712,6 +719,20 @@ function tutorial:reaction(new)
     end
 end
 
+function tutorial:react_blink()
+    local img = self.react:getImage()
+    if not vars.reacting then
+        self.react:setImage(assets.img_react_idle_blink)
+    end
+    pd.timer.performAfterDelay(50, function()
+        self.react:setImage(img)
+        vars.blink_random = math.random()
+        pd.timer.performAfterDelay(vars.blink_random*10000, function()
+            self:react_blink()
+        end)
+    end)
+end
+
 function tutorial:update()
     assets.sfx_row:setVolume(vars.player_turn)
     local gfx_x, gfx_y = gfx.getDrawOffset()
@@ -747,7 +768,7 @@ function tutorial:update()
                 self:checkpoint(c[i].x, c[i].y)
             end
         end
-        local change = pd.getCrankChange()/2
+        local change = pd.getCrankChange()/3
         if vars.boat_old_rotation < vars.boat_rotation - 14 then
             self.wake:setImage(assets.img_wake5[math.floor((vars.boat_old_rotation%360) / 6)+1])
             vars.wake_setting = 5

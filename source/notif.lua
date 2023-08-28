@@ -37,7 +37,8 @@ function notif:init(...)
     vars = {
         arg_warn = args[1], -- "mirror", "tt", or "reset"
         arg_move = args[2], -- "story" or "title"
-        ui_anim_in = gfx.animator.new(250, 250, 120, pd.easingFunctions.outBack)
+        ui_anim_in = gfx.animator.new(250, 250, 120, pd.easingFunctions.outBack),
+        ui_open = true
     }
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
@@ -83,7 +84,8 @@ function notif:init(...)
 end
 
 function notif:update()
-    if pd.buttonJustPressed('a') then
+    if pd.buttonJustPressed('a') and vars.ui_open then
+        vars.ui_open = false
         assets.sfx_whoosh:play()
         vars.ui_anim_out = gfx.animator.new(101, 120, 500, pd.easingFunctions.inSine)
         pd.timer.performAfterDelay(100, function()

@@ -67,6 +67,31 @@ function intro:init(...)
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
     end)
+
+    class('fade').extends(gfx.sprite)
+    function fade:init()
+        fade.super.init(self)
+        self:setZIndex(-2)
+        self:moveTo(200, 120)
+        self:add()
+    end
+    function fade:update()
+        if vars.anim_fade ~= nil then
+            self:setImage(assets.img_fade[math.floor(vars.anim_fade:currentValue())])
+        end
+    end
+
+    class('preview').extends(gfx.sprite)
+    function preview:init()
+        preview.super.init(self)
+        self:setZIndex(-1)
+        self:setCenter(0, 0)
+        self:add()
+    end
+    function preview:update()
+        self:setImage(vars.img_preview_anim:image())
+        self:moveTo(211*vars.anim_preview:currentValue(), 0)
+    end
     
     class('bg').extends(gfx.sprite)
     function bg:init()
@@ -79,9 +104,7 @@ function intro:init(...)
         if not vars.anim_bg:ended() then
             local img = gfx.image.new(400, 240)
             gfx.pushContext(img)
-                assets.img_fade:drawImage(math.floor(vars.anim_fade:currentValue()), 0, 0)
                 gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-                gfx.setColor(gfx.kColorWhite)
                 gfx.fillRect(0, 75, 5*vars.anim_bg:currentValue(), 60)
                 if vars.arg_track == 1 then
                     assets.kapel:drawText('STAGE 1', 15*vars.anim_bg:currentValue(), 10)
@@ -120,7 +143,6 @@ function intro:init(...)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage7_desc"), 25*vars.anim_bg:currentValue(), 75)
                 end
                 gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                vars.img_preview_anim:draw(211*vars.anim_preview:currentValue(), 0)
             gfx.popContext()
             self:setImage(img)
         end
@@ -187,6 +209,8 @@ function intro:init(...)
         end
     end
 
+    self.fade = fade()
+    self.preview = preview()
     self.bg = bg()
     self.prompt = prompt()
     self.a = a()
@@ -201,7 +225,7 @@ function intro:transition()
     vars.anim_preview = gfx.animator.new(350, 1, 2, pd.easingFunctions.outBack)
     vars.anim_prompt = gfx.animator.new(200, 230, 320, pd.easingFunctions.outBack, 50)
     assets.sfx_whoosh:play()
-    pd.timer.performAfterDelay(400, function()
+    pd.timer.performAfterDelay(500, function()
         if vars.arg_track == 1 then
             scenemanager:switchscene(race, 1, "story", 1, false)
         elseif vars.arg_track == 2 then

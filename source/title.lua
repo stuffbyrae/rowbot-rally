@@ -89,7 +89,7 @@ function title:init(...)
         motherlode = Tanuk_CodeSequence({"right", "up", "b", "down", "up", "b", "down", "up", "b"}, function() assets.sfx_start:play() end)
     }
 
-    if save.as then
+    if save.as and not demo then
         vars.menu_list[#vars.menu_list+1] = 'continue'
         assets.img_sel_continue = gfx.image.new('images/title/sel_continue')
     end
@@ -419,7 +419,7 @@ function title:update()
                 vars.menu_scrollable = false
             end
             if vars.current_name == 'new' then
-                if save.as then
+                if save.as and not demo then
                     self.ui:add()
                     assets.sfx_ui:play()
                     vars.ui_anim_in:reset()

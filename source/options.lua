@@ -16,7 +16,11 @@ function options:init()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         local img = gfx.image.new(400, 240)
-        xoffset = 0
+        if vars.scenepicker_open then
+            xoffset = 42
+        else
+            xoffset = 0
+        end
         pd.setMenuImage(img, xoffset)
         menu:addMenuItem(gfx.getLocalizedText("setdefaults"), function()
             save.mu = 5
@@ -276,7 +280,7 @@ function options:init()
                     assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene2_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())
                     assets.pedallica:drawTextAligned(gfx.getLocalizedText("cutscene2_desc"), 142, 145+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
-                    assets.img_qr1:draw(297, 30+vars.scenepicker_anim:currentValue())
+                    assets.img_qr2:draw(297, 30+vars.scenepicker_anim:currentValue())
                 elseif vars.scenepicker_name == '3' then
                     assets.kapel:drawTextAligned(gfx.getLocalizedText("cutscene3_name"), 142, 40+vars.scenepicker_anim:currentValue(), kTextAlignment.center)
                     assets.img_1:draw(50, 70+vars.scenepicker_anim:currentValue())

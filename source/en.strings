@@ -53,8 +53,8 @@
 "locked_desc" = "Hmm, doesn't seem like you've unlocked this yet. Come back when you've played some more story!"
 "demo_locked_desc" = "Sorry, you can't mess with this in the demo. You're not missing out on anything big, promise."
 -- Cutscene names
-"cutscene1_name" = "Cutscene 1"
-"cutscene2_name" = "Cutscene 2"
+"cutscene1_name" = "1: Junkyard RowBot"
+"cutscene2_name" = "2: Fish Bowlin'"
 "cutscene3_name" = "Cutscene 3"
 "cutscene4_name" = "Cutscene 4"
 "cutscene5_name" = "Cutscene 5"
@@ -66,7 +66,7 @@
 "cutscenex_name" = "That's it!"
 -- Cutscene descriptions
 "cutscene1_desc" = "A bunny on the hunt for scrap, plus\na RowBot left in the junkyard, equals...?"
-"cutscene2_desc" = "TBD"
+"cutscene2_desc" = "Entering the Fish Bowl wasn't hard,\nbut will their first fight be just as easy?"
 "cutscene3_desc" = "TBD"
 "cutscene4_desc" = "TBD"
 "cutscene5_desc" = "TBD"

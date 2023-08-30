@@ -90,7 +90,6 @@ function race:init(...)
     assets.sfx_crash:setVolume(save.fx/5)
     assets.sfx_start:setVolume(save.fx/5)
     assets.sfx_finish:setVolume(save.fx/5)
-    assets.sfx_row:setVolume(save.fx/5)
     assets.sfx_row:play(0)
 
     vars = {
@@ -751,14 +750,12 @@ function race:react_blink()
 end
 
 function race:update()
-    -- uncomment to record a new CPU!!
+    -- vv uncomment to record a new CPU!! vv
     -- if vars.race_started and vars.elapsed_time % 2 == 0 or vars.race_finished then
     --     print(self.boat.x .. ', ' .. self.boat.y .. ', ' .. vars.boat_rotation .. ', ' .. self.wake.x .. ', ' .. self.wake.y .. ', ' ..  vars.boat_old_rotation .. ', ' .. vars.wake_setting .. ', ')
     -- end
-    if pd.buttonJustPressed('down') then
-        self:finish(true)
-    end
-    assets.sfx_row:setVolume(vars.player_turn)
+    local rowvolume = math.clamp(vars.player_turn, 0, save.fx/5)
+    assets.sfx_row:setVolume(rowvolume)
     local gfx_x, gfx_y = gfx.getDrawOffset()
     self.water:moveTo(gfx_x%-400, gfx_y%-240)
     vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.05
@@ -837,10 +834,10 @@ function race:update()
             if vars.player_turn < change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
             vars.boat_rotation += vars.player_turn*vars.boat_turn_rate:currentValue()*0.56 -= vars.boat_turn_rate:currentValue()*3
             vars.boat_radtation = math.rad(vars.boat_rotation)
-            if vars.player_turn > 20 then
+            if vars.player_turn > 13 then
                 self:reaction("crash")
             else
-                self.reaction("idle")
+                self:reaction("idle")
             end
             if vars.boosting then
                 self.boat:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed_rate:currentValue()*4.5, math.cos(vars.boat_radtation)*-vars.boat_speed_rate:currentValue()*4.5)

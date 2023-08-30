@@ -38,9 +38,6 @@ function tutorial:init(...)
     assets = {
         img_react_idle = gfx.image.new('images/race/react_idle'),
         img_react_idle_blink = gfx.image.new('images/race/react_idle_blink'),
-        img_react_happy = gfx.image.new('images/race/react_happy'),
-        img_react_shocked = gfx.image.new('images/race/react_shocked'),
-        img_react_confused = gfx.image.new('images/race/react_confused'),
         img_react_crash = gfx.image.new('images/race/react_crash'),
         img_meter = gfx.image.new('images/race/meter'),
         img_meter_mask = gfx.image.new('images/race/meter_mask'),
@@ -76,7 +73,6 @@ function tutorial:init(...)
     assets.sfx_ui:setVolume(save.fx/5)
     assets.sfx_start:setVolume(save.fx/5)
     assets.sfx_rowboton:setVolume(save.fx/5)
-    assets.sfx_row:setVolume(save.fx/5)
     assets.sfx_row:play(0)
     assets.sfx_sea:play(0)
 
@@ -370,6 +366,7 @@ function tutorial:progress()
             self.ui:setImage(assets.img_ui)
         end)
     elseif vars.current_step == 5 then
+        show_crank = true
         if pd.isCrankDocked() then
             assets.img_ui = gfx.image.new(400, 240)
             gfx.pushContext(assets.img_ui)
@@ -379,7 +376,6 @@ function tutorial:progress()
             self.ui:setImage(assets.img_ui)
             self.ui:add()
             vars.ui_open = true
-            show_crank = true
         else
             self:progress()
         end
@@ -394,6 +390,7 @@ function tutorial:progress()
         vars.ui_open = true
         vars.boat_controllable = true
     elseif vars.current_step == 7 then
+        show_crank = false
         vars.boat_controllable = false
         assets.sfx_start:play()
         assets.img_ui = gfx.image.new(400, 240)
@@ -490,6 +487,7 @@ function tutorial:progress()
             self.ui:setImage(assets.img_ui)
         end)
     elseif vars.current_step == 12 then
+        show_crank = true
         assets.img_ui = gfx.image.new(400, 240)
         gfx.pushContext(assets.img_ui)
             assets.img_tutui:draw(11, 10)
@@ -695,21 +693,6 @@ function tutorial:reaction(new)
         vars.reacting = false
         vars.anim_react = nil
         self.react:moveTo(200, 152)
-    elseif new == "happy" then
-        self.react:setImage(assets.img_react_happy)
-        vars.reacting = true
-        vars.anim_react = gfx.animator.new(350, 152, 142, pd.easingFunctions.outSine)
-        vars.anim_react.reverses = true
-        vars.anim_react.repeatCount = -1
-    elseif new == "shocked" then
-        self.react:setImage(assets.img_react_shocked)
-        vars.reacting = true
-        vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine)
-        vars.anim_react.reverses = true
-        vars.anim_react.repeatCount = -1
-    elseif new == "confused" then
-        self.react:setImage(assets.img_react_confused)
-        vars.reacting = true
     elseif new == "crash" then
         self.react:setImage(assets.img_react_crash)
         vars.reacting = true
@@ -734,7 +717,8 @@ function tutorial:react_blink()
 end
 
 function tutorial:update()
-    assets.sfx_row:setVolume(vars.player_turn)
+    local rowvolume = math.clamp(vars.player_turn, 0, save.fx/5)
+    assets.sfx_row:setVolume(rowvolume)
     local gfx_x, gfx_y = gfx.getDrawOffset()
     self.water:moveTo(gfx_x%-400, gfx_y%-240)
     self.arrows:setImage(vars.anim_arrows:image())
@@ -833,6 +817,11 @@ function tutorial:update()
             end
             vars.boat_rotation += vars.player_turn*vars.boat_turn_rate:currentValue()*0.56 -= vars.boat_turn_rate:currentValue()*3
             vars.boat_radtation = math.rad(vars.boat_rotation)
+            if vars.player_turn > 13 then
+                self:reaction("crash")
+            else
+                self:reaction("idle")
+            end
             self.boat:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed_rate:currentValue()*2.5, math.cos(vars.boat_radtation)*-vars.boat_speed_rate:currentValue()*2.5)
         end
     end

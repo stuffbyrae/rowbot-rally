@@ -387,7 +387,7 @@ end
 
 function chase:crash(dir)
     shakiesx()
-    assets.sfx_crash:play()
+    assets.sfx_crash:play(1, math.random()+1)
     assets.sfx_air:play()
     assets.music:setRate(1+vars.crashes/9)
     vars.boat_crashed = true

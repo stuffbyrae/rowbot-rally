@@ -16,6 +16,12 @@ function credits:init(...)
         arg_move = args[1] -- "title" or "options"
     }
 
+    if vars.arg_move == "title" then
+        if save.sk then
+            credits:finish()
+        end
+    end
+
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()

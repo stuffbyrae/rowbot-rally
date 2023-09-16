@@ -406,7 +406,7 @@ function race:init(...)
     self.cpuwake = cpuwake()
     self.cpuboat = cpuboat()
     self.wake = wake()
-    self.boat = boat(10, 40)
+    self.boat = boat(16, 40)
     self.track = track()
     self.timer = timer()
     self.react = react()
@@ -599,7 +599,7 @@ function race:crash()
         if not save.sr and vars.arg_mode == "story" then
             save.sr = true
         end
-        assets.sfx_crash:play()
+        assets.sfx_crash:play(1, math.random()+1)
         self:reaction("crash")
         shakiesx()
         local reflectdeg = (self:reflectangle(cols) + 180) % 360
@@ -727,6 +727,7 @@ function race:reaction(new)
         self.react:setImage(assets.img_react_confused)
         vars.reacting = true
     elseif new == "crash" then
+        print('fuck')
         self.react:setImage(assets.img_react_crash)
         vars.reacting = true
         vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine, 1)
@@ -834,11 +835,6 @@ function race:update()
             if vars.player_turn < change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
             vars.boat_rotation += vars.player_turn*vars.boat_turn_rate:currentValue()*0.56 -= vars.boat_turn_rate:currentValue()*3
             vars.boat_radtation = math.rad(vars.boat_rotation)
-            if vars.player_turn > 13 then
-                self:reaction("crash")
-            else
-                self:reaction("idle")
-            end
             if vars.boosting then
                 self.boat:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed_rate:currentValue()*4.5, math.cos(vars.boat_radtation)*-vars.boat_speed_rate:currentValue()*4.5)
             else

@@ -110,6 +110,12 @@ function tutorial:init(...)
         crashed_yet = false
     }
 
+    if vars.arg_move == "story" then
+        if save.sk then
+            scenemanager:switchscene(intro, 1)
+        end
+    end
+
     vars.anim_wake.reverses = true
     vars.anim_wake.repeatCount = -1
 
@@ -256,7 +262,7 @@ function tutorial:init(...)
 
     self.water = water()
     self.wake = wake()
-    self.boat = boat(10, 40)
+    self.boat = boat(16, 40)
     self.net = net()
     self.track = track()
     self.ui = ui()
@@ -590,7 +596,7 @@ function tutorial:crash(which)
         if not save.sr and vars.arg_mode == "story" then
             save.sr = true
         end
-        assets.sfx_crash:play()
+        assets.sfx_crash:play(1, math.random()+1)
         self:reaction("crash")
         shakiesx()
         local reflectdeg = (self:reflectangle(cols) + 180) % 360
@@ -817,11 +823,6 @@ function tutorial:update()
             end
             vars.boat_rotation += vars.player_turn*vars.boat_turn_rate:currentValue()*0.56 -= vars.boat_turn_rate:currentValue()*3
             vars.boat_radtation = math.rad(vars.boat_rotation)
-            if vars.player_turn > 13 then
-                self:reaction("crash")
-            else
-                self:reaction("idle")
-            end
             self.boat:moveBy(math.sin(vars.boat_radtation)*vars.boat_speed_rate:currentValue()*2.5, math.cos(vars.boat_radtation)*-vars.boat_speed_rate:currentValue()*2.5)
         end
     end

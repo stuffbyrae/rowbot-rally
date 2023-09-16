@@ -122,10 +122,10 @@ function scenemanager:loadnewscene()
 end
 
 function scenemanager:cleanupscene()
-    gfx.sprite.removeAll()
-    self:removealltimers()
     assets = nil
     vars = nil
+    gfx.sprite.removeAll()
+    self:removealltimers()
     collectgarbage('collect')
     gfx.setDrawOffset(0, 0)
 end

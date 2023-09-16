@@ -27,11 +27,11 @@ scenemanager = scenemanager()
 gfx.setBackgroundColor(gfx.kColorBlack)
 
 function unlockeverything()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 7, cc = 0, mc = 10, cs = true, ss = true, mu = 5, fx = 5, ts = true, ms = true, ui = false, fp = false, fl = false, st = 1, sr = false, cr = 0, tr = 0, pr = false}
+    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 7, cc = 0, mc = 10, cs = true, ss = true, mu = 5, fx = 5, ts = true, ms = true, ui = false, fp = false, fl = false, st = 1, sr = false, cr = 0, tr = 0, pr = false, dp - false}
 end
 
 function clearALLthesaves()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = false, fp = false, fl = true, st = 0, sr = false, cr = 0, tr = 0, pr = false}
+    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = false, fp = false, fl = true, st = 0, sr = false, cr = 0, tr = 0, pr = false, dp = false}
 end
 
 save = pd.datastore.read()
@@ -70,7 +70,10 @@ save = {
     sr = false, -- crashed during the story at all?
     cr = 0, -- crash count
     tr = 0, -- total time spent actively racing
-    pr = false -- paused at all during the active story?
+    dp = false, -- D-pad controls on or off
+    pw = false, -- power meter flip
+    se = 3, -- rowing sensitivity
+    sk = false, -- auto-skip cutscenes, tutorial, credits when playing in story
 }
 end
 
@@ -101,7 +104,7 @@ end
 if save.fl then
     scenemanager:switchscene(opening, "title")
 else
-    scenemanager:switchscene(title, false)
+    scenemanager:switchscene(options)
 end
 
 function pd.gameWillTerminate()

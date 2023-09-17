@@ -1,5 +1,5 @@
 -----------------------------------------------
---- Code Sequence for cheat codes    v1.0.2 ---
+--- Code Sequence for cheat codes    v2.0.0 ---
 --- taken from Toad on discord              ---
 --- https://discord.com/channels/675983554655551509/1078126062753550476/1135205048431951912  ---
 --- and modified by                         ---
@@ -8,7 +8,7 @@
 -----------------------------------------------
 
 -- Usage example
--- self.sprCode = Tanuk_CodeSequence({"down", "left", "down", "left", "right", "a"}, function() print("Code Complete") end)
+-- self.sprCode = Tanuk_CodeSequence({pd.kButtonDown, pd.kButtonLeft, pd.kButtonRight, pd.kButtonLeft, pd.kButtonRight}, function() print("Code Complete") end)
 
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -26,13 +26,17 @@ function Tanuk_CodeSequence:init(sequence, callbackReward, isAllowMultipleCalls)
     self.reward = callbackReward
     self.isAllowMultipleCalls = isAllowMultipleCalls or false
     self.sequenceIndex = 1
-    self.timerInput = pd.timer.new(500, function() self.sequenceIndex = 1 end)
+    self.timerInput = pd.timer.new(750, function() self.sequenceIndex = 1 end)
     self.timerInput.repeats = true
     self:add()
 end
 
 function Tanuk_CodeSequence:update()
-    if pd.buttonJustPressed(self.sequence[self.sequenceIndex]) then
+    local current, pressed, released = pd.getButtonState()
+
+    if released == 0 then return end -- No button released
+
+    if self.sequence[self.sequenceIndex] & released ~= 0 then
         self.sequenceIndex = self.sequenceIndex + 1
         self.timerInput:reset()
 
@@ -44,5 +48,9 @@ function Tanuk_CodeSequence:update()
                 self = nil
             end
         end
+    else
+        -- We reset the sequence
+        self.sequenceIndex = 1
+        self.timerInput:reset()
     end
 end

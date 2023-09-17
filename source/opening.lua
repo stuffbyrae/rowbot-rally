@@ -69,6 +69,12 @@ function opening:init(...)
     self.fade = fade()
     
     self:add()
+
+    if vars.arg_move == "story" then
+        if save.sk then
+            scenemanager:switchscene(intro, 1)
+        end
+    end
 end
 
 function opening:finish()

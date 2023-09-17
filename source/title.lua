@@ -86,7 +86,7 @@ function title:init(...)
         selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),
         selector_anim_in_right = gfx.animator.new(150, 600, 200, pd.easingFunctions.outBack),
         selector_anim_locked = gfx.animator.new(200, pd.geometry.polygon.new(200, 160, 180, 160, 220, 160, 190, 160, 210, 160, 190, 160, 200, 160), pd.easingFunctions.linear),
-        motherlode = Tanuk_CodeSequence({"right", "up", "b", "down", "up", "b", "down", "up", "b"}, function() assets.sfx_start:play() end)
+        motherlode = Tanuk_CodeSequence({pd.kButtonRight, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function() assets.sfx_start:play() end)
     }
 
     if save.as and not demo then

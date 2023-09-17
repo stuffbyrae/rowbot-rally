@@ -43,27 +43,9 @@ function cutscene:init(...)
         arg_move = args[2], -- "story" or "options"
         lastframe = 0,
         transition = true,
+        border_exits = true,
         border_exiting = false
     }
-    
-    if vars.arg_move == "story" then
-        save.cc = vars.arg_play
-        if save.cc > save.mc then
-            save.mc = save.cc
-        end
-        if save.sk then
-            if vars.arg_play == 1 then scenemanager:switchscene(intro, 1) end
-            if vars.arg_play == 2 then scenemanager:switchscene(intro, 1) end
-            if vars.arg_play == 3 then scenemanager:switchscene(intro, 2) end
-            if vars.arg_play == 4 then scenemanager:switchscene(intro, 3) end
-            if vars.arg_play == 5 then scenemanager:switchscene(intro, 4) end
-            if vars.arg_play == 6 then scenemanager:switchscene(chase) end
-            if vars.arg_play == 7 then scenemanager:switchscene(intro, 5) end
-            if vars.arg_play == 8 then scenemanager:switchscene(intro, 6) end
-            if vars.arg_play == 9 then scenemanager:switchscene(intro, 7) end
-            if vars.arg_play == 10 then scenemanager:switchscene(credits) end
-        end
-    end
     
     assets.video = gfx.video.new('images/story/scene' .. vars.arg_play)
     assets.audio = pd.sound.fileplayer.new('audio/story/scene' .. vars.arg_play .. '_sfx')
@@ -81,27 +63,29 @@ function cutscene:init(...)
     assets.audio:play(1)
     assets.music:play(1)
 
+    if vars.arg_move == "story" then
+        save.cc = vars.arg_play
+        if save.cc > save.mc then
+            save.mc = save.cc
+        end
+        if save.sk then
+            vars.border_exits = false
+            assets.audio:stop()
+        end
+    end
+    
     assets.audio:setFinishCallback(function()
         assets.music:stop()
         if vars.transition then
-            vars.border_exiting = true
-            vars.border_anim = gfx.animation.loop.new(70, assets.img_border_outro, false)
-            pd.timer.performAfterDelay(560, function()
-                if vars.arg_move == "options" then
-                    scenemanager:transitionscene(options)
-                else
-                    if vars.arg_play == 1 then scenemanager:switchscene(tutorial, "story") end
-                    if vars.arg_play == 2 then scenemanager:switchscene(intro, 1) end
-                    if vars.arg_play == 3 then scenemanager:switchscene(intro, 2) end
-                    if vars.arg_play == 4 then scenemanager:switchscene(intro, 3) end
-                    if vars.arg_play == 5 then scenemanager:switchscene(intro, 4) end
-                    if vars.arg_play == 6 then scenemanager:switchscene(chase) end
-                    if vars.arg_play == 7 then scenemanager:switchscene(intro, 5) end
-                    if vars.arg_play == 8 then scenemanager:switchscene(intro, 6) end
-                    if vars.arg_play == 9 then scenemanager:switchscene(intro, 7) end
-                    if vars.arg_play == 10 then scenemanager:switchscene(credits) end
-                end
-            end)
+            if vars.border_exits then
+                vars.border_exiting = true
+                vars.border_anim = gfx.animation.loop.new(70, assets.img_border_outro, false)
+                pd.timer.performAfterDelay(560, function()
+                    cutscene:roadmap()
+                end)
+            else
+                cutscene:roadmap()
+            end
         end
     end)
 
@@ -124,6 +108,23 @@ function cutscene:init(...)
     self.border = border()
 
     self:add()
+end
+
+function cutscene:roadmap()
+    if vars.arg_move == "options" then
+        scenemanager:transitionscene(options)
+    else
+        if vars.arg_play == 1 then scenemanager:switchscene(tutorial, "story") end
+        if vars.arg_play == 2 then scenemanager:switchscene(intro, 1) end
+        if vars.arg_play == 3 then scenemanager:switchscene(intro, 2) end
+        if vars.arg_play == 4 then scenemanager:switchscene(intro, 3) end
+        if vars.arg_play == 5 then scenemanager:switchscene(intro, 4) end
+        if vars.arg_play == 6 then scenemanager:switchscene(chase) end
+        if vars.arg_play == 7 then scenemanager:switchscene(intro, 5) end
+        if vars.arg_play == 8 then scenemanager:switchscene(intro, 6) end
+        if vars.arg_play == 9 then scenemanager:switchscene(intro, 7) end
+        if vars.arg_play == 10 then scenemanager:switchscene(credits) end
+    end
 end
 
 function cutscene:update()

@@ -107,14 +107,9 @@ function tutorial:init(...)
         waittime = 1500,
         blink_random = math.random(),
         anim_net = gfx.animator.new(1, 0, 0),
-        crashed_yet = false
+        crashed_yet = false,
+        change = 0
     }
-
-    if vars.arg_move == "story" then
-        if save.sk then
-            scenemanager:switchscene(intro, 1)
-        end
-    end
 
     vars.anim_wake.reverses = true
     vars.anim_wake.repeatCount = -1
@@ -278,8 +273,16 @@ function tutorial:init(...)
     pd.timer.performAfterDelay(1500, function()
         self:progress()
     end)
-
+    
     self:add()
+
+    if vars.arg_move == "story" then
+        if save.sk then
+            assets.sfx_sea:stop()
+            assets.sfx_row:stop()
+            scenemanager:switchscene(intro, 1)
+        end
+    end
 end
 
 function tutorial:checkpoint(x, y)
@@ -372,8 +375,10 @@ function tutorial:progress()
             self.ui:setImage(assets.img_ui)
         end)
     elseif vars.current_step == 5 then
-        show_crank = true
-        if pd.isCrankDocked() then
+        if not save.dp then
+            show_crank = true
+        end
+        if not save.dp and pd.isCrankDocked() then
             assets.img_ui = gfx.image.new(400, 240)
             gfx.pushContext(assets.img_ui)
                 assets.img_tutui:draw(11, 10)
@@ -389,7 +394,11 @@ function tutorial:progress()
         assets.img_ui = gfx.image.new(400, 240)
         gfx.pushContext(assets.img_ui)
             assets.img_tutui:draw(11, 10)
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText("tut6"), 200, 28, kTextAlignment.center)
+            if save.dp then
+                assets.pedallica:drawTextAligned(gfx.getLocalizedText("tut6_dpad"), 200, 28, kTextAlignment.center)
+            else
+                assets.pedallica:drawTextAligned(gfx.getLocalizedText("tut6"), 200, 28, kTextAlignment.center)
+            end
         gfx.popContext()
         self.ui:setImage(assets.img_ui)
         self.ui:add()
@@ -493,7 +502,9 @@ function tutorial:progress()
             self.ui:setImage(assets.img_ui)
         end)
     elseif vars.current_step == 12 then
-        show_crank = true
+        if not save.dp then
+            show_crank = true
+        end
         assets.img_ui = gfx.image.new(400, 240)
         gfx.pushContext(assets.img_ui)
             assets.img_tutui:draw(11, 10)
@@ -758,7 +769,18 @@ function tutorial:update()
                 self:checkpoint(c[i].x, c[i].y)
             end
         end
-        local change = pd.getCrankChange()/3
+        if save.dp then
+            if pd.buttonIsPressed('up') then
+                vars.change += 0.15 + (0.05 * save.se)
+            end
+            if pd.buttonIsPressed('down') then
+                vars.change -= 0.15 + (0.05 * save.se)
+            end
+            if vars.change > 10 then vars.change = 10 end
+            if vars.change < 0 then vars.change = 0 end
+        else
+            vars.change = pd.getCrankChange() / (3.5 - (0.35 * save.se))
+        end
         if vars.boat_old_rotation < vars.boat_rotation - 14 then
             self.wake:setImage(assets.img_wake5[math.floor((vars.boat_old_rotation%360) / 6)+1])
             vars.wake_setting = 5
@@ -786,7 +808,7 @@ function tutorial:update()
                 self:crash("track")
             end
             if vars.boat_controllable then
-                if vars.player_turn < change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
+                if vars.player_turn < vars.change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
                 if vars.current_step == 6 then
                     if vars.player_turn >= 0 then
                         vars.hang_time += 1

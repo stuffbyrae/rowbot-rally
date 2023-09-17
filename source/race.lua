@@ -123,7 +123,8 @@ function race:init(...)
         wake_setting = 3,
         blink_random = math.random(),
         cpu_exists = false,
-        overlay_invert = true
+        overlay_invert = true,
+        change = 0
     }
 
     vars.anim_wake.reverses = true
@@ -491,7 +492,9 @@ function race:start(restart)
             assets.music:play(0)
             vars.race_started = true
             vars.race_in_progress = true
-            show_crank = true
+            if not save.dp then
+                show_crank = true
+            end
             vars.camera_target_offset = vars.boat_speed_stat*15
             vars.boat_speed_rate = gfx.animator.new(1000, 0, vars.boat_speed_stat, pd.easingFunctions.inOutSine)
             vars.boat_turn_rate = gfx.animator.new(2500, 0, vars.boat_turn_stat, pd.easingFunctions.inOutSine)
@@ -822,7 +825,18 @@ function race:update()
                 self:checkpoint(c[i].x, c[i].y)
             end
         end
-        local change = pd.getCrankChange()/3
+        if save.dp then
+            if pd.buttonIsPressed('up') then
+                vars.change += 0.15 + (0.05 * save.se)
+            end
+            if pd.buttonIsPressed('down') then
+                vars.change -= 0.15 + (0.05 * save.se)
+            end
+            if vars.change > 10 then vars.change = 10 end
+            if vars.change < 0 then vars.change = 0 end
+        else
+            vars.change = pd.getCrankChange() / (3.5 - (0.35 * save.se))
+        end
         if vars.boat_crashed then
             vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.20
             self.boat:moveTo(vars.anim_boat_crash_x:currentValue(), vars.anim_boat_crash_y:currentValue())
@@ -832,7 +846,7 @@ function race:update()
             if gfx.checkAlphaCollision(self.boat:getImage(), self.boat.x - (self.boat.width / 2), self.boat.y - (self.boat.height / 2), 0, assets.img_trackc, 0, 0, 0) then
                 self:crash()
             end
-            if vars.player_turn < change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
+            if vars.player_turn < vars.change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
             vars.boat_rotation += vars.player_turn*vars.boat_turn_rate:currentValue()*0.56 -= vars.boat_turn_rate:currentValue()*3
             vars.boat_radtation = math.rad(vars.boat_rotation)
             if vars.boosting then

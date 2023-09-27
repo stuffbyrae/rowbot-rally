@@ -24,6 +24,9 @@ function scenemanager:switchscene(scene, ...)
         if assets.music ~= nil then
             assets.music:stop()
         end
+        if assets.sfx_row ~= nil then
+            assets.sfx_row:stop()
+        end
     end
     self:loadnewscene()
 end

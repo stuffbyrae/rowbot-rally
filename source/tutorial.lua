@@ -39,6 +39,9 @@ function tutorial:init(...)
         img_react_idle = gfx.image.new('images/race/react_idle'),
         img_react_idle_blink = gfx.image.new('images/race/react_idle_blink'),
         img_react_crash = gfx.image.new('images/race/react_crash'),
+        img_react_idle_flipped = gfx.image.new('images/race/react_idle_flipped'),
+        img_react_idle_blink_flipped = gfx.image.new('images/race/react_idle_blink_flipped'),
+        img_react_crash_flipped = gfx.image.new('images/race/react_crash_flipped'),
         img_meter = gfx.image.new('images/race/meter'),
         img_meter_mask = gfx.image.new('images/race/meter_mask'),
         img_water_bg = gfx.image.new('images/race/tracks/water_bg'),
@@ -205,15 +208,24 @@ function tutorial:init(...)
     class('react').extends(gfx.sprite)
     function react:init()
         react.super.init(self)
-        self:moveTo(200, 400)
         self:setZIndex(98)
         self:setCenter(0.5, 0)
         self:setIgnoresDrawOffset(true)
-        self:setImage(assets.img_react_idle)
+        if save.pw then
+            self:setImage(assets.img_react_idle_flipped)
+            self:moveTo(185, 400)
+        else
+            self:setImage(assets.img_react_idle)
+            self:moveTo(200, 400)
+        end
     end
     function react:update()
         if vars.anim_power_in ~= nil then
-            self:moveTo(200, 152+vars.anim_power_in:currentValue())
+            if save.pw then
+                self:moveTo(185, 152+vars.anim_power_in:currentValue())
+            else
+                self:moveTo(200, 152+vars.anim_power_in:currentValue())
+            end
         end
     end
     
@@ -230,8 +242,13 @@ function tutorial:init(...)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
             local playerturn = math.clamp(vars.player_turn*7, 0, 100)
-            gfx.fillRect(195, 0, -playerturn, 38)
-            gfx.fillRect(0, 0, vars.boat_turn_rate:currentValue()*20, 38)
+            if save.pw then
+                gfx.fillRect(195, 0, -vars.boat_turn_rate:currentValue()*20, 38)
+                gfx.fillRect(0, 0, playerturn, 38)
+            else
+                gfx.fillRect(195, 0, -playerturn, 38)
+                gfx.fillRect(0, 0, vars.boat_turn_rate:currentValue()*20, 38)
+            end
             img:setMaskImage(assets.img_meter_mask)
             assets.img_meter:draw(0, 0)
         gfx.popContext()
@@ -407,6 +424,7 @@ function tutorial:progress()
     elseif vars.current_step == 7 then
         show_crank = false
         vars.boat_controllable = false
+        vars.change = 0
         assets.sfx_start:play()
         assets.img_ui = gfx.image.new(400, 240)
         gfx.pushContext(assets.img_ui)
@@ -706,12 +724,21 @@ end
 
 function tutorial:reaction(new)
     if new == "idle" then
-        self.react:setImage(assets.img_react_idle)
+        if save.pw then
+            self.react:setImage(assets.img_react_idle_flipped)
+            self:moveTo(185, 152)
+        else
+            self.react:setImage(assets.img_react_idle)
+            self:moveTo(200, 152)
+        end
         vars.reacting = false
         vars.anim_react = nil
-        self.react:moveTo(200, 152)
     elseif new == "crash" then
-        self.react:setImage(assets.img_react_crash)
+        if save.pw then
+            self.react:setImage(assets.img_react_crash_flipped)
+        else
+            self.react:setImage(assets.img_react_crash)
+        end
         vars.reacting = true
         vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine)
         vars.anim_react.reverses = true
@@ -722,7 +749,11 @@ end
 function tutorial:react_blink()
     local img = self.react:getImage()
     if not vars.reacting then
-        self.react:setImage(assets.img_react_idle_blink)
+        if save.pw then
+            self.react:setImage(assets.img_react_idle_blink_flipped)
+        else
+            self.react:setImage(assets.img_react_idle_blink)
+        end
     end
     pd.timer.performAfterDelay(50, function()
         self.react:setImage(img)

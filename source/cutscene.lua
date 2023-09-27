@@ -107,6 +107,10 @@ function cutscene:init(...)
     end
     self.border = border()
 
+    if vars.arg_play ~= 1 then
+        savegame()
+    end
+
     self:add()
 end
 

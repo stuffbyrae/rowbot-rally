@@ -64,6 +64,12 @@ function race:init(...)
         img_react_shocked = gfx.image.new('images/race/react_shocked'),
         img_react_confused = gfx.image.new('images/race/react_confused'),
         img_react_crash = gfx.image.new('images/race/react_crash'),
+        img_react_idle_flipped = gfx.image.new('images/race/react_idle_flipped'),
+        img_react_idle_blink_flipped = gfx.image.new('images/race/react_idle_blink_flipped'),
+        img_react_happy_flipped = gfx.image.new('images/race/react_happy_flipped'),
+        img_react_shocked_flipped = gfx.image.new('images/race/react_shocked_flipped'),
+        img_react_confused_flipped = gfx.image.new('images/race/react_confused_flipped'),
+        img_react_crash_flipped = gfx.image.new('images/race/react_crash_flipped'),
         img_meter = gfx.image.new('images/race/meter'),
         img_meter_mask = gfx.image.new('images/race/meter_mask'),
         img_overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
@@ -333,18 +339,27 @@ function race:init(...)
     class('react').extends(gfx.sprite)
     function react:init()
         react.super.init(self)
-        self:moveTo(200, 152)
         self:setZIndex(98)
         self:setCenter(0.5, 0)
         self:setIgnoresDrawOffset(true)
-        self:setImage(assets.img_react_idle)
+        if save.pw then
+            self:setImage(assets.img_react_idle_flipped)
+            self:moveTo(185, 152)
+        else
+            self:setImage(assets.img_react_idle)
+            self:moveTo(200, 152)
+        end
         if not save.ui then
             self:add()
         end
     end
     function react:update()
         if vars.anim_react ~= nil then
-            self:moveTo(200, vars.anim_react:currentValue())
+            if save.pw then
+                self:moveTo(185, vars.anim_react:currentValue())
+            else
+                self:moveTo(200, vars.anim_react:currentValue())
+            end
         end
     end
     
@@ -364,8 +379,13 @@ function race:init(...)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
             local playerturn = math.clamp(vars.player_turn*7, 0, 100)
-            gfx.fillRect(195, 0, -playerturn, 38)
-            gfx.fillRect(0, 0, vars.boat_turn_rate:currentValue()*20, 38)
+            if save.pw then
+                gfx.fillRect(195, 0, -vars.boat_turn_rate:currentValue()*20, 38)
+                gfx.fillRect(0, 0, playerturn, 38)
+            else
+                gfx.fillRect(195, 0, -playerturn, 38)
+                gfx.fillRect(0, 0, vars.boat_turn_rate:currentValue()*20, 38)
+            end
             img:setMaskImage(assets.img_meter_mask)
             assets.img_meter:draw(0, 0)
         gfx.popContext()
@@ -484,6 +504,7 @@ function race:start(restart)
             vars.race_in_progress = false
         end
     end
+    vars.change = 0
     vars.overlay_invert = false
     vars.anim_overlay = gfx.animation.loop.new(67, assets.img_countdown, false)
     assets.sfx_countdown:play()
@@ -710,28 +731,48 @@ end
 
 function race:reaction(new)
     if new == "idle" then
-        self.react:setImage(assets.img_react_idle)
+        if save.pw then
+            self.react:setImage(assets.img_react_idle_flipped)
+            self:moveTo(185, 152)
+        else
+            self.react:setImage(assets.img_react_idle)
+            self:moveTo(200, 152)
+        end
         vars.reacting = false
         vars.anim_react = nil
-        self.react:moveTo(200, 152)
     elseif new == "happy" then
-        self.react:setImage(assets.img_react_happy)
+        if save.pw then
+            self.react:setImage(assets.img_react_happy_flipped)
+        else
+            self.react:setImage(assets.img_react_happy)
+        end
         vars.reacting = true
         vars.anim_react = gfx.animator.new(350, 152, 142, pd.easingFunctions.outSine)
         vars.anim_react.reverses = true
         vars.anim_react.repeatCount = -1
     elseif new == "shocked" then
-        self.react:setImage(assets.img_react_shocked)
+        if save.pw then
+            self.react:setImage(assets.img_react_shocked_flipped)
+        else
+            self.react:setImage(assets.img_react_shocked)
+        end
         vars.reacting = true
         vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine)
         vars.anim_react.reverses = true
         vars.anim_react.repeatCount = -1
     elseif new == "confused" then
-        self.react:setImage(assets.img_react_confused)
+        if save.pw then
+            self.react:setImage(assets.img_react_confused_flipped)
+        else
+            self.react:setImage(assets.img_react_confused)
+        end
         vars.reacting = true
     elseif new == "crash" then
-        print('fuck')
-        self.react:setImage(assets.img_react_crash)
+        if save.pw then
+            self.react:setImage(assets.img_react_crash_flipped)
+        else
+            self.react:setImage(assets.img_react_crash)
+        end
         vars.reacting = true
         vars.anim_react = gfx.animator.new(250, 152, 142, pd.easingFunctions.outSine, 1)
         vars.anim_react.reverses = true
@@ -742,7 +783,11 @@ end
 function race:react_blink()
     local img = self.react:getImage()
     if not vars.reacting then
-        self.react:setImage(assets.img_react_idle_blink)
+        if save.pw then
+            self.react:setImage(assets.img_react_idle_blink_flipped)
+        else
+            self.react:setImage(assets.img_react_idle_blink)
+        end
     end
     pd.timer.performAfterDelay(50, function()
         self.react:setImage(img)

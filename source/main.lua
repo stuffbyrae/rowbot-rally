@@ -15,6 +15,7 @@ local gfx <const> = pd.graphics
 pd.display.setRefreshRate(30)
 show_crank = false
 first_pause = true
+saving = false
 demo = false -- just so you know mr. funny man, changing this variable in the demo will only break things. if you're interested in the full game, i (obviously) implore you to buy it! <3
 if string.find(pd.metadata.bundleID, "demo") then
     demo = true
@@ -83,6 +84,21 @@ end
 
 shakies_anim = nil
 
+function savegame()
+    if not demo then
+        pd.datastore.write(save)
+        saving = true
+        savingtable = gfx.imagetable.new('images/ui/saving')
+        savinginc = 1
+        savingsprite = gfx.sprite.new(savingtable[1])
+        savingsprite:moveTo(0, 5)
+        savingsprite:setZIndex(32767)
+        savingsprite:setCenter(0, 0)
+        savingsprite:setIgnoresDrawOffset(true)
+        savingsprite:add()
+    end
+end
+
 function shakiesx()
     if pd.getReduceFlashing() then
         return
@@ -104,7 +120,7 @@ end
 if save.fl then
     scenemanager:switchscene(opening, "title")
 else
-    scenemanager:switchscene(options)
+    scenemanager:switchscene(title, false)
 end
 
 function pd.gameWillTerminate()
@@ -126,6 +142,17 @@ function pd.gameWillTerminate()
 end
 
 function pd.update()
+    if saving then
+        savinginc += 0.6
+        savingsprite:setImage(savingtable[math.floor(savinginc)])
+        savingsprite:add()
+        if savinginc >= 29 then
+            saving = false
+            savingsprite:remove()
+            savinginc = nil
+            savingimage = nil
+        end
+    end
     if pd.buttonIsPressed('b') and pd.buttonJustPressed('a') then
         save.fp = not save.fp
     end

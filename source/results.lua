@@ -175,6 +175,7 @@ function results:init(...)
             assets.double_time:drawTextAligned('O ' .. mins..":"..secs.."."..mils, 340, 90, kTextAlignment.right)
             if not demo then
                 if vars.arg_time < vars.besttime and vars.arg_win then
+                    savegame()
                     assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("newbest"), 340, 120, kTextAlignment.right)
                     if vars.arg_track == 1 then
                         save.t1 = vars.arg_time

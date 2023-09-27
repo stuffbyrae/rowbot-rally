@@ -80,6 +80,7 @@ function notif:init(...)
     end
 
     assets.sfx_ui:play()
+    savegame()
     self:add()
 end
 

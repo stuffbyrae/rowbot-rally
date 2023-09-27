@@ -380,6 +380,7 @@ function title:update()
                 save.sr = false
             end
             vars.new_warn_open = false
+            savegame()
         end
         if pd.buttonJustPressed('b') then
             vars.ui_anim_out:reset()
@@ -435,6 +436,7 @@ function title:update()
                     save.as = true
                     save.st += 1
                     vars.menu_scrollable = false
+                    savegame()
                 end
             end
             if vars.current_name == 'time_trials' then

@@ -105,6 +105,7 @@ function intro:init(...)
             local img = gfx.image.new(400, 240)
             gfx.pushContext(img)
                 gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+                gfx.setColor(gfx.kColorWhite)
                 gfx.fillRect(0, 75, 5*vars.anim_bg:currentValue(), 60)
                 if vars.arg_track == 1 then
                     assets.kapel:drawText('STAGE 1', 15*vars.anim_bg:currentValue(), 10)
@@ -142,7 +143,6 @@ function intro:init(...)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage7_vs"), 15*vars.anim_bg:currentValue(), 45)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage7_desc"), 25*vars.anim_bg:currentValue(), 75)
                 end
-                gfx.setImageDrawMode(gfx.kDrawModeCopy)
             gfx.popContext()
             self:setImage(img)
         end

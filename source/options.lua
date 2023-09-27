@@ -20,8 +20,10 @@ function options:init()
         xoffset = 0
         pd.setMenuImage(img, xoffset)
         menu:addMenuItem(gfx.getLocalizedText("setdefaults"), function()
+            savegame()
         end)
         menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
+            savegame()
             scenemanager:transitionsceneoneway(title, false)
         end)
     end
@@ -62,7 +64,7 @@ function options:init()
         img_qr8 = gfx.image.new('images/options/scenepicker/qr8'),
         img_qr9 = gfx.image.new('images/options/scenepicker/qr9'),
         img_qr10 = gfx.image.new('images/options/scenepicker/qr10'),
-        kapel = gfx.font.new('fonts/kapel_doubleup'),
+        kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         pedallica = gfx.font.new('fonts/pedallica'),
         music = pd.sound.fileplayer.new('audio/music/options'),
         sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
@@ -116,7 +118,6 @@ function options:init()
     if vars.scenes_menu[10] == nil then
         table.insert(vars.scenes_menu, "more")
     end
-    printTable(vars.scenes_menu)
 
     pd.timer.performAfterDelay(1001, function()
         vars.currently_open_menu = "options"
@@ -127,7 +128,23 @@ function options:init()
         bg.super.init(self)
         self:setZIndex(-99)
         self:setCenter(0, 0)
-        self:setImage(assets.img_bg)
+        local img = gfx.image.new(800, 240)
+        gfx.pushContext(img)
+            assets.img_bg:draw(0, 0)
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('music_name'), 8, 8)
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('sfx_name'), 8, 35)
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_tutorial_name'), 8, 62)
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_cutscene_name'), 8, 89)
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_credits_name'), 8, 116)
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('access_name'), 8, 143)
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('reset_name'), 14, 197)
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('ui_name'), 792, 8, kTextAlignment.right)
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('dpad_name'), 792, 35, kTextAlignment.right)
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('autoskip_name'), 792, 62, kTextAlignment.right)
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('sensitivity_name'), 792, 89, kTextAlignment.right)
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('powerflip_name'), 792, 116, kTextAlignment.right)
+        gfx.popContext()
+        self:setImage(img)
         self:add()
     end
     function bg:update()
@@ -136,7 +153,19 @@ function options:init()
         end
     end
 
+    class('selector').extends(gfx.sprite)
+    function selector:init()
+        selector.super.init(self)
+        local img = gfx.image.new(50, 50, gfx.kColorBlack)
+        self:setImage(img)
+        self:setImageDrawMode(gfx.kDrawModeNXOR)
+        self:add()
+    end
+    function selector:update()
+    end
+
     self.bg = bg()
+    self.selector = selector()
 
     self:add()
 end
@@ -162,7 +191,6 @@ function options:change(new)
 end
 
 function options:update()
-    print(vars.current_menu_name)
     if vars.currently_open_menu == "options" then
         if pd.buttonJustPressed('up') then
             if vars.current_menu_item > 1 then
@@ -223,6 +251,7 @@ function options:update()
         if pd.buttonJustPressed('a') then
             if vars.current_menu_name == 'tutorial' then
                 if save.ss then
+                    savegame()
                     scenemanager:transitionsceneoneway(tutorial, "options")
                 else
                     shakiesx()
@@ -234,6 +263,7 @@ function options:update()
             end
             if vars.current_menu_name == 'credits' then
                 if save.cs then
+                    savegame()
                     scenemanager:transitionsceneoneway(credits, "options")
                 else
                     shakiesx()
@@ -249,7 +279,8 @@ function options:update()
         end
         if pd.buttonJustPressed('b') then
             vars.currently_open_menu = "none"
-            scenemanager:transitionscene(title, true)
+            savegame()
+            scenemanager:transitionsceneoneway(title, false)
         end
     elseif vars.currently_open_menu == "access" then
         if pd.buttonJustPressed('up') then
@@ -335,6 +366,7 @@ function options:update()
         if pd.buttonJustPressed('a') then
             if vars.current_menu_name ~= "more" then
                 vars.currently_open_menu = "none"
+                savegame()
                 scenemanager:transitionsceneoneway(cutscene, vars.current_menu_item, "options")
             end
         end

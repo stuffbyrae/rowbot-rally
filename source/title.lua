@@ -40,7 +40,8 @@ function title:init(...)
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
         sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
-        sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu')
+        sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
+        kapel = gfx.font.new('fonts/kapel')
     }
     assets.sfx_bonk:setVolume(save.fx/5)
     assets.sfx_locked:setVolume(save.fx/5)
@@ -76,11 +77,12 @@ function title:init(...)
         checker_anim_y = gfx.animator.new(2300, 0, -32),
         wave_anim_x = gfx.animator.new(1000, 0, -72),
         wave_anim_y = gfx.animator.new(800, 300, 185, pd.easingFunctions.outBack),
-        startscreen_anim = gfx.animator.new(800, 400, 120, pd.easingFunctions.outSine),
+        startscreen_anim = gfx.animator.new(800, 400, 125, pd.easingFunctions.outSine),
         ui_anim_in = gfx.animator.new(250, 250, 120, pd.easingFunctions.outBack),
         ui_anim_out = gfx.animator.new(100, 120, 500, pd.easingFunctions.inSine),
         anim_arrow_l = gfx.animator.new(1, 10, 25, pd.easingFunctions.outSine),
         anim_arrow_r = gfx.animator.new(1, 390, 375, pd.easingFunctions.outSine),
+        anim_splash = gfx.animator.new(250, -70, -10, pd.easingFunctions.outBack),
         selector_anim_out_left = gfx.animator.new(150, 200, -200, pd.easingFunctions.inSine),
         selector_anim_in_left = gfx.animator.new(150, -200, 200, pd.easingFunctions.outBack),
         selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),
@@ -134,6 +136,25 @@ function title:init(...)
         if vars.started == false or vars.isstarting then    
             self:moveTo(math.floor(vars.wave_anim_x:currentValue()/2) * 4, vars.wave_anim_y:currentValue())
         end
+    end
+
+    class('splash').extends(gfx.sprite)
+    function splash:init()
+        splash.super.init(self)
+        local img = gfx.image.new(400, 23, gfx.kColorBlack)
+        local rand = math.random(1, 64)
+        gfx.pushContext(img)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            assets.kapel:drawTextAligned(gfx.getLocalizedText('splash' .. rand), 200, 8, kTextAlignment.center)
+        gfx.popContext()
+        self:setImage(img)
+        self:setCenter(0, 0)
+        if not demo and not save.fl and not vars.arg_instastart then
+            self:add()
+        end
+    end
+    function splash:update()
+        self:moveTo(0, vars.anim_splash:currentValue())
     end
 
     class('startscreen').extends(gfx.sprite)
@@ -310,6 +331,7 @@ function title:init(...)
     
     
     self.wave = wave()
+    self.splash = splash()
     self.startscreen = startscreen()
     self.checker = checker()
     self.bg = bg()
@@ -343,7 +365,8 @@ function title:start()
     vars.started = true
     vars.isstarting = true
     vars.wave_anim_y = gfx.animator.new(800, 185, -12, pd.easingFunctions.inBack)
-    vars.startscreen_anim = gfx.animator.new(800, 120, -120, pd.easingFunctions.inBack)
+    vars.startscreen_anim = gfx.animator.new(800, vars.startscreen_anim:currentValue(), -120, pd.easingFunctions.inBack)
+    vars.anim_splash = gfx.animator.new(250, -10, -70, pd.easingFunctions.inBack)
     pd.timer.performAfterDelay(1000, function()
         self.bg:add()
         vars.bg_anim = gfx.animator.new(750, -800, 0, pd.easingFunctions.outSine)

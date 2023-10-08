@@ -23,7 +23,6 @@ function notif:init(...)
     assets = {
         img_mirror_warn = gfx.image.new('images/ui/mirror_warn'),
         img_tt_warn = gfx.image.new('images/ui/tt_warn'),
-        img_reset_confirmed = gfx.image.new('images/ui/reset_confirmed'),
         img_demo_warn = gfx.image.new('images/ui/demo_warn'),
         img_fullgame_warn = gfx.image.new('images/ui/fullgame_warn'),
         sfx_ui = pd.sound.sampleplayer.new('audio/sfx/ui'),
@@ -35,7 +34,7 @@ function notif:init(...)
     assets.sfx_whoosh:setVolume(save.fx/5)
     
     vars = {
-        arg_warn = args[1], -- "mirror", "tt", or "reset"
+        arg_warn = args[1], -- "mirror", "tt", "demo", or "fullgame"
         arg_move = args[2], -- "story" or "title"
         ui_anim_in = gfx.animator.new(250, 250, 120, pd.easingFunctions.outBack),
         ui_open = true
@@ -69,9 +68,6 @@ function notif:init(...)
     elseif vars.arg_warn == "tt" then
         self.ui:setImage(assets.img_tt_warn)
         save.ts = true
-    elseif vars.arg_warn == "reset" then
-        self.ui:setImage(assets.img_reset_confirmed)
-        clearALLthesaves()
     elseif vars.arg_warn == "demo" then
         self.ui:setImage(assets.img_demo_warn)
         clearALLthesaves()

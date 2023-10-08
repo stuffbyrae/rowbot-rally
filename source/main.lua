@@ -16,6 +16,7 @@ pd.display.setRefreshRate(30)
 show_crank = false
 first_pause = true
 saving = false
+catalog = false -- hey, i remain hopeful
 demo = false -- just so you know mr. funny man, changing this variable in the demo will only break things. if you're interested in the full game, i (obviously) implore you to buy it! <3
 if string.find(pd.metadata.bundleID, "demo") then
     demo = true
@@ -26,10 +27,6 @@ import 'title'
 scenemanager = scenemanager()
 
 gfx.setBackgroundColor(gfx.kColorBlack)
-
-function unlockeverything()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 7, cc = 0, mc = 10, cs = true, ss = true, mu = 5, fx = 5, ts = true, ms = true, ui = false, fp = false, fl = false, st = 1, sr = false, cr = 0, tr = 0, pr = false, dp - false}
-end
 
 function clearALLthesaves()
     save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = false, fp = false, fl = true, st = 0, sr = false, cr = 0, tr = 0, pr = false, dp = false}

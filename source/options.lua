@@ -34,13 +34,9 @@ function options:init()
         gear_small = gfx.imagetable.new('images/options/gear_small/gear_small'),
         img_music_slider = gfx.imagetable.new('images/options/music_slider'),
         img_sfx_slider = gfx.imagetable.new('images/options/sfx_slider'),
-        img_reset_warn = gfx.image.new('images/ui/reset_warn'),
         img_arrow = gfx.image.new('images/ui/arrow'),
         img_button_ok = gfx.image.new('images/ui/button_ok'),
         img_button_back = gfx.image.new('images/ui/button_back'),
-        img_button_reset = gfx.image.new('images/ui/button_reset'),
-        img_button_reset_pressed = gfx.image.new('images/ui/button_reset_pressed'),
-        img_button_blanky = gfx.image.new('images/ui/button_blanky'),
         img_scenepicker = gfx.image.new('images/options/scenepicker'),
         img_fade = gfx.imagetable.new('images/ui/fade/fade'),
         img_1 = gfx.image.new('images/options/scenepicker/1'),
@@ -73,12 +69,7 @@ function options:init()
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
         sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
-        sfx_ping = pd.sound.sampleplayer.new('audio/sfx/ping'),
-        sfx_clickon = pd.sound.sampleplayer.new('audio/sfx/clickon'),
-        sfx_clickoff = pd.sound.sampleplayer.new('audio/sfx/clickoff'),
-        sfx_build = pd.sound.sampleplayer.new('audio/sfx/build'),
-        sfx_cancel = pd.sound.sampleplayer.new('audio/sfx/cancel'),
-        sfx_cancelsmall = pd.sound.sampleplayer.new('audio/sfx/cancelsmall')
+        sfx_ping = pd.sound.sampleplayer.new('audio/sfx/ping')
     }
     function adjust_sfx_volume()
         assets.sfx_bonk:setVolume(save.fx/5)
@@ -88,13 +79,6 @@ function options:init()
         assets.sfx_whoosh:setVolume(save.fx/5)
         assets.sfx_menu:setVolume(save.fx/5)
         assets.sfx_ping:setVolume(save.fx/5)
-        if not demo then
-            assets.sfx_clickon:setVolume(save.fx/5)
-            assets.sfx_clickoff:setVolume(save.fx/5)
-            assets.sfx_build:setVolume(save.fx/5)
-            assets.sfx_cancel:setVolume(save.fx/5)
-            assets.sfx_cancelsmall:setVolume(save.fx/5)
-        end
     end
     adjust_sfx_volume()
     assets.music:setVolume(save.mu/5)
@@ -104,13 +88,15 @@ function options:init()
     vars = {
         gear_large_anim = gfx.animation.loop.new(25, assets.gear_large, true),
         gear_small_anim = gfx.animation.loop.new(25, assets.gear_small, true),
-        options_menu = {'music', 'sfx', 'tutorial', 'cutscene', 'credits', 'access', 'reset'},
+        options_menu = {'music', 'sfx', 'tutorial', 'cutscene', 'credits', 'access'},
         access_menu = {'ui', 'dpad', 'autoskip', 'sensitivity', 'powerflip'},
         scenes_menu = {},
         current_menu_item = 1,
         current_menu_name = 'music',
         last_menu_item = 1,
-        currently_open_menu = "none" -- can be "none", "options", "access", "scenes", or "reset"
+        currently_open_menu = "none", -- can be "none", "options", "access", or "scenes"
+        selector_x = gfx.animator.new(1, 0, 0),
+        selector_y = gfx.animator.new(1, 8, 8)
     }
     for i = 1, save.mc do
         vars.scenes_menu[i] = tostring(i)
@@ -133,11 +119,22 @@ function options:init()
             assets.img_bg:draw(0, 0)
             assets.kapel_doubleup:drawText(gfx.getLocalizedText('music_name'), 8, 8)
             assets.kapel_doubleup:drawText(gfx.getLocalizedText('sfx_name'), 8, 35)
-            assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_tutorial_name'), 8, 62)
-            assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_cutscene_name'), 8, 89)
-            assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_credits_name'), 8, 116)
+            if save.ss then
+                assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_tutorial_name'), 8, 62)
+            else
+                assets.kapel_doubleup:drawText(gfx.getLocalizedText('locked_name'), 8, 62)
+            end
+            if save.mc >= 1 then
+                assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_cutscene_name'), 8, 89)
+            else
+                assets.kapel_doubleup:drawText(gfx.getLocalizedText('locked_name'), 8, 89)
+            end
+            if save.cs then
+                assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_credits_name'), 8, 116)
+            else
+                assets.kapel_doubleup:drawText(gfx.getLocalizedText('locked_name'), 8, 116)
+            end
             assets.kapel_doubleup:drawText(gfx.getLocalizedText('access_name'), 8, 143)
-            assets.kapel_doubleup:drawText(gfx.getLocalizedText('reset_name'), 14, 197)
             assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('ui_name'), 792, 8, kTextAlignment.right)
             assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('dpad_name'), 792, 35, kTextAlignment.right)
             assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('autoskip_name'), 792, 62, kTextAlignment.right)
@@ -156,16 +153,94 @@ function options:init()
     class('selector').extends(gfx.sprite)
     function selector:init()
         selector.super.init(self)
-        local img = gfx.image.new(50, 50, gfx.kColorBlack)
+        self:setCenter(0, 0)
+        local img = gfx.image.new(4, 25, gfx.kColorBlack)
         self:setImage(img)
-        self:setImageDrawMode(gfx.kDrawModeNXOR)
         self:add()
     end
     function selector:update()
+        self:moveTo(vars.selector_x:currentValue(), vars.selector_y:currentValue())
+    end
+    function selector:refresh()
+        if vars.current_menu_name == 'music' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 8, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'sfx' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 35, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'tutorial' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 62, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'cutscene' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 89, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'credits' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 116, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'access' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 143, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'ui' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 8, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'dpad' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 35, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'autoskip' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 62, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'sensitivity' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 89, pd.easingFunctions.outBack)
+        elseif vars.current_menu_name == 'powerflip' then
+            vars.selector_y = gfx.animator.new(200, vars.selector_y:currentValue(), 116, pd.easingFunctions.outBack)
+        end
+    end
+
+    class('desc_options').extends(gfx.sprite)
+    function desc_options:init()
+        desc_options.super.init(self)
+        self:setCenter(0, 0)
+        self:moveTo(195, 140)
+        local img = gfx.image.new(200, 100)
+        gfx.pushContext(img)
+            assets.pedallica:drawText(gfx.getLocalizedText('music_desc'), 0, 0)
+        gfx.popContext()
+        self:setImage(img)
+        self:add()
+    end
+    function desc_options:refresh()
+        local img = gfx.image.new(200, 100)
+        gfx.pushContext(img)
+            if vars.current_menu_name == 'music' then
+                assets.pedallica:drawText(gfx.getLocalizedText('music_desc'), 0, 0)
+            elseif vars.current_menu_name == 'sfx' then
+                assets.pedallica:drawText(gfx.getLocalizedText('sfx_desc'), 0, 0)
+            elseif vars.current_menu_name == 'tutorial' then
+                if demo then
+                    assets.pedallica:drawText(gfx.getLocalizedText('demo_locked_desc'), 0, 0)
+                elseif save.ss then
+                    assets.pedallica:drawText(gfx.getLocalizedText('replay_tutorial_desc'), 0, 0)
+                else
+                    assets.pedallica:drawText(gfx.getLocalizedText('locked_desc'), 0, 0)
+                end
+            elseif vars.current_menu_name == 'cutscene' then
+                if demo then
+                    assets.pedallica:drawText(gfx.getLocalizedText('demo_locked_desc'), 0, 0)
+                elseif save.mc >= 1 then
+                    assets.pedallica:drawText(gfx.getLocalizedText('replay_cutscene_desc'), 0, 0)
+                else
+                    assets.pedallica:drawText(gfx.getLocalizedText('locked_desc'), 0, 0)
+                end
+            elseif vars.current_menu_name == 'credits' then
+                if demo then
+                    assets.pedallica:drawText(gfx.getLocalizedText('demo_locked_desc'), 0, 0)
+                elseif save.cs then
+                    assets.pedallica:drawText(gfx.getLocalizedText('replay_credits_desc'), 0, 0)
+                else
+                    assets.pedallica:drawText(gfx.getLocalizedText('locked_desc'), 0, 0)
+                end
+            elseif vars.current_menu_name == 'access' then
+                assets.pedallica:drawText(gfx.getLocalizedText('access_desc'), 0, 0)
+            end
+        gfx.popContext()
+        self:setImage(img)
     end
 
     self.bg = bg()
     self.selector = selector()
+    self.desc_options = desc_options()
+    -- self.desc_access = desc_access()
 
     self:add()
 end
@@ -178,15 +253,17 @@ function options:change(new)
         vars.currently_open_menu = "options"
         vars.bg_anim = gfx.animator.new(500, self.bg.x, 0, pd.easingFunctions.outSine)
         vars.current_menu_name = 'music'
+        vars.selector_x = gfx.animator.new(1, 0, 0)
+        vars.selector_y = gfx.animator.new(1, 8, 8)
     elseif new == "access" then
         vars.currently_open_menu = "access"
         vars.bg_anim = gfx.animator.new(500, self.bg.x, -400, pd.easingFunctions.outSine)
         vars.current_menu_name = 'ui'
+        vars.selector_x = gfx.animator.new(1, 396, 396)
+        vars.selector_y = gfx.animator.new(1, 8, 8)
     elseif new == "scenes" then
         vars.currently_open_menu = "scenes"
         vars.current_menu_name = '1'
-    elseif new == "reset" then
-        vars.currently_open_menu = "reset"
     end
 end
 
@@ -196,6 +273,8 @@ function options:update()
             if vars.current_menu_item > 1 then
                 vars.current_menu_item -= 1
                 vars.current_menu_name = vars.options_menu[vars.current_menu_item]
+                self.desc_options:refresh()
+                self.selector:refresh()
             else
                 shakiesy()
                 assets.sfx_bonk:play()
@@ -205,6 +284,8 @@ function options:update()
             if vars.current_menu_item < #vars.options_menu then
                 vars.current_menu_item += 1
                 vars.current_menu_name = vars.options_menu[vars.current_menu_item]
+                self.desc_options:refresh()
+                self.selector:refresh()
             else
                 shakiesy()
                 assets.sfx_bonk:play()
@@ -212,7 +293,7 @@ function options:update()
         end
         if pd.buttonJustPressed('left') then
             if vars.current_menu_name == 'music' then
-                if save.mu > 1 then
+                if save.mu >= 1 then
                     save.mu -= 1
                     assets.music:setVolume(save.mu/5)
                 else
@@ -220,7 +301,7 @@ function options:update()
                 end
             end
             if vars.current_menu_name == 'sfx' then
-                if save.fx > 1 then
+                if save.fx >= 1 then
                     save.fx -= 1
                     adjust_sfx_volume()
                     assets.sfx_ping:play()
@@ -287,6 +368,7 @@ function options:update()
             if vars.current_menu_item > 1 then
                 vars.current_menu_item -= 1
                 vars.current_menu_name = vars.access_menu[vars.current_menu_item]
+                self.selector:refresh()
             else
                 shakiesy()
                 assets.sfx_bonk:play()
@@ -296,6 +378,7 @@ function options:update()
             if vars.current_menu_item < #vars.access_menu then
                 vars.current_menu_item += 1
                 vars.current_menu_name = vars.access_menu[vars.current_menu_item]
+                self.selector:refresh()
             else
                 shakiesy()
                 assets.sfx_bonk:play()
@@ -303,7 +386,7 @@ function options:update()
         end
         if pd.buttonJustPressed('left') then
             if vars.current_menu_name == 'sensitivity' then
-                if save.se > 1 then
+                if save.se >= 1 then
                     save.se -= 1
                 else
                     assets.sfx_bonk:play()
@@ -369,12 +452,6 @@ function options:update()
                 savegame()
                 scenemanager:transitionsceneoneway(cutscene, vars.current_menu_item, "options")
             end
-        end
-        if pd.buttonJustPressed('b') then
-            self:change("options")
-        end
-    elseif vars.currently_open_menu == "reset" then
-        if pd.buttonJustPressed('a') then
         end
         if pd.buttonJustPressed('b') then
             self:change("options")

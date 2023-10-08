@@ -659,6 +659,7 @@ function tutorial:crash(which)
             gfx.popContext()
             self.ui:setImage(assets.img_ui)
             self.ui:add()
+            self.arrows:remove()
             pd.timer.performAfterDelay(vars.waittime, function()
                 vars.ui_progressable = true
                 assets.img_ui = gfx.image.new(400, 75)
@@ -841,7 +842,7 @@ function tutorial:update()
             if vars.boat_controllable then
                 if vars.player_turn < vars.change then vars.player_turn += vars.boat_turn_stat/5 else vars.player_turn -= vars.boat_turn_stat/5 end
                 if vars.current_step == 6 then
-                    if vars.player_turn >= 0 then
+                    if vars.player_turn >= 0.5 then
                         vars.hang_time += 1
                     end
                     if vars.hang_time >= vars.waittime/10 then
@@ -862,7 +863,7 @@ function tutorial:update()
                         self.arrows:remove()
                         self.net:remove()
                     end
-                    if self.boat.y >= vars.boat_land_y - 500 then
+                    if self.boat.y >= vars.boat_land_y - 500 and not vars.boat_crashed then
                         self.arrows:add()
                         self.net:add()
                     end

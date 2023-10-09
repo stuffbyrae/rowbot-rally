@@ -82,7 +82,7 @@ function title:init(...)
         ui_anim_out = gfx.animator.new(100, 120, 500, pd.easingFunctions.inSine),
         anim_arrow_l = gfx.animator.new(1, 10, 25, pd.easingFunctions.outSine),
         anim_arrow_r = gfx.animator.new(1, 390, 375, pd.easingFunctions.outSine),
-        anim_splash = gfx.animator.new(250, -70, -10, pd.easingFunctions.outBack),
+        anim_splash = gfx.animator.new(250, -70, -10, pd.easingFunctions.outBack, 200),
         selector_anim_out_left = gfx.animator.new(150, 200, -200, pd.easingFunctions.inSine),
         selector_anim_in_left = gfx.animator.new(150, -200, 200, pd.easingFunctions.outBack),
         selector_anim_out_right = gfx.animator.new(150, 200, 600, pd.easingFunctions.inSine),

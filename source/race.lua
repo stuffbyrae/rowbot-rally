@@ -603,20 +603,22 @@ end
 
 function race:crash()
     local cols = {}
+    --colno = number of true colliders. colxs is the sum of all true colliders' X offsets, colys is the sum of all true colliders' Y offsets
     local colno = 0
+    local colxs = 0
+    local colys = 0
     for key, box in pairs(vars.boat_cols) do
         box[1]:moveTo(self.boat.x + box[2], self.boat.y + box[3])
         if gfx.checkAlphaCollision(box[1]:getImage(), self.boat.x + box[2], self.boat.y + box[3], 0, assets.img_trackc, 0, 0, 0) then
             cols[#cols + 1] = true
-            if colno == 0 then
-                colno = 1
-            else
-                colno = colno + 1
-            end
+            colno += 1
+            colxs += box[2]
+            colys += box[3]
         else
             cols[#cols + 1] = false
         end
     end
+    -- If there's any true colliders, then...well, the boat crashed.
     if colno > 0 then
         vars.boat_crashed = true
         save.cr += 1
@@ -626,7 +628,8 @@ function race:crash()
         assets.sfx_crash:play(1, math.random()+1)
         self:reaction("crash")
         shakiesx()
-        local reflectdeg = (self:reflectangle(cols) + 180) % 360
+        local avgpoint = {colxs / colno, colys / colno}
+        local reflectdeg = math.deg(math.atan(avgpoint[2], avgpoint[1])) + 270
         local reflectrad = math.rad(reflectdeg)
         if vars.boat_speed_rate:currentValue() > 0.1 then
             current_boat_speed = vars.boat_speed_rate:currentValue()
@@ -654,45 +657,6 @@ function race:crash()
             vars.boat_turn = 0
         end
     end)
-end
-
-function race:reflectangle(c)
-    local index = 1
-    if c[1] and c[#c] then
-        local lowindex = 0
-        for i = 1, #c do
-            if not (c[i]) then
-                lowindex = i
-            end
-        end
-        local highindex = 0
-        for i = #c, 1, -1 do
-            if not (c[i]) then
-                highindex = i
-            end
-        end
-        index = ((lowindex + highindex + #c) % #c) - 1
-    else
-        local indexstart
-        local indexend
-        for i = 1, #c do
-            if c[i] and indexstart == nil then
-                indexstart = i
-            elseif not (c[i]) and indexstart ~= nil and indexend == nil then
-                indexend = i - 1
-            end
-            if indexend == nil and i == #c then
-                indexend = #c
-            end
-        end
-        index = math.ceil(indexstart + (indexend - indexstart) / 2)
-    end
-    if index < 1 then
-        index = 1
-    elseif index > #vars.boat_cols then
-        index = #vars.boat_cols
-    end
-    return vars.boat_cols[index][4]
 end
 
 function race:boost()
@@ -821,12 +785,12 @@ function race:update()
         elseif vars.boat_old_rotation >= vars.boat_rotation - 7 and vars.boat_old_rotation <= vars.boat_rotation + 7 then
             self.wake:setImage(assets.img_wake3[math.floor((vars.boat_old_rotation%360) / 6)+1])
             vars.wake_setting = 3
-        elseif vars.boat_old_rotation > vars.boat_rotation + 7 then
-            self.wake:setImage(assets.img_wake2[math.floor((vars.boat_old_rotation%360) / 6)+1])
-            vars.wake_setting = 2
         elseif vars.boat_old_rotation > vars.boat_rotation + 14 then
             self.wake:setImage(assets.img_wake1[math.floor((vars.boat_old_rotation%360) / 6)+1])
             vars.wake_setting = 1
+        elseif vars.boat_old_rotation > vars.boat_rotation + 7 then
+            self.wake:setImage(assets.img_wake2[math.floor((vars.boat_old_rotation%360) / 6)+1])
+            vars.wake_setting = 2
         end
         self.wake:moveTo(self.boat.x-(math.sin(vars.boat_radtation)*(5+vars.boat_speed_rate:currentValue()*vars.anim_wake:currentValue())), self.boat.y+(math.cos(vars.boat_radtation)*(5+vars.boat_speed_rate:currentValue()*vars.anim_wake:currentValue())))
         if vars.cpu_exists then

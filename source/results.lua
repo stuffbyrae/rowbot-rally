@@ -17,29 +17,11 @@ function results:init(...)
         if vars.arg_mode == "story" then
             if vars.arg_win then
                 menu:addMenuItem(gfx.getLocalizedText("onwards"), function()
-                    if vars.arg_track == 1 then
-                        if save.ts == false then
-                            scenemanager:transitionsceneoneway(notif, "tt", "story")
-                        else
-                            scenemanager:transitionsceneoneway(cutscene, 3, "story")
-                        end
-                    elseif vars.arg_track == 2 then
-                        scenemanager:transitionsceneoneway(cutscene, 4, "story")
-                    elseif vars.arg_track == 3 then
-                        scenemanager:transitionsceneoneway(cutscene, 5, "story")
-                    elseif vars.arg_track == 4 then
-                        scenemanager:transitionsceneoneway(cutscene, 6, "story")
-                    elseif vars.arg_track == 5 then
-                        scenemanager:transitionsceneoneway(cutscene, 8, "story")
-                    elseif vars.arg_track == 6 then
-                        scenemanager:transitionsceneoneway(cutscene, 9, "story")
-                    elseif vars.arg_track == 7 then
-                        scenemanager:transitionsceneoneway(cutscene, 10, "story")
-                    end
+                    credits:finish()
                 end)
             else
                 menu:addMenuItem(gfx.getLocalizedText("retry"), function()
-                    scenemanager:transitionsceneoneway(race, vars.arg_track, "story", vars.arg_boat, false)
+                    credits:finish()
                 end)
             end
         else
@@ -71,16 +53,16 @@ function results:init(...)
         sfx_win = pd.sound.sampleplayer.new('audio/sfx/win'),
         sfx_lose = pd.sound.sampleplayer.new('audio/sfx/lose')
     }
-    assets.sfx_proceed:setVolume(save.fx/5)
-    assets.sfx_confetti:setVolume(save.fx/5)
-    assets.sfx_win:setVolume(save.fx/5)
-    assets.sfx_lose:setVolume(save.fx/5)
+    assets.sfx_proceed:setVolume(save.vol_sfx/5)
+    assets.sfx_confetti:setVolume(save.vol_sfx/5)
+    assets.sfx_win:setVolume(save.vol_sfx/5)
+    assets.sfx_lose:setVolume(save.vol_sfx/5)
     
     vars = {
-        arg_track = args[1], -- 1 through 7
-        arg_mode = args[2], -- "story" or "tt"
-        arg_boat = args[3], -- 1 through 7
-        arg_mirror = args[4], -- true or false
+        arg_slot = args[1], -- 1 through 3
+        arg_track = args[2], -- 1 through 7
+        arg_mode = args[3], -- "story" or "tt"
+        arg_boat = args[4], -- 1 through 7
         arg_win = args[5], -- true or false. only matters when arg_mode is "story"
         arg_time = args[6], -- time in the race
         besttime = 0,
@@ -103,37 +85,93 @@ function results:init(...)
     vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 10)
 
     if vars.arg_track == 1 then
-        vars.besttime = save.t1
-        save.ct = 1
-        save.cc = 3
+        vars.besttime = save.stage1_best
+        if vars.arg_slot == 1 then
+            save.slot1_current_stage = 1
+            save.slot1_current_cutscene = 3
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_stage = 1
+            save.slot2_current_cutscene = 3
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_stage = 1
+            save.slot3_current_cutscene = 3
+        end
     elseif vars.arg_track == 2 then
-        vars.besttime = save.t2
-        save.ct = 2
-        save.cc = 4
+        vars.besttime = save.stage2_best
+        if vars.arg_slot == 1 then
+            save.slot1_current_stage = 2
+            save.slot1_current_cutscene = 4
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_stage = 2
+            save.slot2_current_cutscene = 4
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_stage = 2
+            save.slot3_current_cutscene = 4
+        end
     elseif vars.arg_track == 3 then
-        vars.besttime = save.t3
-        save.ct = 3
-        save.cc = 5
+        vars.besttime = save.stage3_best
+        if vars.arg_slot == 1 then
+            save.slot1_current_stage = 3
+            save.slot1_current_cutscene = 5
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_stage = 3
+            save.slot2_current_cutscene = 5
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_stage = 3
+            save.slot3_current_cutscene = 5
+        end
     elseif vars.arg_track == 4 then
-        vars.besttime = save.t4
-        save.ct = 4
-        save.cc = 6
+        vars.besttime = save.stage4_best
+        if vars.arg_slot == 1 then
+            save.slot1_current_stage = 4
+            save.slot1_current_cutscene = 6
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_stage = 4
+            save.slot2_current_cutscene = 6
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_stage = 4
+            save.slot3_current_cutscene = 6
+        end
     elseif vars.arg_track == 5 then
-        vars.besttime = save.t5
-        save.ct = 5
-        save.cc = 8
+        vars.besttime = save.stage5_best
+        if vars.arg_slot == 1 then
+            save.slot1_current_stage = 5
+            save.slot1_current_cutscene = 8
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_stage = 5
+            save.slot2_current_cutscene = 8
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_stage = 5
+            save.slot3_current_cutscene = 8
+        end
     elseif vars.arg_track == 6 then
-        vars.besttime = save.t6
-        save.ct = 6
-        save.cc = 9
+        vars.besttime = save.stage6_best
+        if vars.arg_slot == 1 then
+            save.slot1_current_stage = 6
+            save.slot1_current_cutscene = 9
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_stage = 6
+            save.slot2_current_cutscene = 9
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_stage = 6
+            save.slot3_current_cutscene = 9
+        end
     elseif vars.arg_track == 7 then
-        vars.besttime = save.t7
-        save.ct = 7
-        save.cc = 10
+        vars.besttime = save.stage7_best
+        if vars.arg_slot == 1 then
+            save.slot1_current_stage = 7
+            save.slot1_current_cutscene = 10
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_stage = 7
+            save.slot2_current_cutscene = 10
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_stage = 7
+            save.slot3_current_cutscene = 10
+        end
     end
 
-    if save.ct > save.mt then
-        save.mt = save.ct
+    if vars.arg_track > save.unlocked_stages then
+        save.unlocked_stages = vars.arg_track
     end
 
     gfx.setFont(assets.kapel_doubleup)
@@ -174,23 +212,23 @@ function results:init(...)
             local mils = string.format("%02.f", (vars.arg_time/30)*99 - mins * 5940 - secs * 99)
             assets.double_time:drawTextAligned('O ' .. mins..":"..secs.."."..mils, 340, 90, kTextAlignment.right)
             if not demo then
-                if vars.arg_time < vars.besttime and vars.arg_win then
+                if vars.arg_time < vars.besttime and vars.arg_mode == "tt" then
                     savegame()
                     assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText("newbest"), 340, 120, kTextAlignment.right)
                     if vars.arg_track == 1 then
-                        save.t1 = vars.arg_time
+                        save.stage1_best = vars.arg_time
                     elseif vars.arg_track == 2 then
-                        save.t2 = vars.arg_time
+                        save.stage2_best = vars.arg_time
                     elseif vars.arg_track == 3 then
-                        save.t3 = vars.arg_time
+                        save.stage3_best = vars.arg_time
                     elseif vars.arg_track == 4 then
-                        save.t4 = vars.arg_time
+                        save.stage4_best = vars.arg_time
                     elseif vars.arg_track == 5 then
-                        save.t5 = vars.arg_time
+                        save.stage5_best = vars.arg_time
                     elseif vars.arg_track == 6 then
-                        save.t6 = vars.arg_time
+                        save.stage6_best = vars.arg_time
                     elseif vars.arg_track == 7 then
-                        save.t7 = vars.arg_time
+                        save.stage7_best = vars.arg_time
                     end
                 else
                     local bestmins = string.format("%02.f", math.floor((vars.besttime/30) / 60))
@@ -277,80 +315,81 @@ function results:init(...)
     self.confetti = confetti()
     self.overlay = overlay()
 
-    if vars.arg_win then
-        pd.timer.performAfterDelay(2000, function()
-            self:fireconfetti()
-        end)
-    end
-
     self:add()
 end
 
-function results:fireconfetti()
-    assets.sfx_confetti:play()
-    vars.confetti1 = ParticleCircle(0, 120)
-    vars.confetti2 = ParticleCircle(400, 120)
-    vars.confetti1:setSpread(0, 180)
-    vars.confetti2:setSpread(180, 360)
-    vars.confetti1:setSize(3, 5)
-    vars.confetti2:setSize(3, 5)
-    vars.confetti1:setMode(Particles.modes.DECAY)
-    vars.confetti2:setMode(Particles.modes.DECAY)
-    vars.confetti1:setSpeed(3, 10)
-    vars.confetti2:setSpeed(3, 10)
-    vars.confetti1:setDecay(0.01)
-    vars.confetti2:setDecay(0.01)
-    vars.anim_confetti_grav = gfx.animator.new(4000, 0, 100, pd.easingFunctions.inSine)
-    vars.confetti1:add(50)
-    vars.confetti2:add(50)
-    self.confetti:add()
-    pd.timer.performAfterDelay(4000, function()
-        self.confetti:remove()
-        vars.confetti1:clearParticles()
-        vars.confetti2:clearParticles()
-    end)
-end
-
-function results:update()
-    if pd.buttonJustPressed('a') then
-        assets.sfx_proceed:play()
-        if vars.arg_mode == "story" then
-            if vars.arg_win then
-                if vars.arg_track == 1 then
-                    if demo then
-                        scenemanager:transitionsceneoneway(notif, "demo", "title")
+function results:finish()
+    assets.sfx_proceed:play()
+    if vars.arg_mode == "story" then
+        if vars.arg_win then
+            if vars.arg_track == 1 then
+                if demo then
+                    scenemanager:transitionsceneoneway(notif, "demo", "title")
+                else
+                    if save.time_trials_unlocked == false then
+                        scenemanager:transitionsceneoneway(notif, "tt", "story")
                     else
-                        if save.ts == false then
-                            scenemanager:transitionsceneoneway(notif, "tt", "story")
+                        if save.autoskip then
+                            scenemanager:transitionsceneoneway(intro, vars.arg_slot, 2)
                         else
                             scenemanager:transitionsceneoneway(cutscene, 3, "story")
                         end
                     end
-                elseif vars.arg_track == 2 then
+                end
+            elseif vars.arg_track == 2 then
+                if save.autoskip then
+                    scenemanager:transitionsceneoneway(intro, vars.arg_slot, 3)
+                else
                     scenemanager:transitionsceneoneway(cutscene, 4, "story")
-                elseif vars.arg_track == 3 then
+                end
+            elseif vars.arg_track == 3 then
+                if save.autoskip then
+                    scenemanager:transitionsceneoneway(intro, vars.arg_slot, 4)
+                else
                     scenemanager:transitionsceneoneway(cutscene, 5, "story")
-                elseif vars.arg_track == 4 then
+                end
+            elseif vars.arg_track == 4 then
+                if save.autoskip then
+                    scenemanager:transitionsceneoneway(intro, vars.arg_slot, 5)
+                else
                     scenemanager:transitionsceneoneway(cutscene, 6, "story")
-                elseif vars.arg_track == 5 then
+                end
+            elseif vars.arg_track == 5 then
+                if save.autoskip then
+                    scenemanager:transitionsceneoneway(intro, vars.arg_slot, 6)
+                else
                     scenemanager:transitionsceneoneway(cutscene, 8, "story")
-                elseif vars.arg_track == 6 then
+                end
+            elseif vars.arg_track == 6 then
+                if save.autoskip then
+                    scenemanager:transitionsceneoneway(intro, vars.arg_slot, 7)
+                else
                     scenemanager:transitionsceneoneway(cutscene, 9, "story")
-                elseif vars.arg_track == 7 then
+                end
+            elseif vars.arg_track == 7 then
+                if save.autoskip then
+                    scenemanager:transitionsceneoneway(credits, "title")
+                else
                     scenemanager:transitionsceneoneway(cutscene, 10, "story")
                 end
-            else
-                vars.anim_overlay = gfx.animator.new(500, #assets.img_fade, 1)
-                pd.timer.performAfterDelay(550, function()
-                    scenemanager:switchscene(race, vars.arg_track, "story", vars.arg_boat, false)
-                end)
             end
         else
             vars.anim_overlay = gfx.animator.new(500, #assets.img_fade, 1)
             pd.timer.performAfterDelay(550, function()
-                scenemanager:switchscene(race, vars.arg_track, "tt", vars.arg_boat, vars.arg_mirror)
+                scenemanager:switchscene(race, vars.arg_slot, vars.arg_track, "story", vars.arg_boat)
             end)
         end
+    else
+        vars.anim_overlay = gfx.animator.new(500, #assets.img_fade, 1)
+        pd.timer.performAfterDelay(550, function()
+            scenemanager:switchscene(race, 0, vars.arg_track, "tt", vars.arg_boat)
+        end)
+    end
+end
+
+function results:update()
+    if pd.buttonJustPressed('a') then
+        self:finish()
     end
     if pd.buttonJustPressed('b') then
         if vars.arg_mode == "story" then

@@ -43,20 +43,26 @@ function title:init(...)
         sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
         kapel = gfx.font.new('fonts/kapel')
     }
-    assets.sfx_bonk:setVolume(save.fx/5)
-    assets.sfx_locked:setVolume(save.fx/5)
-    assets.sfx_ui:setVolume(save.fx/5)
-    assets.sfx_proceed:setVolume(save.fx/5)
-    assets.sfx_whoosh:setVolume(save.fx/5)
-    assets.sfx_start:setVolume(save.fx/5)
-    assets.sfx_menu:setVolume(save.fx/5)
-    assets.music:setVolume(save.mu/5)
+    assets.sfx_bonk:setVolume(save.vol_sfx/5)
+    assets.sfx_locked:setVolume(save.vol_sfx/5)
+    assets.sfx_ui:setVolume(save.vol_sfx/5)
+    assets.sfx_proceed:setVolume(save.vol_sfx/5)
+    assets.sfx_whoosh:setVolume(save.vol_sfx/5)
+    assets.sfx_start:setVolume(save.vol_sfx/5)
+    assets.sfx_menu:setVolume(save.vol_sfx/5)
+    assets.music:setVolume(save.vol_music/5)
     assets.music:setLoopRange(1.1)
     assets.music:play(0)
 
     if demo then
         assets.img_logo = gfx.image.new('images/ui/logo_demo')
         assets.img_bg = gfx.image.new('images/title/bg_demo')
+        save.slot1_active = false
+        save.tutorial_unlocked = false
+        save.slot1_current_cutscene = 0
+        save.unlocked_cutscenes = 0
+        save.slot1_current_stage = 0
+        save.unlocked_stages = 0
     else
         assets.img_logo = gfx.image.new('images/ui/logo')
         assets.img_bg = gfx.image.new('images/title/bg')
@@ -91,7 +97,7 @@ function title:init(...)
         motherlode = Tanuk_CodeSequence({pd.kButtonRight, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function() assets.sfx_start:play() end)
     }
 
-    if save.as and not demo then
+    if save.slot1_active and not demo then
         vars.menu_list[#vars.menu_list+1] = 'continue'
         assets.img_sel_continue = gfx.image.new('images/title/sel_continue')
     end
@@ -149,7 +155,7 @@ function title:init(...)
         gfx.popContext()
         self:setImage(img)
         self:setCenter(0, 0)
-        if not demo and not save.fl and not vars.arg_instastart then
+        if not demo and not save.first_launch and not vars.arg_instastart then
             self:add()
         end
     end
@@ -286,7 +292,7 @@ function title:init(...)
                 self:setImage(assets.img_sel_new)
             end
             if vars.current_name == 'time_trials' then
-                if save.mt < 1 or demo then
+                if not save.time_trials_unlocked then
                     self:setImage(assets.img_sel_locked)
                 else
                 self:setImage(assets.img_sel_time_trials)
@@ -395,13 +401,10 @@ function title:update()
         if pd.buttonJustPressed('a') then
             scenemanager:transitionsceneoneway(opening, "story")
             assets.sfx_proceed:play()
-            if not demo then
-                save.st += 1
-                save.cc = 0
-                save.ct = 0
-                save.pr = false
-                save.sr = false
-            end
+            save.slot1_current_cutscene = 0
+            save.slot1_current_stage = 0
+            save.slot1_time_racing = 0
+            save.slot1_crashes = 0
             vars.new_warn_open = false
             savegame()
         end
@@ -431,39 +434,99 @@ function title:update()
         if pd.buttonJustPressed('a') then
             if vars.current_name == 'continue' then
                 assets.sfx_proceed:play()
-                if save.cc == 0 then
-                    scenemanager:transitionsceneoneway(opening, "story")
-                else
-                    if save.mt >= 1 and save.ts == false then
-                        scenemanager:transitionsceneoneway(notif, "tt", "story")
+                if save.slot1_current_cutscene == 0 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 1)
                     else
-                        scenemanager:transitionsceneoneway(cutscene, save.cc, "story")
+                        scenemanager:transitionsceneoneway(opening, 1, "story")
+                    end
+                    if save.slot1_current_stage >= 1 and save.time_trials_unlocked == false then
+                        scenemanager:transitionsceneoneway(notif, "tt", "story")
+                    end
+                elseif save.slot1_current_cutscene == 1 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 1)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 1, "story")
+                    end
+                elseif save.slot1_current_cutscene == 2 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 1)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 2, "story")
+                    end
+                elseif save.slot1_current_cutscene == 3 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 2)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 3, "story")
+                    end
+                elseif save.slot1_current_cutscene == 4 then
+                                        if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 3)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 4, "story")
+                    end
+                elseif save.slot1_current_cutscene == 5 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 4)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 5, "story")
+                    end
+                elseif save.slot1_current_cutscene == 6 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(chase)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 6, "story")
+                    end
+                elseif save.slot1_current_cutscene == 7 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 5)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 7, "story")
+                    end
+                elseif save.slot1_current_cutscene == 8 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 6)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 8, "story")
+                    end
+                elseif save.slot1_current_cutscene == 9 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(intro, 1, 7)
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 9, "story")
+                    end
+                elseif save.slot1_current_cutscene == 10 then
+                    if save.autoskip then
+                        scenemanager:transitionsceneoneway(credits, "title")
+                    else
+                        scenemanager:transitionsceneoneway(cutscene, 10, "story")
                     end
                 end
                 vars.menu_scrollable = false
             end
             if vars.current_name == 'new' then
-                if save.as and not demo then
+                if save.slot1_active and not demo then
                     self.ui:add()
                     assets.sfx_ui:play()
                     vars.ui_anim_in:reset()
                     vars.new_warn_open = true
                     vars.menu_scrollable = false
                 else
-                    if save.st == 0 then
-                        scenemanager:transitionsceneoneway(cutscene, 1, "story")
+                    if save.first_launch then
+                        scenemanager:transitionsceneoneway(cutscene, 1, 1, "story")
                     else
-                        scenemanager:transitionsceneoneway(opening, "story")
+                        scenemanager:transitionsceneoneway(opening, 1, "story")
                     end
                     assets.sfx_proceed:play()
-                    save.as = true
-                    save.st += 1
+                    save.slot1_active = true
                     vars.menu_scrollable = false
                     savegame()
                 end
             end
             if vars.current_name == 'time_trials' then
-                if save.mt < 1 or demo then
+                if not save.time_trials_unlocked then
                     vars.selector_moving = true
                     selector_anim = vars.selector_anim_locked
                     selector_anim:reset()

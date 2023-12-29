@@ -42,7 +42,6 @@
 "dpad_name" = "D-pad Ctrl"
 "autoskip_name" = "Auto-Skip"
 "powerflip_name" = "Power Flip"
-"beeps_name" = "Beeps"
 "redflash_name" = "Reduced\nFlashing"
 -- Options toggles
 "off" = "❓❎"
@@ -61,9 +60,8 @@
 "sensitivity_desc" = "Adjusts the sensitivity\nof your rowing; how fast\nyou need to steer to\noverpower your RowBot."
 "ui_desc" = "Toggles a simpler UI while\nyou're in a race. You can\nalso change this setting\nduring races, in the Slide menu."
 "dpad_desc" = "Switches to using the D-pad\nfor play. Hold Up to\nincrease your rowing speed,\nand Down to decrease."
-"autoskip_desc" = "Skips any optional scenes\n(cutscenes/tutorial/credits).\nThese can be replayed\nat any time in Options."
+"autoskip_desc" = "Skips any optional scenes\n(cutscenes and tutorials).\nThese can be replayed\nat any time in Options."
 "powerflip_desc" = "Flips the orientation of\nthe Power Meter, in case\nyou read it better\none way or the other."
-"beeps_desc" = "Auditory beeps which warn\nyou if you're within\nstriking distance of a wall\nduring a race."
 "redflash_desc" = "Reduces flashing effects.\nThis is also turned on if\nyou enable Reduce Flashing\nin system Settings."
 -- Cutscene names
 "cutscene1_name" = "1: Junkyard RowBot"

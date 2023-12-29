@@ -13,14 +13,11 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 pd.display.setRefreshRate(30)
-show_crank = false
-first_pause = true
-saving = false
-catalog = false -- hey, i remain hopeful
-demo = false -- just so you know mr. funny man, changing this variable in the demo will only break things. if you're interested in the full game, i (obviously) implore you to buy it! <3
-if string.find(pd.metadata.bundleID, "demo") then
-    demo = true
-end
+show_crank = false -- do you show the crankindicator in this scene?
+catalog = true -- leaderboard compatibility
+first_pause = true -- so that when you pause the first time, it always reads "Paused!" first.
+saving = false -- todo: change this
+if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
 
 import 'scenemanager'
 import 'title'
@@ -28,58 +25,58 @@ scenemanager = scenemanager()
 
 gfx.setBackgroundColor(gfx.kColorBlack)
 
-function clearALLthesaves()
-    save = {t1 = 17970, t2 = 17970, t3 = 17970, t4 = 17970, t5 = 17970, t6 = 17970, t7 = 17970, m1 = 17970, m2 = 17970, m3 = 17970, m4 = 17970, m5 = 17970, m6 = 17970, m7 = 17970, as = false, sc = 0, ct = 0, mt = 0, cc = 0, mc = 0, cs = false, ss = false, mu = 5, fx = 5, ts = false, ms = false, ui = false, fp = false, fl = true, st = 0, sr = false, cr = 0, tr = 0, pr = false, dp = false}
+-- Save check
+function savecheck()
+    save = pd.datastore.read()
+    if save == nil then save = {} end
+
+    if save.stage1_best == nil then save.stage1_best = 17970 end
+    if save.stage2_best == nil then save.stage2_best = 17970 end
+    if save.stage3_best == nil then save.stage3_best = 17970 end
+    if save.stage4_best == nil then save.stage4_best = 17970 end
+    if save.stage5_best == nil then save.stage5_best = 17970 end
+    if save.stage6_best == nil then save.stage6_best = 17970 end
+    if save.stage7_best == nil then save.stage7_best = 17970 end
+    if save.slot1_active == nil then save.slot1_active = false end
+    if save.slot1_current_stage == nil then save.slot1_current_stage = 0 end
+    if save.slot1_current_cutscene == nil then save.slot1_current_cutscene = 0 end
+    if save.slot1_crashes == nil then save.slot1_crashes = 0 end
+    if save.slot1_time_racing == nil then save.slot1_time_racing = 0 end
+    if save.slot2_active == nil then save.slot2_active = false end
+    if save.slot2_current_stage == nil then save.slot2_current_stage = 0 end
+    if save.slot2_current_cutscene == nil then save.slot2_current_cutscene = 0 end
+    if save.slot2_crashes == nil then save.slot2_crashes = 0 end
+    if save.slot2_time_racing == nil then save.slot2_time_racing = 0 end
+    if save.slot3_active == nil then save.slot3_active = false end
+    if save.slot3_current_stage == nil then save.slot3_current_stage = 0 end
+    if save.slot3_current_cutscene == nil then save.slot3_current_cutscene = 0 end
+    if save.slot3_crashes == nil then save.slot3_crashes = 0 end
+    if save.slot3_time_racing == nil then save.slot3_time_racing = 0 end
+    if save.unlocked_stages == nil then save.unlocked_stages = 0 end
+    if save.unlocked_cutscenes == nil then save.unlocked_cutscenes = 0 end
+    if save.credits_unlocked == nil then save.credits_unlocked = false end
+    if save.tutorial_unlocked == nil then save.tutorial_unlocked = false end
+    if save.vol_music == nil then save.vol_music = 5 end
+    if save.vol_sfx == nil then save.vol_sfx = 5 end
+    if save.time_trials_unlocked == nil then save.time_trials_unlocked = false end
+    if save.pro_ui == nil then save.pro_ui = false end
+    if save.power_flip == nil then save.power_flip = false end
+    if save.dpad == nil then save.dpad = false end
+    if save.sensitivity == nil then save.sensitivity = 3 end
+    if save.autoskip == nil then save.autoskip = false end
+    if save.first_launch == nil then save.first_launch = true end
+    if save.stories_completed == nil then save.stories_completed = 0 end
+    if save.total_crashes == nil then save.total_crashes = 0 end
+    if save.time_racing == nil then save.time_racing = 0 end
 end
 
-save = pd.datastore.read()
-if save == nil then
-save = {
-    t1 = 17970, -- Track 1 time
-    t2 = 17970, -- Track 2 time
-    t3 = 17970, -- Track 3 time
-    t4 = 17970, -- Track 4 time
-    t5 = 17970, -- Track 5 time
-    t6 = 17970, -- Track 6 time
-    t7 = 17970, -- Track 7 time
-    t1 = 17970, -- Track 1 mirror time - this is for the post-launch update. if you're seeing this, shh!
-    t2 = 17970, -- Track 2 mirror time - this is for the post-launch update. if you're seeing this, shh!
-    t3 = 17970, -- Track 3 mirror time - this is for the post-launch update. if you're seeing this, shh!
-    t4 = 17970, -- Track 4 mirror time - this is for the post-launch update. if you're seeing this, shh!
-    t5 = 17970, -- Track 5 mirror time - this is for the post-launch update. if you're seeing this, shh!
-    t6 = 17970, -- Track 6 mirror time - this is for the post-launch update. if you're seeing this, shh!
-    t7 = 17970, -- Track 7 mirror time - this is for the post-launch update. if you're seeing this, shh!
-    sc = 0, -- Shark Chase+ score - this is for the post-launch update. if you're seeing this, shh!
-    as = false, -- Active story?
-    ct = 0, -- Current story track
-    mt = 0, -- Highest-seen story track
-    cc = 0, -- Current story cutscene
-    mc = 0, -- Highest-seen story cutscene
-    cs = false, -- Credits seen?
-    ss = false, -- Tutorial seen?
-    mu = 5, -- Music volume
-    fx = 5, -- SFX volume
-    ts = false, -- Has the time trials notif been seen?
-    ms = false, -- Has the mirror mode notif been seen? - this is for the post-launch update. if you're seeing this, shh!
-    ui = false, -- Show detailed race UI?
-    fp = false, -- Show FPS? (hold B, press A!),
-    fl = true, -- is this the first launch of the game?
-    st = 0, -- Count how many new games they've started
-    sr = false, -- crashed during the story at all?
-    cr = 0, -- crash count
-    tr = 0, -- total time spent actively racing
-    dp = false, -- D-pad controls on or off
-    pw = false, -- power meter flip
-    se = 3, -- rowing sensitivity
-    sk = false, -- auto-skip cutscenes, tutorial, credits when playing in story
-}
-end
+-- ... now we run that!
+savecheck()
 
+-- math clamp function
 function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
-
-shakies_anim = nil
 
 function savegame()
     if not demo then
@@ -96,26 +93,23 @@ function savegame()
     end
 end
 
+-- global screen-shaky functions
+shakies_anim = nil
 function shakiesx()
-    if pd.getReduceFlashing() then
-        return
-    else
+    if not pd.getReduceFlashing() then
         shakies_anim_dir = true
         shakies_anim = gfx.animator.new(500, 10, 0, pd.easingFunctions.outElastic)
     end
 end
-
 function shakiesy()
-    if pd.getReduceFlashing() then
-        return
-    else
+    if not pd.getReduceFlashing() then
         shakies_anim_dir = false
         shakies_anim = gfx.animator.new(500, 10, 0, pd.easingFunctions.outElastic)
     end
 end
 
-if save.fl then
-    scenemanager:switchscene(opening, "title")
+if save.first_launch then
+    scenemanager:switchscene(opening, 0, "title")
 else
     scenemanager:switchscene(title, false)
 end
@@ -124,18 +118,18 @@ function pd.gameWillTerminate()
     if not demo then
         pd.datastore.write(save)
     end
-    local img = gfx.getDisplayImage()
-    local byebye = gfx.image.new('images/ui/byebye')
-    local fade = gfx.imagetable.new('images/ui/fade/fade')
-    local imgslide = gfx.animator.new(350, 1, 400, pd.easingFunctions.outSine)
-    local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1000)
-    gfx.setDrawOffset(0, 0)
-    while not fadeout:ended() do
-        byebye:draw(0, 0)
-        img:draw(imgslide:currentValue(), 0)
-        fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
-        pd.display.flush()
-    end
+    -- local img = gfx.getDisplayImage()
+    -- local byebye = gfx.image.new('images/ui/byebye')
+    -- local fade = gfx.imagetable.new('images/ui/fade/fade')
+    -- local imgslide = gfx.animator.new(350, 1, 400, pd.easingFunctions.outSine)
+    -- local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1000)
+    -- gfx.setDrawOffset(0, 0)
+    -- while not fadeout:ended() do
+    --     byebye:draw(0, 0)
+    --     img:draw(imgslide:currentValue(), 0)
+    --     fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
+    --     pd.display.flush()
+    -- end
 end
 
 function pd.update()
@@ -150,9 +144,6 @@ function pd.update()
             savingimage = nil
         end
     end
-    if pd.buttonIsPressed('b') and pd.buttonJustPressed('a') then
-        save.fp = not save.fp
-    end
     gfx.sprite.update()
     pd.timer.updateTimers()
     if pd.isCrankDocked() and show_crank then
@@ -164,8 +155,5 @@ function pd.update()
         else
             pd.display.setOffset(0, shakies_anim:currentValue())
         end
-    end
-    if save.fp then
-        pd.drawFPS(3, 225)
     end
 end

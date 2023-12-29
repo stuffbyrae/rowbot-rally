@@ -138,17 +138,17 @@ function options:init()
             assets.img_bg:draw(0, 0)
             assets.kapel_doubleup:drawText(gfx.getLocalizedText('music_name'), 8, 8)
             assets.kapel_doubleup:drawText(gfx.getLocalizedText('sfx_name'), 8, 35)
-            if save.ss then
+            if save.ss and not demo then
                 assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_tutorial_name'), 8, 62)
             else
                 assets.kapel_doubleup:drawText(gfx.getLocalizedText('locked_name'), 8, 62)
             end
-            if save.mc >= 1 then
+            if save.mc >= 1 and not demo then
                 assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_cutscene_name'), 8, 89)
             else
                 assets.kapel_doubleup:drawText(gfx.getLocalizedText('locked_name'), 8, 89)
             end
-            if save.cs then
+            if save.cs and not demo then
                 assets.kapel_doubleup:drawText(gfx.getLocalizedText('replay_credits_name'), 8, 116)
             else
                 assets.kapel_doubleup:drawText(gfx.getLocalizedText('locked_name'), 8, 116)
@@ -518,7 +518,7 @@ function options:update()
         end
         if pd.buttonJustPressed('a') then
             if vars.current_menu_name == 'tutorial' then
-                if save.ss then
+                if save.ss and not demo then
                     savegame()
                     scenemanager:transitionsceneoneway(tutorial, "options")
                 else
@@ -527,10 +527,15 @@ function options:update()
                 end
             end
             if vars.current_menu_name == 'cutscene' then
-                self:change("scenes")
+                if save.mc >= 1 and not demo then
+                    self:change("scenes")
+                else
+                    shakiesx()
+                    assets.sfx_locked:play()
+                end
             end
             if vars.current_menu_name == 'credits' then
-                if save.cs then
+                if save.cs and not demo then
                     savegame()
                     scenemanager:transitionsceneoneway(credits, "options")
                 else
@@ -539,10 +544,8 @@ function options:update()
                 end
             end
             if vars.current_menu_name == 'access' then
+                assets.sfx_proceed:play()
                 self:change("access")
-            end
-            if vars.current_menu_name == 'reset' then
-                self:change("reset")
             end
         end
         if pd.buttonJustPressed('b') then
@@ -579,6 +582,7 @@ function options:update()
             if vars.current_menu_name == 'sensitivity' then
                 if save.se > 1 then
                     save.se -= 1
+                    assets.sfx_ping:play()
                     vars.anim_slider_x = gfx.animator.new(200, -7, 0, pd.easingFunctions.outSine)
                 else
                     assets.sfx_bonk:play()
@@ -586,17 +590,58 @@ function options:update()
                 end
                 self.slider:setImage(assets.img_sensitivity_slider[save.se])
             end
+            if vars.current_menu_name == 'ui' and save.ui then
+                save.ui = false
+                self.bg:button(vars.current_menu_name, save.ui, 1)
+                assets.sfx_clickon:play()
+            end
+            if vars.current_menu_name == 'dpad' and save.dp then
+                save.dp = false
+                self.bg:button(vars.current_menu_name, save.dp, 1)
+                assets.sfx_clickon:play()
+            end
+            if vars.current_menu_name == 'autoskip' and save.sk then
+                save.sk = false
+                self.bg:button(vars.current_menu_name, save.sk, 1)
+                assets.sfx_clickon:play()
+            end
+            if vars.current_menu_name == 'powerflip' and save.pw then
+                save.pw = false
+                self.bg:button(vars.current_menu_name, save.pw, 1)
+                assets.sfx_clickon:play()
+            end
         end
         if pd.buttonJustPressed('right') then
             if vars.current_menu_name == 'sensitivity' then
                 if save.se < 5 then
                     save.se += 1
+                    assets.sfx_ping:play()
                     vars.anim_slider_x = gfx.animator.new(200, 7, 0, pd.easingFunctions.outSine)
                 else
                     assets.sfx_bonk:play()
                     vars.anim_slider_x = gfx.animator.new(200, 3, 0, pd.easingFunctions.outBack)
                 end
                 self.slider:setImage(assets.img_sensitivity_slider[save.se])
+            end
+            if vars.current_menu_name == 'ui' and not save.ui then
+                save.ui = true
+                self.bg:button(vars.current_menu_name, save.ui, 1)
+                assets.sfx_clickon:play()
+            end
+            if vars.current_menu_name == 'dpad' and not save.dp then
+                save.dp = true
+                self.bg:button(vars.current_menu_name, save.dp, 1)
+                assets.sfx_clickon:play()
+            end
+            if vars.current_menu_name == 'autoskip' and not save.sk then
+                save.sk = true
+                self.bg:button(vars.current_menu_name, save.sk, 1)
+                assets.sfx_clickon:play()
+            end
+            if vars.current_menu_name == 'powerflip' and not save.pw then
+                save.pw = true
+                self.bg:button(vars.current_menu_name, save.pw, 1)
+                assets.sfx_clickon:play()
             end
         end
         if pd.buttonJustPressed('a') then
@@ -622,6 +667,7 @@ function options:update()
             end
         end
         if pd.buttonJustPressed('b') then
+            assets.sfx_whoosh:play()
             self:change("options")
         end
     elseif vars.currently_open_menu == "scenes" then
@@ -647,6 +693,7 @@ function options:update()
             end
         end
         if pd.buttonJustPressed('b') then
+            assets.sfx_whoosh:play()
             self:change("options")
         end
     end

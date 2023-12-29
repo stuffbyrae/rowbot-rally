@@ -45,11 +45,11 @@ function garage:init()
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         pedallica = gfx.font.new('fonts/pedallica')
     }
-    assets.sfx_bonk:setVolume(save.fx/5)
-    assets.sfx_locked:setVolume(save.fx/5)
-    assets.sfx_menu:setVolume(save.fx/5)
-    assets.sfx_proceed:setVolume(save.fx/5)
-    assets.music:setVolume(save.mu/5)
+    assets.sfx_bonk:setVolume(save.vol_sfx/5)
+    assets.sfx_locked:setVolume(save.vol_sfx/5)
+    assets.sfx_menu:setVolume(save.vol_sfx/5)
+    assets.sfx_proceed:setVolume(save.vol_sfx/5)
+    assets.music:setVolume(save.vol_music/5)
     assets.music:setLoopRange(3.890)
     assets.music:play(0)
 
@@ -63,7 +63,7 @@ function garage:init()
 
     local boats = {'classic', 'pro', 'surf', 'raft', 'swan', 'gold', 'hover'}
     for index = 1, #boats do
-        if save.mt >= index then
+        if save.unlocked_stages >= index then
             key = boats[index]
         else
             key = boats[index] .. '_locked'

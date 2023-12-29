@@ -28,10 +28,10 @@ function tutorial:init(...)
         gfx.popContext()
         pd.setMenuImage(img, xoffset)
         menu:addMenuItem(gfx.getLocalizedText("skiptutorial"), function()
-            self:finish()
+            self:finish("proceed")
         end)
         menu:addMenuItem(gfx.getLocalizedText("backtotitle"), function()
-            scenemanager:transitionsceneoneway(title, false)
+            self:finish("title")
         end)
     end
 
@@ -69,18 +69,19 @@ function tutorial:init(...)
         sfx_row = pd.sound.fileplayer.new('audio/sfx/row'),
         sfx_rowboton = pd.sound.sampleplayer.new('audio/sfx/rowboton')
     }
-    assets.sfx_sea:setVolume(save.mu/5)
-    assets.sfx_crash:setVolume(save.fx/5)
-    assets.sfx_clickon:setVolume(save.fx/5)
-    assets.sfx_clickoff:setVolume(save.fx/5)
-    assets.sfx_ui:setVolume(save.fx/5)
-    assets.sfx_start:setVolume(save.fx/5)
-    assets.sfx_rowboton:setVolume(save.fx/5)
+    assets.sfx_sea:setVolume(save.vol_music/5)
+    assets.sfx_crash:setVolume(save.vol_sfx/5)
+    assets.sfx_clickon:setVolume(save.vol_sfx/5)
+    assets.sfx_clickoff:setVolume(save.vol_sfx/5)
+    assets.sfx_ui:setVolume(save.vol_sfx/5)
+    assets.sfx_start:setVolume(save.vol_sfx/5)
+    assets.sfx_rowboton:setVolume(save.vol_sfx/5)
     assets.sfx_row:play(0)
     assets.sfx_sea:play(0)
 
     vars = {
-        arg_move = args[1], -- "story" or "options"
+        arg_slot = args[1],
+        arg_move = args[2], -- "story" or "options"
         race_started = false,
         race_in_progress = false,
         race_finished = false,
@@ -211,7 +212,7 @@ function tutorial:init(...)
         self:setZIndex(98)
         self:setCenter(0.5, 0)
         self:setIgnoresDrawOffset(true)
-        if save.pw then
+        if save.power_flip then
             self:setImage(assets.img_react_idle_flipped)
             self:moveTo(185, 400)
         else
@@ -221,7 +222,7 @@ function tutorial:init(...)
     end
     function react:update()
         if vars.anim_power_in ~= nil then
-            if save.pw then
+            if save.power_flip then
                 self:moveTo(185, 152+vars.anim_power_in:currentValue())
             else
                 self:moveTo(200, 152+vars.anim_power_in:currentValue())
@@ -242,7 +243,7 @@ function tutorial:init(...)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
             local playerturn = math.clamp(vars.player_turn*7, 0, 100)
-            if save.pw then
+            if save.power_flip then
                 gfx.fillRect(195, 0, -vars.boat_turn_rate:currentValue()*20, 38)
                 gfx.fillRect(0, 0, playerturn, 38)
             else
@@ -292,19 +293,11 @@ function tutorial:init(...)
     end)
     
     self:add()
-
-    if vars.arg_move == "story" then
-        if save.sk then
-            assets.sfx_sea:stop()
-            assets.sfx_row:stop()
-            scenemanager:switchscene(intro, 1)
-        end
-    end
 end
 
 function tutorial:checkpoint(x, y)
     if x == vars.line.x and y == vars.line.y then
-        self:finish()
+        self:finish("proceed")
     end
 end
 
@@ -392,10 +385,10 @@ function tutorial:progress()
             self.ui:setImage(assets.img_ui)
         end)
     elseif vars.current_step == 5 then
-        if not save.dp then
+        if not save.dpad then
             show_crank = true
         end
-        if not save.dp and pd.isCrankDocked() then
+        if not save.dpad and pd.isCrankDocked() then
             assets.img_ui = gfx.image.new(400, 240)
             gfx.pushContext(assets.img_ui)
                 assets.img_tutui:draw(11, 10)
@@ -411,7 +404,7 @@ function tutorial:progress()
         assets.img_ui = gfx.image.new(400, 240)
         gfx.pushContext(assets.img_ui)
             assets.img_tutui:draw(11, 10)
-            if save.dp then
+            if save.dpad then
                 assets.pedallica:drawTextAligned(gfx.getLocalizedText("tut6_dpad"), 200, 28, kTextAlignment.center)
             else
                 assets.pedallica:drawTextAligned(gfx.getLocalizedText("tut6"), 200, 28, kTextAlignment.center)
@@ -520,7 +513,7 @@ function tutorial:progress()
             self.ui:setImage(assets.img_ui)
         end)
     elseif vars.current_step == 12 then
-        if not save.dp then
+        if not save.dpad then
             show_crank = true
         end
         assets.img_ui = gfx.image.new(400, 240)
@@ -558,27 +551,31 @@ function tutorial:progress()
     end
 end
 
-function tutorial:finish()
+function tutorial:finish(where)
     if not vars.finishing then
         vars.finishing = true
         vars.boat_controllable = false
         vars.anim_overlay = gfx.animator.new(800, #assets.img_fade, 1)
         vars.boat_speed_rate = gfx.animator.new(1000, vars.boat_speed_rate:currentValue()/3, 0, pd.easingFunctions.inOutSine)
         vars.anim_finish_turn = gfx.animator.new(1000, vars.boat_rotation, math.clamp(vars.boat_old_rotation, vars.boat_rotation-40, vars.boat_rotation+40), pd.easingFunctions.outCubic)
-        assets.sfx_sea:setVolume(0, 0, 0.79, function()
+        assets.sfx_sea:setVolume(0, 0, 0.70, function()
             assets.sfx_sea:stop()
         end)
         assets.sfx_row:stop()
         pd.timer.performAfterDelay(800, function()
-            if not save.ss then
-                save.ss = true
-            end
             vars.anim_overlay = nil
             self.overlay:setImage(nil)
-            if vars.arg_move == "story" then
-                scenemanager:switchscene(cutscene, 2, "story")
+            if where == "proceed" then
+                if not save.tutorial_unlocked then
+                    save.tutorial_unlocked = true
+                end
+                if vars.arg_move == "story" then
+                    scenemanager:switchscene(cutscene, 2, "story")
+                else
+                    scenemanager:transitionscene(options)
+                end
             else
-                scenemanager:transitionscene(options)
+                scenemanager:switchscene(title, false)
             end
         end)
     end
@@ -619,9 +616,12 @@ function tutorial:crash(which)
     end
     if colno > 0 then
         vars.boat_crashed = true
-        save.cr += 1
-        if not save.sr and vars.arg_mode == "story" then
-            save.sr = true
+        if vars.arg_slot == 1 then
+            save.slot1_crashes += 1
+        elseif vars.arg_slot == 2 then
+            save.slot1_crashes += 1
+        elseif vars.arg_slot == 3 then
+            save.slot1_crashes += 1
         end
         assets.sfx_crash:play(1, math.random()+1)
         self:reaction("crash")
@@ -685,7 +685,7 @@ end
 
 function tutorial:reaction(new)
     if new == "idle" then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_idle_flipped)
             self:moveTo(185, 152)
         else
@@ -695,7 +695,7 @@ function tutorial:reaction(new)
         vars.reacting = false
         vars.anim_react = nil
     elseif new == "crash" then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_crash_flipped)
         else
             self.react:setImage(assets.img_react_crash)
@@ -710,7 +710,7 @@ end
 function tutorial:react_blink()
     local img = self.react:getImage()
     if not vars.reacting then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_idle_blink_flipped)
         else
             self.react:setImage(assets.img_react_idle_blink)
@@ -726,7 +726,7 @@ function tutorial:react_blink()
 end
 
 function tutorial:update()
-    local rowvolume = math.clamp(vars.player_turn, 0, save.fx/5)
+    local rowvolume = math.clamp(vars.player_turn, 0, save.vol_sfx/5)
     assets.sfx_row:setVolume(rowvolume)
     local gfx_x, gfx_y = gfx.getDrawOffset()
     self.water:moveTo(gfx_x%-400, gfx_y%-240)
@@ -761,17 +761,17 @@ function tutorial:update()
                 self:checkpoint(c[i].x, c[i].y)
             end
         end
-        if save.dp then
+        if save.dpad then
             if pd.buttonIsPressed('up') then
-                vars.change += 0.15 + (0.05 * save.se)
+                vars.change += 0.15 + (0.05 * save.sensitivity)
             end
             if pd.buttonIsPressed('down') then
-                vars.change -= 0.15 + (0.05 * save.se)
+                vars.change -= 0.15 + (0.05 * save.sensitivity)
             end
             if vars.change > 10 then vars.change = 10 end
             if vars.change < 0 then vars.change = 0 end
         else
-            vars.change = pd.getCrankChange() / (3.5 - (0.35 * save.se))
+            vars.change = pd.getCrankChange() / (3.5 - (0.35 * save.sensitivity))
         end
         if vars.boat_old_rotation < vars.boat_rotation - 14 then
             self.wake:setImage(assets.img_wake5[math.floor((vars.boat_old_rotation%360) / 6)+1])

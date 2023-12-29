@@ -29,13 +29,14 @@ function notif:init(...)
         sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
     }
-    assets.sfx_ui:setVolume(save.fx/5)
-    assets.sfx_proceed:setVolume(save.fx/5)
-    assets.sfx_whoosh:setVolume(save.fx/5)
+    assets.sfx_ui:setVolume(save.vol_sfx/5)
+    assets.sfx_proceed:setVolume(save.vol_sfx/5)
+    assets.sfx_whoosh:setVolume(save.vol_sfx/5)
     
     vars = {
-        arg_warn = args[1], -- "mirror", "tt", "demo", or "fullgame"
-        arg_move = args[2], -- "story" or "title"
+        arg_slot = args[1],
+        arg_warn = args[2], -- "mirror", "tt", "demo", or "fullgame"
+        arg_move = args[3], -- "story" or "title"
         ui_anim_in = gfx.animator.new(250, 250, 120, pd.easingFunctions.outBack),
         ui_open = true
     }
@@ -62,15 +63,11 @@ function notif:init(...)
     
         self.ui = ui()
     
-    if vars.arg_warn == "mirror" then
-        self.ui:setImage(assets.img_mirror_warn)
-        save.ms = true
-    elseif vars.arg_warn == "tt" then
+    if vars.arg_warn == "tt" then
         self.ui:setImage(assets.img_tt_warn)
-        save.ts = true
+        save.time_trials_unlocked = true
     elseif vars.arg_warn == "demo" then
         self.ui:setImage(assets.img_demo_warn)
-        clearALLthesaves()
     elseif vars.arg_warn == "fullgame" then
         self.ui:setImage(assets.img_fullgame_warn)
     end
@@ -88,9 +85,11 @@ function notif:update()
         pd.timer.performAfterDelay(100, function()
             self.ui:remove()
             if vars.arg_move == "story" then
-                scenemanager:switchscene(cutscene, save.cc, "story")
-            elseif vars.arg_move == "opening" then
-                scenemanager:switchscene(opening, "title")
+                if save.autoskip then
+                    scenemanager:switchscene(intro, 1, 2)
+                else
+                    scenemanager:switchscene(cutscene, 1, 3, "story")
+                end
             else
                 scenemanager:switchscene(title, false)
             end

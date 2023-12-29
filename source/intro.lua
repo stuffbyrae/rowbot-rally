@@ -30,12 +30,13 @@ function intro:init(...)
         sfx_intro = pd.sound.sampleplayer.new('audio/sfx/intro'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh')
     }
-    assets.sfx_intro:setVolume(save.fx/5)
-    assets.sfx_whoosh:setVolume(save.fx/5)
+    assets.sfx_intro:setVolume(save.vol_sfx/5)
+    assets.sfx_whoosh:setVolume(save.vol_sfx/5)
     assets.sfx_intro:play()
     
     vars = {
-        arg_track = args[1], -- 1 through 7
+        arg_slot = args[1], -- 1 through 3. current save slot
+        arg_track = args[2], -- 1 through 7
         transitioning = true,
         anim_fade = gfx.animator.new(100, 1, 1),
         anim_bg = gfx.animator.new(350, -12, 1, pd.easingFunctions.outBack),
@@ -227,19 +228,19 @@ function intro:transition()
     assets.sfx_whoosh:play()
     pd.timer.performAfterDelay(500, function()
         if vars.arg_track == 1 then
-            scenemanager:switchscene(race, 1, "story", 1, false)
+            scenemanager:switchscene(race, vars.arg_slot, 1, "story", 1)
         elseif vars.arg_track == 2 then
-            scenemanager:switchscene(race, 2, "story", 2, false)
+            scenemanager:switchscene(race, vars.arg_slot, 2, "story", 2)
         elseif vars.arg_track == 3 then
-            scenemanager:switchscene(race, 3, "story", 3, false)
+            scenemanager:switchscene(race, vars.arg_slot, 3, "story", 3)
         elseif vars.arg_track == 4 then
-            scenemanager:switchscene(race, 4, "story", 4, false)
+            scenemanager:switchscene(race, vars.arg_slot, 4, "story", 4)
         elseif vars.arg_track == 5 then
-            scenemanager:switchscene(race, 5, "story", 5, false)
+            scenemanager:switchscene(race, vars.arg_slot, 5, "story", 5)
         elseif vars.arg_track == 6 then
-            scenemanager:switchscene(race, 6, "story", 6, false)
+            scenemanager:switchscene(race, vars.arg_slot, 6, "story", 6)
         elseif vars.arg_track == 7 then
-            scenemanager:switchscene(race, 7, "story", 7, false)
+            scenemanager:switchscene(race, vars.arg_slot, 7, "story", 7)
         end
     end)
 end

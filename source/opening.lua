@@ -30,7 +30,8 @@ function opening:init(...)
     }
 
     vars = {
-        arg_move = args[1],
+        arg_slot = args[1],
+        arg_move = args[2],
         fading = true,
         finished = false,
         progress = 1
@@ -86,9 +87,9 @@ function opening:finish()
     pd.timer.performAfterDelay(500, function()
         if vars.arg_move == "title" then
             scenemanager:switchscene(title, false)
-            save.fl = false
+            save.first_launch = false
         else
-            scenemanager:switchscene(cutscene, 1, "story")
+            scenemanager:switchscene(cutscene, vars.arg_slot, 1, "story")
         end
     end)
 end

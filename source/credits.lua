@@ -16,19 +16,13 @@ function credits:init(...)
         arg_move = args[1] -- "title" or "options"
     }
 
-    if vars.arg_move == "title" then
-        if save.sk then
-            credits:finish()
-        end
-    end
-
     function pd.gameWillPause()
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         local img = gfx.image.new(400, 240)
         xoffset = 100
         pd.setMenuImage(img, xoffset)
-        if save.cs then
+        if save.credits_unlocked then
             menu:addMenuItem(gfx.getLocalizedText("skipcredits"), function()
                 self:finish()
             end)
@@ -40,12 +34,10 @@ end
 
 function credits:finiah()
     if vars.arg_move == "title" then
-        --this below stuff is for v1.1, hi sneaky
-        --if save.ms == false then
-            --scenemanager:switchscene(notif, "mirror", "title")
-        --else
-            scenemanager:switchscene(title, false)
-        --end
+        scenemanager:switchscene(title, false)
+        if not save.credits_unlocked then
+            save.credits_unlocked = true
+        end
     else
         scenemanager:switchscene(options)
     end

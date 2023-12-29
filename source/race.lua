@@ -29,9 +29,9 @@ function race:init(...)
         gfx.popContext()
         pd.setMenuImage(img, xoffset)
         if not vars.race_finished then
-            menu:addCheckmarkMenuItem(gfx.getLocalizedText("proui"), save.ui, function(new)
-                save.ui = new
-                if save.ui then
+            menu:addCheckmarkMenuItem(gfx.getLocalizedText("proui"), save.pro_ui, function(new)
+                save.pro_ui = new
+                if save.pro_ui then
                     self.react:remove()
                     self.meter:remove()
                     self.timer:moveTo(-42, -11)
@@ -92,17 +92,17 @@ function race:init(...)
         sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
         sfx_finish = pd.sound.sampleplayer.new('audio/sfx/finish')
     }
-    assets.sfx_countdown:setVolume(save.fx/5)
-    assets.sfx_crash:setVolume(save.fx/5)
-    assets.sfx_start:setVolume(save.fx/5)
-    assets.sfx_finish:setVolume(save.fx/5)
+    assets.sfx_countdown:setVolume(save.vol_sfx/5)
+    assets.sfx_crash:setVolume(save.vol_sfx/5)
+    assets.sfx_start:setVolume(save.vol_sfx/5)
+    assets.sfx_finish:setVolume(save.vol_sfx/5)
     assets.sfx_row:play(0)
 
     vars = {
-        arg_track = args[1], -- 1, 2, 3, 4, 5, 6, or 7
-        arg_mode = args[2], -- "story" or "tt"
-        arg_boat = args[3], -- 1, 2, 3, 4, 5, 6, or 7
-        arg_mirror = args[4], -- true or false. this is for v1.1!
+        arg_slot = args[1], -- 1 through 3
+        arg_track = args[2], -- 1, 2, 3, 4, 5, 6, or 7
+        arg_mode = args[3], -- "story" or "tt"
+        arg_boat = args[4], -- 1, 2, 3, 4, 5, 6, or 7
         race_started = false,
         race_in_progress = false,
         race_finished = false,
@@ -144,7 +144,7 @@ function race:init(...)
     pd.timer.performAfterDelay(2500, function() self:start(false) end)
 
     assets.music = pd.sound.fileplayer.new('audio/music/stage' .. vars.arg_track)
-    assets.music:setVolume(save.mu/5)
+    assets.music:setVolume(save.vol_music/5)
     assets.music:setLoopRange(0.701)
     
     assets.img_boat = gfx.imagetable.new('images/race/boats/boat' .. vars.arg_boat)
@@ -312,7 +312,7 @@ function race:init(...)
         timer.super.init(self)
         self:setZIndex(99)
         self:setCenter(0, 0)
-        if save.ui then
+        if save.pro_ui then
             self:moveTo(-42, -11)
         else
             self:moveTo(0, 5)
@@ -342,20 +342,20 @@ function race:init(...)
         self:setZIndex(98)
         self:setCenter(0.5, 0)
         self:setIgnoresDrawOffset(true)
-        if save.pw then
+        if save.power_flip then
             self:setImage(assets.img_react_idle_flipped)
             self:moveTo(185, 152)
         else
             self:setImage(assets.img_react_idle)
             self:moveTo(200, 152)
         end
-        if not save.ui then
+        if not save.pro_ui then
             self:add()
         end
     end
     function react:update()
         if vars.anim_react ~= nil then
-            if save.pw then
+            if save.power_flip then
                 self:moveTo(185, vars.anim_react:currentValue())
             else
                 self:moveTo(200, vars.anim_react:currentValue())
@@ -370,7 +370,7 @@ function race:init(...)
         self:setZIndex(99)
         self:setCenter(0.5, 1)
         self:setIgnoresDrawOffset(true)
-        if not save.ui then
+        if not save.pro_ui then
             self:add()
         end
     end
@@ -379,7 +379,7 @@ function race:init(...)
         gfx.pushContext(img)
             gfx.setColor(gfx.kColorWhite)
             local playerturn = math.clamp(vars.player_turn*7, 0, 100)
-            if save.pw then
+            if save.power_flip then
                 gfx.fillRect(195, 0, -vars.boat_turn_rate:currentValue()*20, 38)
                 gfx.fillRect(0, 0, playerturn, 38)
             else
@@ -395,7 +395,7 @@ function race:init(...)
     class('item').extends(gfx.sprite)
     function item:init()
         item.super.init(self)
-        if save.ui then
+        if save.pro_ui then
             self:moveTo(400, -40)
         else
             self:moveTo(400, 0)
@@ -513,7 +513,7 @@ function race:start(restart)
             assets.music:play(0)
             vars.race_started = true
             vars.race_in_progress = true
-            if not save.dp then
+            if not save.dpad then
                 show_crank = true
             end
             vars.camera_target_offset = vars.boat_speed_stat*15
@@ -596,7 +596,7 @@ function race:finish(win)
         end
         pd.timer.performAfterDelay(1500, function()
             assets.snap = gfx.getDisplayImage()
-            scenemanager:switchscene(results, vars.arg_track, vars.arg_mode, vars.arg_boat, vars.arg_mirror, win, vars.elapsed_time, assets.snap)
+            scenemanager:switchscene(results, vars.arg_slot, vars.arg_track, vars.arg_mode, vars.arg_boat, win, vars.elapsed_time, assets.snap)
         end)
     end
 end
@@ -621,9 +621,13 @@ function race:crash()
     -- If there's any true colliders, then...well, the boat crashed.
     if colno > 0 then
         vars.boat_crashed = true
-        save.cr += 1
-        if not save.sr and vars.arg_mode == "story" then
-            save.sr = true
+        save.total_crashes += 1
+        if vars.arg_slot == 1 then
+            save.slot1_crashes += 1
+        elseif vars.arg_slot == 2 then
+            save.slot1_crashes += 2
+        elseif vars.arg_slot == 3 then
+            save.slot1_crashes += 3
         end
         assets.sfx_crash:play(1, math.random()+1)
         self:reaction("crash")
@@ -695,7 +699,7 @@ end
 
 function race:reaction(new)
     if new == "idle" then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_idle_flipped)
             self:moveTo(185, 152)
         else
@@ -705,7 +709,7 @@ function race:reaction(new)
         vars.reacting = false
         vars.anim_react = nil
     elseif new == "happy" then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_happy_flipped)
         else
             self.react:setImage(assets.img_react_happy)
@@ -715,7 +719,7 @@ function race:reaction(new)
         vars.anim_react.reverses = true
         vars.anim_react.repeatCount = -1
     elseif new == "shocked" then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_shocked_flipped)
         else
             self.react:setImage(assets.img_react_shocked)
@@ -725,14 +729,14 @@ function race:reaction(new)
         vars.anim_react.reverses = true
         vars.anim_react.repeatCount = -1
     elseif new == "confused" then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_confused_flipped)
         else
             self.react:setImage(assets.img_react_confused)
         end
         vars.reacting = true
     elseif new == "crash" then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_crash_flipped)
         else
             self.react:setImage(assets.img_react_crash)
@@ -747,7 +751,7 @@ end
 function race:react_blink()
     local img = self.react:getImage()
     if not vars.reacting then
-        if save.pw then
+        if save.power_flip then
             self.react:setImage(assets.img_react_idle_blink_flipped)
         else
             self.react:setImage(assets.img_react_idle_blink)
@@ -767,7 +771,7 @@ function race:update()
     -- if vars.race_started and vars.elapsed_time % 2 == 0 or vars.race_finished then
     --     print(self.boat.x .. ', ' .. self.boat.y .. ', ' .. vars.boat_rotation .. ', ' .. self.wake.x .. ', ' .. self.wake.y .. ', ' ..  vars.boat_old_rotation .. ', ' .. vars.wake_setting .. ', ')
     -- end
-    local rowvolume = math.clamp(vars.player_turn, 0, save.fx/5)
+    local rowvolume = math.clamp(vars.player_turn, 0, save.vol_sfx/5)
     assets.sfx_row:setVolume(rowvolume)
     local gfx_x, gfx_y = gfx.getDrawOffset()
     self.water:moveTo(gfx_x%-400, gfx_y%-240)
@@ -826,7 +830,14 @@ function race:update()
         end
     end
     if vars.race_in_progress then
-        save.tr += 1
+        save.time_racing += 1
+        if vars.arg_slot == 1 then
+            save.slot1_time_racing += 1
+        elseif vars.arg_slot == 2 then
+            save.slot2_time_racing += 1
+        elseif vars.arg_slot == 3 then
+            save.slot3_time_racing += 1
+        end
         vars.elapsed_time += 1
         local c = self.boat:overlappingSprites()
         if #c > 0 then
@@ -834,17 +845,17 @@ function race:update()
                 self:checkpoint(c[i].x, c[i].y)
             end
         end
-        if save.dp then
+        if save.dpad then
             if pd.buttonIsPressed('up') then
-                vars.change += 0.15 + (0.05 * save.se)
+                vars.change += 0.15 + (0.05 * save.sensitivity)
             end
             if pd.buttonIsPressed('down') then
-                vars.change -= 0.15 + (0.05 * save.se)
+                vars.change -= 0.15 + (0.05 * save.sensitivity)
             end
             if vars.change > 10 then vars.change = 10 end
             if vars.change < 0 then vars.change = 0 end
         else
-            vars.change = pd.getCrankChange() / (3.5 - (0.35 * save.se))
+            vars.change = pd.getCrankChange() / (3.5 - (0.35 * save.sensitivity))
         end
         if vars.boat_crashed then
             vars.camera_offset += (vars.camera_target_offset - vars.camera_offset) * 0.20

@@ -41,11 +41,11 @@ function tracks:init(...)
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
         music = pd.sound.fileplayer.new('audio/music/tracks')
     }
-    assets.sfx_bonk:setVolume(save.fx/5)
-    assets.sfx_locked:setVolume(save.fx/5)
-    assets.sfx_proceed:setVolume(save.fx/5)
-    assets.sfx_whoosh:setVolume(save.fx/5)
-    assets.music:setVolume(save.mu/5)
+    assets.sfx_bonk:setVolume(save.vol_sfx/5)
+    assets.sfx_locked:setVolume(save.vol_sfx/5)
+    assets.sfx_proceed:setVolume(save.vol_sfx/5)
+    assets.sfx_whoosh:setVolume(save.vol_sfx/5)
+    assets.music:setVolume(save.vol_music/5)
     assets.music:play(0)
     
     vars = {
@@ -58,7 +58,7 @@ function tracks:init(...)
         wave_anim = gfx.animator.new(1000, 0, -50)
     }
     
-    vars.besttime = save.t1
+    vars.besttime = save.stage1_best
     vars.boat_y_anim.reverses = true
     vars.boat_y_anim.repeatCount = -1
     vars.wave_anim.repeatCount = -1
@@ -172,46 +172,46 @@ function tracks:changetrack(dir)
         end
         local img = gfx.image.new(400, 240)
         gfx.pushContext(img)
-            if vars.current_menu_item <= save.mt then
+            if vars.current_menu_item <= save.unlocked_stages then
                 assets.img_prompt:drawImage(vars.current_menu_item, -13, -1)
                 if vars.current_menu_item == 1 then
-                    vars.besttime = save.t1
+                    vars.besttime = save.stage1_best
                     assets.kapel:drawText(gfx.getLocalizedText("stage1_num"), 57, 3)
                     assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage1_name"), 53, 12)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage1_vs"), 49, 35)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage1_desc"), 10, 60)    
                 elseif vars.current_menu_item == 2 then
-                    vars.besttime = save.t2
+                    vars.besttime = save.stage2_best
                     assets.kapel:drawText(gfx.getLocalizedText("stage2_num"), 57, 3)
                     assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage2_name"), 53, 12)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage2_vs"), 49, 35)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage2_desc"), 10, 60)
                 elseif vars.current_menu_item == 3 then
-                    vars.besttime = save.t3
+                    vars.besttime = save.stage3_best
                     assets.kapel:drawText(gfx.getLocalizedText("stage3_num"), 57, 3)
                     assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage3_name"), 53, 12)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage3_vs"), 49, 35)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage3_desc"), 10, 60)
                 elseif vars.current_menu_item == 4 then
-                    vars.besttime = save.t4
+                    vars.besttime = save.stage4_best
                     assets.kapel:drawText(gfx.getLocalizedText("stage4_num"), 57, 3)
                     assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage4_name"), 53, 12)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage4_vs"), 49, 35)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage4_desc"), 10, 60)
                 elseif vars.current_menu_item == 5 then
-                    vars.besttime = save.t5
+                    vars.besttime = save.stage5_best
                     assets.kapel:drawText(gfx.getLocalizedText("stage5_num"), 57, 3)
                     assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage5_name"), 53, 12)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage5_vs"), 49, 35)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage5_desc"), 10, 60)
                 elseif vars.current_menu_item == 6 then
-                    vars.besttime = save.t6
+                    vars.besttime = save.stage6_best
                     assets.kapel:drawText(gfx.getLocalizedText("stage6_num"), 57, 3)
                     assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage6_name"), 53, 12)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage6_vs"), 49, 35)
                     assets.pedallica:drawText(gfx.getLocalizedText("stage6_desc"), 10, 60)
                 elseif vars.current_menu_item == 7 then
-                    vars.besttime = save.t7
+                    vars.besttime = save.stage7_best
                     assets.kapel:drawText(gfx.getLocalizedText("stage7_num"), 57, 3)
                     assets.kapel_doubleup:drawText(gfx.getLocalizedText("stage7_name"), 53, 12)
                     assets.kapel:drawText('VS. ' .. gfx.getLocalizedText("stage7_vs"), 49, 35)
@@ -253,14 +253,14 @@ function tracks:select()
     vars.fade_anim = gfx.animator.new(250, #assets.img_fade, 1, pd.easingFunctions.linear, 750)
     self.fade:add()
     pd.timer.performAfterDelay(1000, function()
-        scenemanager:switchscene(race, vars.current_menu_item, "tt", vars.arg_boat, false)
+        scenemanager:switchscene(race, 0, vars.current_menu_item, "tt", vars.arg_boat)
     end)
 end
 
 function tracks:update()
     if pd.buttonJustPressed('a') then
         if vars.stage_transitioning == false then
-            if vars.current_menu_item <= save.mt then
+            if vars.current_menu_item <= save.unlocked_stages then
                 self:select()
             else
                 assets.sfx_locked:play()

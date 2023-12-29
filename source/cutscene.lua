@@ -39,8 +39,9 @@ function cutscene:init(...)
     }
     
     vars = {
-        arg_play = args[1], -- 1 through 10
-        arg_move = args[2], -- "story" or "options"
+        arg_slot = args[1], -- 1 through 3. current save slot
+        arg_play = args[2], -- 1 through 10
+        arg_move = args[3], -- "story" or "options"
         lastframe = 0,
         transition = true,
         border_exits = true,
@@ -58,19 +59,21 @@ function cutscene:init(...)
     end)
     
     assets.video:renderFrame(0)
-    assets.audio:setVolume((save.fx/5)+0.01)
-    assets.music:setVolume(save.mu/5)
+    assets.audio:setVolume((save.vol_sfx/5)+0.01)
+    assets.music:setVolume(save.vol_music/5)
     assets.audio:play(1)
     assets.music:play(1)
 
     if vars.arg_move == "story" then
-        save.cc = vars.arg_play
-        if save.cc > save.mc then
-            save.mc = save.cc
+        if vars.arg_slot == 1 then
+            save.slot1_current_cutscene = vars.arg_play
+        elseif vars.arg_slot == 2 then
+            save.slot2_current_cutscene = vars.arg_play
+        elseif vars.arg_slot == 3 then
+            save.slot3_current_cutscene = vars.arg_play
         end
-        if save.sk then
-            vars.border_exits = false
-            assets.audio:stop()
+        if vars.arg_play > save.unlocked_cutscenes then
+            save.unlocked_cutscenes = vars.arg_play
         end
     end
     
@@ -118,7 +121,7 @@ function cutscene:roadmap()
     if vars.arg_move == "options" then
         scenemanager:transitionscene(options)
     else
-        if vars.arg_play == 1 then scenemanager:switchscene(tutorial, "story") end
+        if vars.arg_play == 1 then scenemanager:switchscene(tutorial, vars.arg_slot, "story") end
         if vars.arg_play == 2 then scenemanager:switchscene(intro, 1) end
         if vars.arg_play == 3 then scenemanager:switchscene(intro, 2) end
         if vars.arg_play == 4 then scenemanager:switchscene(intro, 3) end

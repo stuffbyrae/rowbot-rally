@@ -1,3 +1,4 @@
+-- Importing things
 import 'CoreLibs/graphics'
 import 'CoreLibs/timer'
 import 'CoreLibs/ui'
@@ -5,114 +6,94 @@ import 'CoreLibs/sprites'
 import 'CoreLibs/math'
 import 'CoreLibs/animation'
 import 'CoreLibs/object'
-import 'stagecpucoords'
-import 'pdParticles'
-import 'Tanuk_CodeSequence'
+import 'title' -- Title screen, so we can transition to it on start-up
+import 'stats'
+import 'scenemanager'
+scenemanager = scenemanager()
 
+-- Setting up basic SDK params
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
 pd.display.setRefreshRate(30)
-show_crank = false -- do you show the crankindicator in this scene?
-catalog = true -- leaderboard compatibility
-first_pause = true -- so that when you pause the first time, it always reads "Paused!" first.
-saving = false -- todo: change this
-if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
-
-import 'scenemanager'
-import 'title'
-scenemanager = scenemanager()
-
 gfx.setBackgroundColor(gfx.kColorBlack)
+
+show_crank = false -- do you show the crankindicator in this scene?
+first_pause = true -- so that when you pause the first time, it always reads "Paused!" first.
+if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
 
 -- Save check
 function savecheck()
     save = pd.datastore.read()
     if save == nil then save = {} end
-
-    if save.stage1_best == nil then save.stage1_best = 17970 end
-    if save.stage2_best == nil then save.stage2_best = 17970 end
-    if save.stage3_best == nil then save.stage3_best = 17970 end
-    if save.stage4_best == nil then save.stage4_best = 17970 end
-    if save.stage5_best == nil then save.stage5_best = 17970 end
-    if save.stage6_best == nil then save.stage6_best = 17970 end
-    if save.stage7_best == nil then save.stage7_best = 17970 end
-    if save.slot1_active == nil then save.slot1_active = false end
-    if save.slot1_current_stage == nil then save.slot1_current_stage = 0 end
-    if save.slot1_current_cutscene == nil then save.slot1_current_cutscene = 0 end
-    if save.slot1_crashes == nil then save.slot1_crashes = 0 end
-    if save.slot1_time_racing == nil then save.slot1_time_racing = 0 end
-    if save.slot2_active == nil then save.slot2_active = false end
-    if save.slot2_current_stage == nil then save.slot2_current_stage = 0 end
-    if save.slot2_current_cutscene == nil then save.slot2_current_cutscene = 0 end
-    if save.slot2_crashes == nil then save.slot2_crashes = 0 end
-    if save.slot2_time_racing == nil then save.slot2_time_racing = 0 end
-    if save.slot3_active == nil then save.slot3_active = false end
-    if save.slot3_current_stage == nil then save.slot3_current_stage = 0 end
-    if save.slot3_current_cutscene == nil then save.slot3_current_cutscene = 0 end
-    if save.slot3_crashes == nil then save.slot3_crashes = 0 end
-    if save.slot3_time_racing == nil then save.slot3_time_racing = 0 end
-    if save.unlocked_stages == nil then save.unlocked_stages = 0 end
-    if save.unlocked_cutscenes == nil then save.unlocked_cutscenes = 0 end
-    if save.credits_unlocked == nil then save.credits_unlocked = false end
-    if save.tutorial_unlocked == nil then save.tutorial_unlocked = false end
-    if save.vol_music == nil then save.vol_music = 5 end
-    if save.vol_sfx == nil then save.vol_sfx = 5 end
-    if save.time_trials_unlocked == nil then save.time_trials_unlocked = false end
-    if save.pro_ui == nil then save.pro_ui = false end
-    if save.power_flip == nil then save.power_flip = false end
-    if save.dpad == nil then save.dpad = false end
-    if save.sensitivity == nil then save.sensitivity = 3 end
-    if save.autoskip == nil then save.autoskip = false end
-    if save.first_launch == nil then save.first_launch = true end
-    if save.stories_completed == nil then save.stories_completed = 0 end
-    if save.total_crashes == nil then save.total_crashes = 0 end
-    if save.time_racing == nil then save.time_racing = 0 end
+    -- Local best time-trial records for all courses
+    save.stage1_best = save.stage1_best or 17970
+    save.stage2_best = save.stage2_best or 17970
+    save.stage3_best = save.stage3_best or 17970
+    save.stage4_best = save.stage4_best or 17970
+    save.stage5_best = save.stage5_best or 17970
+    save.stage6_best = save.stage6_best or 17970
+    save.stage7_best = save.stage7_best or 17970
+    -- How many times each stage has been played
+    save.stage1_plays = save.stage1_plays or 0
+    save.stage2_plays = save.stage2_plays or 0
+    save.stage3_plays = save.stage3_plays or 0
+    save.stage4_plays = save.stage4_plays or 0
+    save.stage5_plays = save.stage5_plays or 0
+    save.stage6_plays = save.stage6_plays or 0
+    save.stage7_plays = save.stage7_plays or 0
+    -- Story slot 1
+    save.slot1_active = save.slot1_active or false
+    save.slot1_stage = save.slot1_stage or 0
+    save.slot1_cutscene = save.slot1_cutscene or 0
+    save.slot1_crashes = save.slot1_crashes or 0
+    save.slot1_racetime = save.slot1_racetime or 0
+    -- Story slot 2
+    save.slot2_active = save.slot2_active or false
+    save.slot2_stage = save.slot2_stage or 0
+    save.slot2_cutscene = save.slot2_cutscene or 0
+    save.slot2_crashes = save.slot2_crashes or 0
+    save.slot2_racetime = save.slot2_racetime or 0
+    -- Story slot 3
+    save.slot3_active = save.slot3_active or false
+    save.slot3_stage = save.slot3_stage or 0
+    save.slot3_cutscene = save.slot3_cutscene or 0
+    save.slot3_crashes = save.slot3_crashes or 0
+    save.slot3_racetime = save.slot3_racetime or 0
+    -- Global unlocks
+    save.stages_unlocked = save.stages_unlocked or 0
+    save.cutscenes_unlocked = save.cutscenes_unlocked or 0
+    save.credits_unlocked = save.credits_unlocked or false
+    save.tutorial_unlocked = save.tutorial_unlocked or false
+    save.time_trials_unlocked = save.time_trials_unlocked or false
+    -- Preferences, adjustable in Options menu
+    save.vol_music = save.vol_music or 5
+    save.vol_sfx = save.vol_sfx or 0
+    save.pro_ui = save.pro_ui or false
+    save.power_flip = save.power_flip or false
+    save.dpad_controls = save.dpad_controls or false
+    save.sensitivty = save.sensitivity or 3
+    save.autoskip = save.autoskip or false
+    -- Global stats
+    save.first_launch = save.first_launch or true
+    save.stories_completed = save.stories_completed or 0
+    save.total_crashes = save.total_crashes or 0
+    save.total_racetime = save.total_racetime or 0
+    save.total_races_completed = save.races_completed or 0
+    save.total_playtime = save.total_playtime or 0
+    save.total_degrees_cranked = save.total_degrees_cranked or 0
+    save.metric = save.metric or true
 end
 
 -- ... now we run that!
 savecheck()
 
--- math clamp function
+-- Math clamp function
 function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-function savegame()
-    if not demo then
-        pd.datastore.write(save)
-        saving = true
-        savingtable = gfx.imagetable.new('images/ui/saving')
-        savinginc = 1
-        savingsprite = gfx.sprite.new(savingtable[1])
-        savingsprite:moveTo(0, 5)
-        savingsprite:setZIndex(32767)
-        savingsprite:setCenter(0, 0)
-        savingsprite:setIgnoresDrawOffset(true)
-        savingsprite:add()
-    end
-end
-
--- global screen-shaky functions
-shakies_anim = nil
-function shakiesx()
-    if not pd.getReduceFlashing() then
-        shakies_anim_dir = true
-        shakies_anim = gfx.animator.new(500, 10, 0, pd.easingFunctions.outElastic)
-    end
-end
-function shakiesy()
-    if not pd.getReduceFlashing() then
-        shakies_anim_dir = false
-        shakies_anim = gfx.animator.new(500, 10, 0, pd.easingFunctions.outElastic)
-    end
-end
-
-if save.first_launch then
-    scenemanager:switchscene(opening, 0, "title")
-else
-    scenemanager:switchscene(title, false)
-end
+scenemanager:switchscene(stats)
 
 function pd.gameWillTerminate()
     if not demo then
@@ -133,27 +114,10 @@ function pd.gameWillTerminate()
 end
 
 function pd.update()
-    if saving then
-        savinginc += 0.6
-        savingsprite:setImage(savingtable[math.floor(savinginc)])
-        savingsprite:add()
-        if savinginc >= 29 then
-            saving = false
-            savingsprite:remove()
-            savinginc = nil
-            savingimage = nil
-        end
-    end
+    save.total_playtime += 1
     gfx.sprite.update()
     pd.timer.updateTimers()
     if pd.isCrankDocked() and show_crank then
         pd.ui.crankIndicator:update()
-    end
-    if shakies_anim ~= nil then
-        if shakies_anim_dir then
-            pd.display.setOffset(shakies_anim:currentValue(), 0)
-        else
-            pd.display.setOffset(0, shakies_anim:currentValue())
-        end
     end
 end

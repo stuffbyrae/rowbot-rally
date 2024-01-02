@@ -1,47 +1,45 @@
+-- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-class('credits').extends(gfx.sprite)
-function credits:init(...)
-    credits.super.init(self)
-    local args = {...}
-    show_crank = false
-    gfx.sprite.setAlwaysRedraw(false)
+class('raaah').extends(gfx.sprite) -- Create the scene's class
+function raaah:init(...)
+    raaah.super.init(self)
+    local args = {...} -- Arguments passed in through the scene management will arrive here
+    show_crank = false -- Should the crank indicator be shown?
+    gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
     
-    assets = {
-        
-    }
-
-    vars = {
-        arg_move = args[1] -- "title" or "options"
-    }
-
-    function pd.gameWillPause()
+    function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        local img = gfx.image.new(400, 240)
-        xoffset = 100
-        pd.setMenuImage(img, xoffset)
-        if save.credits_unlocked then
-            menu:addMenuItem(gfx.getLocalizedText("skipcredits"), function()
-                self:finish()
-            end)
-        end
     end
     
+    assets = { -- All assets go here. Images, sounds, fonts, etc.
+    }
+    
+    vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
+        raaahHandlers = {
+            -- Input handlers go here...
+        }
+    }
+    pd.inputHandlers.push(vars.raaahHandlers)
+
+    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
+        -- Draw background stuff here...
+    end)
+
+    class('x1').extends(gfx.sprite)
+    function x1:init()
+        x1.super.init(self)
+    end
+    function x1:update()
+    end
+
+    -- Set the sprites
+    self.x1 = x1()
     self:add()
 end
 
-function credits:finiah()
-    if vars.arg_move == "title" then
-        scenemanager:switchscene(title, false)
-        if not save.credits_unlocked then
-            save.credits_unlocked = true
-        end
-    else
-        scenemanager:switchscene(options)
-    end
-end
-
-function credits:update()
+-- Scene update loop
+function raaah:update()
 end

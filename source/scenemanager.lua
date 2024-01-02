@@ -5,9 +5,6 @@ class('scenemanager').extends()
 
 img_loading = gfx.image.new('images/ui/loading')
 img_loading_oneway = gfx.image.new('images/ui/loading_oneway')
-img_loading_blastdoors = gfx.image.new('images/ui/loading_blastdoors')
-blastdoors_1 = pd.sound.sampleplayer.new('audio/sfx/blastdoors_1')
-blastdoors_2 = pd.sound.sampleplayer.new('audio/sfx/blastdoors_2')
 
 function scenemanager:init()
     self.transitiontime = 1000
@@ -125,6 +122,7 @@ function scenemanager:loadnewscene()
 end
 
 function scenemanager:cleanupscene()
+    pd.inputHandlers.pop()
     assets = nil
     vars = nil
     gfx.sprite.removeAll()

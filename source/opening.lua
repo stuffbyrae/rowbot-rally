@@ -1,108 +1,45 @@
+-- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-class('opening').extends(gfx.sprite)
-function opening:init(...)
-    opening.super.init(self)
-    local args = {...}
-    show_crank = false
-    gfx.sprite.setAlwaysRedraw(false)
-
-    function pd.gameWillPause()
+class('raaah').extends(gfx.sprite) -- Create the scene's class
+function raaah:init(...)
+    raaah.super.init(self)
+    local args = {...} -- Arguments passed in through the scene management will arrive here
+    show_crank = false -- Should the crank indicator be shown?
+    gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
+    
+    function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        local img = gfx.image.new(400, 240)
-        xoffset = 100
-        pd.setMenuImage(img, xoffset)
-        menu:addMenuItem(gfx.getLocalizedText("skipopening"), function()
-            self:finish()
-        end)
-        if vars.arg_move == "story" then
-            menu:addMenuItem("back to title", function()
-                scenemanager:transitionsceneoneway(title, false)
-            end)
-        end
     end
-
-    assets = {
-        img_opening = gfx.imagetable.new('images/story/opening'),
-        img_fade = gfx.imagetable.new('images/ui/fade/fade')
-    }
-
-    vars = {
-        arg_slot = args[1],
-        arg_move = args[2],
-        fading = true,
-        finished = false,
-        progress = 1
-    }
-
-    vars.fade_anim = gfx.animator.new(500, 1, #assets.img_fade)
-    pd.timer.performAfterDelay(500, function()
-        if not vars.finished then
-            fading = false
-            self.fade:remove()
-        end
-    end)
-
-    class('images').extends(gfx.sprite)
-    function images:init()
-        images.super.init(self)
-        self:setImage(assets.img_opening[vars.progress])
-        self:setCenter(0, 0)
-        self:add()
-    end
-
-    class('fade').extends(gfx.sprite)
-    function fade:init()
-        fade.super.init(self)
-        self:setZIndex(99)
-        self:setCenter(0, 0)
-        self:add()
-    end
-    function fade:update()
-        if vars.fading then
-            self:setImage(assets.img_fade[math.floor(vars.fade_anim:currentValue())])
-        end
-    end
-
-    self.images = images()
-    self.fade = fade()
     
-    self:add()
+    assets = { -- All assets go here. Images, sounds, fonts, etc.
+    }
+    
+    vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
+        raaahHandlers = {
+            -- Input handlers go here...
+        }
+    }
+    pd.inputHandlers.push(vars.raaahHandlers)
 
-    if vars.arg_move == "story" then
-        if save.sk then
-            scenemanager:switchscene(intro, 1)
-        end
-    end
-end
-
-function opening:finish()
-    vars.fading = true
-    vars.finished = true
-    self.fade:add()
-    vars.fade_anim = gfx.animator.new(500, #assets.img_fade, 1)
-    vars.fade_anim:reset()
-    pd.timer.performAfterDelay(500, function()
-        if vars.arg_move == "title" then
-            scenemanager:switchscene(title, false)
-            save.first_launch = false
-        else
-            scenemanager:switchscene(cutscene, vars.arg_slot, 1, "story")
-        end
+    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
+        -- Draw background stuff here...
     end)
+
+    class('x1').extends(gfx.sprite)
+    function x1:init()
+        x1.super.init(self)
+    end
+    function x1:update()
+    end
+
+    -- Set the sprites
+    self.x1 = x1()
+    self:add()
 end
 
-function opening:update()
-    if pd.buttonJustPressed('a') then
-        if fading == false then
-            if vars.progress < #assets.img_opening then
-                vars.progress += 1
-                self.images:setImage(assets.img_opening[vars.progress])
-            elseif vars.finished == false then
-                self:finish()
-            end
-        end
-    end
+-- Scene update loop
+function raaah:update()
 end

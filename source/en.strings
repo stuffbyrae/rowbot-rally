@@ -180,10 +180,10 @@
 -- Misc.
 "???" = "???"
 "besttime" = "Best Time"
-"lets_go" = "Let's Go!"
-"ok" = "OK!"
-"title_screen" = "Title Screen"
-"back" = "Back"
+"lets_go" = "Ⓐ Let's Go!"
+"ok" = "Ⓐ OK!"
+"title_screen" = "Ⓐ Title Screen"
+"back" = "Ⓑ Back"
 
 -- Tutorial stages
 "tutorial_step_1" = "RowBot Model R-10 - Instruction Manual"

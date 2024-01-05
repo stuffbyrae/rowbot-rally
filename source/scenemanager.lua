@@ -17,14 +17,6 @@ function scenemanager:switchscene(scene, ...)
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
-    if assets ~= nil then
-        if assets.music ~= nil then
-            assets.music:stop()
-        end
-        if assets.sfx_row ~= nil then
-            assets.sfx_row:stop()
-        end
-    end
     self:loadnewscene()
 end
 
@@ -36,9 +28,6 @@ function scenemanager:transitionscene(scene, ...)
     local args = {...}
     self.sceneargs = args
     local transitiontimer = self:transition(750, 250, 0, -10)
-    if assets.music ~= nil then
-        assets.music:setVolume(0, 0, (self.transitiontime-10)/1000, function() assets.music:stop() end)
-    end
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
         transitiontimer = self:transition(250, -350, 10, 0)
@@ -56,9 +45,6 @@ function scenemanager:transitionsceneoneway(scene, ...)
     local args = {...}
     self.sceneargs = args
     local transitiontimer = self:transitiononeway(441, -41, 0, -10)
-    if assets.music ~= nil then
-        assets.music:setVolume(0, 0, (self.transitiontime-10)/1000, function() assets.music:stop() end)
-    end
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
         self.transitioning = false

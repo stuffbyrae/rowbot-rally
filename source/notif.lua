@@ -18,9 +18,9 @@ function raaah:init(...)
     }
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
-        raaahHandlers = {
-            -- Input handlers go here...
-        }
+    }
+    vars.raaahHandlers = {
+        -- Input handlers go here...
     }
     pd.inputHandlers.push(vars.raaahHandlers)
 

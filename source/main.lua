@@ -1,13 +1,14 @@
 -- Importing things
-import 'CoreLibs/graphics'
-import 'CoreLibs/timer'
 import 'CoreLibs/ui'
-import 'CoreLibs/sprites'
 import 'CoreLibs/math'
-import 'CoreLibs/animation'
+import 'CoreLibs/timer'
 import 'CoreLibs/object'
+import 'CoreLibs/sprites'
+import 'CoreLibs/graphics'
+import 'CoreLibs/animation'
+import 'CoreLibs/nineslice'
 import 'title' -- Title screen, so we can transition to it on start-up
-import 'stats'
+import 'opening' -- ...but we transition to the opening instead, if first launch is true
 import 'scenemanager'
 scenemanager = scenemanager()
 
@@ -93,8 +94,7 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
-scenemanager:switchscene(stats)
-
+-- When the game closes...
 function pd.gameWillTerminate()
     if not demo then
         pd.datastore.write(save)
@@ -112,6 +112,60 @@ function pd.gameWillTerminate()
     --     pd.display.flush()
     -- end
 end
+
+-- Setting up music
+music = nil
+
+-- Fades the music out, and trashes it when finished. Should be called alongside a scene change, only if the music is expected to change. Delay can set the delay (in seconds) of the fade
+function fademusic(delay)
+    delay = delay or 950
+    music:setVolume(0, 0, delay/1000, function()
+        music:stop()
+        music = nil
+    end)
+end
+-- New music track. This should be called in a scene's init, only if there's no track leading into it. File is a path to an audio file in the PDX. Loop, if true, will loop the audio file. Range will set the loop's starting range.
+function newmusic(file, loop, range)
+    if music == nil then -- If a music file isn't actively playing...then go ahead and set a new one.
+        music = pd.sound.fileplayer.new(file)
+        music:setVolume(save.vol_music)
+        music:setStopOnUnderrun(flag)
+        if loop then -- If set to loop, then ... loop it!
+            music:setLoopRange(range)
+            music:play(0)
+        else
+            music:play()
+        end
+    end
+end
+
+-- Generates buttons for use in buttonery. Type can either be "small", "small2", or "big". The default if no arg is passed, is Big. string can be a string (lol)
+function makebutton(string, type)
+    font = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font for big button
+    button = gfx.nineSlice.new('images/ui/button_big', 23, 5, 114, 31) -- Big button image
+    if type == "small" or type == "small2" then -- But if those buttons are small...
+        font = gfx.font.new('fonts/kapel') -- Use the smaller font,
+        button = gfx.nineSlice.new('images/ui/button_' .. type, 26, 4, 47, 15) -- and the smaller button image.
+    end
+    text_width = font:getTextWidth(string) -- Get the width of the string
+    text_height = font:getHeight() -- Get the height of the text
+    img = gfx.image.new(text_width + 46, text_height + 21) -- Make that image pretty big
+    if type == "small" or type == "small2" then -- But if the button's small...
+        img = gfx.image.new(text_width + 52, text_height + 11) -- ...make it pretty small instead.
+    end
+    img_width, img_height = img:getSize() -- Get the image's size.
+    gfx.pushContext(img) -- Now, we draw to that image.
+        button:drawInRect(0, 0, img_width, img_height) -- Draw the button's image within the space
+        if type == "small" or type == "small2" then -- If the buttons are small, then...
+            font:drawTextAligned(string, img_width / 2, img_height / 5, kTextAlignment.center) -- Draw it here!
+        else -- Otherwise...
+            font:drawTextAligned(string, img_width / 2, img_height / 6.5, kTextAlignment.center) -- Draw it a bit higher, to account for the button's margin.
+        end
+    gfx.popContext()
+    return img -- Now gimme that image, please!
+end
+
+scenemanager:switchscene(title)
 
 function pd.update()
     save.total_playtime += 1

@@ -34,6 +34,9 @@ function title:init(...)
     vars.titleHandlers = {
         AButtonDown = function()
             scenemanager:transitionsceneoneway(stats)
+        end,
+        BButtonDown = function()
+            makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('yes_delete'), true, function() scenemanager:transitionsceneoneway(stats) end)
         end
     }
     pd.inputHandlers.push(vars.titleHandlers)

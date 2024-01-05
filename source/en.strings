@@ -8,10 +8,10 @@
 "opening_7" = "Well...not on their own, at least."
 
 -- Pop-ups
-"popup_overwrite" = ""
+"popup_overwrite" = "Are you sure you wanna totally erase this slot?\nAny global unlocks will be saved, but your\nprogress in this save slot will be\nCOMPLETELY deleted. Forever! And ever!\n\nAre you still sure?"
 "popup_time_trials_unlocked" = ""
 "popup_demo" = ""
-"popup_leaderboard_failed" = ""
+"popup_leaderboard_failed" = "Uh oh, it seems like your new score wasn't\nable to get sent up to the servers.\nMake sure to check your Internet connection!\n\nWe'll queue your score up, and\ntry again in a little bit."
 
 -- Title screen
 "story_mode" = "Story Mode"
@@ -179,11 +179,17 @@
 
 -- Misc.
 "???" = "???"
+"whoops" = "Whoops!"
+"heads_up" = "Heads Up!"
+"time_trials_unlocked" = "You unlocked Time Trials!"
+"demo_complete" = "Demo Complete!"
 "besttime" = "Best Time"
 "lets_go" = "Ⓐ Let's Go!"
 "ok" = "Ⓐ OK!"
+"yes_delete" = "Ⓐ Yes, delete!"
 "title_screen" = "Ⓐ Title Screen"
 "back" = "Ⓑ Back"
+"no_cancel" = "Ⓑ No, cancel!"
 
 -- Tutorial stages
 "tutorial_step_1" = "RowBot Model R-10 - Instruction Manual"

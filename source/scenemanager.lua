@@ -17,12 +17,14 @@ function scenemanager:switchscene(scene, ...)
     self.newscene = scene
     local args = {...}
     self.sceneargs = args
+    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
     self:loadnewscene()
 end
 
 function scenemanager:transitionscene(scene, ...)
-    show_crank = false
     if self.transitioning then return end
+    show_crank = false
+    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
     self.transitioning = true
     self.newscene = scene
     local args = {...}
@@ -38,8 +40,9 @@ function scenemanager:transitionscene(scene, ...)
 end
 
 function scenemanager:transitionsceneoneway(scene, ...)
-    show_crank = false
     if self.transitioning then return end
+    show_crank = false
+    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
     self.transitioning = true
     self.newscene = scene
     local args = {...}
@@ -108,13 +111,13 @@ function scenemanager:loadnewscene()
 end
 
 function scenemanager:cleanupscene()
-    pd.inputHandlers.pop()
-    assets = nil
-    vars = nil
-    gfx.sprite.removeAll()
-    self:removealltimers()
-    collectgarbage('collect')
-    gfx.setDrawOffset(0, 0)
+    closepopup() -- Close any active popups that may be lingering.
+    assets = nil -- Nil all the assets,
+    vars = nil -- and nil all the variables.
+    gfx.sprite.removeAll() -- Remove every sprite,
+    self:removealltimers() -- Remove every timer,
+    collectgarbage('collect') -- and collect the garbage.
+    gfx.setDrawOffset(0, 0) -- Lastly, reset the drawing offset. just in case.
 end
 
 function scenemanager:removealltimers()

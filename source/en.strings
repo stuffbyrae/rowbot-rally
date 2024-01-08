@@ -1,13 +1,17 @@
 -- Opening story texts
-"opening_1" = "Not too long ago, boat racing was a sport for everybody! Whether you were a rowing pro or just a novice, it was an activity that anyone could celebrate."
-"opening_2" = "The annual Fish Bowl was a town institution, pitting the best rowers up against each other in a high-stakes racing tournament - the winner bringing home a big trophy, and of course, infinite bragging rights."
-"opening_3" = "...But that all changed after the nefarious Robo-X corporation started manufacturing what they call RowBots - mechanized automata that could pilot a boat better and faster than any organic being ever could."
-"opening_4" = "It didn't take long at all for the RowBots to overtake the racing circuit entirely. They played so well that any non-RowBot who dared to enter, would have gotten knocked out of the tourney pretty much immediately."
-"opening_5" = "Soon, the only opponents the RowBots had left to fight against were themselves! Their skills were essentially perfected. The tournament's now comprised of just a few champion machines, the rest sent off as scrap."
-"opening_6" = "Trying to compete in the Fish Bowl is seen as a fool's errand by many now - ask anybody, they'd tell you that you're crazy if you think you can beat those robots at their own game! Nobody could possibly do it."
+"opening_1" = "Not too long ago, boat racing was a sport for\neverybody! Whether you were a rowing pro\nor just a novice, it was an activity that\nanyone could celebrate."
+"opening_2" = "The annual Fish Bowl was a town institution,\npitting the best rowers up against each other\nin a high-stakes racing tournament - the\nwinner bringing home a big trophy,\nand of course, infinite bragging rights."
+"opening_3" = "...But that all changed, after the nefarious\nRobo-X corporation started manufacturing\nwhat they call RowBots - mechanized\nautomata that could pilot a boat better and\nfaster than any organic being ever could."
+"opening_4" = "It didn't take long at all for the RowBots to overtake\nthe racing circuit entirely. They played so well\nthat any non-RowBot who dared to enter,\nwould have gotten knocked out of the tourney\npretty much immediately."
+"opening_5" = "Soon, the only opponents the RowBots had left\nto fight against were themselves! Their skills\nwere essentially perfected. The tournament's now\ncomprised of just a few champion\nmachines, the rest being sent off as scrap."
+"opening_6" = "Trying to compete in the Fish Bowl is seen as a\nfool's errand by many now - ask anybody,\nthey'd tell you that you're crazy if you think you\ncan beat those robots at their own game!\nNobody could possibly do it."
 "opening_7" = "Well...not on their own, at least."
 
 -- Pop-ups
+"whoops" = "Whoops!"
+"heads_up" = "Heads Up!"
+"time_trials_unlocked" = "You unlocked Time Trials!"
+"demo_complete" = "Demo Complete!"
 "popup_overwrite" = "Are you sure you wanna totally erase this slot?\nAny global unlocks will be saved, but your\nprogress in this save slot will be\nCOMPLETELY deleted. Forever! And ever!\n\nAre you still sure?"
 "popup_time_trials_unlocked" = ""
 "popup_demo" = ""
@@ -76,14 +80,32 @@
 "stage_7_vs" = "Shark Boss"
 
 -- Stage descriptions
-"stage_1_desc" = "A speedway-style river loop,\nperfect for putting your\nnovice rowing skills to the test.\nEnjoy the view!"
-"stage_2_desc" = "A lush garden race sanctuary;\na wonderful home for all\nkinds of flora, fauna, and\nkiller RowBot bees alike."
-"stage_3_desc" = "Soak up the summer rays\nand surf the tide as well\nas you can on Shorebreak's\nhome turf: the Paddle Beach."
-"stage_4_desc" = "Don't let this a-maze-ing\ntest of directional skill\nget you too tangled up!\nCan you make it out?"
-"stage_5_desc" = "A lush jungle, with a very\nconvenient raceway. Hop\nthe fallen logs! There may\nbe secrets afoot, as well..."
-"stage_6_desc" = "A dark, damp cave that leads\nstraight to the depths\nof the Robo-X factory.\nKeep that lantern close!"
-"stage_7_desc" = "You've finally made it!\nChase after the Shark Boss, and\nfigure out what they're\nhiding once and for all!"
-"stagex_desc" = "Woah, uncharted territory!\nDoesn't seem like you've\nbeen here yet. Play some more\nstory, and come back later!"
+"stage_1_desc" = "A speedway-style river loop - it's\nthe perfect spot to put your\nnovice rowing skills to the test.\nEnjoy the view!"
+"stage_2_desc" = "This lush garden sanctuary is a\nwonderful home for all kinds of\nflora, fauna, and killer RowBot\nbees alike. Pretty flowers!"
+"stage_3_desc" = "Soak up some summer rays, surf\nthe tide...as well as you can, and\ntry to best Shorebreak on his\nown turf: the Paddle Beach."
+"stage_4_desc" = "Looks like you fell for the Rowman\nEmperor's trap. Don't let this\nultimate test of directional skill\nget you too tangled up!"
+"stage_5_desc" = "A lush jungle, where the rogue 'Bots\ncall home. Race this convenient\nriver path, best Twitcher, and he'll\nguide you to the secret pathway."
+"stage_6_desc" = "A damp, dark cave that happens to\nlead straight into the Robo-X corp's\nsecretive evil RowBot factory.\nKeep that lantern close!"
+"stage_7_desc" = "You've made it to the heart of\nthe operation! Chase after the\nShark Boss, and figure out what\ntheir plan is once and for all."
+"stage_x_desc" = "Woah, uncharted territory!\nDoesn't seem like you've\nbeen here yet. Play some more\nstory, and come back later!"
+
+-- Stage gimmick names
+"gimmick_1_name" = "First Rally"
+"gimmick_2_name" = "Currents"
+"gimmick_3_name" = "Boost Pad"
+"gimmick_4_name" = "A-maze-ing!"
+"gimmick_5_name" = "Leap Pad"
+"gimmick_6_name" = "Got a Light?"
+"gimmick_7_name" = "Reverse Pad"
+
+-- Stage gimmick descriptions
+"gimmick_1_desc" = "  Mind the controls! Are you\nable to keep a steady line?"
+"gimmick_2_desc" = "  Up your cranking game to\ntraverse the strong currents!"
+"gimmick_3_desc" = "  These send your boat flying!\nWatch out for obstacles!"
+"gimmick_4_desc" = "  Try to navigate the turns\nof this winding hedge maze!"
+"gimmick_5_desc" = "  Clear the large obstacles by\nsoaring up high into the air!"
+"gimmick_6_desc" = "  You can't see much in here -\nkeep calm and get through!"
+"gimmick_7_desc" = "  Uh-oh, a short circuiter! Get\nready to flip your turning!"
 
 -- Leaderboards
 "leaderboards" = "Leaderboards"
@@ -179,10 +201,6 @@
 
 -- Misc.
 "???" = "???"
-"whoops" = "Whoops!"
-"heads_up" = "Heads Up!"
-"time_trials_unlocked" = "You unlocked Time Trials!"
-"demo_complete" = "Demo Complete!"
 "besttime" = "Best Time"
 "lets_go" = "Ⓐ Let's Go!"
 "ok" = "Ⓐ OK!"

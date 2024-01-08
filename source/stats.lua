@@ -228,7 +228,3 @@ function stats:leave() -- Leave and move back to the title screen
         scenemanager:switchscene(title) -- Switch back to the title!
     end)
 end
-
--- Scene update loop
-function stats:update()
-end

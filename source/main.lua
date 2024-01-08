@@ -9,6 +9,7 @@ import 'CoreLibs/animation'
 import 'CoreLibs/nineslice'
 import 'title' -- Title screen, so we can transition to it on start-up
 import 'opening' -- ...but we transition to the opening instead, if first launch is true
+import 'intro'
 import 'scenemanager'
 scenemanager = scenemanager()
 
@@ -19,14 +20,28 @@ local gfx <const> = pd.graphics
 pd.display.setRefreshRate(30)
 gfx.setBackgroundColor(gfx.kColorBlack)
 
+-- Game variables
 show_crank = false -- do you show the crankindicator in this scene?
 first_pause = true -- so that when you pause the first time, it always reads "Paused!" first.
 if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
+
+local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
+local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
+local pedallica <const> = gfx.font.new('fonts/pedallica') -- Pedallica font
+
+local button_image_big <const> = gfx.nineSlice.new('images/ui/button_big', 23, 5, 114, 31) -- Big button image
+local button_image_small <const> = gfx.nineSlice.new('images/ui/button_small', 26, 4, 47, 15) -- and the smaller button images
+local button_image_small2 <const> = gfx.nineSlice.new('images/ui/button_small2', 26, 4, 47, 15)
+
+local image_popup <const> = gfx.image.new('images/ui/popup') -- Pop-up UI Plate image
+local popup_in <const> = pd.sound.sampleplayer.new('audio/sfx/ui') -- Pop-up CHA-CHING! noise
 
 -- Save check
 function savecheck()
     save = pd.datastore.read()
     if save == nil then save = {} end
+    -- Last saved mode, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
+    save.last_story_slot = save.last_story_slot or 1
     -- Local best time-trial records for all courses
     save.stage1_best = save.stage1_best or 17970
     save.stage2_best = save.stage2_best or 17970
@@ -102,12 +117,12 @@ function pd.gameWillTerminate()
     local img = gfx.getDisplayImage()
     local byebye = gfx.image.new('images/ui/byebye')
     local fade = gfx.imagetable.new('images/ui/fade/fade')
-    local imgslide = gfx.animator.new(350, 1, 400, pd.easingFunctions.outSine)
+    local imgslide = gfx.animator.new(350, 1, 240, pd.easingFunctions.outSine)
     local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1000)
     gfx.setDrawOffset(0, 0)
     while not fadeout:ended() do
         byebye:draw(0, 0)
-        img:draw(imgslide:currentValue(), 0)
+        img:draw(0, imgslide:currentValue())
         fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
         pd.display.flush()
     end
@@ -141,11 +156,15 @@ end
 
 -- Generates buttons for use in buttonery. Type can either be "small", "small2", or "big". The default if no arg is passed, is Big. string can be a string (lol)
 function makebutton(button_string, button_type)
-    button_font = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font for big button
-    button_image = gfx.nineSlice.new('images/ui/button_big', 23, 5, 114, 31) -- Big button image
-    if button_type == "small" or button_type == "small2" then -- But if those buttons are small...
-        button_font = gfx.font.new('fonts/kapel') -- Use the smaller font,
-        button_image = gfx.nineSlice.new('images/ui/button_' .. button_type, 26, 4, 47, 15) -- and the smaller button image.
+    button_image = button_image_big
+    button_font = kapel_doubleup -- Kapel double-big font for big button
+    if button_type == "small" then -- But if those buttons are small...
+        button_font = kapel -- Use the smaller font,
+        button_image = button_image_small -- and the appropriate image.
+    end
+    if button_type == "small2" then -- Small button with white border for dark BGs
+        button_font = kapel -- Use the smaller font,
+        button_image = button_image_small2 -- and the appropriate image.
     end
     button_text_width = button_font:getTextWidth(button_string) -- Get the width of the string
     button_text_height = button_font:getHeight() -- Get the height of the text
@@ -162,33 +181,34 @@ function makebutton(button_string, button_type)
             button_font:drawTextAligned(button_string, button_img_width / 2, button_img_height / 6.5, kTextAlignment.center) -- Draw it a bit higher, to account for the button's margin.
         end
     gfx.popContext()
+    button_image = nil -- Nilling stuff...
+    button_font = nil
+    button_text_width = nil
+    button_text_height = nil
     return button_img -- Now gimme that image, please!
 end
 
 -- Generates a pop-up UI. head_text, body_text, and button_text all take strings. callback is a function determining what happens on A press. b_close is a bool determining if B closes the pop-up.
 function makepopup(head_text, body_text, button_text, b_close, callback)
     if popup == nil then -- If there isn't already a popup in existence...
-        popup_head = gfx.font.new('fonts/kapel_doubleup') -- Set some fonts.
-        popup_font = gfx.font.new('fonts/pedallica') -- Set this one, too.
-        popup_img = gfx.image.new(400, 240) -- Now, add in the plate image.
-        anim_popup = gfx.animator.new(350, 240, 0, pd.easingFunctions.outBack) -- Tee up that intro animation...
-        popup_in = pd.sound.sampleplayer.new('audio/sfx/ui') -- ... and the CHA-CHING!
-        popup_in:setVolume(save.vol_sfx/5) -- Set that volume,
+        popup_in:setVolume(save.vol_sfx/5) -- Set the volume for the pop-up in sound,
         popup_in:play() -- and play it right away why not?
-        gfx.pushContext(popup_img) -- Now, let's build this image.
-            gfx.image.new('images/ui/popup'):draw(0, 0) -- Draw the plate...
+        img_popup = gfx.image.new(400, 240) -- New blank image,,,
+        gfx.pushContext(img_popup) -- Now, let's build this thing.
+            image_popup:draw(0, 0)
             makebutton(button_text):drawAnchored(200, 185, 0.5, 0.5) -- Now, the button.
             if b_close then -- If the B button can close this,
                 makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1) -- let's make that.
             end
-            popup_head:drawTextAligned(head_text, 200, 30, kTextAlignment.center) -- Add the header text,
-            popup_font:drawTextAligned(body_text, 200, 60, kTextAlignment.center) -- and the body as well.
+            kapel_doubleup:drawTextAligned(head_text, 200, 30, kTextAlignment.center) -- Add the header text,
+            pedallica:drawTextAligned(body_text, 200, 60, kTextAlignment.center) -- and the body as well.
         gfx.popContext() -- We're done here.
-        popup = gfx.sprite.new(popup_img) -- Set the sprite image there.
+        popup = gfx.sprite.new(img_popup) -- Set the sprite image there.
+        img_popup = nil -- We don't need it anymore; nil it.
         popup:setCenter(0, 0) -- Set up the rest of the sprite too:
-        popup:setZIndex(9999)
-        popup:moveTo(0, 240)
-        popup:add()
+        popup:setZIndex(9999) -- Make it high,
+        popup:moveTo(0, 240) -- Move it down,
+        popup:add() -- and add it!
         local popupHandlers = { -- Now, the input handlers.
             BButtonDown = function()
                 if b_close then -- If the B button can close this,
@@ -200,6 +220,7 @@ function makepopup(head_text, body_text, button_text, b_close, callback)
             end
         }
         popup_transitioning = true -- Let the transition kick in, so you can't close it *too* immediately.
+        anim_popup = gfx.animator.new(350, 240, 0, pd.easingFunctions.outBack) -- Tee up that intro animation.
         pd.timer.performAfterDelay(350, function()
             popup_transitioning = false
         end)
@@ -219,13 +240,7 @@ function closepopup(callback)
             popup:remove() -- Remove the sprite,
             popup = nil -- Nil it,
             -- .... better nil a couple other things too, just to be sure.
-            popup_in = nil
-            popup_out = nil
-            popup_img = nil
-            popup_font = nil
-            popup_head = nil
             popup_transitioning = nil
-            popup_img = nil
             anim_popup = nil
             pd.inputHandlers.pop() -- and return the input handlers to where they were.
             popupHandlers = nil
@@ -236,7 +251,7 @@ function closepopup(callback)
     end
 end
 
-scenemanager:switchscene(title)
+scenemanager:switchscene(title) -- Start up the game to this scene.
 
 function pd.update()
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...

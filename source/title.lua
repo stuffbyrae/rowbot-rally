@@ -7,6 +7,7 @@ import 'cutscene'
 import 'garage'
 import 'stats'
 import 'options'
+import 'notif'
 
 -- Setting up consts
 local pd <const> = playdate
@@ -26,7 +27,7 @@ function title:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_test1 = makebutton('Press A to view stats.', "small"),
-        image_test2 = makebutton('Press B to test UI (goes to Stats)', "small"),
+        image_test2 = makebutton('Press B to test notif scene (goes to Stats)', "small"),
         image_test3 = makebutton('Press Up to test Intro scene', "small"),
         image_test4 = makebutton('Press Down to test opening scene', "small"),
     }
@@ -38,7 +39,7 @@ function title:init(...)
             scenemanager:transitionsceneoneway(stats)
         end,
         BButtonDown = function()
-            makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('yes_delete'), true, function() scenemanager:transitionsceneoneway(stats) end)
+            scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('title_screen'), true, function() scenemanager:switchscene(stats) end)
         end,
         upButtonDown = function()
             fademusic()
@@ -46,7 +47,7 @@ function title:init(...)
         end,
         downButtonDown = function()
             fademusic()
-            scenemanager:transitionsceneoneway(opening, true)
+            scenemanager:transitionsceneoneway(opening)
         end
     }
     pd.inputHandlers.push(vars.titleHandlers)

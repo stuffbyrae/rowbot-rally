@@ -29,7 +29,6 @@ function opening:init(...)
     }
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
-        arg_title = args[1], -- A boolean. If this is true, transition into title screen. Otherwise, move to first story cutscene.
         leaving = false,
         anim_fade = gfx.animator.new(2500, 1, 34, pd.easingFunctions.outCubic),
         progress = 1,
@@ -105,11 +104,7 @@ function opening:leave()
         vars.leaving = true
         vars.anim_fade = gfx.animator.new(1000, math.floor(vars.anim_fade:currentValue()), 0)
         pd.timer.performAfterDelay(1000, function()
-            if vars.arg_title then
-                scenemanager:switchscene(title)
-            else
-                scenemanager:switchscene(cutscene, 1, true)
-            end
+            scenemanager:switchscene(title)
         end)
     end
 end

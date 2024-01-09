@@ -45,9 +45,9 @@ function intro:init(...)
     assets.image_preview = gfx.imagetable.new('images/intro/preview' .. vars.stage) -- Preview image table
     gfx.pushContext(assets.img_left) -- All the text that pops in from the left
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel:drawText(gfx.getLocalizedText('stage') .. vars.stage .. " - " .. gfx.getLocalizedText('vs') .. gfx.getLocalizedText('stage_' .. vars.stage .. '_vs'), 5, 5)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stage_' .. vars.stage .. '_name'), 5, 15)
-        assets.pedallica:drawText(gfx.getLocalizedText('stage_' .. vars.stage .. '_desc'), 5, 65)
+        assets.kapel:drawText(gfx.getLocalizedText('stage') .. vars.stage .. " - " .. gfx.getLocalizedText('vs') .. gfx.getLocalizedText('stage_' .. vars.stage .. '_vs'), 10, 10)
+        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stage_' .. vars.stage .. '_name'), 10, 22)
+        assets.pedallica:drawText(gfx.getLocalizedText('stage_' .. vars.stage .. '_desc'), 10, 65)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.popContext()
 

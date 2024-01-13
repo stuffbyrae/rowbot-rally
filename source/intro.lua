@@ -19,8 +19,8 @@ function intro:init(...)
         kapel = gfx.font.new('fonts/kapel'),
         pedallica = gfx.font.new('fonts/pedallica'),
         image_a = gfx.image.new('images/ui/a'),
-        image_gimmick_container = gfx.image.new('images/intro/gimmick_container'),
-        image_gimmick_icons = gfx.imagetable.new('images/intro/gimmick_icons'),
+        image_gimmick_container = gfx.image.new('images/stages/gimmick_container'),
+        image_gimmick_icons = gfx.imagetable.new('images/stages/gimmick_icons'),
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         img_left = gfx.image.new(250, 150),
         img_bottom = gfx.image.new(400, 73),
@@ -42,7 +42,7 @@ function intro:init(...)
     }
     pd.inputHandlers.push(vars.introHandlers)
 
-    assets.image_preview = gfx.imagetable.new('images/intro/preview' .. vars.stage) -- Preview image table
+    assets.image_preview = gfx.imagetable.new('images/stages/preview' .. vars.stage) -- Preview image table
     gfx.pushContext(assets.img_left) -- All the text that pops in from the left
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
         assets.kapel:drawText(gfx.getLocalizedText('stage') .. vars.stage .. " - " .. gfx.getLocalizedText('vs') .. gfx.getLocalizedText('stage_' .. vars.stage .. '_vs'), 10, 10)

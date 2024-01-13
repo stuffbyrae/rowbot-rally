@@ -39,6 +39,7 @@
 "bbacktotitle" = "Ⓑack to Title"
 "bnewtrack" = "Ⓑ New Track"
 "yourtime" = "Your Time"
+"besttime" = "Best Time"
 "newbest" = "New Best!"
 
 -- Boat names
@@ -109,9 +110,9 @@
 
 -- Leaderboards
 "leaderboards" = "Leaderboards"
-"leaderboards_grab" = "Grabbing leaderboards, please wait..."
-"leaderboards_fail" = "Couldn't grab the leaderboards! Try again later?"
-"leaderboards_empty" = "This leaderboard's empty. Better start racing!"
+"leaderboards_grab" = "Grabbing leaderboards,\nplease wait..."
+"leaderboards_fail" = "Couldn't grab the\nleaderboards! Try\nagain later?"
+"leaderboards_empty" = "This leaderboard's\nempty. You'd better\nstart racing!"
 "leaderboards_best_times" = ": Best Times"
 "leaderboards_global" = "Global"
 
@@ -207,7 +208,14 @@
 "yes_delete" = "Ⓐ Yes, delete!"
 "title_screen" = "Ⓐ Title Screen"
 "back" = "Ⓑ Back"
+"close" = "Ⓑ Close"
 "no_cancel" = "Ⓑ No, cancel!"
+"yourank" = "You Rank..."
+"up_leaderboards" = "⬆️ Leaderboards"
+"st" = "st"
+"nd" = "nd"
+"rd" = "rd"
+"th" = "th"
 
 -- Tutorial stages
 "tutorial_step_1" = "RowBot Model R-10 - Instruction Manual"

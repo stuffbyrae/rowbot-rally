@@ -9,7 +9,7 @@ import 'CoreLibs/animation'
 import 'CoreLibs/nineslice'
 import 'title' -- Title screen, so we can transition to it on start-up
 import 'opening' -- ...but we transition to the opening instead, if first launch is true
-import 'intro'
+import 'stages'
 import 'scenemanager'
 scenemanager = scenemanager()
 
@@ -251,11 +251,45 @@ function closepopup(callback)
     end
 end
 
+-- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
+function timecalc(num)
+    local mins = string.format("%02.f", math.floor((num/30) / 60))
+    local secs = string.format("%02.f", math.floor((num/30) - mins * 60))
+    local mils = string.format("%02.f", (num/30)*99 - mins * 5940 - secs * 99)
+    return mins, secs, mils
+end
+
+-- This function returns the inputted number, with the ordinal suffix tacked on at the end (as a string)
+function ordinal(num)
+    local m10 = num % 10 -- This is the number, modulo'd by 10.
+    local m100 = num % 100 -- This is the number, modulo'd by 100.
+    if m10 == 1 and m100 ~= 11 then -- If the number ends in 1 but NOT 11...
+        return tostring(num) .. gfx.getLocalizedText("st") -- add "st" on.
+    elseif m10 == 2 and m100 ~= 12 then -- If the number ends in 2 but NOT 12...
+        return tostring(num) .. gfx.getLocalizedText("nd") -- add "nd" on,
+    elseif m10 == 3 and m100 ~= 13 then -- and if the number ends in 3 but NOT 13...
+        return tostring(num) .. gfx.getLocalizedText("rd") -- add "rd" on.
+    else -- If all those checks passed us by,
+        return tostring(num) .. gfx.getLocalizedText("th") -- then it ends in "th".
+    end
+end
+
+-- This function shakes the screen. int is a number representing intensity. time is a number representing duration
+function shakies(time, int)
+    if pd.getReduceFlashing() then -- If reduce flashing is enabled, then don't shake.
+        return
+    end
+    anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
+end
+
 scenemanager:switchscene(title) -- Start up the game to this scene.
 
 function pd.update()
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup:currentValue()) -- Move it there!
+    end
+    if anim_shakies ~= nil then
+        pd.display.setOffset(anim_shakies:currentValue(), 0)
     end
     save.total_playtime += 1 -- Up the total playtime by one every frame while the game is open.
     gfx.sprite.update()

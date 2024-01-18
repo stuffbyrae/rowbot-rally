@@ -2,9 +2,9 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-class('raaah').extends(gfx.sprite) -- Create the scene's class
-function raaah:init(...)
-    raaah.super.init(self)
+class('race').extends(gfx.sprite) -- Create the scene's class
+function race:init(...)
+    race.super.init(self)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
@@ -19,10 +19,10 @@ function raaah:init(...)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
     }
-    vars.raaahHandlers = {
+    vars.raceHandlers = {
         -- Input handlers go here...
     }
-    pd.inputHandlers.push(vars.raaahHandlers)
+    pd.inputHandlers.push(vars.raceHandlers)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         -- Draw background stuff here...
@@ -41,5 +41,5 @@ function raaah:init(...)
 end
 
 -- Scene update loop
-function raaah:update()
+function race:update()
 end

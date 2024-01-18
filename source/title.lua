@@ -26,45 +26,17 @@ function title:init(...)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
-        image_test1 = makebutton('Press A to view stats.', "small"),
-        image_test2 = makebutton('Press B to test notif scene (goes to Stats)', "small"),
-        image_test3 = makebutton('Press Up to test Intro scene', "small"),
-        image_test4 = makebutton('Press Down to test opening scene', "small"),
-        image_test5 = makebutton('Press Left to test time trials scene', "small"),
     }
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
     }
     vars.titleHandlers = {
-        AButtonDown = function()
-            scenemanager:transitionsceneoneway(stats)
-        end,
-        BButtonDown = function()
-            scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('title_screen'), true, function() scenemanager:switchscene(stats) end)
-        end,
-        upButtonDown = function()
-            fademusic()
-            scenemanager:transitionsceneoneway(intro, 1)
-        end,
-        downButtonDown = function()
-            fademusic()
-            scenemanager:transitionsceneoneway(opening)
-        end,
-        leftButtonDown = function()
-            fademusic()
-            scenemanager:transitionscene(stages)
-        end
     }
     pd.inputHandlers.push(vars.titleHandlers)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         -- Draw background stuff here...
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
-        assets.image_test1:draw(10, 10)
-        assets.image_test2:draw(10, 30)
-        assets.image_test3:draw(10, 50)
-        assets.image_test4:draw(10, 70)
-        assets.image_test5:draw(10, 90)
     end)
 
     class('x1').extends(gfx.sprite)

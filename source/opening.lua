@@ -1,3 +1,5 @@
+import 'title'
+
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -25,8 +27,12 @@ function opening:init(...)
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         image_opening = gfx.imagetable.new('images/story/opening'),
         image_a = gfx.image.new('images/ui/a'),
-        pedallica = gfx.font.new('fonts/pedallica')
+        pedallica = gfx.font.new('fonts/pedallica'),
+        sfx_clickon = pd.sound.sampleplayer.new('audio/sfx/clickon'),
+        sfx_clickoff = pd.sound.sampleplayer.new('audio/sfx/clickoff'),
     }
+    assets.sfx_clickon:setVolume(save.vol_sfx/5)
+    assets.sfx_clickoff:setVolume(save.vol_sfx/5)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         leaving = false,
@@ -36,18 +42,30 @@ function opening:init(...)
     vars.openingHandlers = {
         AButtonDown = function()
             self:progress()
+            self.a:moveTo(395, 240)
+            assets.sfx_clickon:play()
+        end,
+
+        AButtonUp = function()
+            self.a:moveTo(395, 235)
+            assets.sfx_clickoff:play()
         end
     }
     pd.inputHandlers.push(vars.openingHandlers)
-
-    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
-        assets.image_a:drawAnchored(395, 235, 1, 1)
-    end)
 
     class('content').extends(gfx.sprite)
     function content:init()
         content.super.init(self)
         self:setCenter(0, 0)
+        self:add()
+    end
+
+    class('a').extends(gfx.sprite)
+    function a:init()
+        a.super.init(self)
+        self:setImage(assets.image_a)
+        self:setCenter(1, 1)
+        self:moveTo(395, 235)
         self:add()
     end
 
@@ -67,6 +85,7 @@ function opening:init(...)
 
     -- Set the sprites
     self.content = content()
+    self.a = a()
     self.fade = fade()
     self:add()
 

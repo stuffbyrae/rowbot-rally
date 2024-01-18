@@ -1,3 +1,5 @@
+"symbol_holder" = "⬅⬆⮕⬇ⒶⒷ"
+
 -- Opening story texts
 "opening_1" = "Not too long ago, boat racing was a sport for\neverybody! Whether you were a rowing pro\nor just a novice, it was an activity that\nanyone could celebrate."
 "opening_2" = "The annual Fish Bowl was a town institution,\npitting the best rowers up against each other\nin a high-stakes racing tournament - the\nwinner bringing home a big trophy,\nand of course, infinite bragging rights."
@@ -31,13 +33,12 @@
 "options" = "Options"
 
 -- Race Results
-"youwin" = "You Win!"
-"finish" = "Finish!"
-"youlost" = "You Lost..."
-"bonwards" = "Ⓐ Onwards!"
-"bretry" = "Ⓐ Retry?"
-"bbacktotitle" = "Ⓑack to Title"
-"bnewtrack" = "Ⓑ New Track"
+"youwin" = "Ⓦ You Win!"
+"youlost" = "Ⓛ You Lost..."
+"finish" = "Ⓕ Finish!"
+"onwards" = "Ⓐ Onwards!"
+"retry" = "Ⓐ Retry?"
+"newtrack" = "Ⓑ New Track"
 "yourtime" = "Your Time"
 "besttime" = "Best Time"
 "newbest" = "New Best!"
@@ -109,12 +110,9 @@
 "gimmick_7_desc" = "  Uh-oh, a short circuiter! Get\nready to flip your turning!"
 
 -- Leaderboards
-"leaderboards" = "Leaderboards"
 "leaderboards_grab" = "Grabbing leaderboards,\nplease wait..."
 "leaderboards_fail" = "Couldn't grab the\nleaderboards! Try\nagain later?"
 "leaderboards_empty" = "This leaderboard's\nempty. You'd better\nstart racing!"
-"leaderboards_best_times" = ": Best Times"
-"leaderboards_global" = "Global"
 
 -- Stats
 "stats_currentstage" = "Current stage"
@@ -211,11 +209,13 @@
 "close" = "Ⓑ Close"
 "no_cancel" = "Ⓑ No, cancel!"
 "yourank" = "You Rank..."
-"up_leaderboards" = "⬆️ Leaderboards"
+"up_leaderboards" = "⬆ Leaderboards"
 "st" = "st"
 "nd" = "nd"
 "rd" = "rd"
 "th" = "th"
+"corner_saving" = "Saving..."
+"corner_sendscore" = "Sending score..."
 
 -- Tutorial stages
 "tutorial_step_1" = "RowBot Model R-10 - Instruction Manual"

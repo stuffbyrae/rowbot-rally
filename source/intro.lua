@@ -1,3 +1,5 @@
+import 'race'
+
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
@@ -24,7 +26,9 @@ function intro:init(...)
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         img_left = gfx.image.new(250, 150),
         img_bottom = gfx.image.new(400, 73),
+        sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
     }
+    assets.sfx_whoosh:setVolume(save.vol_sfx/5)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1],
@@ -42,7 +46,7 @@ function intro:init(...)
     }
     pd.inputHandlers.push(vars.introHandlers)
 
-    assets.image_preview = gfx.imagetable.new('images/stages/preview' .. vars.stage) -- Preview image table
+    assets.image_preview = gfx.image.new('images/stages/preview' .. vars.stage) -- Preview image table
     gfx.pushContext(assets.img_left) -- All the text that pops in from the left
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
         assets.kapel:drawText(gfx.getLocalizedText('stage') .. vars.stage .. " - " .. gfx.getLocalizedText('vs') .. gfx.getLocalizedText('stage_' .. vars.stage .. '_vs'), 10, 10)
@@ -93,7 +97,7 @@ function intro:init(...)
     class('right').extends(gfx.sprite)
     function right:init()
         right.super.init(self)
-        self:setImage(assets.image_preview[1])
+        self:setImage(assets.image_preview)
         self:setCenter(1, 0)
         self:moveTo(600, 0)
         self:add()
@@ -130,15 +134,12 @@ end
 
 function intro:leave()
     vars.leaving = true
+    assets.sfx_whoosh:play()
     vars.anim_left = gfx.animator.new(200, self.left.x, -400, pd.easingFunctions.inCubic)
     vars.anim_right = gfx.animator.new(200, self.right.x, 600, pd.easingFunctions.inCubic)
     vars.anim_bottom = gfx.animator.new(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
     vars.anim_fade = gfx.animator.new(300, 1, 34)
     pd.timer.performAfterDelay(201, function()
-        -- Transition scene.
+        scenemanager:switchscene(race, vars.stage, "story")
     end)
-end
-
--- Scene update loop
-function intro:update()
 end

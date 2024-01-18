@@ -1,4 +1,5 @@
 -- Move to this scene later on ...
+import 'title'
 import 'race'
 
 -- Setting up consts
@@ -388,7 +389,7 @@ function stages:enterrace()
     vars.anim_top_y = gfx.animator.new(250, self.top.y, -400, pd.easingFunctions.inCubic)
     vars.anim_wave_y = gfx.animator.new(250, self.wave.y, 245, pd.easingFunctions.inBack, 750)
     pd.timer.performAfterDelay(1001, function()
-        scenemanager:switchscene(title)
+        scenemanager:switchscene(race, vars.selection, "story")
     end)
 end
 

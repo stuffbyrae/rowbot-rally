@@ -7,9 +7,7 @@ import 'CoreLibs/sprites'
 import 'CoreLibs/graphics'
 import 'CoreLibs/animation'
 import 'CoreLibs/nineslice'
-import 'title' -- Title screen, so we can transition to it on start-up
-import 'opening' -- ...but we transition to the opening instead, if first launch is true
-import 'stages'
+import 'opening' -- Transition to opening story exposition on launch
 import 'scenemanager'
 scenemanager = scenemanager()
 
@@ -22,11 +20,11 @@ gfx.setBackgroundColor(gfx.kColorBlack)
 
 -- Game variables
 show_crank = false -- do you show the crankindicator in this scene?
-first_pause = true -- so that when you pause the first time, it always reads "Paused!" first.
+corner_active = false -- Is the corner UI active?
 if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
 
-local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
+local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
 local pedallica <const> = gfx.font.new('fonts/pedallica') -- Pedallica font
 
 local button_image_big <const> = gfx.nineSlice.new('images/ui/button_big', 23, 5, 114, 31) -- Big button image
@@ -35,13 +33,14 @@ local button_image_small2 <const> = gfx.nineSlice.new('images/ui/button_small2',
 
 local image_popup <const> = gfx.image.new('images/ui/popup') -- Pop-up UI Plate image
 local popup_in <const> = pd.sound.sampleplayer.new('audio/sfx/ui') -- Pop-up CHA-CHING! noise
+local popup_out <const> = pd.sound.sampleplayer.new('audio/sfx/whoosh') -- Pop-up out whoosh sound
 
 -- Save check
 function savecheck()
     save = pd.datastore.read()
     if save == nil then save = {} end
     -- Last saved mode, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
-    save.last_story_slot = save.last_story_slot or 1
+    save.current_story_slot = save.current_story_slot or 1
     -- Local best time-trial records for all courses
     save.stage1_best = save.stage1_best or 17970
     save.stage2_best = save.stage2_best or 17970
@@ -60,8 +59,8 @@ function savecheck()
     save.stage7_plays = save.stage7_plays or 0
     -- Story slot 1
     if save.slot1_active == nil then save.slot1_active = false end
-    save.slot1_stage = save.slot1_stage or 0
-    save.slot1_cutscene = save.slot1_cutscene or 0
+    save.slot1_stage = save.slot1_stage or 0 -- Highest stage *beaten*
+    save.slot1_cutscene = save.slot1_cutscene or 0 -- Highest cutscene *reached*
     save.slot1_crashes = save.slot1_crashes or 0
     save.slot1_racetime = save.slot1_racetime or 0
     -- Story slot 2
@@ -87,9 +86,8 @@ function savecheck()
     save.vol_sfx = save.vol_sfx or 5
     if save.pro_ui == nil then save.pro_ui = false end
     if save.power_flip == nil then save.power_flip = false end
-    if save.dpad_controls == nil then save.dpad_controls = false end
+    if save.button_controls == nil then save.button_controls = false end
     save.sensitivty = save.sensitivity or 3
-    if save.autoskip == nil then save.autoskip = false end
     -- Global stats
     if save.first_launch == nil then save.first_launch = true end
     save.stories_completed = save.stories_completed or 0
@@ -114,17 +112,19 @@ function pd.gameWillTerminate()
     if not demo then
         pd.datastore.write(save)
     end
-    local img = gfx.getDisplayImage()
-    local byebye = gfx.image.new('images/ui/byebye')
-    local fade = gfx.imagetable.new('images/ui/fade/fade')
-    local imgslide = gfx.animator.new(350, 1, 240, pd.easingFunctions.outSine)
-    local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1000)
-    gfx.setDrawOffset(0, 0)
-    while not fadeout:ended() do
-        byebye:draw(0, 0)
-        img:draw(0, imgslide:currentValue())
-        fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
-        pd.display.flush()
+    if pd.isSimulator ~= 1 then -- Only play the exit animation if the game's not running in Simulator.
+        local img = gfx.getDisplayImage()
+        local byebye = gfx.image.new('images/ui/byebye')
+        local fade = gfx.imagetable.new('images/ui/fade/fade')
+        local imgslide = gfx.animator.new(350, 1, 240, pd.easingFunctions.outSine)
+        local fadeout = gfx.animator.new(150, #fade, 1, pd.easingFunctions.outSine, 1000)
+        gfx.setDrawOffset(0, 0)
+        while not fadeout:ended() do
+            byebye:draw(0, 0)
+            img:draw(0, imgslide:currentValue())
+            fade:drawImage(math.floor(fadeout:currentValue()), 0, 0)
+            pd.display.flush()
+        end
     end
 end
 
@@ -188,6 +188,26 @@ function makebutton(button_string, button_type)
     return button_img -- Now gimme that image, please!
 end
 
+-- This function generates a string that shows up briefly in the top left corner of the screen
+-- 'type' is a string that takes a slug to determine what string to show. Accepted slugs are "saving", and "sendscore"
+function corner(type)
+    if not corner_active then -- If there's nothing in that corner already ...
+        corner_active = true -- then let's take that for ourselves
+        img_corner = gfx.image.new(kapel:getTextWidth(gfx.getLocalizedText('corner_' .. type)) + 12, kapel:getHeight() + 6) -- Make a new image with abouts the width of the text
+        gfx.pushContext(img_corner) -- Now let's draw into it...
+            gfx.fillPolygon(0, 0, kapel:getTextWidth(gfx.getLocalizedText('corner_' .. type)) + 12, 0, kapel:getTextWidth(gfx.getLocalizedText('corner_' .. type)) + 6, kapel:getHeight() + 6, 0, kapel:getHeight() + 6) -- Draw a funny polygon that's the length of the text
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Set the color to white...
+            kapel:drawText(gfx.getLocalizedText('corner_' .. type), 3, 3) -- and draw the text!
+            gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back,
+        gfx.popContext() -- and leave the image context.
+        corner = gfx.sprite.new(img_corner) -- Create this image,
+        corner:setZIndex(9999) -- set it up front,
+        corner:setCenter(0, 0) -- in the corner,
+        corner:add() -- and pop it in.
+        anim_corner_in = gfx.animator.new(500, -25, 0, pd.easingFunctions.outSine) -- Intro animation
+    end
+end
+
 -- Generates a pop-up UI. head_text, body_text, and button_text all take strings. callback is a function determining what happens on A press. b_close is a bool determining if B closes the pop-up.
 function makepopup(head_text, body_text, button_text, b_close, callback)
     if popup == nil then -- If there isn't already a popup in existence...
@@ -209,7 +229,7 @@ function makepopup(head_text, body_text, button_text, b_close, callback)
         popup:setZIndex(9999) -- Make it high,
         popup:moveTo(0, 240) -- Move it down,
         popup:add() -- and add it!
-        local popupHandlers = { -- Now, the input handlers.
+        popupHandlers = { -- Now, the input handlers.
             BButtonDown = function()
                 if b_close then -- If the B button can close this,
                     closepopup() -- then close it. Don't do anything else.
@@ -232,7 +252,6 @@ end
 function closepopup(callback)
     if popup ~= nil and not popup_transitioning then -- If there isn't any popup to close, or it's already *being* closed, then don't do anything.
         popup_transitioning = true
-        popup_out = pd.sound.sampleplayer.new('audio/sfx/whoosh') -- Add in whoosh sound
         popup_out:setVolume(save.vol_sfx/5) -- Set the volume,
         popup_out:play() -- and play it!
         anim_popup = gfx.animator.new(150, 0, 240, pd.easingFunctions.inCubic) -- Also, animate that out.
@@ -282,16 +301,42 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-scenemanager:switchscene(title) -- Start up the game to this scene.
+-- Start up the game to this scene.
+if pd.isSimulator == 1 then
+    import 'intro' -- Start to this screen for debugging in simulator
+    scenemanager:switchscene(opening)
+else
+    scenemanager:switchscene(opening)
+end
 
 function pd.update()
+    -- Corner update logic
+    if anim_corner_in ~= nil and corner ~= nil then -- If the intro anim exists...
+        corner:moveTo(1 * anim_corner_in:currentValue(), 1 * anim_corner_in:currentValue()) -- Move the corner piece in using it
+        if anim_corner_in:ended() then -- When it ends...
+            anim_corner_in = nil -- nil itself,
+            anim_corner_out = gfx.animator.new(250, 0, -25, pd.easingFunctions.inSine, 1500) -- and add the exit animation to play after some time.
+        end
+    end
+    if anim_corner_out ~= nil and corner ~= nil then -- When that exit animation comes into play...
+        corner:moveTo(1 * anim_corner_out:currentValue(), 1 * anim_corner_out:currentValue()) -- Move the corner piece all the same.
+        if anim_corner_out:ended() then -- When that ends,
+            corner:remove() -- remove everything
+            anim_corner_out = nil -- everything
+            img_corner = nil -- everything
+            corner_active = false -- EVERYTHING!!
+        end
+    end
+    -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup:currentValue()) -- Move it there!
     end
+    -- Screen shake update logic
     if anim_shakies ~= nil then
         pd.display.setOffset(anim_shakies:currentValue(), 0)
     end
     save.total_playtime += 1 -- Up the total playtime by one every frame while the game is open.
+    -- Catch-all stuff ...
     gfx.sprite.update()
     pd.timer.updateTimers()
     if pd.isCrankDocked() and show_crank then -- If the crank's docked, and the variable allows for it...

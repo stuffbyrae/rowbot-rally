@@ -43,6 +43,7 @@ function results:init(...)
         AButtonDown = function()
             if vars.mode == "story" then
                 if vars.win then
+                    scenemanager:transitionstoryoneway()
                 else
                     scenemanager:transitionsceneoneway(race, vars.stage, "story")
                 end
@@ -72,11 +73,53 @@ function results:init(...)
                 assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 85, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
                 if save.current_story_slot == 1 then
-                    save.slot1_stage = vars.stage
+                    if vars.stage == 1 then
+                        save.slot1_progress = "cutscene3"
+                    elseif vars.stage == 2 then
+                        save.slot1_progress = "cutscene4"
+                    elseif vars.stage == 3 then
+                        save.slot1_progress = "cutscene5"
+                    elseif vars.stage == 4 then
+                        save.slot1_progress = "cutscene6"
+                    elseif vars.stage == 5 then
+                        save.slot1_progress = "cutscene8"
+                    elseif vars.stage == 6 then
+                        save.slot1_progress = "cutscene9"
+                    elseif vars.stage == 7 then
+                        save.slot1_progress = "cutscene10"
+                    end
                 elseif save.current_story_slot == 2 then
-                    save.slot1_stage = vars.stage
+                    if vars.stage == 1 then
+                        save.slot2_progress = "cutscene3"
+                    elseif vars.stage == 2 then
+                        save.slot2_progress = "cutscene4"
+                    elseif vars.stage == 3 then
+                        save.slot2_progress = "cutscene5"
+                    elseif vars.stage == 4 then
+                        save.slot2_progress = "cutscene6"
+                    elseif vars.stage == 5 then
+                        save.slot2_progress = "cutscene8"
+                    elseif vars.stage == 6 then
+                        save.slot2_progress = "cutscene9"
+                    elseif vars.stage == 7 then
+                        save.slot2_progress = "cutscene10"
+                    end
                 elseif save.current_story_slot == 3 then
-                    save.slot1_stage = vars.stage
+                    if vars.stage == 1 then
+                        save.slot3_progress = "cutscene3"
+                    elseif vars.stage == 2 then
+                        save.slot3_progress = "cutscene4"
+                    elseif vars.stage == 3 then
+                        save.slot3_progress = "cutscene5"
+                    elseif vars.stage == 4 then
+                        save.slot3_progress = "cutscene6"
+                    elseif vars.stage == 5 then
+                        save.slot3_progress = "cutscene8"
+                    elseif vars.stage == 6 then
+                        save.slot3_progress = "cutscene9"
+                    elseif vars.stage == 7 then
+                        save.slot3_progress = "cutscene10"
+                    end
                 end
             else
                 gfx.imageWithText(gfx.getLocalizedText('youlost'), 200, 120):drawScaled(40, 20, 2)

@@ -32,8 +32,20 @@ function stages:init(...)
         image_ok = makebutton(gfx.getLocalizedText('ok'), 'big'),
         image_back = makebutton(gfx.getLocalizedText('back'), 'small'),
         image_leaderboards = makebutton(gfx.getLocalizedText('up_leaderboards'), 'small2'),
-        image_buttons = gfx.image.new(156, 68)
+        image_buttons = gfx.image.new(156, 68),
+        sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
+        sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
+        sfx_leaderboard_in = pd.sound.sampleplayer.new('audio/sfx/leaderboard_in'),
+        sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
+        sfx_pop = pd.sound.sampleplayer.new('audio/sfx/pop'),
+        sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
     }
+    assets.sfx_whoosh:setVolume(save.vol_sfx/5)
+    assets.sfx_bonk:setVolume(save.vol_sfx/5)
+    assets.sfx_leaderboard_in:setVolume(save.vol_sfx/5)
+    assets.sfx_proceed:setVolume(save.vol_sfx/5)
+    assets.sfx_pop:setVolume(save.vol_sfx/5)
+    assets.sfx_menu:setVolume(save.vol_sfx/5)
 
     -- Writing in the image for the wave banner along the bottom
     gfx.pushContext(assets.image_wave_composite)
@@ -112,10 +124,12 @@ function stages:init(...)
         end,
 
         upButtonDown = function()
+            assets.sfx_leaderboard_in:play()
             self:leaderboardsin()
         end,
 
         BButtonDown = function()
+            fademusic()
             scenemanager:transitionsceneoneway(title)
         end,
 
@@ -277,6 +291,8 @@ function stages:init(...)
     self.lb_bubble = lb_bubble()
     self.lb_text = lb_text()
     self:add()
+
+    newmusic('audio/music/stages', true) -- Adding new music
 end
 
 -- Select a new stage using the arrow keys. dir is a boolean — left is false, right is true
@@ -289,8 +305,10 @@ function stages:newselection(dir)
     end
     -- If this is true, then that means we've reached an end and nothing has changed.
     if vars.old_selection == vars.selection then
+        assets.sfx_bonk:play()
         shakies()
     else
+        assets.sfx_menu:play()
         update_image_top(vars.selection, true)
         assets.image_preview = gfx.image.new('images/stages/preview' .. vars.selection)
         self.preview:setImage(assets.image_preview)
@@ -317,7 +335,9 @@ function stages:leaderboardsin()
         self.lb_accent:setImage(assets.image_rowbot_accent[1])
         pd.scoreboards.getPersonalBest('stage' .. tostring(vars.selection), function(status, result)
             if status.code == "OK" then
-                update_image_top(vars.selection, false, result.rank)
+                if vars.leaderboards_open then
+                    update_image_top(vars.selection, false, result.rank)
+                end
             end
         end)
         assets.image_lb_text = gfx.image.new(190, 240)
@@ -356,6 +376,7 @@ end
 
 -- Exit an already-open leaderboards screen
 function stages:leaderboardsout()
+    assets.sfx_pop:play()
     vars.leaderboards_closable = false
     self.lb_text:remove()
     update_image_top(vars.selection, false)
@@ -363,6 +384,9 @@ function stages:leaderboardsout()
     vars.anim_boat_y = gfx.animator.new(250, self.boat.y, 200, pd.easingFunctions.outCubic, 250)
     vars.anim_preview_x = gfx.animator.new(250, self.preview.x, 400, pd.easingFunctions.outCubic, 250)
     vars.anim_lb_bubble = gfx.animation.loop.new(70, assets.image_leaderboard_container_outro, false)
+    pd.timer.performAfterDelay(250, function()
+        assets.sfx_whoosh:play()
+    end)
     pd.timer.performAfterDelay(300, function()
         self.lb_bubble:remove()
         vars.anim_lb_bubble = nil
@@ -383,16 +407,14 @@ end
 -- Transition into a white screen, for the racing scene
 function stages:enterrace()
     pd.inputHandlers.pop()
+    assets.sfx_proceed:play()
+    fademusic(1000)
     vars.anim_boat_x = gfx.animator.new(800, self.boat.x, 450, pd.easingFunctions.inCubic)
     vars.anim_preview_x = gfx.animator.new(250, self.preview.x, 600, pd.easingFunctions.inCubic, 250)
     vars.anim_back_y = gfx.animator.new(250, self.back.y, 275, pd.easingFunctions.inCubic)
     vars.anim_top_y = gfx.animator.new(250, self.top.y, -400, pd.easingFunctions.inCubic)
     vars.anim_wave_y = gfx.animator.new(250, self.wave.y, 245, pd.easingFunctions.inBack, 750)
     pd.timer.performAfterDelay(1001, function()
-        scenemanager:switchscene(race, vars.selection, "story")
+        scenemanager:switchscene(race, vars.selection, "tt")
     end)
-end
-
--- Scene update loop
-function stages:update()
 end

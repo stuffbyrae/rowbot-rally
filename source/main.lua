@@ -7,8 +7,8 @@ import 'CoreLibs/sprites'
 import 'CoreLibs/graphics'
 import 'CoreLibs/animation'
 import 'CoreLibs/nineslice'
-import 'opening' -- Transition to opening story exposition on launch
 import 'scenemanager'
+import 'title' -- Start up to this screen.
 scenemanager = scenemanager()
 
 -- Setting up basic SDK params
@@ -39,7 +39,7 @@ local popup_out <const> = pd.sound.sampleplayer.new('audio/sfx/whoosh') -- Pop-u
 function savecheck()
     save = pd.datastore.read()
     if save == nil then save = {} end
-    -- Last saved mode, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
+    -- Last saved slot, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
     save.current_story_slot = save.current_story_slot or 1
     -- Local best time-trial records for all courses
     save.stage1_best = save.stage1_best or 17970
@@ -59,37 +59,36 @@ function savecheck()
     save.stage7_plays = save.stage7_plays or 0
     -- Story slot 1
     if save.slot1_active == nil then save.slot1_active = false end
-    save.slot1_stage = save.slot1_stage or 0 -- Highest stage *beaten*
-    save.slot1_cutscene = save.slot1_cutscene or 0 -- Highest cutscene *reached*
+    -- slotX_progress: nil means move to opening scene
+    -- "cutsceneX" means move to whatever cutscene number X is. 1 through 10
+    -- "tutorial" means move to tutorial.
+    -- "raceX" means move to whatever stage number X is. 1 through 7
+    -- "finish" means move to chapter select.
+    save.slot1_progress = save.slot1_progress or nil
+    if save.slot1_finished == nil then save.slot1_finished = false end
     save.slot1_crashes = save.slot1_crashes or 0
     save.slot1_racetime = save.slot1_racetime or 0
     -- Story slot 2
     if save.slot2_active == nil then save.slot2_active = false end
-    save.slot2_stage = save.slot2_stage or 0
-    save.slot2_cutscene = save.slot2_cutscene or 0
+    save.slot1_progress = save.slot1_progress or nil
+    if save.slot1_finished == nil then save.slot1_finished = false end
     save.slot2_crashes = save.slot2_crashes or 0
     save.slot2_racetime = save.slot2_racetime or 0
     -- Story slot 3
     if save.slot3_active == nil then save.slot3_active = false end
-    save.slot3_stage = save.slot3_stage or 0
-    save.slot3_cutscene = save.slot3_cutscene or 0
+    save.slot1_progress = save.slot1_progress or nil
+    if save.slot1_finished == nil then save.slot1_finished = false end
     save.slot3_crashes = save.slot3_crashes or 0
     save.slot3_racetime = save.slot3_racetime or 0
-    -- Global unlocks
-    save.stages_unlocked = save.stages_unlocked or 0
-    save.cutscenes_unlocked = save.cutscenes_unlocked or 0
-    if save.credits_unlocked == nil then save.credits_unlocked = false end
-    if save.tutorial_unlocked == nil then save.tutorial_unlocked = false end
-    if save.time_trials_unlocked == nil then save.time_trials_unlocked = false end
     -- Preferences, adjustable in Options menu
     save.vol_music = save.vol_music or 5
     save.vol_sfx = save.vol_sfx or 5
     if save.pro_ui == nil then save.pro_ui = false end
-    if save.power_flip == nil then save.power_flip = false end
+    save.crash_assist = save.crash_assist or 0
     if save.button_controls == nil then save.button_controls = false end
     save.sensitivty = save.sensitivity or 3
     -- Global stats
-    if save.first_launch == nil then save.first_launch = true end
+    save.stages_unlocked = save.stages_unlocked or 0
     save.stories_completed = save.stories_completed or 0
     save.total_crashes = save.total_crashes or 0
     save.total_racetime = save.total_racetime or 0
@@ -146,7 +145,7 @@ function newmusic(file, loop, range)
         music:setVolume(save.vol_music)
         music:setStopOnUnderrun(flag)
         if loop then -- If set to loop, then ... loop it!
-            music:setLoopRange(range)
+            music:setLoopRange(range or 0)
             music:play(0)
         else
             music:play()
@@ -301,13 +300,8 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
--- Start up the game to this scene.
-if pd.isSimulator == 1 then
-    import 'intro' -- Start to this screen for debugging in simulator
-    scenemanager:switchscene(opening)
-else
-    scenemanager:switchscene(opening)
-end
+import 'opening' -- Start to this screen for debugging in simulator
+scenemanager:switchscene(opening)
 
 function pd.update()
     -- Corner update logic

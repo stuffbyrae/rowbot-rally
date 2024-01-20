@@ -1,4 +1,4 @@
-import 'title'
+import 'cutscene'
 
 -- Setting up consts
 local pd <const> = playdate
@@ -14,13 +14,15 @@ function opening:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        if not vars.arg_title then -- If this isn't the first total viewing of it...
-            menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function() -- then let the player skip.
-                if not vars.leaving then -- Make sure they're not already leaving, that'd screw something up.
-                    self:leave() -- If they aren't, then they can go.
-                end
-            end)
-        end
+    end
+
+    -- Set save slot to cutscene 1. If someone exits from here, next time they come back they'll start at the first cutscene just to move them along.
+    if save.current_story_slot == 1 then
+        save.slot1_progress = "cutscene1"
+    elseif save.current_story_slot == 2 then
+        save.slot2_progress = "cutscene1"
+    elseif save.current_story_slot == 3 then
+        save.slot3_progress = "cutscene1"
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc
@@ -41,12 +43,12 @@ function opening:init(...)
     }
     vars.openingHandlers = {
         AButtonDown = function()
-            self:progress()
             self.a:moveTo(395, 240)
             assets.sfx_clickon:play()
         end,
-
+        
         AButtonUp = function()
+            self:progress()
             self.a:moveTo(395, 235)
             assets.sfx_clickoff:play()
         end
@@ -90,6 +92,8 @@ function opening:init(...)
     self:add()
 
     self:newcontent(vars.progress)
+
+    newmusic('audio/music/opening', true, 0) -- Adding new music
 end
 
 function opening:progress()
@@ -121,9 +125,10 @@ end
 function opening:leave()
     if not vars.leaving then
         vars.leaving = true
+        fademusic(999)
         vars.anim_fade = gfx.animator.new(1000, math.floor(vars.anim_fade:currentValue()), 0)
         pd.timer.performAfterDelay(1000, function()
-            scenemanager:switchscene(title)
+            scenemanager:switchscene(cutscene, 1)
         end)
     end
 end

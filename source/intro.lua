@@ -46,6 +46,56 @@ function intro:init(...)
     }
     pd.inputHandlers.push(vars.introHandlers)
 
+    if save.current_story_slot == 1 then
+        if vars.stage == 1 then
+            save.slot1_progress = "race1"
+        elseif vars.stage == 2 then
+            save.slot1_progress = "race2"
+        elseif vars.stage == 3 then
+            save.slot1_progress = "race3"
+        elseif vars.stage == 4 then
+            save.slot1_progress = "race4"
+        elseif vars.stage == 5 then
+            save.slot1_progress = "race5"
+        elseif vars.stage == 6 then
+            save.slot1_progress = "race6"
+        elseif vars.stage == 7 then
+            save.slot1_progress = "race7"
+        end
+    elseif save.current_story_slot == 2 then
+        if vars.stage == 1 then
+            save.slot2_progress = "race1"
+        elseif vars.stage == 2 then
+            save.slot2_progress = "race2"
+        elseif vars.stage == 3 then
+            save.slot2_progress = "race3"
+        elseif vars.stage == 4 then
+            save.slot2_progress = "race4"
+        elseif vars.stage == 5 then
+            save.slot2_progress = "race5"
+        elseif vars.stage == 6 then
+            save.slot2_progress = "race6"
+        elseif vars.stage == 7 then
+            save.slot2_progress = "race7"
+        end
+    elseif save.current_story_slot == 3 then
+        if vars.stage == 1 then
+            save.slot3_progress = "race1"
+        elseif vars.stage == 2 then
+            save.slot3_progress = "race2"
+        elseif vars.stage == 3 then
+            save.slot3_progress = "race3"
+        elseif vars.stage == 4 then
+            save.slot3_progress = "race4"
+        elseif vars.stage == 5 then
+            save.slot3_progress = "race5"
+        elseif vars.stage == 6 then
+            save.slot3_progress = "race6"
+        elseif vars.stage == 7 then
+            save.slot3_progress = "race7"
+        end
+    end
+
     assets.image_preview = gfx.image.new('images/stages/preview' .. vars.stage) -- Preview image table
     gfx.pushContext(assets.img_left) -- All the text that pops in from the left
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)

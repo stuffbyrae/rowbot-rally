@@ -300,8 +300,8 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'opening' -- Start to this screen for debugging in simulator
-scenemanager:switchscene(opening)
+import 'race' -- Start to this screen for debugging in simulator
+scenemanager:switchscene(race)
 
 function pd.update()
     -- Corner update logic

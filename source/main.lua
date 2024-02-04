@@ -336,4 +336,5 @@ function pd.update()
     if pd.isCrankDocked() and show_crank then -- If the crank's docked, and the variable allows for it...
         pd.ui.crankIndicator:update() -- Show the Use the Crank! indicator.
     end
+    pd.drawFPS(10, 10)
 end

@@ -18,6 +18,7 @@ function race:init(...)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
+        image_water_bg = gfx.image.new('images/race/tracks/water_bg'),
         test = gfx.image.new('images/race/tracks/track1')
     }
     
@@ -26,11 +27,15 @@ function race:init(...)
     vars.raceHandlers = {
         AButtonDown = function()
             self.boat:leap()
+        end,
+        BButtonDown = function()
+            self.boat:boost()
         end
     }
     pd.inputHandlers.push(vars.raceHandlers)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
+        assets.image_water_bg:draw(0, 0)
     end)
 
     class('test').extends(gfx.sprite)
@@ -48,4 +53,5 @@ end
 
 -- Scene update loop
 function race:update()
+    -- gfx.setDrawOffset(-self.x + 200 - (math.sin(self.radtation) * self.camera_x:currentValue()), -self.y + 120 + (math.cos(self.radtation) * self.camera_x:currentValue()))
 end

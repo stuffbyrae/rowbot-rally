@@ -8,6 +8,7 @@ local cos = {0.9998477, 0.9993908, 0.9986295, 0.9975641, 0.9961947, 0.9945219, 0
 class('boat').extends(gfx.sprite)
 function boat:init(x, y)
     boat.super.init(self)
+    -- Boat image set-up
     self.boat_size = 400
     self.poly_body = pd.geometry.polygon.new(0,-38, 11,-29, 17,-19, 20,-6, 18,20, 15,30, 12,33, -12,33, -15,30, -18,20, -20,6, -20,-6, -17,-19, -11,-29, 0,-38)
     self.poly_inside = pd.geometry.polygon.new(12,-20, 0,-23, -12,-20, -16,-7, 16,-7, 16,5, -16,5, -14,20, 14,20, 16,5, 16,-7, 12,-20)
@@ -15,31 +16,73 @@ function boat:init(x, y)
     self.poly_rowbot_fill = pd.geometry.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
     self.transform = pd.geometry.affineTransform.new()
     self.transform_shadow = pd.geometry.affineTransform.new()
+    self.transform_ripple = pd.geometry.affineTransform.new()
+    -- Boat properties
     self.scale = 1
-    self.scale_x = gfx.animator.new(0, self.scale, self.scale)
-    self.scale_y = gfx.animator.new(0, self.scale, self.scale)
+    self.lerp = 0.2
+    self.movingspeed = 5
+    self.turningspeed = 7
+    -- Boat animations
+    self.scale_x = gfx.animator.new(2500, self.scale, self.scale * 1.1)
+    self.scale_y = gfx.animator.new(2500, self.scale, self.scale * 1.1)
+    self.scale_x.reverses = true
+    self.scale_y.reverses = true
+    self.scale_x.repeatCount = -1
+    self.scale_y.repeatCount = -1
+    self.anim_ripple = gfx.animator.new(2500, self.scale * 1.05, self.scale * 1.1, pd.easingFunctions.outSine, 1000)
+    self.anim_ripple.reverses = true
+    self.anim_ripple.repeatCount = -1
     self.boost_scale_x = gfx.animator.new(0, 1, 1)
     self.boost_scale_y = gfx.animator.new(0, 1, 1)
-    self.turning = true
-    self.moving = true
-    self.movingspeed = 5
-    self.currentspeed = gfx.animator.new(1500, 0, self.movingspeed, pd.easingFunctions.inOutSine)
-    self.turningspeed = 7
-    self.lerp = 0.2
+    self.currentspeed = gfx.animator.new(0, 0, 0)
+    self.camera_x = gfx.animator.new(0, 0, 0)
+    self.camera_y = gfx.animator.new(4000, -500, 0)
+    -- Other setup
+    self.turning = false
+    self.moving = false
     self.crashed = false
     self.boosting = false
     self.leaping = false
     self.reversed = false
-    self.rotation = 0
+    self.race_started = false
+    self.race_finished = false
+    self.rotation = 360
     self.crankage = 0
-    self.camera_x = gfx.animator.new(1500, 0, 20, pd.easingFunctions.inOutSine)
-    self.camera_y = gfx.animator.new(1500, 0, 20, pd.easingFunctions.inOutSine)
     self:moveTo(x, y)
+    gfx.setDrawOffset(-self.x + 200, -self.y + 120)
     self:setSize(self.boat_size, self.boat_size)
     self:add()
 end
 
-function boat:finish()
+function boat:start()
+    self.moving = true
+    self.turning = true
+    self.race_started = true
+    self.scale_x = gfx.animator.new(0, 1, 1)
+    self.scale_y = gfx.animator.new(0, 1, 1)
+    self.camera_x = gfx.animator.new(1500, 0, 20, pd.easingFunctions.inOutSine)
+    self.camera_y = gfx.animator.new(1500, 0, 20, pd.easingFunctions.inOutSine)
+    self.currentspeed = gfx.animator.new(1500, 0, self.movingspeed, pd.easingFunctions.inOutSine)
+end
+
+function boat:finish(peelout)
+    if not self.race_finished then
+        self.finish_x = gfx.animator.new(1250, self.x, self.x + (sin[self.rotation] * 150), pd.easingFunctions.outSine)
+        self.finish_y = gfx.animator.new(1250, self.y, self.y + (-cos[self.rotation] * 150), pd.easingFunctions.outSine)
+        self.finale_rotation = self.rotation
+        if peelout then
+            if self.rotation + 100 <= 360 then
+                self.finish_rotation = gfx.animator.new(1250, self.rotation, self.rotation + 100, pd.easingFunctions.outSine)
+            elseif self.rotation - 100 >= 1 then
+                self.finish_rotation = gfx.animator.new(1250, self.rotation, self.rotation - 100, pd.easingFunctions.outSine)
+            end
+        end
+        self.camera_x = gfx.animator.new(1250, self.camera_x:currentValue(), -100, pd.easingFunctions.outSine)
+        self.camera_y = gfx.animator.new(1250, self.camera_y:currentValue(), -100, pd.easingFunctions.outSine)
+        self.moving = false
+        self.turning = false
+        self.race_finished = true
+    end
 end
 
 function boat:collision_check()
@@ -49,11 +92,11 @@ function boat:crash()
 end
 
 function boat:boost()
-    if not self.boosting then
+    if not self.boosting and self.moving then
         self.boosting = true
         -- shakies()
-        self.camera_x = gfx.animator.new(500, self.camera_x:currentValue(), -20, pd.easingFunctions.outBack)
-        self.camera_y = gfx.animator.new(500, self.camera_y:currentValue(), -20, pd.easingFunctions.outBack)
+        self.camera_x = gfx.animator.new(500, self.camera_x:currentValue(), -40, pd.easingFunctions.outBack)
+        self.camera_y = gfx.animator.new(500, self.camera_y:currentValue(), -40, pd.easingFunctions.outBack)
         self.boost_scale_x = gfx.animator.new(500, 0.8, 1)
         self.boost_scale_y = gfx.animator.new(500, 1.2, 1)
         self.currentspeed = gfx.animator.new(500, self.currentspeed:currentValue(), self.movingspeed * 1.5, pd.easingFunctions.inOutSine)
@@ -69,7 +112,7 @@ function boat:boost()
 end
 
 function boat:leap()
-    if not self.leaping then
+    if not self.leaping and self.moving then
         self.leaping = true
         self.turning = false
         self.scale_x = gfx.animator.new(650, self.scale * 1, self.scale * 2, pd.easingFunctions.outCubic)
@@ -92,12 +135,13 @@ end
 function boat:update()
     self.transform:reset()
     self.transform_shadow:reset()
+    self.transform_ripple:reset()
     if self.turning then
         if pd.getCrankChange() >= 0 then
             save.total_degrees_cranked += pd.getCrankChange()
-            self.crankage += ((pd.getCrankChange() / 2) - self.crankage) * self.lerp
+            self.crankage += ((pd.getCrankChange() / 3) - self.crankage) * self.lerp
         else
-            self.crankage += ((0 / 2) - self.crankage) * self.lerp
+            self.crankage += ((0 / 3) - self.crankage) * self.lerp
         end
         self.rotation += self.crankage
         self.rotation -= self.turningspeed
@@ -109,21 +153,44 @@ function boat:update()
         gfx.setDrawOffset(camx + -sin[self.rotation] * self.currentspeed:currentValue(), camy + cos[self.rotation] * self.currentspeed:currentValue())
         camx, camy = gfx.getDrawOffset()
         self:moveTo(-camx + 200 - (sin[self.rotation] * self.camera_x:currentValue()), -camy + 120 + (cos[self.rotation] * self.camera_y:currentValue()))
+    else
+        if self.race_finished then
+            self:moveTo(self.finish_x:currentValue(), self.finish_y:currentValue())
+            if self.finish_rotation ~= nil then
+                self.rotation = math.floor(self.finish_rotation:currentValue())
+            end
+            gfx.setDrawOffset(-self.x + 200 - (sin[self.finale_rotation] * self.camera_x:currentValue()), -self.y + 120 + (cos[self.finale_rotation] * self.camera_y:currentValue()))
+        elseif not self.race_started then
+            gfx.setDrawOffset(-self.x + 200 - self.camera_x:currentValue(), -self.y + 120 + self.camera_y:currentValue())
+        end
     end
     self.transform:scale(self.scale_x:currentValue() * self.boost_scale_x:currentValue(), self.scale_y:currentValue() * self.boost_scale_y:currentValue())
     self.transform:rotate(self.rotation)
     self.transform_shadow:scale(self.scale * self.boost_scale_x:currentValue(), self.scale * self.boost_scale_y:currentValue())
     self.transform_shadow:rotate(self.rotation)
+    if not self.moving then
+        self.transform_ripple:rotate(self.rotation)
+        self.transform_ripple:scale(self.anim_ripple:currentValue())
+    end
+    self:markDirty()
 end
 
 function boat:draw(x, y, width, height)
-    gfx.setLineWidth(2)
     self.transform:translate(self.boat_size / 2, self.boat_size / 2)
     self.transform_shadow:translate(5 * (self.scale_x:currentValue()*1.25) + self.boat_size / 2, 5 * (self.scale_y:currentValue()*1.25) + self.boat_size / 2)
+    if not self.moving and not self.finished then
+        self.transform_ripple:translate(self.boat_size / 2, self.boat_size / 2)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.setLineWidth(5)
+        gfx.drawPolygon(self.transform_ripple:transformedPolygon(self.poly_body))
+    end
+    gfx.setColor(gfx.kColorBlack)
+    gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform_shadow:transformedPolygon(self.poly_body))
     gfx.setColor(gfx.kColorWhite)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setColor(gfx.kColorBlack)
+    gfx.setLineWidth(2)
     gfx.drawPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setDitherPattern(0.75, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))

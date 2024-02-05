@@ -26,7 +26,7 @@ function race:init(...)
     }
     vars.raceHandlers = {
         AButtonDown = function()
-            self.boat:leap()
+            self.boat:finish(true)
         end,
         BButtonDown = function()
             self.boat:boost()
@@ -47,8 +47,12 @@ function race:init(...)
 
     -- Set the sprites
     self.test = test()
-    self.boat = boat(200, 120)
+    self.boat = boat(-400, 150)
     self:add()
+    
+    pd.timer.performAfterDelay(4000, function()
+        self.boat:start()
+    end)
 end
 
 -- Scene update loop

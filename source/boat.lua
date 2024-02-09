@@ -2,209 +2,275 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
+-- Baking sin and cos calculations for performance
 local sin = {0.01745241,0.0348995,0.05233596,0.06975647,0.08715574,0.1045285,0.1218693,0.1391731,0.1564345,0.1736482,0.190809,0.2079117,0.224951,0.2419219,0.258819,0.2756374,0.2923717,0.309017,0.3255681,0.3420201,0.3583679,0.3746066,0.3907311,0.4067366,0.4226183,0.4383712,0.4539905,0.4694716,0.4848096,0.5,0.5150381,0.5299193,0.5446391,0.5591929,0.5735765,0.5877852,0.601815,0.6156615,0.6293204,0.6427876,0.656059,0.6691306,0.6819984,0.6946584,0.7071068,0.7193398,0.7313537,0.7431449,0.7547095,0.7660444,0.7771459,0.7880107,0.7986355,0.809017,0.8191521,0.8290375,0.8386706,0.8480481,0.8571673,0.8660254,0.8746197,0.8829476,0.8910065,0.8987941,0.9063078,0.9135455,0.9205048,0.9271839,0.9335804,0.9396926,0.9455186,0.9510565,0.9563047,0.9612617,0.9659258,0.9702957,0.9743701,0.9781476,0.9816272,0.9848077,0.9876884,0.9902681,0.9925461,0.9945219,0.9961947,0.9975641,0.9986295,0.9993908,0.9998477,1.0,0.9998477,0.9993908,0.9986295,0.9975641,0.9961947,0.9945219,0.9925461,0.9902681,0.9876884,0.9848077,0.9816272,0.9781476,0.9743701,0.9702957,0.9659258,0.9612617,0.9563047,0.9510565,0.9455186,0.9396926,0.9335805,0.9271839,0.9205049,0.9135455,0.9063078,0.8987941,0.8910066,0.8829476,0.8746197,0.8660254,0.8571673,0.848048,0.8386706,0.8290376,0.819152,0.809017,0.7986355,0.7880108,0.777146,0.7660444,0.7547096,0.7431448,0.7313537,0.7193399,0.7071068,0.6946585,0.6819983,0.6691306,0.656059,0.6427876,0.6293205,0.6156614,0.6018151,0.5877852,0.5735765,0.559193,0.5446391,0.5299193,0.515038,0.5000001,0.4848095,0.4694716,0.4539906,0.4383711,0.4226183,0.4067366,0.3907312,0.3746067,0.3583679,0.3420202,0.3255681,0.309017,0.2923718,0.2756374,0.2588191,0.2419219,0.2249511,0.2079116,0.190809,0.1736483,0.1564344,0.1391732,0.1218693,0.1045285,0.08715588,0.06975647,0.05233605,0.03489945,0.01745246,-8.742278e-08,-0.01745239,-0.03489939,-0.05233599,-0.0697564,-0.08715581,-0.1045284,-0.1218692,-0.1391731,-0.1564344,-0.1736482,-0.190809,-0.2079118,-0.224951,-0.2419218,-0.2588191,-0.2756373,-0.2923718,-0.309017,-0.3255681,-0.3420202,-0.3583679,-0.3746066,-0.3907311,-0.4067365,-0.4226183,-0.4383711,-0.4539905,-0.4694715,-0.4848097,-0.5,-0.515038,-0.5299193,-0.544639,-0.559193,-0.5735764,-0.5877851,-0.601815,-0.6156614,-0.6293204,-0.6427876,-0.6560591,-0.6691306,-0.6819983,-0.6946584,-0.7071067,-0.7193398,-0.7313537,-0.7431448,-0.7547096,-0.7660446,-0.777146,-0.7880107,-0.7986354,-0.8090168,-0.8191521,-0.8290376,-0.8386706,-0.848048,-0.8571672,-0.8660254,-0.8746197,-0.8829476,-0.8910065,-0.8987941,-0.9063078,-0.9135454,-0.9205048,-0.9271838,-0.9335805,-0.9396927,-0.9455186,-0.9510565,-0.9563047,-0.9612617,-0.9659259,-0.9702957,-0.9743701,-0.9781476,-0.9816272,-0.9848078,-0.9876883,-0.9902681,-0.9925461,-0.9945219,-0.9961947,-0.997564,-0.9986295,-0.9993908,-0.9998477,-1.0,-0.9998477,-0.9993908,-0.9986295,-0.997564,-0.9961947,-0.9945219,-0.9925462,-0.9902681,-0.9876883,-0.9848077,-0.9816272,-0.9781476,-0.97437,-0.9702957,-0.9659258,-0.9612617,-0.9563048,-0.9510565,-0.9455186,-0.9396926,-0.9335805,-0.9271839,-0.9205048,-0.9135454,-0.9063078,-0.8987941,-0.8910066,-0.8829476,-0.8746197,-0.8660254,-0.8571674,-0.848048,-0.8386705,-0.8290376,-0.8191521,-0.8090171,-0.7986354,-0.7880107,-0.777146,-0.7660445,-0.7547097,-0.7431448,-0.7313536,-0.7193398,-0.7071069,-0.6946585,-0.6819983,-0.6691306,-0.6560591,-0.6427878,-0.6293206,-0.6156614,-0.601815,-0.5877853,-0.5735766,-0.5591931,-0.5446389,-0.5299193,-0.5150381,-0.5000002,-0.4848095,-0.4694715,-0.4539905,-0.4383712,-0.4226184,-0.4067365,-0.3907311,-0.3746066,-0.3583681,-0.3420204,-0.325568,-0.3090169,-0.2923717,-0.2756375,-0.2588193,-0.2419218,-0.224951,-0.2079118,-0.1908092,-0.1736484,-0.1564344,-0.1391731,-0.1218694,-0.1045287,-0.08715603,-0.06975638,-0.05233596,-0.0348996,-0.01745261,1.748456e-07}
 local cos = {0.9998477, 0.9993908, 0.9986295, 0.9975641, 0.9961947, 0.9945219, 0.9925461, 0.9902681, 0.9876884, 0.9848077, 0.9816272, 0.9781476, 0.9743701, 0.9702957, 0.9659258, 0.9612617, 0.9563048, 0.9510565, 0.9455186, 0.9396926, 0.9335804, 0.9271839, 0.9205049, 0.9135454, 0.9063078, 0.8987941, 0.8910065, 0.8829476, 0.8746197, 0.8660254, 0.8571673, 0.8480481, 0.8386706, 0.8290376, 0.8191521, 0.809017, 0.7986355, 0.7880108, 0.7771459, 0.7660444, 0.7547096, 0.7431448, 0.7313537, 0.7193398, 0.7071068, 0.6946584, 0.6819984, 0.6691306, 0.656059, 0.6427876, 0.6293204, 0.6156615, 0.601815, 0.5877853, 0.5735765, 0.5591929, 0.5446391, 0.5299193, 0.5150381, 0.5, 0.4848096, 0.4694716, 0.4539905, 0.4383712, 0.4226182, 0.4067366, 0.3907312, 0.3746066, 0.358368, 0.3420202, 0.3255681, 0.309017, 0.2923718, 0.2756374, 0.2588191, 0.2419219, 0.224951, 0.2079117, 0.1908091, 0.1736482, 0.1564345, 0.1391731, 0.1218693, 0.1045284, 0.0871558, 0.06975651, 0.05233597, 0.0348995, 0.01745238, -4.371139e-08, -0.01745235, -0.03489946, -0.05233594, -0.06975648, -0.08715577, -0.1045285, -0.1218693, -0.1391731, -0.1564344, -0.1736482, -0.190809, -0.2079116, -0.224951, -0.2419219, -0.258819, -0.2756374, -0.2923717, -0.3090169, -0.3255681, -0.3420201, -0.3583679, -0.3746066, -0.3907312, -0.4067366, -0.4226183, -0.4383711, -0.4539904, -0.4694716, -0.4848095, -0.5000001, -0.515038, -0.5299193, -0.5446391, -0.5591928, -0.5735765, -0.5877852, -0.6018151, -0.6156614, -0.6293203, -0.6427876, -0.656059, -0.6691307, -0.6819983, -0.6946583, -0.7071068, -0.7193397, -0.7313538, -0.7431448, -0.7547097, -0.7660444, -0.7771459, -0.7880108, -0.7986355, -0.8090171, -0.8191521, -0.8290375, -0.8386706, -0.848048, -0.8571673, -0.8660254, -0.8746198, -0.8829476, -0.8910065, -0.8987941, -0.9063078, -0.9135455, -0.9205049, -0.9271838, -0.9335805, -0.9396926, -0.9455186, -0.9510565, -0.9563047, -0.9612617, -0.9659258, -0.9702957, -0.9743701, -0.9781476, -0.9816272, -0.9848077, -0.9876884, -0.9902681, -0.9925461, -0.9945219, -0.9961947, -0.9975641, -0.9986295, -0.9993908, -0.9998477, -1.0, -0.9998477, -0.9993908, -0.9986295, -0.9975641, -0.9961947, -0.9945219, -0.9925461, -0.9902681, -0.9876884, -0.9848077, -0.9816272, -0.9781476, -0.9743701, -0.9702957, -0.9659258, -0.9612617, -0.9563047, -0.9510565, -0.9455186, -0.9396926, -0.9335805, -0.9271838, -0.9205049, -0.9135455, -0.9063078, -0.8987941, -0.8910065, -0.8829476, -0.8746197, -0.8660254, -0.8571674, -0.8480481, -0.8386706, -0.8290375, -0.8191521, -0.8090171, -0.7986355, -0.7880108, -0.7771459, -0.7660445, -0.7547095, -0.7431448, -0.7313538, -0.7193398, -0.7071068, -0.6946583, -0.6819984, -0.6691307, -0.656059, -0.6427875, -0.6293203, -0.6156615, -0.6018152, -0.5877854, -0.5735763, -0.5591929, -0.5446391, -0.5299194, -0.5150383, -0.4999999, -0.4848096, -0.4694716, -0.4539907, -0.438371, -0.4226182, -0.4067366, -0.3907312, -0.3746068, -0.3583678, -0.3420201, -0.3255682, -0.3090171, -0.2923719, -0.2756372, -0.258819, -0.2419219, -0.2249512, -0.2079119, -0.1908088, -0.1736481, -0.1564345, -0.1391733, -0.1218696, -0.1045283, -0.08715571, -0.06975655, -0.05233612, -0.03489976, -0.0174523, 1.192488e-08, 0.01745232, 0.03489931, 0.05233615, 0.06975657, 0.08715574, 0.1045284, 0.1218691, 0.1391733, 0.1564345, 0.1736481, 0.1908089, 0.2079115, 0.2249512, 0.2419219, 0.258819, 0.2756372, 0.2923715, 0.3090171, 0.3255682, 0.3420201, 0.3583678, 0.3746064, 0.3907312, 0.4067367, 0.4226182, 0.438371, 0.4539903, 0.4694717, 0.4848096, 0.4999999, 0.5150379, 0.5299194, 0.5446391, 0.5591929, 0.5735763, 0.5877851, 0.6018152, 0.6156615, 0.6293204, 0.6427875, 0.6560588, 0.6691307, 0.6819984, 0.6946583, 0.7071066, 0.7193396, 0.7313538, 0.7431449, 0.7547095, 0.7660443, 0.7771458, 0.7880108, 0.7986355, 0.8090169, 0.8191519, 0.8290374, 0.8386706, 0.8480481, 0.8571672, 0.8660253, 0.8746198, 0.8829476, 0.8910065, 0.898794, 0.9063077, 0.9135455, 0.9205049, 0.9271839, 0.9335804, 0.9396926, 0.9455186, 0.9510565, 0.9563047, 0.9612616, 0.9659258, 0.9702958, 0.9743701, 0.9781476, 0.9816272, 0.9848077, 0.9876884, 0.9902681, 0.9925461, 0.9945219, 0.9961947, 0.9975641, 0.9986295, 0.9993908, 0.9998477, 1.0}
 
+-- Bote!
 class('boat').extends(gfx.sprite)
-function boat:init(x, y)
+function boat:init(x, y, race, story)
     boat.super.init(self)
-    -- Boat image set-up
-    self.boat_size = 400
+
+    -- Boat image setup
     self.poly_body = pd.geometry.polygon.new(0,-38, 11,-29, 17,-19, 20,-6, 18,20, 15,30, 12,33, -12,33, -15,30, -18,20, -20,6, -20,-6, -17,-19, -11,-29, 0,-38)
     self.poly_inside = pd.geometry.polygon.new(12,-20, 0,-23, -12,-20, -16,-7, 16,-7, 16,5, -16,5, -14,20, 14,20, 16,5, 16,-7, 12,-20)
     self.poly_rowbot = pd.geometry.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
     self.poly_rowbot_fill = pd.geometry.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
     self.transform = pd.geometry.affineTransform.new()
-    self.transform_shadow = pd.geometry.affineTransform.new()
-    self.transform_ripple = pd.geometry.affineTransform.new()
+    self.shadow = pd.geometry.affineTransform.new()
+    
     -- Boat properties
-    self.scale = 1
-    self.lerp = 0.2
-    self.movingspeed = 5
-    self.turningspeed = 7
+    self.scale_factor = 1 -- Default scale of the boat.
+    self.boat_size = 90 * self.scale_factor -- X and Y size of the image. This can be changed if you need more room, but it's set to minimum possible to save space, just for now.
+    self.lerp = 0.2 -- Rate at which the cranking is interpolated.
+    self.speed = 5 -- Forward movement speed of the boat.
+    self.turn = 7 -- The RowBot's default turning rate.
+
     -- Boat animations
-    self.scale_x = gfx.animator.new(2500, self.scale, self.scale * 1.1)
-    self.scale_y = gfx.animator.new(2500, self.scale, self.scale * 1.1)
-    self.scale_x.reverses = true
-    self.scale_y.reverses = true
-    self.scale_x.repeatCount = -1
-    self.scale_y.repeatCount = -1
-    self.anim_ripple = gfx.animator.new(2500, self.scale * 1.05, self.scale * 1.1, pd.easingFunctions.outSine, 1000)
-    self.anim_ripple.reverses = true
-    self.anim_ripple.repeatCount = -1
-    self.boost_scale_x = gfx.animator.new(0, 1, 1)
-    self.boost_scale_y = gfx.animator.new(0, 1, 1)
-    self.currentspeed = gfx.animator.new(0, 0, 0)
-    self.camera_x = gfx.animator.new(0, 0, 0)
-    self.camera_y = gfx.animator.new(4000, -500, 0)
+    self.scale = gfx.animator.new(2500, self.scale_factor, self.scale_factor * 1.1) -- Idle scaling anim
+    self.scale.reverses = true -- Make the idle reverse after
+    self.scale.repeatCount = -1 -- Make the idle loop
+    self.boost_x = gfx.animator.new(0, 1, 1) -- Boost animation on the X axis
+    self.boost_y = gfx.animator.new(0, 1, 1) -- Boost animation on the Y axis
+    self.move_speedo = gfx.animator.new(0, 0, 0)
+    self.turn_speedo = gfx.animator.new(0, 0, 0) -- Current movement speed
+    self.cam_x = gfx.animator.new(0, 0, 0) -- Camera X position
+    if race then
+        self.cam_y = gfx.animator.new(2500, -300, 0, pd.easingFunctions.outCubic)
+    else
+        self.cam_y = gfx.animator.new(0, 0, 0) -- Camera Y position
+    end
+
     -- Other setup
-    self.turning = false
-    self.moving = false
-    self.crashed = false
-    self.boosting = false
-    self.leaping = false
-    self.reversed = false
-    self.race_started = false
-    self.race_finished = false
+    self.movable = false -- Can the boat be propelled forward?
+    self.rowbot = false -- Can the RowBot turn?
+    self.turnable = false -- Can the player turn?
+    self.crashed = false -- Are you crashed?
+    self.crashable = true -- Can you crash? (e.g. are you not in the air?)
+    self.boosting = false -- Boosting?
+    self.leaping = false -- Are you currently soaring into the air?
+    self.reversed = false -- Flips the direction of both RowBot and bunny turning.
+    self.straight = false -- For button controls. If this is enabled, the boat will move straight.
+    self.right = false -- For button controls. If this is enabled, the boat will move right.
+    self.dentable = false -- Hidden dent mode for the boat's body. Experimental!
+    self.crash_direction = 360
     self.rotation = 360
     self.crankage = 0
+
+    -- Final sprite stuff
     self:moveTo(x, y)
-    gfx.setDrawOffset(-self.x + 200, -self.y + 120)
     self:setSize(self.boat_size, self.boat_size)
+    self:setZIndex(0)
+    self:setCollideRect(0, 0, self.boat_size, self.boat_size)
     self:add()
 end
 
-function boat:start()
-    self.moving = true
-    self.turning = true
-    self.race_started = true
-    self.scale_x = gfx.animator.new(0, 1, 1)
-    self.scale_y = gfx.animator.new(0, 1, 1)
-    self.camera_x = gfx.animator.new(1500, 0, 20, pd.easingFunctions.inOutSine)
-    self.camera_y = gfx.animator.new(1500, 0, 20, pd.easingFunctions.inOutSine)
-    self.currentspeed = gfx.animator.new(1500, 0, self.movingspeed, pd.easingFunctions.inOutSine)
+function boat:setnewsize(size)
+    self.boat_size = size * self.scale_factor
+    self:setSize(self.boat_size, self.boat_size)
 end
 
-function boat:finish(peelout)
-    if not self.race_finished then
-        self.finish_x = gfx.animator.new(1250, self.x, self.x + (sin[self.rotation] * 150), pd.easingFunctions.outSine)
-        self.finish_y = gfx.animator.new(1250, self.y, self.y + (-cos[self.rotation] * 150), pd.easingFunctions.outSine)
-        self.finale_rotation = self.rotation
-        if peelout then
-            if self.rotation + 100 <= 360 then
-                self.finish_rotation = gfx.animator.new(1250, self.rotation, self.rotation + 100, pd.easingFunctions.outSine)
-            elseif self.rotation - 100 >= 1 then
-                self.finish_rotation = gfx.animator.new(1250, self.rotation, self.rotation - 100, pd.easingFunctions.outSine)
+function boat:state(move, rowbot, turn)
+    if self.movable and not move then -- If you're turning off the whole boat...
+        self.move_speedo = gfx.animator.new(750, self.move_speedo:currentValue(), 0, pd.easingFunctions.inOutSine)
+        self.cam_x = gfx.animator.new(800, self.cam_x:currentValue(), 0, pd.easingFunctions.inOutSine)
+        self.cam_y = gfx.animator.new(800, self.cam_y:currentValue(), 0, pd.easingFunctions.inOutSine)
+    elseif not self.movable and move then
+        self.move_speedo = gfx.animator.new(1000, self.move_speedo:currentValue(), 1, pd.easingFunctions.inOutSine)
+        self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 20, pd.easingFunctions.inOutSine)
+        self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 20, pd.easingFunctions.inOutSine)
+    end
+    if self.rowbot and not rowbot then
+        self.turn_speedo = gfx.animator.new(1000, self.turn_speedo:currentValue(), 0, pd.easingFunctions.inOutSine)
+    elseif not self.rowbot and rowbot then
+        self.turn_speedo = gfx.animator.new(1000, self.turn_speedo:currentValue(), 1, pd.easingFunctions.inOutSine)
+    end
+    self.movable = move
+    self.rowbot = rowbot
+    self.turnable = turn
+end
+
+function boat:finish(peelout) -- Disable peelout in tutorial!
+
+end
+
+function boat:collision_check(image)
+    local points_collided = {}
+    for i = 1, self.poly_body:count() do
+        local point = self.transform:transformedPolygon(self.poly_body):getPointAt(i)
+        point_x, point_y = point:unpack()
+        moved_x = point_x + self.x
+        moved_y = point_y + self.y
+        if image:sample(moved_x, moved_y) ~= gfx.kColorClear then
+            self:crash(point_x, point_y)
+            if self.dentable then
+                angle = math.deg(math.atan2(point_y, point_x))
+                new_point = self.poly_body:getPointAt(i)
+                new_point_x, new_point_y = new_point:unpack()
+                self.poly_body:setPointAt(i, 0 + (new_point_x * 0.9), 0 + (new_point_y * 0.9))
+            end
+            table.insert(points_collided, i)
+        end
+        point_x = nil
+        point_y = nil
+        moved_x = nil
+        moved_y = nil
+    end
+    if #points_collided == self.poly_body:count() then
+        self:beached()
+    end
+    points_collided = nil
+end
+
+function boat:crash(x, y)
+    if self.crashable then
+        if not self.crashed then
+            self.crashed = true
+            self.crash_time = 500 * math.clamp(self.turn_speedo:currentValue(), 0.25, 1)
+            self.move_speedo = gfx.animator.new(self.crash_time, 1, 0, pd.easingFunctions.outSine)
+            self.turn_speedo = gfx.animator.new(self.crash_time, 1, 0.5, pd.easingFunctions.outSine)
+            self.move_speedo.reverses = true
+            self.turn_speedo.reverses = true
+            pd.timer.performAfterDelay(self.crash_time, function()
+                self.crashed = false
+            end)
+        end
+        angle = math.deg(math.atan2(y, x))
+        self.crash_direction = math.floor(angle - 90 + (math.random(-1, 1) * 20)) % 360 + 1
+        save.total_crashes += 1
+        if story then
+            if save.current_story_slot == 1 then
+                save.slot1_crashes += 1
+            elseif save.current_story_slot == 2 then
+                save.slot2_crashes += 2
+            elseif save.current_story_slot == 3 then
+                save.slot3_crashes += 3
             end
         end
-        self.camera_x = gfx.animator.new(1250, self.camera_x:currentValue(), -100, pd.easingFunctions.outSine)
-        self.camera_y = gfx.animator.new(1250, self.camera_y:currentValue(), -100, pd.easingFunctions.outSine)
-        self.moving = false
-        self.turning = false
-        self.race_finished = true
     end
 end
 
-function boat:collision_check()
-end
-
-function boat:crash()
+function boat:beached()
+    print('beached!')
 end
 
 function boat:boost()
-    if not self.boosting and self.moving then
+    if self.movable and not self.boosting then -- Make sure they're not boosting already
         self.boosting = true
-        -- shakies()
-        self.camera_x = gfx.animator.new(500, self.camera_x:currentValue(), -40, pd.easingFunctions.outBack)
-        self.camera_y = gfx.animator.new(500, self.camera_y:currentValue(), -40, pd.easingFunctions.outBack)
-        self.boost_scale_x = gfx.animator.new(500, 0.8, 1)
-        self.boost_scale_y = gfx.animator.new(500, 1.2, 1)
-        self.currentspeed = gfx.animator.new(500, self.currentspeed:currentValue(), self.movingspeed * 1.5, pd.easingFunctions.inOutSine)
-        self.lerp = 0.1
+        -- Throw the camera back
+        self.cam_x = gfx.animator.new(500, self.cam_x:currentValue(), -40, pd.easingFunctions.outBack)
+        self.cam_y = gfx.animator.new(500, self.cam_y:currentValue(), -40, pd.easingFunctions.outBack)
+        -- Stretch the boat
+        self.boost_x = gfx.animator.new(500, 0.8, 1)
+        self.boost_y = gfx.animator.new(500, 1.2, 1)
+        self.speed = self.speed * 1.5 -- Make the boat go faster (duh)
+        self.lerp = 0.15 -- Make it turn a little less quickly, though!
         pd.timer.performAfterDelay(2500, function()
             self.boosting = false
-            self.lerp = 0.2
-            self.currentspeed = gfx.animator.new(500, self.currentspeed:currentValue(), self.movingspeed, pd.easingFunctions.inOutSine, 500)
-            self.camera_x = gfx.animator.new(1500, self.camera_x:currentValue(), 20, pd.easingFunctions.inOutSine)
-            self.camera_y = gfx.animator.new(1500, self.camera_y:currentValue(), 20, pd.easingFunctions.inOutSine)
+            -- Throw the camera ... back
+            if self.movable then
+                self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 20, pd.easingFunctions.inOutSine)
+                self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 20, pd.easingFunctions.inOutSine)
+            end
+            self.speed = self.speed / 1.5 -- Set the speed back?
+            self.lerp = 0.2 -- Set the lerp back
         end)
     end
 end
 
 function boat:leap()
-    if not self.leaping and self.moving then
+    if self.movable and not self.leaping then
         self.leaping = true
-        self.turning = false
-        self.scale_x = gfx.animator.new(650, self.scale * 1, self.scale * 2, pd.easingFunctions.outCubic)
-        self.scale_y = gfx.animator.new(650, self.scale * 1, self.scale * 2, pd.easingFunctions.outCubic)
-        self.scale_x.reverses = true
-        self.scale_y.reverses = true
-        self.boat_size = 200
-        self:setSize(self.boat_size, self.boat_size)
-        pd.timer.performAfterDelay(1300, function()
-            self.leaping = false
-            self.turning = true
-            self.scale_x = gfx.animator.new(500, self.scale * 0.8, self.scale * 1, pd.easingFunctions.outBack)
-            self.scale_y = gfx.animator.new(500, self.scale * 0.8, self.scale * 1, pd.easingFunctions.outBack)
-            self.boat_size = 100
-            self:setSize(self.boat_size, self.boat_size)
+        self.crashable = false
+        self:state(true, false, false) -- Disable turning. Do we need to do this?
+        self:setnewsize(200)
+        -- Scale anim — this is like 90% of the work
+        self.scale = gfx.animator.new(700, self.scale_factor, self.scale_factor * 2, pd.easingFunctions.outCubic)
+        self.scale.reverses = true
+        pd.timer.performAfterDelay(1400, function()
+            self:state(true, true, true) -- Re-enable turning
+            -- Bounce-back animation
+            self.scale = gfx.animator.new(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
+            -- Re-set boat size
+            self:setnewsize(90)
+            self.crashable = true
+            -- Set the idle scaling anim back
+            pd.timer.performAfterDelay(500, function()
+                self.leaping = false
+                self.scale = gfx.animator.new(2500, self.scale_factor, self.scale_factor * 1.1)
+            end)
         end)
     end
 end
 
 function boat:update()
     self.transform:reset()
-    self.transform_shadow:reset()
-    self.transform_ripple:reset()
-    if self.turning then
-        if pd.getCrankChange() >= 0 then
-            save.total_degrees_cranked += pd.getCrankChange()
-            self.crankage += ((pd.getCrankChange() / 3) - self.crankage) * self.lerp
-        else
-            self.crankage += ((0 / 3) - self.crankage) * self.lerp
-        end
-        self.rotation += self.crankage
-        self.rotation -= self.turningspeed
-        self.rotation = math.floor(self.rotation) % 360 + 1
-        self.radtation = math.rad(self.rotation)
-    end
-    if self.moving then
-        camx, camy = gfx.getDrawOffset()
-        gfx.setDrawOffset(camx + -sin[self.rotation] * self.currentspeed:currentValue(), camy + cos[self.rotation] * self.currentspeed:currentValue())
-        camx, camy = gfx.getDrawOffset()
-        self:moveTo(-camx + 200 - (sin[self.rotation] * self.camera_x:currentValue()), -camy + 120 + (cos[self.rotation] * self.camera_y:currentValue()))
+    self.shadow:reset()
+    if not self.crashed then
+        self:moveBy(sin[self.rotation] * (self.speed * self.move_speedo:currentValue()), -cos[self.rotation] * (self.speed * self.move_speedo:currentValue()))
     else
-        if self.race_finished then
-            self:moveTo(self.finish_x:currentValue(), self.finish_y:currentValue())
-            if self.finish_rotation ~= nil then
-                self.rotation = math.floor(self.finish_rotation:currentValue())
-            end
-            gfx.setDrawOffset(-self.x + 200 - (sin[self.finale_rotation] * self.camera_x:currentValue()), -self.y + 120 + (cos[self.finale_rotation] * self.camera_y:currentValue()))
-        elseif not self.race_started then
-            gfx.setDrawOffset(-self.x + 200 - self.camera_x:currentValue(), -self.y + 120 + self.camera_y:currentValue())
+        self:moveBy(sin[self.crash_direction] * (self.speed * self.move_speedo:currentValue()), -cos[self.crash_direction] * (self.speed * self.move_speedo:currentValue()))
+    end
+    x, y = gfx.getDrawOffset() -- Gimme the draw offset
+    gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x:currentValue(), -self.y + 120 + cos[self.rotation] * self.cam_y:currentValue())
+    -- if save.button_controls then
+        if self.right then
+            self.crankage += (self.turn * 3.8 - self.crankage) * self.turn_speedo:currentValue() * self.lerp
+        elseif self.straight then
+            self.crankage += (self.turn * 2.4 - self.crankage) * self.turn_speedo:currentValue() * self.lerp
         end
+    -- else
+        if pd.getCrankChange() > 0 then
+            save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
+            if playdate.isSimulator == 1 then
+                self.crankage += ((pd.getCrankChange() / 1.5) - self.crankage) * self.turn_speedo:currentValue() * self.lerp -- Make crankage a bit easier on Simulator
+            else
+                self.crankage += ((pd.getCrankChange() / 2.5) - self.crankage) * self.turn_speedo:currentValue() * self.lerp -- Lerp crankage to itself
+            end
+        else
+            self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
+        end
+    -- end
+    if self.turnable then -- If the player can turn the boat,
+        self.rotation += self.crankage -- Add crankage value on there
     end
-    self.transform:scale(self.scale_x:currentValue() * self.boost_scale_x:currentValue(), self.scale_y:currentValue() * self.boost_scale_y:currentValue())
+    if self.rowbot then -- If the RowBot needs to turn the boat,
+        self.rotation -= self.turn * self.turn_speedo:currentValue() -- Apply RowBot turning. Duh!
+    end
+    -- Make sure rotation winds up as integer 1 through 360
+    self.rotation = math.floor(self.rotation) % 360
+    if self.rotation == 0 then self.rotation = 360 end
+    -- Transform ALL the polygons!!!!1!
+    self.transform:scale(self.scale:currentValue() * self.boost_x:currentValue(), self.scale:currentValue() * self.boost_y:currentValue())
+    self.shadow:scale(self.scale_factor * self.boost_x:currentValue(), self.scale_factor * self.boost_y:currentValue())
     self.transform:rotate(self.rotation)
-    self.transform_shadow:scale(self.scale * self.boost_scale_x:currentValue(), self.scale * self.boost_scale_y:currentValue())
-    self.transform_shadow:rotate(self.rotation)
-    if not self.moving then
-        self.transform_ripple:rotate(self.rotation)
-        self.transform_ripple:scale(self.anim_ripple:currentValue())
-    end
+    self.shadow:rotate(self.rotation)
     self:markDirty()
 end
 
 function boat:draw(x, y, width, height)
     self.transform:translate(self.boat_size / 2, self.boat_size / 2)
-    self.transform_shadow:translate(5 * (self.scale_x:currentValue()*1.25) + self.boat_size / 2, 5 * (self.scale_y:currentValue()*1.25) + self.boat_size / 2)
-    if not self.moving and not self.finished then
-        self.transform_ripple:translate(self.boat_size / 2, self.boat_size / 2)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.setLineWidth(5)
-        gfx.drawPolygon(self.transform_ripple:transformedPolygon(self.poly_body))
-    end
+    self.shadow:translate(7 * self.scale_factor + self.boat_size / 2, 7 * self.scale_factor + self.boat_size / 2)
     gfx.setColor(gfx.kColorBlack)
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-    gfx.fillPolygon(self.transform_shadow:transformedPolygon(self.poly_body))
+    gfx.fillPolygon(self.shadow:transformedPolygon(self.poly_body))
     gfx.setColor(gfx.kColorWhite)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setColor(gfx.kColorBlack)
-    gfx.setLineWidth(2)
     gfx.drawPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setDitherPattern(0.75, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
     gfx.setColor(gfx.kColorWhite)
-    gfx.fillCircleAtPoint(cos[self.rotation] * (-12 * self.scale_x:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale_x:currentValue()) + self.boat_size / 2, 11 * self.scale_x:currentValue())
+    gfx.fillCircleAtPoint(cos[self.rotation] * (-12 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale:currentValue()) + self.boat_size / 2, 11 * self.scale:currentValue())
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_rowbot_fill))
     gfx.setColor(gfx.kColorBlack)
     gfx.drawPolygon(self.transform:transformedPolygon(self.poly_rowbot))
-    gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale_x:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale_x:currentValue()) + self.boat_size / 2, 11 * self.scale_x:currentValue())
-    gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale_x:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale_x:currentValue()) + self.boat_size / 2, 8 * self.scale_x:currentValue())
+    gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale:currentValue()) + self.boat_size / 2, 11 * self.scale:currentValue())
+    gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale:currentValue()) + self.boat_size / 2, 8 * self.scale:currentValue())
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-    gfx.fillCircleAtPoint(cos[self.rotation] * (-5 * self.scale_x:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-5 * self.scale_x:currentValue()) + self.boat_size / 2, 6 * self.scale_x:currentValue())
-    gfx.fillCircleAtPoint(cos[self.rotation] * (-19 * self.scale_x:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-19 * self.scale_x:currentValue()) + self.boat_size / 2, 6 * self.scale_x:currentValue())
-    gfx.fillCircleAtPoint(cos[self.rotation] * (13 * self.scale_x:currentValue()) + self.boat_size / 2, sin[self.rotation] * (13 * self.scale_x:currentValue()) + self.boat_size / 2, 3 * self.scale_x:currentValue())
+    gfx.fillCircleAtPoint(cos[self.rotation] * (-5 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-5 * self.scale:currentValue()) + self.boat_size / 2, 6 * self.scale:currentValue())
+    gfx.fillCircleAtPoint(cos[self.rotation] * (-19 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-19 * self.scale:currentValue()) + self.boat_size / 2, 6 * self.scale:currentValue())
+    gfx.fillCircleAtPoint(cos[self.rotation] * (13 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (13 * self.scale:currentValue()) + self.boat_size / 2, 3 * self.scale:currentValue())
 end

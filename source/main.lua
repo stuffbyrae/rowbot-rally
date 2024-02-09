@@ -17,6 +17,7 @@ local gfx <const> = pd.graphics
 
 pd.display.setRefreshRate(30)
 gfx.setBackgroundColor(gfx.kColorBlack)
+gfx.setLineWidth(2)
 
 -- Game variables
 show_crank = false -- do you show the crankindicator in this scene?
@@ -84,7 +85,6 @@ function savecheck()
     save.vol_music = save.vol_music or 5
     save.vol_sfx = save.vol_sfx or 5
     if save.pro_ui == nil then save.pro_ui = false end
-    save.crash_assist = save.crash_assist or 0
     if save.button_controls == nil then save.button_controls = false end
     save.sensitivty = save.sensitivity or 3
     -- Global stats

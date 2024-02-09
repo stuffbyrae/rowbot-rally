@@ -10,7 +10,7 @@ function race:init(...)
     race.super.init(self)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
-    gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
+    gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
     
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
@@ -19,17 +19,27 @@ function race:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/tracks/water_bg'),
-        test = gfx.image.new('images/race/tracks/track1')
+        test = gfx.image.new('images/race/tracks/track1'),
+        testc1 = gfx.image.new('images/race/tracks/trackc1')
     }
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
     }
     vars.raceHandlers = {
-        AButtonDown = function()
-            self.boat:finish(true)
-        end,
         BButtonDown = function()
             self.boat:boost()
+        end,
+        upButtonDown = function()
+            self.boat.straight = true
+        end,
+        upButtonUp = function()
+            self.boat.straight = false
+        end,
+        rightButtonDown = function()
+            self.boat.right = true
+        end,
+        rightButtonUp = function()
+            self.boat.right = false
         end
     }
     pd.inputHandlers.push(vars.raceHandlers)
@@ -40,22 +50,25 @@ function race:init(...)
 
     class('test').extends(gfx.sprite)
     function test:init()
-        self:setZIndex(-40)
+        self:setZIndex(5)
+        self:setCenter(0, 0)
         self:setImage(assets.test)
+        x, y = assets.test:getSize()
+        self:setCollideRect(0, 0, x, y)
         self:add()
     end
 
     -- Set the sprites
     self.test = test()
-    self.boat = boat(-400, 150)
+    self.boat = boat(275, 800, true, false)
     self:add()
     
     pd.timer.performAfterDelay(4000, function()
-        self.boat:start()
+        self.boat:state(true, true, true)
     end)
 end
 
 -- Scene update loop
 function race:update()
-    -- gfx.setDrawOffset(-self.x + 200 - (math.sin(self.radtation) * self.camera_x:currentValue()), -self.y + 120 + (math.cos(self.radtation) * self.camera_x:currentValue()))
+    self.boat:collision_check(assets.testc1)
 end

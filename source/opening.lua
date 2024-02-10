@@ -55,40 +55,40 @@ function opening:init(...)
     }
     pd.inputHandlers.push(vars.openingHandlers)
 
-    class('content').extends(gfx.sprite)
-    function content:init()
-        content.super.init(self)
+    class('opening_content').extends(gfx.sprite)
+    function opening_content:init()
+        opening_content.super.init(self)
         self:setCenter(0, 0)
         self:add()
     end
 
-    class('a').extends(gfx.sprite)
-    function a:init()
-        a.super.init(self)
+    class('opening_a').extends(gfx.sprite)
+    function opening_a:init()
+        opening_a.super.init(self)
         self:setImage(assets.image_a)
         self:setCenter(1, 1)
         self:moveTo(395, 235)
         self:add()
     end
 
-    class('fade').extends(gfx.sprite)
-    function fade:init()
-        fade.super.init(self)
+    class('opening_fade').extends(gfx.sprite)
+    function opening_fade:init()
+        opening_fade.super.init(self)
         self:setImage(assets.image_fade[1])
         self:setCenter(0, 0)
         self:setZIndex(9)
         self:add()
     end
-    function fade:update()
+    function opening_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade:currentValue())])
         end
     end
 
     -- Set the sprites
-    self.content = content()
-    self.a = a()
-    self.fade = fade()
+    self.content = opening_content()
+    self.a = opening_a()
+    self.fade = opening_fade()
     self:add()
 
     self:newcontent(vars.progress)

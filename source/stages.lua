@@ -154,9 +154,9 @@ function stages:init(...)
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
     end)
 
-    class('wave').extends(gfx.sprite)
-    function wave:init()
-        wave.super.init(self)
+    class('stages_wave').extends(gfx.sprite)
+    function stages_wave:init()
+        stages_wave.super.init(self)
         self:setImage(assets.image_wave_composite)
         self:setCenter(0, 0)
         self:setZIndex(2)
@@ -164,7 +164,7 @@ function stages:init(...)
         self:setZIndex(0)
         self:add()
     end
-    function wave:update()
+    function stages_wave:update()
         if vars.anim_wave_y ~= nil then
             self:moveTo(vars.anim_wave_x:currentValue(), vars.anim_wave_y:currentValue())
         else
@@ -172,97 +172,97 @@ function stages:init(...)
         end
     end
 
-    class('boat').extends(gfx.sprite)
-    function boat:init()
-        boat.super.init(self)
+    class('stages_boat').extends(gfx.sprite)
+    function stages_boat:init()
+        stages_boat.super.init(self)
         self:setImage(assets.image_boat)
         self:moveTo(45, 195)
         self:setZIndex(1)
         self:add()
     end
-    function boat:update()
+    function stages_boat:update()
         if vars.anim_boat_x ~= nil then
             self:moveTo(vars.anim_boat_x:currentValue(), vars.anim_boat_y:currentValue())
-        else
+        elseif vars.anim_boat_y ~= nil then
             self:moveTo(45, vars.anim_boat_y:currentValue())
         end
     end
 
-    class('back').extends(gfx.sprite)
-    function back:init()
-        back.super.init(self)
+    class('stages_back').extends(gfx.sprite)
+    function stages_back:init()
+        stages_back.super.init(self)
         self:setImage(assets.image_back)
         self:setCenter(0, 1)
         self:moveTo(105, 235)
         self:setZIndex(2)
         self:add()
     end
-    function back:update()
+    function stages_back:update()
         if vars.anim_back_y ~= nil then
             self:moveTo(105, vars.anim_back_y:currentValue())
         end
     end
 
-    class('top').extends(gfx.sprite)
-    function top:init()
-        top.super.init(self)
+    class('stages_top').extends(gfx.sprite)
+    function stages_top:init()
+        stages_top.super.init(self)
         self:setImage(assets.image_top)
         self:setCenter(0, 0)
         self:setZIndex(3)
         self:add()
     end
-    function top:update()
+    function stages_top:update()
         if vars.anim_top_y ~= nil then
             self:moveTo(0, vars.anim_top_y:currentValue())
         end
     end
 
-    class('preview').extends(gfx.sprite)
-    function preview:init()
-        preview.super.init(self)
+    class('stages_preview').extends(gfx.sprite)
+    function stages_preview:init()
+        stages_preview.super.init(self)
         self:setZIndex(4)
         self:setCenter(1, 0)
         self:moveTo(400, 0)
         self:setImage(assets.image_preview)
         self:add()
     end
-    function preview:update()
+    function stages_preview:update()
         if vars.anim_preview_x ~= nil then
             self:moveTo(vars.anim_preview_x:currentValue(), 0)
         end
     end
 
-    class('buttons').extends(gfx.sprite)
-    function buttons:init()
-        buttons.super.init(self)
+    class('stages_buttons').extends(gfx.sprite)
+    function stages_buttons:init()
+        stages_buttons.super.init(self)
         self:setZIndex(5)
         self:setImage(assets.image_buttons)
         self:setCenter(1, 1)
         self:moveTo(390, 235)
         self:add()
     end
-    function buttons:update()
+    function stages_buttons:update()
         if vars.anim_preview_x ~= nil then
             self:moveTo(vars.anim_preview_x:currentValue() - 10, 235)
         end
     end
 
-    class('lb_accent').extends(gfx.sprite)
-    function lb_accent:init()
-        lb_accent.super.init(self)
+    class('stages_lb_accent').extends(gfx.sprite)
+    function stages_lb_accent:init()
+        stages_lb_accent.super.init(self)
         self:setCenter(0, 1)
         self:moveTo(0, 240)
         self:setZIndex(1)
     end
 
-    class('lb_bubble').extends(gfx.sprite)
-    function lb_bubble:init()
-        lb_bubble.super.init(self)
+    class('stages_lb_bubble').extends(gfx.sprite)
+    function stages_lb_bubble:init()
+        stages_lb_bubble.super.init(self)
         self:setCenter(1, 0.5)
         self:moveTo(400, 120)
         self:setZIndex(7)
     end
-    function lb_bubble:update()
+    function stages_lb_bubble:update()
         if vars.anim_lb_bubble ~= nil then
             self:setImage(vars.anim_lb_bubble:image())
             if not vars.anim_lb_bubble:isValid() then
@@ -271,25 +271,24 @@ function stages:init(...)
         end
     end
 
-    class('lb_text').extends(gfx.sprite)
-    function lb_text:init()
-        lb_text.super.init(self)
+    class('stages_lb_text').extends(gfx.sprite)
+    function stages_lb_text:init()
+        stages_lb_text.super.init(self)
         self:setCenter(1, 0.5)
         self:moveTo(400, 120)
         self:setZIndex(8)
     end
 
     -- Set the sprites
-    self.wave = wave()
-    self.boat = boat()
-    self.back = back()
-    self.top = top()
-    self.preview = preview()
-    self.buttons = buttons()
-
-    self.lb_accent = lb_accent()
-    self.lb_bubble = lb_bubble()
-    self.lb_text = lb_text()
+    self.wave = stages_wave()
+    self.boat = stages_boat()
+    self.back = stages_back()
+    self.top = stages_top()
+    self.preview = stages_preview()
+    self.buttons = stages_buttons()
+    self.lb_accent = stages_lb_accent()
+    self.lb_bubble = stages_lb_bubble()
+    self.lb_text = stages_lb_text()
     self:add()
 
     newmusic('audio/music/stages', true) -- Adding new music
@@ -312,7 +311,6 @@ function stages:newselection(dir)
         update_image_top(vars.selection, true)
         assets.image_preview = gfx.image.new('images/stages/preview' .. vars.selection)
         self.preview:setImage(assets.image_preview)
-        vars.old_selection = vars.selection
     end
 end
 

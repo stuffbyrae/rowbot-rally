@@ -328,7 +328,10 @@ function scenemanager:cleanupscene()
     closepopup() -- Close any active popups that may be lingering.
     assets = nil -- Nil all the assets,
     vars = nil -- and nil all the variables.
-    gfx.sprite.removeAll() -- Remove every sprite,
+    gfx.sprite.performOnAllSprites(function(sprite)
+        sprite:remove()
+        sprite = nil
+    end)
     self:removealltimers() -- Remove every timer,
     collectgarbage('collect') -- and collect the garbage.
     gfx.setDrawOffset(0, 0) -- Lastly, reset the drawing offset. just in case.

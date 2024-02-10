@@ -8,7 +8,7 @@ local cos = {0.9998477, 0.9993908, 0.9986295, 0.9975641, 0.9961947, 0.9945219, 0
 
 -- Bote!
 class('boat').extends(gfx.sprite)
-function boat:init(x, y, race, story)
+function boat:init(x, y, race)
     boat.super.init(self)
 
     -- Boat image setup
@@ -77,8 +77,8 @@ function boat:state(move, rowbot, turn)
         self.cam_y = gfx.animator.new(800, self.cam_y:currentValue(), 0, pd.easingFunctions.inOutSine)
     elseif not self.movable and move then
         self.move_speedo = gfx.animator.new(1000, self.move_speedo:currentValue(), 1, pd.easingFunctions.inOutSine)
-        self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 20, pd.easingFunctions.inOutSine)
-        self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 20, pd.easingFunctions.inOutSine)
+        self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 30, pd.easingFunctions.inOutSine)
+        self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 30, pd.easingFunctions.inOutSine)
     end
     if self.rowbot and not rowbot then
         self.turn_speedo = gfx.animator.new(1000, self.turn_speedo:currentValue(), 0, pd.easingFunctions.inOutSine)
@@ -151,6 +151,9 @@ function boat:crash(x, y)
 end
 
 function boat:beached()
+    -- TODO: add logic for when the boat gets Beached (all points are colliding with something)
+    -- This means that the boat is stuck in quite the predicament, to put it lightly
+    -- So use some mario kart fishing logic to grab the boat, place it back at a safe point
     print('beached!')
 end
 
@@ -169,8 +172,8 @@ function boat:boost()
             self.boosting = false
             -- Throw the camera ... back
             if self.movable then
-                self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 20, pd.easingFunctions.inOutSine)
-                self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 20, pd.easingFunctions.inOutSine)
+                self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 30, pd.easingFunctions.inOutSine)
+                self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 30, pd.easingFunctions.inOutSine)
             end
             self.speed = self.speed / 1.5 -- Set the speed back?
             self.lerp = 0.2 -- Set the lerp back
@@ -213,24 +216,22 @@ function boat:update()
     end
     x, y = gfx.getDrawOffset() -- Gimme the draw offset
     gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x:currentValue(), -self.y + 120 + cos[self.rotation] * self.cam_y:currentValue())
-    -- if save.button_controls then
+    if save.button_controls or pd.isSimulator == 1 then
         if self.right then
-            self.crankage += (self.turn * 3.8 - self.crankage) * self.turn_speedo:currentValue() * self.lerp
+            self.crankage += (self.turn * 2 - self.crankage) * self.turn_speedo:currentValue() * self.lerp
         elseif self.straight then
-            self.crankage += (self.turn * 2.4 - self.crankage) * self.turn_speedo:currentValue() * self.lerp
+            self.crankage += (self.turn * 1.1 - self.crankage) * self.turn_speedo:currentValue() * self.lerp
+        else
+            self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if nothing is going on
         end
-    -- else
+    else
         if pd.getCrankChange() > 0 then
             save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
-            if playdate.isSimulator == 1 then
-                self.crankage += ((pd.getCrankChange() / 1.5) - self.crankage) * self.turn_speedo:currentValue() * self.lerp -- Make crankage a bit easier on Simulator
-            else
-                self.crankage += ((pd.getCrankChange() / 2.5) - self.crankage) * self.turn_speedo:currentValue() * self.lerp -- Lerp crankage to itself
-            end
+            self.crankage += ((pd.getCrankChange() / 2.5) - self.crankage) * self.turn_speedo:currentValue() * self.lerp -- Lerp crankage to itself
         else
             self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
         end
-    -- end
+    end
     if self.turnable then -- If the player can turn the boat,
         self.rotation += self.crankage -- Add crankage value on there
     end
@@ -273,4 +274,5 @@ function boat:draw(x, y, width, height)
     gfx.fillCircleAtPoint(cos[self.rotation] * (-5 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-5 * self.scale:currentValue()) + self.boat_size / 2, 6 * self.scale:currentValue())
     gfx.fillCircleAtPoint(cos[self.rotation] * (-19 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (-19 * self.scale:currentValue()) + self.boat_size / 2, 6 * self.scale:currentValue())
     gfx.fillCircleAtPoint(cos[self.rotation] * (13 * self.scale:currentValue()) + self.boat_size / 2, sin[self.rotation] * (13 * self.scale:currentValue()) + self.boat_size / 2, 3 * self.scale:currentValue())
+    gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
 end

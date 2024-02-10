@@ -4,10 +4,12 @@
 -- Importing other scenes that we'll have to travel to:
 import 'opening'
 import 'cutscene'
-import 'garage'
+import 'intro'
+import 'stages'
 import 'stats'
 import 'options'
 import 'notif'
+import 'chapters'
 
 -- Setting up consts
 local pd <const> = playdate
@@ -39,15 +41,15 @@ function title:init(...)
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
     end)
 
-    class('x1').extends(gfx.sprite)
-    function x1:init()
-        x1.super.init(self)
+    class('title_x1').extends(gfx.sprite)
+    function title_x1:init()
+        title_x1.super.init(self)
     end
-    function x1:update()
+    function title_x1:update()
     end
 
     -- Set the sprites
-    self.x1 = x1()
+    self.x1 = title_x1()
     self:add()
 
     newmusic('audio/music/title', true, 1.1) -- Adding new music

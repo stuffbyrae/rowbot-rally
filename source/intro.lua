@@ -117,66 +117,66 @@ function intro:init(...)
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
     end)
 
-    class('fade').extends(gfx.sprite)
-    function fade:init()
-        fade.super.init(self)
+    class('intro_fade').extends(gfx.sprite)
+    function intro_fade:init()
+        intro_fade.super.init(self)
         self:setImage(assets.image_fade[1])
         self:setCenter(0, 0)
         self:add()
     end
-    function fade:update()
+    function intro_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade:currentValue())])
         end
     end
 
-    class('left').extends(gfx.sprite)
-    function left:init()
-        left.super.init(self)
+    class('intro_left').extends(gfx.sprite)
+    function intro_left:init()
+        intro_left.super.init(self)
         self:setImage(assets.img_left)
         self:setCenter(0, 0)
         self:moveTo(-400, 0)
         self:add()
     end
-    function left:update()
+    function intro_left:update()
         if vars.anim_left ~= nil then
             self:moveTo(vars.anim_left:currentValue(), 0)
         end
     end
 
-    class('right').extends(gfx.sprite)
-    function right:init()
-        right.super.init(self)
+    class('intro_right').extends(gfx.sprite)
+    function intro_right:init()
+        intro_right.super.init(self)
         self:setImage(assets.image_preview)
         self:setCenter(1, 0)
         self:moveTo(600, 0)
         self:add()
     end
-    function right:update()
+    function intro_right:update()
         if vars.anim_right ~= nil then
             self:moveTo(vars.anim_right:currentValue(), 0)
         end
     end
 
-    class('bottom').extends(gfx.sprite)
-    function bottom:init()
-        bottom.super.init(self)
+    class('intro_bottom').extends(gfx.sprite)
+    function intro_bottom:init()
+        intro_bottom.super.init(self)
         self:setImage(assets.img_bottom)
         self:setCenter(0, 1)
         self:moveTo(0, 350)
         self:add()
     end
-    function bottom:update()
+    function intro_bottom:update()
         if vars.anim_left ~= nil then
             self:moveTo(0, vars.anim_bottom:currentValue())
         end
     end
 
     -- Set the sprites
-    self.fade = fade()
-    self.left = left()
-    self.right = right()
-    self.bottom = bottom()
+    self.fade = intro_fade()
+    self.left = intro_left()
+    self.right = intro_right()
+    self.bottom = intro_bottom()
     self:add()
 
     newmusic('audio/music/intro') -- Adding new music

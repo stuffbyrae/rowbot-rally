@@ -140,6 +140,8 @@ function results:init(...)
                     assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                     corner('sendscore')
                     pd.scoreboards.addScore('stage1', vars.time, function(status, result)
+                        printTable(status)
+                        print(result)
                         if status.code == "ERROR" then
                             makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
                         end
@@ -264,37 +266,37 @@ function results:init(...)
         assets.image_bg:draw(0, 0)
     end)
 
-    class('fade').extends(gfx.sprite)
-    function fade:init()
-        fade.super.init(self)
+    class('results_fade').extends(gfx.sprite)
+    function results_fade:init()
+        results_fade.super.init(self)
         self:setCenter(0, 0)
         self:setZIndex(0)
         self:add()
     end
-    function fade:update()
+    function results_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade:currentValue())])
         end
     end
 
-    class('plate').extends(gfx.sprite)
-    function plate:init()
-        plate.super.init(self)
+    class('results_plate').extends(gfx.sprite)
+    function results_plate:init()
+        results_plate.super.init(self)
         self:setImage(assets.image_plate)
         self:setCenter(0, 0)
         self:moveTo(0, 0)
         self:setZIndex(1)
         self:add()
     end
-    function plate:update()
+    function results_plate:update()
         if vars.anim_plate ~= nil then
             self:moveTo(0, vars.anim_plate:currentValue())
         end
     end
 
-    class('react').extends(gfx.sprite)
-    function react:init(win)
-        react.super.init(self)
+    class('results_react').extends(gfx.sprite)
+    function results_react:init(win)
+        results_react.super.init(self)
         if win then
             self:setImage(assets.image_react_win)
         else
@@ -305,16 +307,16 @@ function results:init(...)
         self:setZIndex(2)
         self:add()
     end
-    function react:update()
+    function results_react:update()
         if vars.anim_react ~= nil then
             self:moveTo(-15, vars.anim_react:currentValue())
         end
     end
 
     -- Set the sprites
-    self.fade = fade()
-    self.plate = plate()
-    self.react = react(vars.win)
+    self.fade = results_fade()
+    self.plate = results_plate()
+    self.react = results_react(vars.win)
     self:add()
 
     if vars.win then

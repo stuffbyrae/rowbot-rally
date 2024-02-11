@@ -102,6 +102,18 @@
 "leaderboards_grab" = "Grabbing leaderboards,\nplease wait..."
 "leaderboards_fail" = "Couldn't grab the\nleaderboards! Try\nagain later?"
 "leaderboards_empty" = "This leaderboard's\nempty. You'd better\nstart racing!"
+"anon_1" = "✨ Anonymous"
+"anon_2" = "✨ Ann G. Lure"
+"anon_3" = "✨ Riverbanksy"
+"anon_4" = "✨ Shadowy Figure"
+"anon_5" = "✨ Just a Stranger"
+"anon_6" = "✨ Not a RowBot"
+"anon_7" = "✨ Lone Drifter"
+"anon_8" = "✨ The Stig"
+"anon_9" = "✨ John F."
+"anon_10" = "✨ John L."
+"anon_11" = "✨ SAM-Y"
+"anon_12" = "✨ Gen. Barkless"
 
 -- Stats
 "stats_currentstage" = "Current stage"
@@ -162,6 +174,7 @@
 "th" = "th"
 "corner_saving" = "Saving..."
 "corner_sendscore" = "Sending score..."
+"default_username_text" = "✨ Change your username at\n🌐 play.date/account"
 
 -- Tutorial stages
 "tutorial_step_1" = "RowBot Model R-10 - Instruction Manual"

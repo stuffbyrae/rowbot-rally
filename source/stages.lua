@@ -58,7 +58,7 @@ function stages:init(...)
     gfx.popContext()
 
     -- Writing to the image along the top; wrapped in a function so that I can update it later.
-    function update_image_top(stage, show_desc, ranking)
+    function update_image_top(stage, show_desc, ranking, name)
         -- Todo: figure out if there's a better way to accomplish this bullshit
         -- Calculate the proper time for each save, and assign it to variables
         if stage == 1 then
@@ -92,6 +92,14 @@ function stages:init(...)
             if ranking ~= nil then
                 assets.kapel:drawText(gfx.getLocalizedText('yourank'), 125, 52)
                 assets.kapel_doubleup:drawTextAligned(ordinal(ranking) .. "!", 205, 60, kTextAlignment.right)
+                -- If the player has a default username, then let's throw a prompt up to tell them to change that. Woohoo, indoctrination!
+                if string.len(name) == 16 and tonumber(name) then
+                    gfx.fillRect(0, 165, 480, 40)
+                    gfx.setColor(gfx.kColorWhite)
+                    gfx.fillRect(0, 167, 480, 36)
+                    gfx.setColor(gfx.kColorBlack)
+                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('default_username_text'), 107, 170, kTextAlignment.center)
+                end
             end
         gfx.popContext()
         -- Nil those time variables, just in case
@@ -334,7 +342,7 @@ function stages:leaderboardsin()
         pd.scoreboards.getPersonalBest('stage' .. tostring(vars.selection), function(status, result)
             if status.code == "OK" then
                 if vars.leaderboards_open then
-                    update_image_top(vars.selection, false, result.rank)
+                    update_image_top(vars.selection, false, result.rank, result.player)
                 end
             end
         end)
@@ -350,7 +358,14 @@ function stages:leaderboardsin()
                 gfx.pushContext(assets.image_lb_text)
                 for _, v in ipairs(result.scores) do
                     mins, secs, mils = timecalc(v.value)
-                    assets.kapel:drawText(v.player, 15, (25 * v.rank) - 20)
+                    if string.len(v.player) == 16 and tonumber(v.player) then -- If there's a player with a default username,
+                        -- Assign them a random one.
+                        vars.random = math.random(1, 12)
+                        assets.kapel:drawText(gfx.getLocalizedText('anon_' .. vars.random), 15, (25 * v.rank) - 20)
+                    else
+                        -- Otherwise, just draw their username. Duh!
+                        assets.kapel:drawText(v.player, 15, (25 * v.rank) - 20)
+                    end
                     assets.kapel:drawTextAligned(ordinal(v.rank), 180, (25 * v.rank) - 20, kTextAlignment.right)
                     assets.pedallica:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 180, (25 * v.rank) - 10, kTextAlignment.right)
                 end

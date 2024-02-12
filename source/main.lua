@@ -48,6 +48,13 @@ local popup_out <const> = pd.sound.sampleplayer.new('audio/sfx/whoosh') -- Pop-u
 function savecheck()
     save = pd.datastore.read()
     if save == nil then save = {} end
+    -- Cheat codes!
+    save.cheats = false
+    save.cheats_big = false
+    save.cheats_small = false
+    save.cheaats_tiny = false
+    save.cheats_hard = false
+    save.cheats_dents = false
     -- Last saved slot, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
     save.current_story_slot = save.current_story_slot or 1
     -- Local best time-trial records for all courses

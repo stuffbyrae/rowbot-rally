@@ -203,7 +203,6 @@ function race:finish(timeout)
     if vars.in_progress then
         vars.in_progress = false
         vars.finished = true
-        assets.sfx_finish:play()
         self.boat:state(false, false, false)
         self.boat:finish(true)
         if timeout then -- If you ran the timer past 09:59.00...
@@ -212,9 +211,7 @@ function race:finish(timeout)
             -- TODO: referee whistle SFX
         else
             vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
-            -- TODO: finish applause SFX
-            -- TODO: calculate vars.won right here and right now.
-            vars.won = true -- Placeholder, just for now
+            assets.sfx_finish:play()
         end
         pd.timer.performAfterDelay(2000, function()
             scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won)

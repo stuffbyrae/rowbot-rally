@@ -18,6 +18,15 @@ function boat:init(x, y, race)
     self.poly_rowbot_fill = pd.geometry.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
     self.transform = pd.geometry.affineTransform.new()
     self.shadow = pd.geometry.affineTransform.new()
+
+    -- Boat sound effects
+    self.sfx_rowboton = pd.sound.sampleplayer.new('audio/sfx/rowboton')
+    self.sfx_row = pd.sound.sampleplayer.new('audio/sfx/row')
+    self.sfx_crash = pd.sound.sampleplayer.new('audio/sfx/crash')
+
+    self.sfx_rowboton:setVolume(save.vol_sfx/5)
+    self.sfx_row:setVolume(save.vol_sfx/5)
+    self.sfx_crash:setVolume(save.vol_sfx/5)
     
     -- Boat properties
     self.scale_factor = 1 -- Default scale of the boat.
@@ -68,21 +77,15 @@ end
 function boat:setnewsize(size)
     self.boat_size = size * self.scale_factor
     self:setSize(self.boat_size, self.boat_size)
+    self:setCollideRect(0, 0, self.boat_size, self.boat_size)
 end
 
+-- Changes the boat's state. Make sure to call start and finish alongside if you're changing move state!
 function boat:state(move, rowbot, turn)
-    if self.movable and not move then -- If you're turning off the whole boat...
-        self.move_speedo = gfx.animator.new(750, self.move_speedo:currentValue(), 0, pd.easingFunctions.inOutSine)
-        self.cam_x = gfx.animator.new(800, self.cam_x:currentValue(), 0, pd.easingFunctions.inOutSine)
-        self.cam_y = gfx.animator.new(800, self.cam_y:currentValue(), 0, pd.easingFunctions.inOutSine)
-    elseif not self.movable and move then
-        self.move_speedo = gfx.animator.new(1000, self.move_speedo:currentValue(), 1, pd.easingFunctions.inOutSine)
-        self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 30, pd.easingFunctions.inOutSine)
-        self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 30, pd.easingFunctions.inOutSine)
-    end
     if self.rowbot and not rowbot then
         self.turn_speedo = gfx.animator.new(1000, self.turn_speedo:currentValue(), 0, pd.easingFunctions.inOutSine)
     elseif not self.rowbot and rowbot then
+        self.sfx_rowboton:play()
         self.turn_speedo = gfx.animator.new(1000, self.turn_speedo:currentValue(), 1, pd.easingFunctions.inOutSine)
     end
     self.movable = move
@@ -90,8 +93,29 @@ function boat:state(move, rowbot, turn)
     self.turnable = turn
 end
 
-function boat:finish(peelout) -- Disable peelout in tutorial!
+-- Starts boat movement and camera
+function boat:start(duration) -- 1000 is default
+    duration = duration or 1000
+    self.move_speedo = gfx.animator.new(duration, self.move_speedo:currentValue(), 1, pd.easingFunctions.inOutSine)
+    self.cam_x = gfx.animator.new(duration * 1.5, self.cam_x:currentValue(), 40, pd.easingFunctions.inOutSine)
+    self.cam_y = gfx.animator.new(duration * 1.5, self.cam_y:currentValue(), 40, pd.easingFunctions.inOutSine)
+    self.sfx_row:play(0)
+end
 
+-- Stops boat movement and camera
+function boat:finish(peelout, duration) -- Disable peelout in tutorial!
+    duration = duration or 1500
+    self.move_speedo = gfx.animator.new(duration, 1.5, 0, pd.easingFunctions.inOutSine)
+    self.cam_x = gfx.animator.new(duration, self.cam_x:currentValue(), 0, pd.easingFunctions.inOutSine)
+    self.cam_y = gfx.animator.new(duration, self.cam_y:currentValue(), 0, pd.easingFunctions.inOutSine)
+    self.sfx_row:stop()
+    if peelout then
+        if self.crankage > self.turn * 1.1 then
+            self.peelout = gfx.animator.new(duration, self.rotation, self.rotation + math.random(30, 75), pd.easingFunctions.outSine)
+        else
+            self.peelout = gfx.animator.new(duration, self.rotation, self.rotation - math.random(30, 75), pd.easingFunctions.outSine)
+        end
+    end
 end
 
 function boat:collision_check(image)
@@ -126,17 +150,21 @@ function boat:crash(x, y)
     if self.crashable then
         if not self.crashed then
             self.crashed = true
+            self.sfx_crash:setRate(1 + (math.random() - 0.5))
+            self.sfx_crash:play()
             self.crash_time = 500 * math.clamp(self.turn_speedo:currentValue(), 0.25, 1)
-            self.move_speedo = gfx.animator.new(self.crash_time, 1, 0, pd.easingFunctions.outSine)
-            self.turn_speedo = gfx.animator.new(self.crash_time, 1, 0.5, pd.easingFunctions.outSine)
-            self.move_speedo.reverses = true
-            self.turn_speedo.reverses = true
-            pd.timer.performAfterDelay(self.crash_time, function()
-                self.crashed = false
-            end)
+            if self.movable then
+                self.move_speedo = gfx.animator.new(self.crash_time, 1, 0, pd.easingFunctions.outSine)
+                self.turn_speedo = gfx.animator.new(self.crash_time, 1, 0.5, pd.easingFunctions.outSine)
+                self.move_speedo.reverses = true
+                self.turn_speedo.reverses = true
+                pd.timer.performAfterDelay(self.crash_time, function()
+                    self.crashed = false
+                end)
+            end
         end
         angle = math.deg(math.atan2(y, x))
-        self.crash_direction = math.floor(angle - 90 + (math.random(-1, 1) * 20)) % 360 + 1
+        self.crash_direction = math.floor(angle - 90 + math.random(-20, 20)) % 360 + 1
         save.total_crashes += 1
         if story then
             if save.current_story_slot == 1 then
@@ -166,16 +194,16 @@ function boat:boost()
         -- Stretch the boat
         self.boost_x = gfx.animator.new(500, 0.8, 1)
         self.boost_y = gfx.animator.new(500, 1.2, 1)
-        self.speed = self.speed * 1.5 -- Make the boat go faster (duh)
+        self.speed = self.speed * 2 -- Make the boat go faster (duh)
         self.lerp = 0.15 -- Make it turn a little less quickly, though!
         pd.timer.performAfterDelay(2500, function()
             self.boosting = false
             -- Throw the camera ... back
             if self.movable then
-                self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 30, pd.easingFunctions.inOutSine)
-                self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 30, pd.easingFunctions.inOutSine)
+                self.cam_x = gfx.animator.new(1500, self.cam_x:currentValue(), 40, pd.easingFunctions.inOutSine)
+                self.cam_y = gfx.animator.new(1500, self.cam_y:currentValue(), 40, pd.easingFunctions.inOutSine)
             end
-            self.speed = self.speed / 1.5 -- Set the speed back?
+            self.speed = self.speed / 2 -- Set the speed back?
             self.lerp = 0.2 -- Set the lerp back
         end)
     end
@@ -237,6 +265,10 @@ function boat:update()
     end
     if self.rowbot then -- If the RowBot needs to turn the boat,
         self.rotation -= self.turn * self.turn_speedo:currentValue() -- Apply RowBot turning. Duh!
+    end
+    -- If there's a peelout anim, ignore EVERYTHING BEFORE JUST NOW and respect that instead.
+    if self.peelout ~= nil then
+        self.rotation = self.peelout:currentValue()
     end
     -- Make sure rotation winds up as integer 1 through 360
     self.rotation = math.floor(self.rotation) % 360

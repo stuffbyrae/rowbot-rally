@@ -29,7 +29,13 @@ function race:init(...)
         overlay_boost = gfx.imagetable.new('images/race/boost'),
         overlay_fade = gfx.imagetable.new('images/ui/fade/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
+        sfx_countdown = pd.sound.sampleplayer.new('audio/sfx/countdown'),
+        sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
+        sfx_finish = pd.sound.sampleplayer.new('audio/sfx/finish'),
     }
+    assets.sfx_countdown:setVolume(save.vol_sfx/5)
+    assets.sfx_start:setVolume(save.vol_sfx/5)
+    assets.sfx_finish:setVolume(save.vol_sfx/5)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
@@ -79,6 +85,7 @@ function race:init(...)
     elseif vars.stage == 6 then
     elseif vars.stage == 7 then
     end
+    assets.music = 'audio/music/stage' .. vars.stage
 
     if vars.mode == "story" then
     elseif vars.mode == "tt" then
@@ -156,7 +163,7 @@ function race:init(...)
     self:add()
     
     -- After the intro animation, start the race.
-    pd.timer.performAfterDelay(2500, function()
+    pd.timer.performAfterDelay(1, function()
         self:start()
     end)
 end
@@ -182,36 +189,54 @@ end
 
 function race:start()
     vars.started = true
+    assets.sfx_countdown:play()
     vars.anim_overlay = gfx.animation.loop.new(68, assets.overlay_countdown, false)
     pd.timer.performAfterDelay(3000, function()
-        vars.started = true
         vars.in_progress = true
+        newmusic(assets.music, true) -- Adding new music
         self.boat:state(true, true, true)
+        self.boat:start()
     end)
 end
 
 function race:finish(timeout)
-    vars.in_progress = false
-    vars.finished = true
-    self.boat:finish(true)
-    if timeout then -- If you ran the timer past 09:59.00...
-        vars.won = false -- Beans to whatever the other thing says, YOU LOST!
-        -- TODO: referee whistle SFX
-    else
-        vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
-        -- TODO: finish applause SFX
-        -- TODO: calculate vars.won right here and right now.
-        vars.won = true -- Placeholder, just for now
+    if vars.in_progress then
+        vars.in_progress = false
+        vars.finished = true
+        assets.sfx_finish:play()
+        self.boat:state(false, false, false)
+        self.boat:finish(true)
+        if timeout then -- If you ran the timer past 09:59.00...
+            vars.won = false -- Beans to whatever the other thing says, YOU LOST!
+            vars.anim_overlay = nil
+            -- TODO: referee whistle SFX
+        else
+            vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
+            -- TODO: finish applause SFX
+            -- TODO: calculate vars.won right here and right now.
+            vars.won = true -- Placeholder, just for now
+        end
+        pd.timer.performAfterDelay(2000, function()
+            scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won)
+        end)
     end
-    pd.timer.performAfterDelay(2000, function()
-        scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won)
-    end)
 end
 
 -- Scene update loop
 function race:update()
     if vars.in_progress then
         vars.current_time += 1
+        if vars.current_time == 17970 then
+            self:finish(true)
+        end
+        save.total_racetime += 1
+        if save.current_story_slot == 1 then
+            save.slot1_racetime += 1
+        elseif save.current_story_slot == 2 then
+            save.slot2_racetime += 1
+        elseif save.current_story_slot == 3 then
+            save.slot3_racetime += 1
+        end
     end
     if vars.started then
         self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image

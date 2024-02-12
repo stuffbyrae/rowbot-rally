@@ -24,6 +24,14 @@ show_crank = false -- do you show the crankindicator in this scene?
 corner_active = false -- Is the corner UI active?
 if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
 
+-- Cheats checks
+cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
+cheats_big = false
+cheats_small = false
+cheats_tiny = false
+cheats_hard = false
+cheats_dents = false
+
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
 local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
 local pedallica <const> = gfx.font.new('fonts/pedallica') -- Pedallica font
@@ -300,8 +308,8 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'stages' -- Start to this screen for debugging in simulator
-scenemanager:switchscene(stages)
+import 'race' -- Start to this screen for debugging in simulator
+scenemanager:switchscene(race, 1, "tt")
 
 function pd.update()
     -- Corner update logic

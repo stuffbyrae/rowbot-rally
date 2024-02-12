@@ -30,7 +30,3 @@ function notif:init(...)
 
     self:add()
 end
-
--- Scene update loop
-function notif:update()
-end

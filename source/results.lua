@@ -43,7 +43,11 @@ function results:init(...)
         AButtonDown = function()
             if vars.mode == "story" then
                 if vars.win then
-                    scenemanager:transitionstoryoneway()
+                    if demo then
+                        scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('demo_complete'), gfx.getLocalizedText('popup_demo'), gfx.getLocalizedText('title_screen'), false, function() scenemanager:switchscene(title) end)
+                    else
+                        scenemanager:transitionstoryoneway()
+                    end
                 else
                     scenemanager:transitionsceneoneway(race, vars.stage, "story")
                 end
@@ -65,8 +69,8 @@ function results:init(...)
     gfx.pushContext(assets.image_plate)
         local mins, secs, mils = timecalc(vars.time)
         gfx.setFont(assets.kapel_doubleup)
-        if vars.mode == "story" then
-            if vars.win then
+        if vars.win then
+            if vars.mode == "story" then
                 gfx.imageWithText(gfx.getLocalizedText('youwin'), 200, 120):drawScaled(40, 20, 2)
                 makebutton(gfx.getLocalizedText('onwards')):drawAnchored(355, 185, 1, 0.5)
                 makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
@@ -121,127 +125,131 @@ function results:init(...)
                         save.slot3_progress = "cutscene10"
                     end
                 end
-            else
-                gfx.imageWithText(gfx.getLocalizedText('youlost'), 200, 120):drawScaled(40, 20, 2)
+            elseif vars.mode == "tt" then
+                gfx.imageWithText(gfx.getLocalizedText('finish'), 200, 120):drawScaled(40, 20, 2)
                 makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
-                makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
-                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 85, kTextAlignment.right)
-                assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
+                makebutton(gfx.getLocalizedText('newtrack'), 'small'):drawAnchored(395, 235, 1, 1)
+                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 65, kTextAlignment.right)
+                assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 90, kTextAlignment.right)
+                if vars.stage == 1 then
+                    if vars.time < save.stage1_best and not cheats then
+                        save.stage1_best = vars.time
+                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                        corner('sendscore')
+                        pd.scoreboards.addScore('stage1', vars.time, function(status, result)
+                            printTable(status)
+                            print(result)
+                            if status.code == "ERROR" then
+                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                            end
+                        end)
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save.stage1_best)
+                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
+                    end
+                elseif vars.stage == 2 then
+                    if vars.time < save.stage2_best and not cheats then
+                        save.stage2_best = vars.time
+                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                        corner('sendscore')
+                        pd.scoreboards.addScore('stage2', vars.time, function(status, result)
+                            if status.code == "ERROR" then
+                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                            end
+                        end)
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save.stage2_best)
+                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
+                    end
+                elseif vars.stage == 3 then
+                    if vars.time < save.stage3_best and not cheats then
+                        save.stage3_best = vars.time
+                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                        corner('sendscore')
+                        pd.scoreboards.addScore('stage3', vars.time, function(status, result)
+                            if status.code == "ERROR" then
+                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                            end
+                        end)
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save.stage3_best)
+                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
+                    end
+                elseif vars.stage == 4 then
+                    if vars.time < save.stage4_best and not cheats then
+                        save.stage4_best = vars.time
+                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                        corner('sendscore')
+                        pd.scoreboards.addScore('stage4', vars.time, function(status, result)
+                            if status.code == "ERROR" then
+                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                            end
+                        end)
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save.stage4_best)
+                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
+                    end
+                elseif vars.stage == 5 then
+                    if vars.time < save.stage5_best and not cheats then
+                        save.stage5_best = vars.time
+                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                        corner('sendscore')
+                        pd.scoreboards.addScore('stage5', vars.time, function(status, result)
+                            if status.code == "ERROR" then
+                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                            end
+                        end)
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save.stage5_best)
+                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
+                    end
+                elseif vars.stage == 6 then
+                    if vars.time < save.stage1_best and not cheats then
+                        save.stage6_best = vars.time
+                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                        corner('sendscore')
+                        pd.scoreboards.addScore('stage6', vars.time, function(status, result)
+                            if status.code == "ERROR" then
+                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                            end
+                        end)
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save.stage6_best)
+                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
+                    end
+                elseif vars.stage == 7 then
+                    if vars.time < save.stage7_best and not cheats then
+                        save.stage7_best = vars.time
+                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                        corner('sendscore')
+                        pd.scoreboards.addScore('stage7', vars.time, function(status, result)
+                            if status.code == "ERROR" then
+                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                            end
+                        end)
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save.stage7_best)
+                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
+                    end
+                end
             end
-        elseif vars.mode == "tt" then
-            gfx.imageWithText(gfx.getLocalizedText('finish'), 200, 120):drawScaled(40, 20, 2)
+        else
+            gfx.imageWithText(gfx.getLocalizedText('youlost'), 200, 120):drawScaled(40, 20, 2)
             makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
-            makebutton(gfx.getLocalizedText('newtrack'), 'small'):drawAnchored(395, 235, 1, 1)
-            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 65, kTextAlignment.right)
-            assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 90, kTextAlignment.right)
-            if vars.stage == 1 then
-                if vars.time < save.stage1_best then
-                    save.stage1_best = vars.time
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage1', vars.time, function(status, result)
-                        printTable(status)
-                        print(result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                else
-                    local bestmins, bestsecs, bestmils = timecalc(save.stage1_best)
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                end
-            elseif vars.stage == 2 then
-                if vars.time < save.stage2_best then
-                    save.stage2_best = vars.time
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage2', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                else
-                    local bestmins, bestsecs, bestmils = timecalc(save.stage2_best)
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                end
-            elseif vars.stage == 3 then
-                if vars.time < save.stage3_best then
-                    save.stage3_best = vars.time
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage3', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                else
-                    local bestmins, bestsecs, bestmils = timecalc(save.stage3_best)
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                end
-            elseif vars.stage == 4 then
-                if vars.time < save.stage4_best then
-                    save.stage4_best = vars.time
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage4', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                else
-                    local bestmins, bestsecs, bestmils = timecalc(save.stage4_best)
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                end
-            elseif vars.stage == 5 then
-                if vars.time < save.stage5_best then
-                    save.stage5_best = vars.time
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage5', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                else
-                    local bestmins, bestsecs, bestmils = timecalc(save.stage5_best)
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                end
-            elseif vars.stage == 6 then
-                if vars.time < save.stage1_best then
-                    save.stage6_best = vars.time
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage6', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                else
-                    local bestmins, bestsecs, bestmils = timecalc(save.stage6_best)
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                end
-            elseif vars.stage == 7 then
-                if vars.time < save.stage7_best then
-                    save.stage7_best = vars.time
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage7', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                else
-                    local bestmins, bestsecs, bestmils = timecalc(save.stage7_best)
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                end
+            if vars.mode == "story" then
+                makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
+            elseif vars.mode == "tt" then
+                makebutton(gfx.getLocalizedText('newtrack'), 'small'):drawAnchored(395, 235, 1, 1)
             end
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 85, kTextAlignment.right)
+            assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
         end
     gfx.popContext()
 

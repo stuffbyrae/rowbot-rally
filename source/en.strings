@@ -17,12 +17,8 @@
 "cheatcode" = "You found a cheat code!"
 "popup_overwrite" = "Are you sure you wanna totally erase this slot?\nAny global unlocks will be saved, but your\nprogress in this save slot will be\nCOMPLETELY deleted. Forever! And ever!\n\nAre you still sure?"
 "popup_time_trials_unlocked" = "Try a solo race on any stages you've beaten\nso far, and compete for a top spot on the\nglobal leaderboards! Can you make the top 10?\n\nYou can access this mode from the title screen.\nUnlock more stages by playing more of the Story!"
-"popup_demo" = "Congrats, you've seen all this demo has to offer!\nThe full game has six more tracks, eight more\nanimated cutscenes, and plenty more goodies!\nIf you're interested in the full game, check it out:\n\nhttps://play.date/games/rowbot-rally"
+"popup_demo" = "Congrats, you've seen all this demo has to offer!\nThe full game has six more tracks, eight more\nanimated cutscenes, and plenty more goodies!\nIf you're interested in the full game, check it out:\n\n🌐 play.date/games/rowbot-rally"
 "popup_leaderboard_failed" = "Uh oh, it seems like your new score wasn't\nable to get sent up to the servers.\nMake sure to check your Internet connection!\n\nWe'll queue your score up, and\ntry again in a little bit."
-"cheat_hard" = "You've unlocked hard mode! For the rest of the\nplay session, you get only three crashes per\nrace. If you exceed that quota, you're out!\n"
-"cheat_big" = ""
-"cheat_small" = ""
-
 
 -- Title screen
 "story_mode" = "Story Mode"

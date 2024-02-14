@@ -29,7 +29,6 @@ cheats = false -- Set this to true if ANY cheats are enabled. Important!, as thi
 cheats_big = false
 cheats_small = false
 cheats_tiny = false
-cheats_hard = false
 cheats_dents = false
 
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
@@ -82,18 +81,21 @@ function savecheck()
     -- "finish" means move to chapter select.
     save.slot1_progress = save.slot1_progress or nil
     if save.slot1_finished == nil then save.slot1_finished = false end
+    if save.slot1_ngplus == nil then save.slot1_ngplus = false end
     save.slot1_crashes = save.slot1_crashes or 0
     save.slot1_racetime = save.slot1_racetime or 0
     -- Story slot 2
     if save.slot2_active == nil then save.slot2_active = false end
-    save.slot1_progress = save.slot1_progress or nil
-    if save.slot1_finished == nil then save.slot1_finished = false end
+    save.slot2_progress = save.slot2_progress or nil
+    if save.slot2_finished == nil then save.slot2_finished = false end
+    if save.slot2_ngplus == nil then save.slot2_ngplus = false end
     save.slot2_crashes = save.slot2_crashes or 0
     save.slot2_racetime = save.slot2_racetime or 0
     -- Story slot 3
     if save.slot3_active == nil then save.slot3_active = false end
-    save.slot1_progress = save.slot1_progress or nil
-    if save.slot1_finished == nil then save.slot1_finished = false end
+    save.slot3_progress = save.slot1_progress or nil
+    if save.slot3_finished == nil then save.slot3_finished = false end
+    if save.slot3_ngplus == nil then save.slot3_ngplus = false end
     save.slot3_crashes = save.slot3_crashes or 0
     save.slot3_racetime = save.slot3_racetime or 0
     -- Preferences, adjustable in Options menu
@@ -148,10 +150,12 @@ music = nil
 -- Fades the music out, and trashes it when finished. Should be called alongside a scene change, only if the music is expected to change. Delay can set the delay (in seconds) of the fade
 function fademusic(delay)
     delay = delay or 950
-    music:setVolume(0, 0, delay/1000, function()
-        music:stop()
-        music = nil
-    end)
+    if music ~= nil then
+        music:setVolume(0, 0, delay/1000, function()
+            music:stop()
+            music = nil
+        end)
+    end
 end
 -- New music track. This should be called in a scene's init, only if there's no track leading into it. File is a path to an audio file in the PDX. Loop, if true, will loop the audio file. Range will set the loop's starting range.
 function newmusic(file, loop, range)
@@ -164,6 +168,9 @@ function newmusic(file, loop, range)
             music:play(0)
         else
             music:play()
+            music:setFinishCallback(function()
+                music = nil
+            end)
         end
     end
 end

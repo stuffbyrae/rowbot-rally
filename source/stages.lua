@@ -353,7 +353,7 @@ function stages:leaderboardsin()
         self.lb_text:setImage(assets.image_lb_text)
         self.lb_text:add()
         pd.scoreboards.getScores('stage' .. tostring(vars.selection), function(status, result)
-            if status.code == "OK" then
+            if status.code == "OK" and vars.leaderboards_open then
                 assets.image_lb_text = gfx.image.new(190, 240)
                 gfx.pushContext(assets.image_lb_text)
                 for _, v in ipairs(result.scores) do
@@ -375,7 +375,7 @@ function stages:leaderboardsin()
                 gfx.popContext()
                 self.lb_text:setImage(assets.image_lb_text)
                 self.lb_accent:setImage(assets.image_rowbot_accent[2])
-            elseif status.code == "ERROR" then
+            elseif status.code == "ERROR" and vars.leaderboards_open then
                 assets.image_lb_text = gfx.image.new(190, 240)
                 gfx.pushContext(assets.image_lb_text)
                     assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_fail'), 100, 100, kTextAlignment.center)

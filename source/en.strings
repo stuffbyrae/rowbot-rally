@@ -40,6 +40,7 @@
 "youwin" = "Ⓦ You Win!"
 "youlost" = "Ⓛ You Lost..."
 "finish" = "Ⓕ Finish!"
+"timeout" = "Ⓕ Time-Out!"
 "onwards" = "Ⓐ Onwards!"
 "retry" = "Ⓐ Retry?"
 "newtrack" = "Ⓑ New Track"

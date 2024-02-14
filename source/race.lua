@@ -24,7 +24,8 @@ function race:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
-        timer = gfx.image.new('images/race/timer'),
+        image_timer = gfx.image.new('images/race/timer'),
+        image_meter = gfx.image.new('images/race/meter'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         overlay_boost = gfx.imagetable.new('images/race/boost'),
         overlay_fade = gfx.imagetable.new('images/ui/fade/fade'),
@@ -32,19 +33,27 @@ function race:init(...)
         sfx_countdown = pd.sound.sampleplayer.new('audio/sfx/countdown'),
         sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
         sfx_finish = pd.sound.sampleplayer.new('audio/sfx/finish'),
+        sfx_ref = pd.sound.sampleplayer.new('audio/sfx/ref'),
     }
     assets.sfx_countdown:setVolume(save.vol_sfx/5)
     assets.sfx_start:setVolume(save.vol_sfx/5)
     assets.sfx_finish:setVolume(save.vol_sfx/5)
+    assets.sfx_ref:setVolume(save.vol_sfx/5)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
         mode = args[2], -- A string, either "story" or "tt", to determine which mode to choose.
         current_time = 0,
+        mins = "00",
+        secs = "00",
+        mils = "00",
         started = false,
         in_progress = false,
         finished = false,
-        anim_in = gfx.animator.new(500, -130, 0, pd.easingFunctions.outSine),
+        rowbot = 0,
+        player = 0,
+        anim_hud = gfx.animator.new(500, -130, 0, pd.easingFunctions.outSine),
+        won = true,
     }
     vars.raceHandlers = {
         BButtonDown = function() -- TODO: add rocket boost code here.
@@ -76,8 +85,8 @@ function race:init(...)
     
     -- Adjust boat's starting X and Y, checkpoint/lap coords, etc. here
     if vars.stage == 1 then
-        vars.boat_x = 275
-        vars.boat_y = 800
+        vars.boat_x = 375
+        vars.boat_y = 1400
     elseif vars.stage == 2 then
     elseif vars.stage == 3 then
     elseif vars.stage == 4 then
@@ -140,19 +149,22 @@ function race:init(...)
                 vars.anim_overlay:draw(0, 0)
             end
         end
-        if not vars.finished then -- Only draw HUD stuff when the race isn't finished
-            -- Draw the timer
-            assets.timer:draw(vars.anim_in:currentValue(), 5)
-            local mins, secs, mils = timecalc(vars.current_time)
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            assets.times_new_rally:drawText(mins .. ":" .. secs .. "." .. mils, 44 + vars.anim_in:currentValue(), 20)
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            -- Draw the Rocket Arms icon, when applicable
-            if assets.image_item ~= nil then
-                assets.image_item:drawAnchored(400, 0, 1, 0)
-            end
-            -- Draw the power meter
+        -- Draw the timer
+        assets.image_timer:draw(vars.anim_hud:currentValue(), 5)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        assets.times_new_rally:drawText(vars.mins .. ":" .. vars.secs .. "." .. vars.mils, 44 + vars.anim_hud:currentValue(), 20)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        -- Draw the Rocket Arms icon, when applicable
+        if assets.image_item ~= nil then
+            assets.image_item:draw(313 - vars.anim_hud:currentValue(), 0)
         end
+        -- Draw the power meter
+        assets.image_meter:draw(0, 177 - vars.anim_hud:currentValue())
+        gfx.setLineWidth(8)
+        if vars.rowbot > 0 then
+            gfx.drawArc(200, 380 - vars.anim_hud:currentValue(), 160, math.clamp(32 - vars.player * 1.9, 3, 32), 328 + (vars.rowbot * 15))
+        end
+        gfx.setLineWidth(2)
     end
 
     -- Set the sprites
@@ -163,27 +175,29 @@ function race:init(...)
     self:add()
     
     -- After the intro animation, start the race.
-    pd.timer.performAfterDelay(1, function()
+    pd.timer.performAfterDelay(2000, function()
         self:start()
     end)
 end
 
 function race:boost()
-    if vars.started and not self.boat.boosting and vars.boosts_remaining > 0 then
-        self.boat:boost()
-        vars.boosts_remaining -= 1
-        assets.image_item = gfx.image.new('images/race/item_active')
-        vars.anim_overlay = gfx.animation.loop.new(100, assets.overlay_boost, true)
-        pd.timer.performAfterDelay(50, function()
-            if vars.boosts_remaining ~= 0 then
-                assets.image_item = gfx.image.new('images/race/item_' .. vars.boosts_remaining)
-            else
-                assets.image_item = gfx.image.new('images/race/item_used')
-            end
-        end)
-        pd.timer.performAfterDelay(2500, function()
-            vars.anim_overlay = nil
-        end)
+    if vars.mode == "tt" then
+        if vars.in_progress and not self.boat.boosting and vars.boosts_remaining > 0 then
+            self.boat:boost()
+            vars.boosts_remaining -= 1
+            assets.image_item = gfx.image.new('images/race/item_active')
+            vars.anim_overlay = gfx.animation.loop.new(100, assets.overlay_boost, true)
+            pd.timer.performAfterDelay(50, function()
+                if vars.boosts_remaining ~= 0 then
+                    assets.image_item = gfx.image.new('images/race/item_' .. vars.boosts_remaining)
+                else
+                    assets.image_item = gfx.image.new('images/race/item_used')
+                end
+            end)
+            pd.timer.performAfterDelay(2500, function()
+                vars.anim_overlay = nil
+            end)
+        end
     end
 end
 
@@ -193,7 +207,7 @@ function race:start()
     vars.anim_overlay = gfx.animation.loop.new(68, assets.overlay_countdown, false)
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
-        newmusic(assets.music, true) -- Adding new music
+        -- newmusic(assets.music, true) -- Adding new music
         self.boat:state(true, true, true)
         self.boat:start()
     end)
@@ -201,14 +215,16 @@ end
 
 function race:finish(timeout)
     if vars.in_progress then
+        vars.anim_hud = gfx.animator.new(500, 0, -130, pd.easingFunctions.inSine)
         vars.in_progress = false
         vars.finished = true
+        fademusic(1)
         self.boat:state(false, false, false)
         self.boat:finish(true)
         if timeout then -- If you ran the timer past 09:59.00...
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
             vars.anim_overlay = nil
-            -- TODO: referee whistle SFX
+            assets.sfx_ref:play()
         else
             vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
             assets.sfx_finish:play()
@@ -219,23 +235,46 @@ function race:finish(timeout)
     end
 end
 
+-- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
+-- Local copy to see if that won't make it run a bit faster
+function race:timecalc(num)
+    local mins = string.format("%02.f", math.floor((num/30) / 60))
+    local secs = string.format("%02.f", math.floor((num/30) - mins * 60))
+    local mils = string.format("%02.f", (num/30)*99 - mins * 5940 - secs * 99)
+    return mins, secs, mils
+end
+
 -- Scene update loop
 function race:update()
+    vars.rowbot = self.boat.turn_speedo.value
+    vars.player = self.boat.crankage
     if vars.in_progress then
         vars.current_time += 1
+        vars.mins, vars.secs, vars.mils = self:timecalc(vars.current_time)
         if vars.current_time == 17970 then
             self:finish(true)
         end
         save.total_racetime += 1
+        if vars.mode == "story" then
+        end
         if save.current_story_slot == 1 then
+            if save.slot1_ngplus and self.boat.crashes == 3 then
+                self:finish(true)
+            end
             save.slot1_racetime += 1
         elseif save.current_story_slot == 2 then
+            if save.slot1_ngplus and self.boat.crashes == 3 then
+                self:finish(true)
+            end
             save.slot2_racetime += 1
         elseif save.current_story_slot == 3 then
+            if save.slot1_ngplus and self.boat.crashes == 3 then
+                self:finish(true)
+            end
             save.slot3_racetime += 1
         end
     end
-    if vars.started then
+    if vars.started and save.total_playtime % 2 == 0 then
         self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
     end
 end

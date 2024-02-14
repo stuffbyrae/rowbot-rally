@@ -41,6 +41,7 @@ function results:init(...)
     }
     vars.resultsHandlers = {
         AButtonDown = function()
+            fademusic()
             if vars.mode == "story" then
                 if vars.win then
                     if demo then
@@ -57,6 +58,7 @@ function results:init(...)
         end,
 
         BButtonDown = function()
+            fademusic()
             if vars.mode == "story" then
                 scenemanager:transitionsceneoneway(title)
             elseif vars.mode == "tt" then
@@ -70,6 +72,7 @@ function results:init(...)
         local mins, secs, mils = timecalc(vars.time)
         gfx.setFont(assets.kapel_doubleup)
         if vars.win then
+            newmusic('audio/sfx/win')
             if vars.mode == "story" then
                 gfx.imageWithText(gfx.getLocalizedText('youwin'), 200, 120):drawScaled(40, 20, 2)
                 makebutton(gfx.getLocalizedText('onwards')):drawAnchored(355, 185, 1, 0.5)
@@ -241,6 +244,7 @@ function results:init(...)
                 end
             end
         else
+            newmusic('audio/sfx/lose')
             gfx.imageWithText(gfx.getLocalizedText('youlost'), 200, 120):drawScaled(40, 20, 2)
             makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
             if vars.mode == "story" then
@@ -326,14 +330,4 @@ function results:init(...)
     self.plate = results_plate()
     self.react = results_react(vars.win)
     self:add()
-
-    if vars.win then
-        newmusic('audio/sfx/win')
-    else
-        newmusic('audio/sfx/lose')
-    end
-end
-
--- Scene update loop
-function results:update()
 end

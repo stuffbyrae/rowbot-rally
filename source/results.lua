@@ -60,9 +60,9 @@ function results:init(...)
         BButtonDown = function()
             fademusic()
             if vars.mode == "story" then
-                scenemanager:transitionsceneoneway(title)
+                scenemanager:transitionsceneonewayback(title)
             elseif vars.mode == "tt" then
-                scenemanager:transitionscene(stages)
+                scenemanager:transitionsceneback(stages)
             end
         end
     }

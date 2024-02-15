@@ -240,6 +240,23 @@ function scenemanager:transitionscene(scene, ...)
     end
 end
 
+function scenemanager:transitionsceneback(scene, ...)
+    if self.transitioning then return end
+    show_crank = false
+    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    self.transitioning = true
+    self.newscene = scene
+    self.sceneargs = {...}
+    local transitiontimer = self:transition(-350, 250, 0, 10)
+    transitiontimer.timerEndedCallback = function()
+        self:loadnewscene()
+        transitiontimer = self:transition(250, 750, -10, 0)
+        transitiontimer.timerEndedCallback = function()
+            self.transitioning = false
+        end
+    end
+end
+
 function scenemanager:transitionstoryoneway()
     if self.transitioning then return end
     show_crank = false
@@ -269,6 +286,21 @@ function scenemanager:transitionsceneoneway(scene, ...)
     end
 end
 
+function scenemanager:transitionsceneonewayback(scene, ...)
+    if self.transitioning then return end
+    show_crank = false
+    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    self.transitioning = true
+    self.newscene = scene
+    self.sceneargs = {...}
+    local transitiontimer = self:transitiononewayback(-482, 0, 0, 10)
+    transitiontimer.timerEndedCallback = function()
+        self:loadnewscene()
+        self.transitioning = false
+        gfx.setDrawOffset(0, 0)
+    end
+end
+
 function scenemanager:transition(startvalue, endvalue, offsetstartvalue, offsetendvalue)
     local loading = self:loadingsprite()
     loading:moveTo(startvalue, 120)
@@ -281,6 +313,16 @@ end
 
 function scenemanager:transitiononeway(startvalue, endvalue, offsetstartvalue, offsetendvalue)
     local loading = self:loadingspriteoneway()
+    loading:moveTo(startvalue, 120)
+    local transitiontimer = pd.timer.new(self.transitiontime, startvalue, endvalue, pd.easingFunctions.inOutCirc)
+    local offsettimer = pd.timer.new(self.offsettime, offsetstartvalue, offsetendvalue, pd.easingFunctions.inOutCirc)
+    transitiontimer.updateCallback = function(timer) loading:moveTo(timer.value, 120) end
+    offsettimer.updateCallback = function(timer) gfx.setDrawOffset(timer.value, 0) end
+    return transitiontimer
+end
+
+function scenemanager:transitiononewayback(startvalue, endvalue, offsetstartvalue, offsetendvalue)
+    local loading = self:loadingspriteotherway()
     loading:moveTo(startvalue, 120)
     local transitiontimer = pd.timer.new(self.transitiontime, startvalue, endvalue, pd.easingFunctions.inOutCirc)
     local offsettimer = pd.timer.new(self.offsettime, offsetstartvalue, offsetendvalue, pd.easingFunctions.inOutCirc)

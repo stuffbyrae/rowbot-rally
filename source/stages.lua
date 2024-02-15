@@ -138,7 +138,7 @@ function stages:init(...)
 
         BButtonDown = function()
             fademusic()
-            scenemanager:transitionsceneoneway(title)
+            scenemanager:transitionsceneonewayback(title)
         end,
 
         AButtonDown = function()

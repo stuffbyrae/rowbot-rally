@@ -230,7 +230,7 @@ function race:finish(timeout)
             assets.sfx_finish:play()
         end
         pd.timer.performAfterDelay(2000, function()
-            scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won)
+            scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won, self.boat.crashes)
         end)
     end
 end

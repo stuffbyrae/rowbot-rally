@@ -79,11 +79,25 @@ function boat:init(x, y, race)
     self.reversed = false -- Flips the direction of both RowBot and bunny turning.
     self.straight = false -- For button controls. If this is enabled, the boat will move straight.
     self.right = false -- For button controls. If this is enabled, the boat will move right.
-    self.dentable = cheats_dents -- Hidden dent mode for the boat's body. Experimental!
+    self.dentable = cheats_dents -- Hidden dent mode for the boat's body.
     self.crash_direction = 360
     self.rotation = 360
     self.crankage = 0
     self.crashes = 0
+
+    if save.current_story_slot == 1 then
+        if save.slot1_ngplus then
+            self.dentable = true
+        end
+    elseif save.current_story_slot == 2 then
+        if save.slot2_ngplus then
+            self.dentable = true
+        end
+    elseif save.current_story_slot == 3 then
+        if save.slot3_ngplus then
+            self.dentable = true
+        end
+    end
 
     -- Final sprite stuff
     self:moveTo(x, y)
@@ -175,6 +189,16 @@ function boat:crash(x, y)
             self.crash_time = 500 * math.clamp(self.move_speedo.value, 0.25, 1)
             if self.movable then
                 self.crashes += 1
+                save.total_crashes += 1
+                if story then
+                    if save.current_story_slot == 1 then
+                        save.slot1_crashes += 1
+                    elseif save.current_story_slot == 2 then
+                        save.slot2_crashes += 2
+                    elseif save.current_story_slot == 3 then
+                        save.slot3_crashes += 3
+                    end
+                end
                 self.move_speedo = pd.timer.new(self.crash_time, 1, 0, pd.easingFunctions.outSine)
                 self.turn_speedo = pd.timer.new(self.crash_time, 1, 0.5, pd.easingFunctions.outSine)
                 self.move_speedo.reverses = true
@@ -188,16 +212,6 @@ function boat:crash(x, y)
         end
         angle = math.deg(math.atan2(y, x))
         self.crash_direction = math.floor(angle - 90 + math.random(-20, 20)) % 360 + 1
-        save.total_crashes += 1
-        if story then
-            if save.current_story_slot == 1 then
-                save.slot1_crashes += 1
-            elseif save.current_story_slot == 2 then
-                save.slot2_crashes += 2
-            elseif save.current_story_slot == 3 then
-                save.slot3_crashes += 3
-            end
-        end
     end
 end
 
@@ -261,13 +275,13 @@ end
 function boat:update()
     self.transform:reset()
     self.shadow:reset()
+    x, y = gfx.getDrawOffset() -- Gimme the draw offset
+    gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
     if not self.crashed then
         self:moveBy(sin[self.rotation] * (self.speed * self.move_speedo.value), -cos[self.rotation] * (self.speed * self.move_speedo.value))
     else
         self:moveBy(sin[self.crash_direction] * (self.speed * self.move_speedo.value), -cos[self.crash_direction] * (self.speed * self.move_speedo.value))
     end
-    x, y = gfx.getDrawOffset() -- Gimme the draw offset
-    gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
     if save.button_controls or pd.isSimulator == 1 then
         if self.right then
             self.crankage += (self.turn * 2 - self.crankage) * self.turn_speedo.value * self.lerp

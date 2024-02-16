@@ -10,10 +10,14 @@ import 'stats'
 import 'options'
 import 'notif'
 import 'chapters'
+import 'cheats'
 
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+
+-- Cheat code setup
+import "Tanuk_CodeSequence"
 
 class('title').extends(gfx.sprite) -- Create the scene's class
 function title:init(...)
@@ -26,6 +30,37 @@ function title:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
     end
+
+    local cheat_code_big = Tanuk_CodeSequence({pd.kButtonUp,}, function()
+        scenemanager:switchscene(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_big'), gfx.getLocalizedText('title_screen'), false, function()
+            scenemanager:switchscene(title)
+        end)
+    end, true)
+    local cheat_code_small = Tanuk_CodeSequence({pd.kButtonDown,}, function()
+        scenemanager:switchscene(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_small'), gfx.getLocalizedText('title_screen'), false, function()
+            scenemanager:switchscene(title)
+        end)
+    end, true)
+    local cheat_code_tiny = Tanuk_CodeSequence({pd.kButtonLeft,}, function()
+        scenemanager:switchscene(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_tiny'), gfx.getLocalizedText('title_screen'), false, function()
+            scenemanager:switchscene(title)
+        end)
+    end, true)
+    local cheat_code_dents = Tanuk_CodeSequence({pd.kButtonRight,}, function()
+        scenemanager:switchscene(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_dents'), gfx.getLocalizedText('title_screen'), false, function()
+            scenemanager:switchscene(title)
+        end)
+    end, true)
+    local cheat_code_retro = Tanuk_CodeSequence({pd.kButtonB,}, function()
+        scenemanager:switchscene(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_retro'), gfx.getLocalizedText('title_screen'), false, function()
+            scenemanager:switchscene(title)
+        end)
+    end, true)
+    local cheat_code_all = Tanuk_CodeSequence({pd.kButtonA,}, function()
+        scenemanager:switchscene(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_all'), gfx.getLocalizedText('title_screen'), false, function()
+            scenemanager:switchscene(title)
+        end)
+    end, true)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
     }

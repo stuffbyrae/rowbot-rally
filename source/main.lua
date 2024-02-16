@@ -30,6 +30,7 @@ cheats_big = false
 cheats_small = false
 cheats_tiny = false
 cheats_dents = false
+cheats_retro = false
 
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
 local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
@@ -51,9 +52,9 @@ function savecheck()
     save.cheats = false
     save.cheats_big = false
     save.cheats_small = false
-    save.cheaats_tiny = false
-    save.cheats_hard = false
+    save.cheats_tiny = false
     save.cheats_dents = false
+    save.cheats_retro = false
     -- Last saved slot, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
     save.current_story_slot = save.current_story_slot or 1
     -- Local best time-trial records for all courses
@@ -72,6 +73,22 @@ function savecheck()
     save.stage5_plays = save.stage5_plays or 0
     save.stage6_plays = save.stage6_plays or 0
     save.stage7_plays = save.stage7_plays or 0
+    -- Has the stage been completed with a Flawless ranking (no crashes)?
+    if save.stage1_flawless == nil then save.stage1_flawless = false end
+    if save.stage2_flawless == nil then save.stage2_flawless = false end
+    if save.stage3_flawless == nil then save.stage3_flawless = false end
+    if save.stage4_flawless == nil then save.stage4_flawless = false end
+    if save.stage5_flawless == nil then save.stage5_flawless = false end
+    if save.stage6_flawless == nil then save.stage6_flawless = false end
+    if save.stage7_flawless == nil then save.stage7_flawless = false end
+    -- Has the stage been completed with a Speedy ranking (under par time)?
+    if save.stage1_speedy == nil then save.stage1_speedy = false end
+    if save.stage2_speedy == nil then save.stage2_speedy = false end
+    if save.stage3_speedy == nil then save.stage3_speedy = false end
+    if save.stage4_speedy == nil then save.stage4_speedy = false end
+    if save.stage5_speedy == nil then save.stage5_speedy = false end
+    if save.stage6_speedy == nil then save.stage6_speedy = false end
+    if save.stage7_speedy == nil then save.stage7_speedy = false end
     -- Story slot 1
     if save.slot1_active == nil then save.slot1_active = false end
     -- slotX_progress: nil means move to opening scene
@@ -322,8 +339,8 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'race' -- Start to this screen for debugging in simulator
-scenemanager:switchscene(race, 1, "tt")
+import 'title' -- Start to this screen for debugging in simulator
+scenemanager:switchscene(title)
 
 function pd.update()
     -- Corner update logic

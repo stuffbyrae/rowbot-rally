@@ -35,9 +35,11 @@ function results:init(...)
         mode = args[2], -- string; "story" or "tt"
         time = args[3], -- number. send in the time!
         win = args[4], -- boolean, true or false. Only affects anything if in story mode.
+        crashes = args[5], -- number. how many times did the boat crash while the race was active?
         anim_fade = gfx.animator.new(750, 34, 11, pd.easingFunctions.outSine),
         anim_plate = gfx.animator.new(350, 240, 0, pd.easingFunctions.outBack),
         anim_react = gfx.animator.new(450, 420, 240, pd.easingFunctions.outCubic, 200),
+        speedy = false,
     }
     vars.resultsHandlers = {
         AButtonDown = function()
@@ -68,68 +70,204 @@ function results:init(...)
     }
     pd.inputHandlers.push(vars.resultsHandlers)
 
+    if vars.win then
+        newmusic('audio/sfx/win')
+        if vars.mode == "story" then
+            if save.current_story_slot == 1 then
+                if vars.stage == 1 then
+                    save.slot1_progress = "cutscene3"
+                elseif vars.stage == 2 then
+                    save.slot1_progress = "cutscene4"
+                elseif vars.stage == 3 then
+                    save.slot1_progress = "cutscene5"
+                elseif vars.stage == 4 then
+                    save.slot1_progress = "cutscene6"
+                elseif vars.stage == 5 then
+                    save.slot1_progress = "cutscene8"
+                elseif vars.stage == 6 then
+                    save.slot1_progress = "cutscene9"
+                elseif vars.stage == 7 then
+                    save.slot1_progress = "cutscene10"
+                end
+            elseif save.current_story_slot == 2 then
+                if vars.stage == 1 then
+                    save.slot2_progress = "cutscene3"
+                elseif vars.stage == 2 then
+                    save.slot2_progress = "cutscene4"
+                elseif vars.stage == 3 then
+                    save.slot2_progress = "cutscene5"
+                elseif vars.stage == 4 then
+                    save.slot2_progress = "cutscene6"
+                elseif vars.stage == 5 then
+                    save.slot2_progress = "cutscene8"
+                elseif vars.stage == 6 then
+                    save.slot2_progress = "cutscene9"
+                elseif vars.stage == 7 then
+                    save.slot2_progress = "cutscene10"
+                end
+            elseif save.current_story_slot == 3 then
+                if vars.stage == 1 then
+                    save.slot3_progress = "cutscene3"
+                elseif vars.stage == 2 then
+                    save.slot3_progress = "cutscene4"
+                elseif vars.stage == 3 then
+                    save.slot3_progress = "cutscene5"
+                elseif vars.stage == 4 then
+                    save.slot3_progress = "cutscene6"
+                elseif vars.stage == 5 then
+                    save.slot3_progress = "cutscene8"
+                elseif vars.stage == 6 then
+                    save.slot3_progress = "cutscene9"
+                elseif vars.stage == 7 then
+                    save.slot3_progress = "cutscene10"
+                end
+            end
+        elseif vars.mode == "tt" then
+            if vars.stage == 1 then
+                if vars.time < save.stage1_best and not cheats then
+                    save.stage1_best = vars.time
+                    corner('sendscore')
+                    pd.scoreboards.addScore('stage1', vars.time, function(status, result)
+                        printTable(status)
+                        print(result)
+                        if status.code == "ERROR" then
+                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                        end
+                    end)
+                end
+                -- TODO: Set the par time here.
+                if vars.time < 100 and not cheats then
+                    save.stage1_speedy = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not cheats then
+                    save.stage1_flawless = true
+                end
+            elseif vars.stage == 2 then
+                if vars.time < save.stage2_best and not cheats then
+                    save.stage2_best = vars.time
+                    corner('sendscore')
+                    pd.scoreboards.addScore('stage2', vars.time, function(status, result)
+                        if status.code == "ERROR" then
+                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                        end
+                    end)
+                end
+                -- TODO: Set the par time here.
+                if vars.time < 0 and not cheats then
+                    save.stage2_speedy = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not cheats then
+                    save.stage2_flawless = true
+                end
+            elseif vars.stage == 3 then
+                if vars.time < save.stage3_best and not cheats then
+                    save.stage3_best = vars.time
+                    corner('sendscore')
+                    pd.scoreboards.addScore('stage3', vars.time, function(status, result)
+                        if status.code == "ERROR" then
+                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                        end
+                    end)
+                end
+                -- TODO: Set the par time here.
+                if vars.time < 0 and not cheats then
+                    save.stage3_speedy = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not cheats then
+                    save.stage3_flawless = true
+                end
+            elseif vars.stage == 4 then
+                if vars.time < save.stage4_best and not cheats then
+                    save.stage4_best = vars.time
+                    corner('sendscore')
+                    pd.scoreboards.addScore('stage4', vars.time, function(status, result)
+                        if status.code == "ERROR" then
+                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                        end
+                    end)
+                end
+                -- TODO: Set the par time here.
+                if vars.time < 0 and not cheats then
+                    save.stage4_speedy = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not cheats then
+                    save.stage4_flawless = true
+                end
+            elseif vars.stage == 5 then
+                if vars.time < save.stage5_best and not cheats then
+                    save.stage5_best = vars.time
+                    corner('sendscore')
+                    pd.scoreboards.addScore('stage5', vars.time, function(status, result)
+                        if status.code == "ERROR" then
+                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                        end
+                    end)
+                end
+                -- TODO: Set the par time here.
+                if vars.time < 0 and not cheats then
+                    save.stage5_speedy = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not cheats then
+                    save.stage5_flawless = true
+                end
+            elseif vars.stage == 6 then
+                if vars.time < save.stage1_best and not cheats then
+                    save.stage6_best = vars.time
+                    corner('sendscore')
+                    pd.scoreboards.addScore('stage6', vars.time, function(status, result)
+                        if status.code == "ERROR" then
+                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                        end
+                    end)
+                end
+                -- TODO: Set the par time here.
+                if vars.time < 0 and not cheats then
+                    save.stage6_speedy = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not cheats then
+                    save.stage6_flawless = true
+                end
+            elseif vars.stage == 7 then
+                if vars.time < save.stage7_best and not cheats then
+                    save.stage7_best = vars.time
+                    corner('sendscore')
+                    pd.scoreboards.addScore('stage7', vars.time, function(status, result)
+                        if status.code == "ERROR" then
+                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                        end
+                    end)
+                end
+                -- TODO: Set the par time here.
+                if vars.time < 0 and not cheats then
+                    save.stage7_speedy = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not cheats then
+                    save.stage7_flawless = true
+                end
+            end
+        end
+    else
+        newmusic('audio/sfx/lose')
+    end
+
     gfx.pushContext(assets.image_plate)
         local mins, secs, mils = timecalc(vars.time)
         gfx.setFont(assets.kapel_doubleup)
         if vars.win then
-            newmusic('audio/sfx/win')
             if vars.mode == "story" then
                 gfx.imageWithText(gfx.getLocalizedText('youwin'), 200, 120):drawScaled(40, 20, 2)
                 makebutton(gfx.getLocalizedText('onwards')):drawAnchored(355, 185, 1, 0.5)
                 makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
                 assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 85, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
-                if save.current_story_slot == 1 then
-                    if vars.stage == 1 then
-                        save.slot1_progress = "cutscene3"
-                    elseif vars.stage == 2 then
-                        save.slot1_progress = "cutscene4"
-                    elseif vars.stage == 3 then
-                        save.slot1_progress = "cutscene5"
-                    elseif vars.stage == 4 then
-                        save.slot1_progress = "cutscene6"
-                    elseif vars.stage == 5 then
-                        save.slot1_progress = "cutscene8"
-                    elseif vars.stage == 6 then
-                        save.slot1_progress = "cutscene9"
-                    elseif vars.stage == 7 then
-                        save.slot1_progress = "cutscene10"
-                    end
-                elseif save.current_story_slot == 2 then
-                    if vars.stage == 1 then
-                        save.slot2_progress = "cutscene3"
-                    elseif vars.stage == 2 then
-                        save.slot2_progress = "cutscene4"
-                    elseif vars.stage == 3 then
-                        save.slot2_progress = "cutscene5"
-                    elseif vars.stage == 4 then
-                        save.slot2_progress = "cutscene6"
-                    elseif vars.stage == 5 then
-                        save.slot2_progress = "cutscene8"
-                    elseif vars.stage == 6 then
-                        save.slot2_progress = "cutscene9"
-                    elseif vars.stage == 7 then
-                        save.slot2_progress = "cutscene10"
-                    end
-                elseif save.current_story_slot == 3 then
-                    if vars.stage == 1 then
-                        save.slot3_progress = "cutscene3"
-                    elseif vars.stage == 2 then
-                        save.slot3_progress = "cutscene4"
-                    elseif vars.stage == 3 then
-                        save.slot3_progress = "cutscene5"
-                    elseif vars.stage == 4 then
-                        save.slot3_progress = "cutscene6"
-                    elseif vars.stage == 5 then
-                        save.slot3_progress = "cutscene8"
-                    elseif vars.stage == 6 then
-                        save.slot3_progress = "cutscene9"
-                    elseif vars.stage == 7 then
-                        save.slot3_progress = "cutscene10"
-                    end
-                end
             elseif vars.mode == "tt" then
-                gfx.imageWithText(gfx.getLocalizedText('finish'), 200, 120):drawScaled(40, 20, 2)
                 makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
                 makebutton(gfx.getLocalizedText('newtrack'), 'small'):drawAnchored(395, 235, 1, 1)
                 assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 65, kTextAlignment.right)
@@ -153,14 +291,7 @@ function results:init(...)
                     end
                 elseif vars.stage == 2 then
                     if vars.time < save.stage2_best and not cheats then
-                        save.stage2_best = vars.time
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                        corner('sendscore')
-                        pd.scoreboards.addScore('stage2', vars.time, function(status, result)
-                            if status.code == "ERROR" then
-                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                            end
-                        end)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage2_best)
                         assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
@@ -168,14 +299,7 @@ function results:init(...)
                     end
                 elseif vars.stage == 3 then
                     if vars.time < save.stage3_best and not cheats then
-                        save.stage3_best = vars.time
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                        corner('sendscore')
-                        pd.scoreboards.addScore('stage3', vars.time, function(status, result)
-                            if status.code == "ERROR" then
-                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                            end
-                        end)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage3_best)
                         assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
@@ -183,14 +307,7 @@ function results:init(...)
                     end
                 elseif vars.stage == 4 then
                     if vars.time < save.stage4_best and not cheats then
-                        save.stage4_best = vars.time
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                        corner('sendscore')
-                        pd.scoreboards.addScore('stage4', vars.time, function(status, result)
-                            if status.code == "ERROR" then
-                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                            end
-                        end)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage4_best)
                         assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
@@ -198,14 +315,7 @@ function results:init(...)
                     end
                 elseif vars.stage == 5 then
                     if vars.time < save.stage5_best and not cheats then
-                        save.stage5_best = vars.time
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                        corner('sendscore')
-                        pd.scoreboards.addScore('stage5', vars.time, function(status, result)
-                            if status.code == "ERROR" then
-                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                            end
-                        end)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage5_best)
                         assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
@@ -213,14 +323,7 @@ function results:init(...)
                     end
                 elseif vars.stage == 6 then
                     if vars.time < save.stage1_best and not cheats then
-                        save.stage6_best = vars.time
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                        corner('sendscore')
-                        pd.scoreboards.addScore('stage6', vars.time, function(status, result)
-                            if status.code == "ERROR" then
-                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                            end
-                        end)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage6_best)
                         assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
@@ -228,23 +331,24 @@ function results:init(...)
                     end
                 elseif vars.stage == 7 then
                     if vars.time < save.stage7_best and not cheats then
-                        save.stage7_best = vars.time
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                        corner('sendscore')
-                        pd.scoreboards.addScore('stage7', vars.time, function(status, result)
-                            if status.code == "ERROR" then
-                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                            end
-                        end)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage7_best)
                         assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
                         assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                     end
                 end
+                if vars.crashes == 0 and vars.speedy then
+                    gfx.imageWithText(gfx.getLocalizedText('perfect'), 200, 120):drawScaled(40, 20, 2)
+                elseif vars.crashes == 0 then
+                    gfx.imageWithText(gfx.getLocalizedText('flawless'), 200, 120):drawScaled(40, 20, 2)
+                elseif vars.speedy then
+                    gfx.imageWithText(gfx.getLocalizedText('speedy'), 200, 120):drawScaled(40, 20, 2)
+                else
+                    gfx.imageWithText(gfx.getLocalizedText('finish'), 200, 120):drawScaled(40, 20, 2)
+                end
             end
         else
-            newmusic('audio/sfx/lose')
             gfx.imageWithText(gfx.getLocalizedText('youlost'), 200, 120):drawScaled(40, 20, 2)
             makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
             if vars.mode == "story" then

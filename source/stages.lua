@@ -32,6 +32,9 @@ function stages:init(...)
         image_ok = makebutton(gfx.getLocalizedText('ok'), 'big'),
         image_back = makebutton(gfx.getLocalizedText('back'), 'small'),
         image_leaderboards = makebutton(gfx.getLocalizedText('up_leaderboards'), 'small2'),
+        image_medal_unobtained = gfx.image.new('images/stages/medal_unobtained'),
+        image_medal_flawless = gfx.image.new('images/stages/medal_flawless'),
+        image_medal_speedy = gfx.image.new('images/stages/medal_speedy'),
         image_buttons = gfx.image.new(156, 68),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
         sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
@@ -63,18 +66,32 @@ function stages:init(...)
         -- Calculate the proper time for each save, and assign it to variables
         if stage == 1 then
             mins, secs, mils = timecalc(save.stage1_best)
+            if save.stage1_flawless then flawless = true end
+            if save.stage1_speedy then speedy = true end
         elseif stage == 2 then
             mins, secs, mils = timecalc(save.stage2_best)
+            if save.stage2_flawless then flawless = true end
+            if save.stage2_speedy then speedy = true end
         elseif stage == 3 then
             mins, secs, mils = timecalc(save.stage3_best)
+            if save.stage3_flawless then flawless = true end
+            if save.stage3_speedy then speedy = true end
         elseif stage == 4 then
             mins, secs, mils = timecalc(save.stage4_best)
+            if save.stage4_flawless then flawless = true end
+            if save.stage4_speedy then speedy = true end
         elseif stage == 5 then
             mins, secs, mils = timecalc(save.stage5_best)
+            if save.stage5_flawless then flawless = true end
+            if save.stage5_speedy then speedy = true end
         elseif stage == 6 then
             mins, secs, mils = timecalc(save.stage6_best)
+            if save.stage6_flawless then flawless = true end
+            if save.stage6_speedy then speedy = true end
         elseif stage == 7 then
             mins, secs, mils = timecalc(save.stage7_best)
+            if save.stage7_flawless then flawless = true end
+            if save.stage7_speedy then speedy = true end
         end
         assets.image_top = gfx.image.new(480, 300)
         gfx.pushContext(assets.image_top)
@@ -88,6 +105,16 @@ function stages:init(...)
             gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back to normal just to be safe
             if show_desc then
                 assets.pedallica:drawText(gfx.getLocalizedText('stage_' .. stage .. '_desc'), 10, 95)
+                if flawless then
+                    assets.image_medal_flawless:draw(150, 50)
+                else
+                    assets.image_medal_unobtained:draw(150, 50)
+                end
+                if speedy then
+                    assets.image_medal_speedy:draw(190, 50)
+                else
+                    assets.image_medal_unobtained:draw(190, 50)
+                end
             end
             if ranking ~= nil then
                 assets.kapel:drawText(gfx.getLocalizedText('yourank'), 125, 52)
@@ -102,10 +129,12 @@ function stages:init(...)
                 end
             end
         gfx.popContext()
-        -- Nil those time variables, just in case
+        -- Nil those save variables, just in case
         mins = nil
         secs = nil
         mils = nil
+        flawless = nil
+        speedy = nil
         -- And set the image, but only if the sprite exists.
         if self.top ~= nil then
             self.top:setImage(assets.image_top)

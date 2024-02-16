@@ -19,6 +19,12 @@
 "popup_time_trials_unlocked" = "Try a solo race on any stages you've beaten\nso far, and compete for a top spot on the\nglobal leaderboards! Can you make the top 10?\n\nYou can access this mode from the title screen.\nUnlock more stages by playing more of the Story!"
 "popup_demo" = "Congrats, you've seen all this demo has to offer!\nThe full game has six more tracks, eight more\nanimated cutscenes, and plenty more goodies!\nIf you're interested in the full game, check it out:\n\n🌐 play.date/games/rowbot-rally"
 "popup_leaderboard_failed" = "Uh oh, it seems like your new score wasn't\nable to get sent up to the servers.\nMake sure to check your Internet connection!\n\nWe'll queue your score up, and\ntry again in a little bit."
+"popup_cheat_big" = "You unlocked Big Boat Mode!\n\nNow, your boat's big. You move slower, but you\nturn tighter. Also, you're big. Shortcuts are not\nrecommended. You can toggle this later from\nthe Cheats menu on the title screen."
+"popup_cheat_small" = "You unlocked Small Boat Mode!\n\nN'awww, it looks so cute! Now you'll move\nfaster, and turn more loosely. Plus, you're tiny!\nYou can toggle this from the Cheats menu,\nwhich you can find on the title screen."
+"popup_cheat_tiny" = "You unlocked Super Tiny Boat Mode!\n\nYou won't know if that's your boat, or just\na random speck of dust that landed on the\nscreen. Good luck handling this one. Toggle it\nfrom the Cheats menu on the title screen."
+"popup_cheat_dents" = "You unlocked Dents!\n\nWhen you hit something, your boat will DENT.\nLike, seriously pretty badly, man. You can toggle\nthis in the Cheats menu from the title screen,\nbut don't collapse in on yourself too hard."
+"popup_cheat_retro" = "You unlocked Retro Mode!\n\nThis screen filter will surely harken back\nto those glorious days of non-square pixels and\nchunky graphics. You can toggle it from any time\nin the Cheats menu, on the title screen."
+"popup_cheat_all" = "You unlocked...everything!\n\nWhat's up? You have the secret key!\nAs a reward, take every single cheat in the\ngame. You can toggle any of them through\nthe Cheats menu on the title screen."
 
 -- Title screen
 "story_mode" = "Story Mode"
@@ -40,6 +46,9 @@
 "youwin" = "Ⓦ You Win!"
 "youlost" = "Ⓛ You Lost..."
 "finish" = "Ⓕ Finish!"
+"flawless" = "Ⓕ Flawless!"
+"speedy" = "Ⓕ Speedy!"
+"perfect" = "Ⓕ Perfect!"
 "timeout" = "Ⓕ Time-Out!"
 "onwards" = "Ⓐ Onwards!"
 "retry" = "Ⓐ Retry?"

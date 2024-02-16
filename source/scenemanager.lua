@@ -196,21 +196,33 @@ end
 
 function scenemanager:switchstory()
     self:findstory()
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self:loadnewscene()
 end
 
 function scenemanager:switchscene(scene, ...)
     self.newscene = scene
     self.sceneargs = {...}
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self:loadnewscene()
 end
 
 function scenemanager:transitionstory()
     if self.transitioning then return end
     show_crank = false
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self.transitioning = true
     self:findstory()
     local transitiontimer = self:transition(750, 250, 0, -10)
@@ -226,7 +238,11 @@ end
 function scenemanager:transitionscene(scene, ...)
     if self.transitioning then return end
     show_crank = false
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self.transitioning = true
     self.newscene = scene
     self.sceneargs = {...}
@@ -243,7 +259,11 @@ end
 function scenemanager:transitionsceneback(scene, ...)
     if self.transitioning then return end
     show_crank = false
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self.transitioning = true
     self.newscene = scene
     self.sceneargs = {...}
@@ -260,7 +280,11 @@ end
 function scenemanager:transitionstoryoneway()
     if self.transitioning then return end
     show_crank = false
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self.transitioning = true
     self:findstory()
     local transitiontimer = self:transitiononeway(441, -41, 0, -10)
@@ -274,7 +298,11 @@ end
 function scenemanager:transitionsceneoneway(scene, ...)
     if self.transitioning then return end
     show_crank = false
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self.transitioning = true
     self.newscene = scene
     self.sceneargs = {...}
@@ -289,7 +317,11 @@ end
 function scenemanager:transitionsceneonewayback(scene, ...)
     if self.transitioning then return end
     show_crank = false
-    pd.inputHandlers.pop() -- Pop the scene's input handler off the stack.
+    -- Pop any rogue input handlers, leaving the default one.
+    local inputsize = #playdate.inputHandlers - 1
+    for i = 1, inputsize do
+        pd.inputHandlers.pop()
+    end
     self.transitioning = true
     self.newscene = scene
     self.sceneargs = {...}
@@ -377,6 +409,7 @@ function scenemanager:cleanupscene()
     self:removealltimers() -- Remove every timer,
     collectgarbage('collect') -- and collect the garbage.
     gfx.setDrawOffset(0, 0) -- Lastly, reset the drawing offset. just in case.
+    pd.display.setMosaic(0, 0) -- Reset the mosaic, in case Retro Mode is on
 end
 
 function scenemanager:removealltimers()

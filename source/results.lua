@@ -73,6 +73,7 @@ function results:init(...)
     if vars.win then
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
+            save.stages_unlocked = vars.stage
             if save.current_story_slot == 1 then
                 if vars.stage == 1 then
                     save.slot1_progress = "cutscene3"

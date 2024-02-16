@@ -10,11 +10,8 @@ function race:init(...)
     race.super.init(self)
     local args = {...} -- Arguments passed in through the scene management will arrive here
      -- Should the crank indicator be shown?
-    if save.button_controls or pd.isSimulator == 1 then
-        show_crank = false
-    else
-        show_crank = true
-    end
+    if save.button_controls or pd.isSimulator == 1 then show_crank = false else show_crank = true end
+    if cheats_retro then pd.display.setMosaic(2, 0) end
     gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
     
     function pd.gameWillPause() -- When the game's paused...
@@ -162,7 +159,7 @@ function race:init(...)
         assets.image_meter:draw(0, 177 - vars.anim_hud:currentValue())
         gfx.setLineWidth(8)
         if vars.rowbot > 0 then
-            gfx.drawArc(200, 380 - vars.anim_hud:currentValue(), 160, math.clamp(32 - vars.player * 1.9, 3, 32), 328 + (vars.rowbot * 15))
+            gfx.drawArc(200, 380 - vars.anim_hud:currentValue(), 160, math.clamp(32 - vars.player * 2.2, 3, 32), 328 + (vars.rowbot * 15))
         end
         gfx.setLineWidth(2)
     end
@@ -256,22 +253,22 @@ function race:update()
         end
         save.total_racetime += 1
         if vars.mode == "story" then
-        end
-        if save.current_story_slot == 1 then
-            if save.slot1_ngplus and self.boat.crashes == 3 then
-                self:finish(true)
+            if save.current_story_slot == 1 then
+                if save.slot1_ngplus and self.boat.crashes == 3 then
+                    self:finish(true)
+                end
+                save.slot1_racetime += 1
+            elseif save.current_story_slot == 2 then
+                if save.slot1_ngplus and self.boat.crashes == 3 then
+                    self:finish(true)
+                end
+                save.slot2_racetime += 1
+            elseif save.current_story_slot == 3 then
+                if save.slot1_ngplus and self.boat.crashes == 3 then
+                    self:finish(true)
+                end
+                save.slot3_racetime += 1
             end
-            save.slot1_racetime += 1
-        elseif save.current_story_slot == 2 then
-            if save.slot1_ngplus and self.boat.crashes == 3 then
-                self:finish(true)
-            end
-            save.slot2_racetime += 1
-        elseif save.current_story_slot == 3 then
-            if save.slot1_ngplus and self.boat.crashes == 3 then
-                self:finish(true)
-            end
-            save.slot3_racetime += 1
         end
     end
     if vars.started and save.total_playtime % 2 == 0 then

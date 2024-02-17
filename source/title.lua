@@ -33,58 +33,69 @@ function title:init(...)
 
     if not demo then
         local cheat_code_big = Tanuk_CodeSequence({pd.kButtonUp, pd.kButtonUp, pd.kButtonUp, pd.kButtonRight, pd.kButtonDown, pd.kButtonLeft, pd.kButtonDown, pd.kButtonRight, pd.kButtonB}, function()
-            save.cheats = true
-            save.cheats_big = true
-            cheats_big = true
-            cheats_small = false
-            cheats_tiny = false
+            save.unlocked_cheats = true
+            save.unlocked_cheats_big = true
+            enabled_cheats = true
+            enabled_cheats_big = true
+            enabled_cheats_small = false
+            enabled_cheats_tiny = false
+            fademusic()
             scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_big'), gfx.getLocalizedText('title_screen'), false, function()
                 scenemanager:switchscene(title)
             end)
         end, false)
         local cheat_code_small = Tanuk_CodeSequence({pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonDown, pd.kButtonRight, pd.kButtonUp, pd.kButtonDown, pd.kButtonLeft, pd.kButtonB}, function()
-            save.cheats = true
-            save.cheats_small = true
-            cheats_big = false
-            cheats_small = true
-            cheats_tiny = false
+            save.unlocked_cheats = true
+            save.unlocked_cheats_small = true
+            enabled_cheats = true
+            enabled_cheats_big = false
+            enabled_cheats_small = true
+            enabled_cheats_tiny = false
+            fademusic()
             scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_small'), gfx.getLocalizedText('title_screen'), false, function()
                 scenemanager:switchscene(title)
             end)
         end, false)
         local cheat_code_tiny = Tanuk_CodeSequence({pd.kButtonUp, pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonDown, pd.kButtonRight, pd.kButtonB, pd.kButtonDown, pd.kButtonB}, function()
-            save.cheats = true
-            save.cheats_tiny = true
-            cheats_big = false
-            cheats_small = false
-            cheats_tiny = true
+            save.unlocked_cheats = true
+            save.unlocked_cheats_tiny = true
+            enabled_cheats = true
+            enabled_cheats_big = false
+            enabled_cheats_small = false
+            enabled_cheats_tiny = true
+            fademusic()
             scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_tiny'), gfx.getLocalizedText('title_screen'), false, function()
                 scenemanager:switchscene(title)
             end)
         end, false)
         local cheat_code_dents = Tanuk_CodeSequence({pd.kButtonLeft, pd.kButtonLeft, pd.kButtonRight, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonRight, pd.kButtonB}, function()
-            save.cheats = true
-            save.cheats_dents = true
-            cheats_dents = true
+            save.unlocked_cheats = true
+            save.unlocked_cheats_dents = true
+            enabled_cheats = true
+            enabled_cheats_dents = true
+            fademusic()
             scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_dents'), gfx.getLocalizedText('title_screen'), false, function()
                 scenemanager:switchscene(title)
             end)
         end, false)
         self.cheat_code_retro = Tanuk_CodeSequence({pd.kButtonUp, pd.kButtonUp, pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonRight, pd.kButtonLeft, pd.kButtonRight, pd.kButtonB}, function()
-            save.cheats = true
-            save.cheats_retro = true
-            cheats_retro = true
+            save.unlocked_cheats = true
+            save.unlocked_cheats_retro = true
+            enabled_cheats = true
+            enabled_cheats_retro = true
+            fademusic()
             scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_retro'), gfx.getLocalizedText('title_screen'), false, function()
                 scenemanager:switchscene(title)
             end)
         end, false)
         self.cheat_code_all = Tanuk_CodeSequence({pd.kButtonRight, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
-            save.cheats = true
-            save.cheats_big = true
-            save.cheats_small = true
-            save.cheats_tiny = true
-            save.cheats_dents = true
-            save.cheats_retro = true
+            save.unlocked_cheats = true
+            save.unlocked_cheats_big = true
+            save.unlocked_cheats_small = true
+            save.unlocked_cheats_tiny = true
+            save.unlocked_cheats_dents = true
+            save.unlocked_cheats_retro = true
+            fademusic()
             scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_all'), gfx.getLocalizedText('title_screen'), false, function()
                 scenemanager:switchscene(title)
             end)
@@ -102,23 +113,26 @@ function title:init(...)
         sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
         sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
         sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
+        sfx_ping = pd.sound.sampleplayer.new('audio/sfx/ping'),
     }
     assets.sfx_bonk:setVolume(save.vol_sfx/5)
     assets.sfx_proceed:setVolume(save.vol_sfx/5)
     assets.sfx_start:setVolume(save.vol_sfx/5)
     assets.sfx_menu:setVolume(save.vol_sfx/5)
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
+    assets.sfx_ping:setVolume(save.vol_sfx/5)
 
     gfx.setFont(assets.kapel_doubleup)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         selection = 1,
-        listable = false,
+        list_open = false,
         slot_selection = 1,
         slots_open = false,
+        slot_open = false,
         anim_bg = gfx.animator.new(1000, -400, 0, pd.easingFunctions.outCubic),
         anim_item = gfx.animator.new(0, 200, 200),
-        anim_slots = gfx.animator.new(0, 400, 400),
+        anim_slot_info = gfx.animator.new(0, 0, 0)
     }
     vars.titleHandlers = {
         leftButtonDown = function()
@@ -130,7 +144,7 @@ function title:init(...)
         end,
 
         AButtonDown = function()
-            if vars.listable then
+            if vars.list_open then
                 if vars.item_list[vars.selection] == 'story_mode' then
                     if demo then
                         save.current_story_slot = 1
@@ -177,6 +191,25 @@ function title:init(...)
         end,
     }
     vars.slotHandlers = {
+        AButtonDown = function()
+            fademusic()
+            assets.sfx_proceed:play()
+            if save['slot' .. save.current_story_slot .. '_finished'] then
+                scenemanager:transitionscene(chapters)
+            else
+                scenemanager:transitionstoryoneway()
+            end
+        end,
+
+        BButtonDown = function()
+            self:closeslot(save.current_story_slot)
+        end,
+
+        upButtonDown = function()
+            if save['slot' .. save.current_story_slot .. '_progress'] ~= nil then
+                self:deleteslot(vars.slot_selection)
+            end
+        end
     }
     pd.inputHandlers.push(vars.titleHandlers)
 
@@ -190,7 +223,7 @@ function title:init(...)
         table.insert(vars.item_list, 'time_trials')
     end
     table.insert(vars.item_list, 'stats')
-    if save.cheats then
+    if save.unlocked_cheats then
         table.insert(vars.item_list, 'cheats')
     end
     table.insert(vars.item_list, 'options')
@@ -230,11 +263,82 @@ function title:init(...)
         title_slots.super.init(self)
         self:setImage(assets.image_slots)
         self:setCenter(0, 0)
+        self:setSize(400, 240)
     end
     function title_slots:update()
         if vars.anim_slots ~= nil then
             self:moveTo(0, vars.anim_slots:currentValue())
         end
+        self:markDirty()
+    end
+    function title_slots:draw()
+        gfx.fillRect(0, 17, 400, 206)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRect(0, 20, 400, 200)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
+        gfx.setLineWidth(vars.anim_pulse:currentValue())
+        if vars.slots_open then
+            if vars.slot_selection == 1 then
+                gfx.drawRect(10, 60, 120, 90)
+            elseif vars.slot_selection == 2 then
+                gfx.drawRect(140, 60, 120, 90)
+            elseif vars.slot_selection == 3 then
+                gfx.drawRect(270, 60, 120, 90)
+            end
+        end
+        gfx.setColor(gfx.kColorBlack)
+        if not vars.slot_open then
+            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('story_slot'), 200, 28, kTextAlignment.center)
+            assets.image_this_one:drawAnchored(200, 185, 0.5, 0.5)
+            gfx.setLineWidth(3)
+            if save.current_story_slot == 1 then
+                gfx.drawRect(140, 60, 120, 90)
+                gfx.drawRect(270, 60, 120, 90)
+                gfx.drawRect(10 - vars.anim_slot_l:currentValue(), 60 - vars.anim_slot_u:currentValue(), 120 + vars.anim_slot_r:currentValue(), 90 + vars.anim_slot_d:currentValue())
+            elseif save.current_story_slot == 2 then
+                gfx.drawRect(10, 60, 120, 90)
+                gfx.drawRect(270, 60, 120, 90)
+                gfx.drawRect(140 - vars.anim_slot_l:currentValue(), 60 - vars.anim_slot_u:currentValue(), 120 + vars.anim_slot_r:currentValue(), 90 + vars.anim_slot_d:currentValue())
+            elseif save.current_story_slot == 3 then
+                gfx.drawRect(10, 60, 120, 90)
+                gfx.drawRect(140, 60, 120, 90)
+                gfx.drawRect(270 - vars.anim_slot_l:currentValue(), 60 - vars.anim_slot_u:currentValue(), 120 + vars.anim_slot_r:currentValue(), 90 + vars.anim_slot_d:currentValue())
+            end
+            gfx.setColor(gfx.kColorWhite)
+            if save.current_story_slot == 1 then
+                gfx.fillRect(142, 62, 116, 86)
+                gfx.fillRect(272, 62, 116, 86)
+                gfx.fillRect(12 - vars.anim_slot_l:currentValue(), 62 - vars.anim_slot_u:currentValue(), 116 + vars.anim_slot_r:currentValue(), 86 + vars.anim_slot_d:currentValue())
+            elseif save.current_story_slot == 2 then
+                gfx.fillRect(12, 62, 116, 86)
+                gfx.fillRect(272, 62, 116, 86)
+                gfx.fillRect(142 - vars.anim_slot_l:currentValue(), 62 - vars.anim_slot_u:currentValue(), 116 + vars.anim_slot_r:currentValue(), 86 + vars.anim_slot_d:currentValue())
+            elseif save.current_story_slot == 3 then
+                gfx.fillRect(12, 62, 116, 86)
+                gfx.fillRect(142, 62, 116, 86)
+                gfx.fillRect(272 - vars.anim_slot_l:currentValue(), 62 - vars.anim_slot_u:currentValue(), 116 + vars.anim_slot_r:currentValue(), 86 + vars.anim_slot_d:currentValue())
+            end
+            gfx.setColor(gfx.kColorBlack)
+        end
+        if vars.slots_open then
+            assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_1'), 100, 130, kTextAlignment.center)
+            assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_2'), 200, 130, kTextAlignment.center)
+            assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_3'), 300, 130, kTextAlignment.center)
+        end
+        if vars.slot_open then
+            assets.kapel_doubleup:drawText(gfx.getLocalizedText('slot_' .. save.current_story_slot), 15, 28)
+            assets.pedallica:drawText(vars.slot_percent .. gfx.getLocalizedText('percent_complete'), 15, 160)
+            assets.pedallica:drawText(gfx.getLocalizedText('stats_racetime') .. ': ' .. vars.mins .. ':' .. vars.secs .. '.' .. vars.mils, 15, 175)
+            assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. gfx.getLocalizedText('stats_crashes'), 15, 190)
+            assets.image_play:drawAnchored(385, 205, 1, 1)
+            if save['slot' .. save.current_story_slot .. '_progress'] ~= nil then
+                assets.image_erase:drawAnchored(5, 235, 0, 1)
+            end
+            gfx.fillRect(150, 30, 235, 120)
+        end
+        assets.image_back:drawAnchored(395, 235, 1, 1)
+        gfx.setLineWidth(2)
     end
 
     -- Set the sprites
@@ -244,14 +348,14 @@ function title:init(...)
     self:add()
 
     pd.timer.performAfterDelay(1000, function()
-        vars.listable = true
+        vars.list_open = true
     end)
 
     newmusic('audio/music/title', true, 1.1) -- Adding new music
 end
 
 function title:newselection(dir)
-    if vars.listable then
+    if vars.list_open then
         vars.old_selection = vars.selection
         if dir then
             vars.selection = math.clamp(vars.selection + 1, 1, #vars.item_list)
@@ -263,7 +367,7 @@ function title:newselection(dir)
             assets.sfx_bonk:play()
             shakies()
         else
-            vars.listable = false
+            vars.list_open = false
             assets.sfx_menu:play()
             if dir then
                 vars.anim_item = gfx.animator.new(200, 200, -200, pd.easingFunctions.inBack)
@@ -283,7 +387,7 @@ function title:newselection(dir)
                     vars.anim_item = gfx.animator.new(200, -200, 200, pd.easingFunctions.outCubic)
                 end
                 pd.timer.performAfterDelay(200, function()
-                    vars.listable = true
+                    vars.list_open = true
                 end)
             end)
         end
@@ -293,43 +397,21 @@ end
 -- Opens the initial save slot picker
 function title:openslots()
     if not vars.slots_open then
+        vars.anim_pulse = gfx.animator.new(1015, 15, 7, pd.easingFunctions.outCubic, 507)
+        vars.anim_pulse.repeats = true
+        vars.anim_slot_l = gfx.animator.new(0, 0, 0)
+        vars.anim_slot_u = gfx.animator.new(0, 0, 0)
+        vars.anim_slot_d = gfx.animator.new(0, 0, 0)
+        vars.anim_slot_r = gfx.animator.new(0, 0, 0)
+        assets.image_this_one = makebutton(gfx.getLocalizedText('this_one'), 'big')
+        assets.image_back = makebutton(gfx.getLocalizedText('back'), 'small')
         assets.sfx_start:play()
+        pd.inputHandlers.pop()
         pd.inputHandlers.push(vars.slotsHandlers, true)
-        self:updateslots()
         self.slots:add()
         vars.anim_slots = gfx.animator.new(250, 400, 0, pd.easingFunctions.outCubic)
         vars.slots_open = true
     end
-end
-
--- Update the slot picker image
-function title:updateslots()
-    assets.image_slots = gfx.image.new(400, 240)
-    gfx.pushContext(assets.image_slots)
-        gfx.fillRect(0, 17, 400, 206)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRect(0, 20, 400, 200)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.setLineWidth(3)
-        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('story_slot'), 200, 28, kTextAlignment.center)
-        assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_1'), 100, 130, kTextAlignment.center)
-        assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_2'), 200, 130, kTextAlignment.center)
-        assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_3'), 300, 130, kTextAlignment.center)
-        gfx.drawRect(10, 60, 120, 90)
-        gfx.drawRect(140, 60, 120, 90)
-        gfx.drawRect(270, 60, 120, 90)
-        gfx.setLineWidth(5)
-        if vars.slot_selection == 1 then
-            gfx.drawRect(10, 60, 120, 90)
-        elseif vars.slot_selection == 2 then
-            gfx.drawRect(140, 60, 120, 90)
-        elseif vars.slot_selection == 3 then
-            gfx.drawRect(270, 60, 120, 90)
-        end
-        makebutton(gfx.getLocalizedText('this_one'), 'big'):drawAnchored(200, 185, 0.5, 0.5)
-        makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
-    gfx.popContext()
-    self.slots:setImage(assets.image_slots)
 end
 
 -- Selecting one of the three slots.
@@ -346,38 +428,127 @@ function title:selectslot(dir)
         shakies()
     else
         assets.sfx_menu:play()
-        self:updateslots()
     end
 end
 
 -- Close the slot picker
 function title:closeslots()
     assets.sfx_whoosh:play()
-    vars.anim_slots = gfx.animator.new(250, 0, 400, pd.easingFunctions.inCubic)
+    vars.anim_slots = gfx.animator.new(200, 0, 400, pd.easingFunctions.inCubic)
     pd.inputHandlers.pop()
-    pd.timer.performAfterDelay(250, function()
+    pd.inputHandlers.push(vars.titleHandlers)
+    pd.timer.performAfterDelay(200, function()
         self.slots:remove()
         vars.slots_open = false
     end)
 end
 
 -- Opens the detailed options for each save slot.
-function title:openslot()
-    pd.inputHandlers.push(vars.slotHandlers, true)
+function title:openslot(slot)
+    vars.slots_open = false
+    save.current_story_slot = slot
+    assets.sfx_ping:play()
+    pd.inputHandlers.pop()
+    if save['slot' .. save.current_story_slot .. '_progress'] == nil then
+        vars.slot_percent = '0'
+        assets.image_play = makebutton(gfx.getLocalizedText('start'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene1' then
+        vars.slot_percent = '5'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'tutorial' then
+        vars.slot_percent = '10'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene2' then
+        vars.slot_percent = '15'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'race1' then
+        vars.slot_percent = '20'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene3' then
+        vars.slot_percent = '25'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'race2' then
+        vars.slot_percent = '30'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene4' then
+        vars.slot_percent = '35'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'race3' then
+        vars.slot_percent = '40'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene5' then
+        vars.slot_percent = '45'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'race4' then
+        vars.slot_percent = '50'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene6' then
+        vars.slot_percent = '55'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'shark' then
+        vars.slot_percent = '60'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene7' then
+        vars.slot_percent = '65'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'race5' then
+        vars.slot_percent = '70'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene8' then
+        vars.slot_percent = '75'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'race6' then
+        vars.slot_percent = '80'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene9' then
+        vars.slot_percent = '85'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'race7' then
+        vars.slot_percent = '90'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'cutscene10' then
+        vars.slot_percent = '95'
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    elseif save['slot' .. save.current_story_slot .. '_progress'] == 'finish' then
+        vars.slot_percent = '100'
+        assets.image_play = makebutton(gfx.getLocalizedText('chapters'), 'big')
+    end
+    assets.image_erase = makebutton(gfx.getLocalizedText('erase'), 'small')
+    vars.mins, vars.secs, vars.mils = timecalc(save['slot' .. save.current_story_slot .. '_racetime'])
+    vars.anim_slot_u = gfx.animator.new(250, 0, 43, pd.easingFunctions.inCubic)
+    vars.anim_slot_d = gfx.animator.new(250, 0, 110, pd.easingFunctions.inCubic)
+    vars.anim_slot_r = gfx.animator.new(250, 0, 800, pd.easingFunctions.inCubic)
+    vars.anim_slot_l = gfx.animator.new(250, 0, 400, pd.easingFunctions.inCubic)
+    pd.timer.performAfterDelay(250, function()
+        pd.inputHandlers.push(vars.slotHandlers, true)
+        vars.slot_open = true
+    end)
 end
 
 -- Closes the detailed slot options.
-function title:closeslot()
+function title:closeslot(slot)
+    assets.sfx_whoosh:play()
     pd.inputHandlers.pop()
+    vars.slot_open = false
+    vars.anim_slot_u = gfx.animator.new(200, 43, 0, pd.easingFunctions.outCubic)
+    vars.anim_slot_d = gfx.animator.new(200, 110, 0, pd.easingFunctions.outCubic)
+    vars.anim_slot_r = gfx.animator.new(200, 800, 0, pd.easingFunctions.outCubic)
+    vars.anim_slot_l = gfx.animator.new(200, 400, 0, pd.easingFunctions.outCubic)
+    pd.timer.performAfterDelay(200, function()
+        vars.slots_open = true
+        pd.inputHandlers.push(vars.slotsHandlers, true)
+    end)
 end
 
 -- Deletes the chosen slot.
-function title:deleteslot(which)
-    save['slot' .. which .. '_active'] = nil
-    save['slot' .. which .. '_progress'] = nil
-    save['slot' .. which .. '_finished'] = false
-    save['slot' .. which .. '_ngplus'] = false
-    save['slot' .. which .. '_crashes'] = 0
-    save['slot' .. which .. '_racetime'] = 0
-    title:closeslot()
+function title:deleteslot(slot)
+    makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('ok'), true, function()
+        save['slot' .. slot .. '_active'] = false
+        save['slot' .. slot .. '_progress'] = nil
+        save['slot' .. slot .. '_finished'] = false
+        save['slot' .. slot .. '_ngplus'] = false
+        save['slot' .. slot .. '_crashes'] = 0
+        save['slot' .. slot .. '_racetime'] = 0
+        self:closeslot()
+    end)
 end

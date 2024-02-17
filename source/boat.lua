@@ -37,17 +37,17 @@ function boat:init(x, y, race)
     self.speed = 6 -- Forward movement speed of the boat.
     self.turn = 7 -- The RowBot's default turning rate.
 
-    if cheats_big then
+    if enabled_cheats_big then
         self.scale_factor = 1.75
         self.speed = 4
         self.turn = 4
     end
-    if cheats_small then
+    if enabled_cheats_small then
         self.scale_factor = 0.5
         self.speed = 9
         self.turn = 7
     end
-    if cheats_tiny then
+    if enabled_cheats_tiny then
         self.scale_factor = 0.1
         self.speed = 12
         self.turn = 10
@@ -79,7 +79,7 @@ function boat:init(x, y, race)
     self.reversed = false -- Flips the direction of both RowBot and bunny turning.
     self.straight = false -- For button controls. If this is enabled, the boat will move straight.
     self.right = false -- For button controls. If this is enabled, the boat will move right.
-    self.dentable = cheats_dents -- Hidden dent mode for the boat's body.
+    self.dentable = enabled_cheats_dents -- Hidden dent mode for the boat's body.
     self.crash_direction = 360
     self.rotation = 360
     self.crankage = 0

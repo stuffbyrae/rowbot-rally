@@ -91,7 +91,7 @@ function results:init(...)
             end
         elseif vars.mode == "tt" then
             if vars.stage == 1 then
-                if vars.time < save.stage1_best and not cheats then
+                if vars.time < save.stage1_best and not enabled_cheats then
                     save.stage1_best = vars.time
                     corner('sendscore')
                     pd.scoreboards.addScore('stage1', vars.time, function(status, result)
@@ -103,15 +103,15 @@ function results:init(...)
                     end)
                 end
                 -- TODO: Set the par time here.
-                if vars.time < 100 and not cheats then
+                if vars.time < 100 and not enabled_cheats then
                     save.stage1_speedy = true
                     vars.speedy = true
                 end
-                if vars.crashes == 0 and not cheats then
+                if vars.crashes == 0 and not enabled_cheats then
                     save.stage1_flawless = true
                 end
             elseif vars.stage == 2 then
-                if vars.time < save.stage2_best and not cheats then
+                if vars.time < save.stage2_best and not enabled_cheats then
                     save.stage2_best = vars.time
                     corner('sendscore')
                     pd.scoreboards.addScore('stage2', vars.time, function(status, result)
@@ -121,15 +121,15 @@ function results:init(...)
                     end)
                 end
                 -- TODO: Set the par time here.
-                if vars.time < 0 and not cheats then
+                if vars.time < 0 and not enabled_cheats then
                     save.stage2_speedy = true
                     vars.speedy = true
                 end
-                if vars.crashes == 0 and not cheats then
+                if vars.crashes == 0 and not enabled_cheats then
                     save.stage2_flawless = true
                 end
             elseif vars.stage == 3 then
-                if vars.time < save.stage3_best and not cheats then
+                if vars.time < save.stage3_best and not enabled_cheats then
                     save.stage3_best = vars.time
                     corner('sendscore')
                     pd.scoreboards.addScore('stage3', vars.time, function(status, result)
@@ -139,15 +139,15 @@ function results:init(...)
                     end)
                 end
                 -- TODO: Set the par time here.
-                if vars.time < 0 and not cheats then
+                if vars.time < 0 and not enabled_cheats then
                     save.stage3_speedy = true
                     vars.speedy = true
                 end
-                if vars.crashes == 0 and not cheats then
+                if vars.crashes == 0 and not enabled_cheats then
                     save.stage3_flawless = true
                 end
             elseif vars.stage == 4 then
-                if vars.time < save.stage4_best and not cheats then
+                if vars.time < save.stage4_best and not enabled_cheats then
                     save.stage4_best = vars.time
                     corner('sendscore')
                     pd.scoreboards.addScore('stage4', vars.time, function(status, result)
@@ -157,15 +157,15 @@ function results:init(...)
                     end)
                 end
                 -- TODO: Set the par time here.
-                if vars.time < 0 and not cheats then
+                if vars.time < 0 and not enabled_cheats then
                     save.stage4_speedy = true
                     vars.speedy = true
                 end
-                if vars.crashes == 0 and not cheats then
+                if vars.crashes == 0 and not enabled_cheats then
                     save.stage4_flawless = true
                 end
             elseif vars.stage == 5 then
-                if vars.time < save.stage5_best and not cheats then
+                if vars.time < save.stage5_best and not enabled_cheats then
                     save.stage5_best = vars.time
                     corner('sendscore')
                     pd.scoreboards.addScore('stage5', vars.time, function(status, result)
@@ -175,15 +175,15 @@ function results:init(...)
                     end)
                 end
                 -- TODO: Set the par time here.
-                if vars.time < 0 and not cheats then
+                if vars.time < 0 and not enabled_cheats then
                     save.stage5_speedy = true
                     vars.speedy = true
                 end
-                if vars.crashes == 0 and not cheats then
+                if vars.crashes == 0 and not enabled_cheats then
                     save.stage5_flawless = true
                 end
             elseif vars.stage == 6 then
-                if vars.time < save.stage1_best and not cheats then
+                if vars.time < save.stage1_best and not enabled_cheats then
                     save.stage6_best = vars.time
                     corner('sendscore')
                     pd.scoreboards.addScore('stage6', vars.time, function(status, result)
@@ -193,15 +193,15 @@ function results:init(...)
                     end)
                 end
                 -- TODO: Set the par time here.
-                if vars.time < 0 and not cheats then
+                if vars.time < 0 and not enabled_cheats then
                     save.stage6_speedy = true
                     vars.speedy = true
                 end
-                if vars.crashes == 0 and not cheats then
+                if vars.crashes == 0 and not enabled_cheats then
                     save.stage6_flawless = true
                 end
             elseif vars.stage == 7 then
-                if vars.time < save.stage7_best and not cheats then
+                if vars.time < save.stage7_best and not enabled_cheats then
                     save.stage7_best = vars.time
                     corner('sendscore')
                     pd.scoreboards.addScore('stage7', vars.time, function(status, result)
@@ -211,11 +211,11 @@ function results:init(...)
                     end)
                 end
                 -- TODO: Set the par time here.
-                if vars.time < 0 and not cheats then
+                if vars.time < 0 and not enabled_cheats then
                     save.stage7_speedy = true
                     vars.speedy = true
                 end
-                if vars.crashes == 0 and not cheats then
+                if vars.crashes == 0 and not enabled_cheats then
                     save.stage7_flawless = true
                 end
             end
@@ -240,7 +240,7 @@ function results:init(...)
                 assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 65, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 90, kTextAlignment.right)
                 if vars.stage == 1 then
-                    if vars.time < save.stage1_best and not cheats then
+                    if vars.time < save.stage1_best and not enabled_cheats then
                         save.stage1_best = vars.time
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                         corner('sendscore')
@@ -257,7 +257,7 @@ function results:init(...)
                         assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                     end
                 elseif vars.stage == 2 then
-                    if vars.time < save.stage2_best and not cheats then
+                    if vars.time < save.stage2_best and not enabled_cheats then
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage2_best)
@@ -265,7 +265,7 @@ function results:init(...)
                         assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                     end
                 elseif vars.stage == 3 then
-                    if vars.time < save.stage3_best and not cheats then
+                    if vars.time < save.stage3_best and not enabled_cheats then
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage3_best)
@@ -273,7 +273,7 @@ function results:init(...)
                         assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                     end
                 elseif vars.stage == 4 then
-                    if vars.time < save.stage4_best and not cheats then
+                    if vars.time < save.stage4_best and not enabled_cheats then
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage4_best)
@@ -281,7 +281,7 @@ function results:init(...)
                         assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                     end
                 elseif vars.stage == 5 then
-                    if vars.time < save.stage5_best and not cheats then
+                    if vars.time < save.stage5_best and not enabled_cheats then
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage5_best)
@@ -289,7 +289,7 @@ function results:init(...)
                         assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                     end
                 elseif vars.stage == 6 then
-                    if vars.time < save.stage1_best and not cheats then
+                    if vars.time < save.stage1_best and not enabled_cheats then
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage6_best)
@@ -297,7 +297,7 @@ function results:init(...)
                         assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                     end
                 elseif vars.stage == 7 then
-                    if vars.time < save.stage7_best and not cheats then
+                    if vars.time < save.stage7_best and not enabled_cheats then
                         assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
                     else
                         local bestmins, bestsecs, bestmils = timecalc(save.stage7_best)

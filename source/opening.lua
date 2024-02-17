@@ -15,9 +15,6 @@ function opening:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
     end
-
-    -- Set save slot to cutscene 1. If someone exits from here, next time they come back they'll start at the first cutscene just to move them along.
-    save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
     
     assets = { -- All assets go here. Images, sounds, fonts, etc
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
@@ -120,6 +117,7 @@ function opening:leave()
     if not vars.leaving then
         vars.leaving = true
         fademusic(999)
+        save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
         vars.anim_fade = gfx.animator.new(1000, math.floor(vars.anim_fade:currentValue()), 0)
         pd.timer.performAfterDelay(1000, function()
             scenemanager:switchscene(cutscene, 1)

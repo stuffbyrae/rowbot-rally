@@ -11,7 +11,7 @@ function race:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
      -- Should the crank indicator be shown?
     if save.button_controls or pd.isSimulator == 1 then show_crank = false else show_crank = true end
-    if cheats_retro then pd.display.setMosaic(2, 0) end
+    if enabled_cheats_retro then pd.display.setMosaic(2, 0) end
     gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
     
     function pd.gameWillPause() -- When the game's paused...

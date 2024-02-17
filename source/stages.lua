@@ -64,7 +64,7 @@ function stages:init(...)
     function update_image_top(stage, show_desc, ranking, name)
         -- Todo: figure out if there's a better way to accomplish this bullshit
         -- Calculate the proper time for each save, and assign it to variables
-        mins, secs, mils = timecalc(save['stage' .. stage .. '_best']
+        mins, secs, mils = timecalc(save['stage' .. stage .. '_best'])
         assets.image_top = gfx.image.new(480, 300)
         gfx.pushContext(assets.image_top)
             gfx.fillRect(0, 0, 480, 50) -- Add the black rectangle

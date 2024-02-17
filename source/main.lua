@@ -25,12 +25,12 @@ corner_active = false -- Is the corner UI active?
 if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
 
 -- Cheats checks
-cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
-cheats_big = false
-cheats_small = false
-cheats_tiny = false
-cheats_dents = false
-cheats_retro = false
+enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
+enabled_cheats_big = false
+enabled_cheats_small = false
+enabled_cheats_tiny = false
+enabled_cheats_dents = false
+enabled_cheats_retro = false
 
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
 local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
@@ -49,12 +49,12 @@ function savecheck()
     save = pd.datastore.read()
     if save == nil then save = {} end
     -- Cheat codes!
-    save.cheats = false
-    save.cheats_big = false
-    save.cheats_small = false
-    save.cheats_tiny = false
-    save.cheats_dents = false
-    save.cheats_retro = false
+    if save.unlocked_cheats == nil then save.unlocked_cheats = false end
+    if save.unlocked_cheats_big == nil then save.unlocked_cheats_big = false end
+    if save.unlocked_cheats_small == nil then save.unlocked_cheats_small = false end
+    if save.unlocked_cheats_tiny == nil then save.unlocked_cheats_tiny = false end
+    if save.unlocked_cheats_dents == nil then save.unlocked_cheats_dents = false end
+    if save.unlocked_cheats_retro == nil then save.unlocked_cheats_retro = false end
     -- Last saved slot, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
     save.current_story_slot = save.current_story_slot or 1
     -- Local best time-trial records for all courses

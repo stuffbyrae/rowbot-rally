@@ -253,22 +253,10 @@ function race:update()
         end
         save.total_racetime += 1
         if vars.mode == "story" then
-            if save.current_story_slot == 1 then
-                if save.slot1_ngplus and self.boat.crashes == 3 then
-                    self:finish(true)
-                end
-                save.slot1_racetime += 1
-            elseif save.current_story_slot == 2 then
-                if save.slot1_ngplus and self.boat.crashes == 3 then
-                    self:finish(true)
-                end
-                save.slot2_racetime += 1
-            elseif save.current_story_slot == 3 then
-                if save.slot1_ngplus and self.boat.crashes == 3 then
-                    self:finish(true)
-                end
-                save.slot3_racetime += 1
+            if save['slot' .. save.current_story_slot .. '_ngplus'] and self.boat.crashes == 3 then
+                self:finish(true)
             end
+            save['slot' .. save.current_story_slot .. '_racetime'] += 1
         end
     end
     if vars.started and save.total_playtime % 2 == 0 then

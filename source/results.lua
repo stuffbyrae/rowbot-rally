@@ -74,54 +74,20 @@ function results:init(...)
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
             save.stages_unlocked = vars.stage
-            if save.current_story_slot == 1 then
-                if vars.stage == 1 then
-                    save.slot1_progress = "cutscene3"
-                elseif vars.stage == 2 then
-                    save.slot1_progress = "cutscene4"
-                elseif vars.stage == 3 then
-                    save.slot1_progress = "cutscene5"
-                elseif vars.stage == 4 then
-                    save.slot1_progress = "cutscene6"
-                elseif vars.stage == 5 then
-                    save.slot1_progress = "cutscene8"
-                elseif vars.stage == 6 then
-                    save.slot1_progress = "cutscene9"
-                elseif vars.stage == 7 then
-                    save.slot1_progress = "cutscene10"
-                end
-            elseif save.current_story_slot == 2 then
-                if vars.stage == 1 then
-                    save.slot2_progress = "cutscene3"
-                elseif vars.stage == 2 then
-                    save.slot2_progress = "cutscene4"
-                elseif vars.stage == 3 then
-                    save.slot2_progress = "cutscene5"
-                elseif vars.stage == 4 then
-                    save.slot2_progress = "cutscene6"
-                elseif vars.stage == 5 then
-                    save.slot2_progress = "cutscene8"
-                elseif vars.stage == 6 then
-                    save.slot2_progress = "cutscene9"
-                elseif vars.stage == 7 then
-                    save.slot2_progress = "cutscene10"
-                end
-            elseif save.current_story_slot == 3 then
-                if vars.stage == 1 then
-                    save.slot3_progress = "cutscene3"
-                elseif vars.stage == 2 then
-                    save.slot3_progress = "cutscene4"
-                elseif vars.stage == 3 then
-                    save.slot3_progress = "cutscene5"
-                elseif vars.stage == 4 then
-                    save.slot3_progress = "cutscene6"
-                elseif vars.stage == 5 then
-                    save.slot3_progress = "cutscene8"
-                elseif vars.stage == 6 then
-                    save.slot3_progress = "cutscene9"
-                elseif vars.stage == 7 then
-                    save.slot3_progress = "cutscene10"
-                end
+            if vars.stage == 1 then
+                save['slot' .. save.current_story_slot .. '_progress'] = "cutscene3"
+            elseif vars.stage == 2 then
+                save['slot' .. save.current_story_slot .. '_progress'] = "cutscene4"
+            elseif vars.stage == 3 then
+                save['slot' .. save.current_story_slot .. '_progress'] = "cutscene5"
+            elseif vars.stage == 4 then
+                save['slot' .. save.current_story_slot .. '_progress'] = "cutscene6"
+            elseif vars.stage == 5 then
+                save['slot' .. save.current_story_slot .. '_progress'] = "cutscene8"
+            elseif vars.stage == 6 then
+                save['slot' .. save.current_story_slot .. '_progress'] = "cutscene9"
+            elseif vars.stage == 7 then
+                save['slot' .. save.current_story_slot .. '_progress'] = "cutscene10"
             end
         elseif vars.mode == "tt" then
             if vars.stage == 1 then

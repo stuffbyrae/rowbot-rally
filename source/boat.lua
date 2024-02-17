@@ -85,18 +85,8 @@ function boat:init(x, y, race)
     self.crankage = 0
     self.crashes = 0
 
-    if save.current_story_slot == 1 then
-        if save.slot1_ngplus then
-            self.dentable = true
-        end
-    elseif save.current_story_slot == 2 then
-        if save.slot2_ngplus then
-            self.dentable = true
-        end
-    elseif save.current_story_slot == 3 then
-        if save.slot3_ngplus then
-            self.dentable = true
-        end
+    if save['slot' .. save.current_story_slot .. '_ngplus'] then
+        self.dentable = true
     end
 
     -- Final sprite stuff
@@ -191,13 +181,7 @@ function boat:crash(x, y)
                 self.crashes += 1
                 save.total_crashes += 1
                 if story then
-                    if save.current_story_slot == 1 then
-                        save.slot1_crashes += 1
-                    elseif save.current_story_slot == 2 then
-                        save.slot2_crashes += 2
-                    elseif save.current_story_slot == 3 then
-                        save.slot3_crashes += 3
-                    end
+                    save['slot' .. save.current_story_slot .. '_crashes'] += 1
                 end
                 self.move_speedo = pd.timer.new(self.crash_time, 1, 0, pd.easingFunctions.outSine)
                 self.turn_speedo = pd.timer.new(self.crash_time, 1, 0.5, pd.easingFunctions.outSine)

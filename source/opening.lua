@@ -17,13 +17,7 @@ function opening:init(...)
     end
 
     -- Set save slot to cutscene 1. If someone exits from here, next time they come back they'll start at the first cutscene just to move them along.
-    if save.current_story_slot == 1 then
-        save.slot1_progress = "cutscene1"
-    elseif save.current_story_slot == 2 then
-        save.slot2_progress = "cutscene1"
-    elseif save.current_story_slot == 3 then
-        save.slot3_progress = "cutscene1"
-    end
+    save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
     
     assets = { -- All assets go here. Images, sounds, fonts, etc
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),

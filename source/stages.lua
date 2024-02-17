@@ -64,35 +64,7 @@ function stages:init(...)
     function update_image_top(stage, show_desc, ranking, name)
         -- Todo: figure out if there's a better way to accomplish this bullshit
         -- Calculate the proper time for each save, and assign it to variables
-        if stage == 1 then
-            mins, secs, mils = timecalc(save.stage1_best)
-            if save.stage1_flawless then flawless = true end
-            if save.stage1_speedy then speedy = true end
-        elseif stage == 2 then
-            mins, secs, mils = timecalc(save.stage2_best)
-            if save.stage2_flawless then flawless = true end
-            if save.stage2_speedy then speedy = true end
-        elseif stage == 3 then
-            mins, secs, mils = timecalc(save.stage3_best)
-            if save.stage3_flawless then flawless = true end
-            if save.stage3_speedy then speedy = true end
-        elseif stage == 4 then
-            mins, secs, mils = timecalc(save.stage4_best)
-            if save.stage4_flawless then flawless = true end
-            if save.stage4_speedy then speedy = true end
-        elseif stage == 5 then
-            mins, secs, mils = timecalc(save.stage5_best)
-            if save.stage5_flawless then flawless = true end
-            if save.stage5_speedy then speedy = true end
-        elseif stage == 6 then
-            mins, secs, mils = timecalc(save.stage6_best)
-            if save.stage6_flawless then flawless = true end
-            if save.stage6_speedy then speedy = true end
-        elseif stage == 7 then
-            mins, secs, mils = timecalc(save.stage7_best)
-            if save.stage7_flawless then flawless = true end
-            if save.stage7_speedy then speedy = true end
-        end
+        mins, secs, mils = timecalc(save['stage' .. stage .. '_best']
         assets.image_top = gfx.image.new(480, 300)
         gfx.pushContext(assets.image_top)
             gfx.fillRect(0, 0, 480, 50) -- Add the black rectangle
@@ -105,12 +77,12 @@ function stages:init(...)
             gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back to normal just to be safe
             if show_desc then
                 assets.pedallica:drawText(gfx.getLocalizedText('stage_' .. stage .. '_desc'), 10, 95)
-                if flawless then
+                if save['stage' .. stage .. '_flawless'] then
                     assets.image_medal_flawless:draw(150, 50)
                 else
                     assets.image_medal_unobtained:draw(150, 50)
                 end
-                if speedy then
+                if save['stage' .. stage .. '_speedy'] then
                     assets.image_medal_speedy:draw(190, 50)
                 else
                     assets.image_medal_unobtained:draw(190, 50)
@@ -133,8 +105,6 @@ function stages:init(...)
         mins = nil
         secs = nil
         mils = nil
-        flawless = nil
-        speedy = nil
         -- And set the image, but only if the sprite exists.
         if self.top ~= nil then
             self.top:setImage(assets.image_top)

@@ -14,183 +14,65 @@ function scenemanager:init()
 end
 
 function scenemanager:findstory()
-    if save.current_story_slot == 1 then
-        if save.slot1_progress == nil then
-            self.newscene = opening
-        elseif save.slot1_progress == "cutscene1" then
-            self.newscene = cutscene
-            self.sceneargs = {1}
-        elseif save.slot1_progress == "tutorial" then
-            self.newscene = race
-            self.sceneargs = {0, "tutorial"}
-        elseif save.slot1_progress == "cutscene2" then
-            self.newscene = cutscene
-            self.sceneargs = {2}
-        elseif save.slot1_progress == "race1" then
-            self.newscene = intro
-            self.sceneargs = {1}
-        elseif save.slot1_progress == "cutscene3" then
-            self.newscene = cutscene
-            self.sceneargs = {3}
-        elseif save.slot1_progress == "race2" then
-            self.newscene = intro
-            self.sceneargs = {2}
-        elseif save.slot1_progress == "cutscene4" then
-            self.newscene = cutscene
-            self.sceneargs = {4}
-        elseif save.slot1_progress == "race3" then
-            self.newscene = intro
-            self.sceneargs = {3}
-        elseif save.slot1_progress == "cutscene5" then
-            self.newscene = cutscene
-            self.sceneargs = {5}
-        elseif save.slot1_progress == "race4" then
-            self.newscene = intro
-            self.sceneargs = {4}
-        elseif save.slot1_progress == "cutscene6" then
-            self.newscene = cutscene
-            self.sceneargs = {6}
-        elseif save.slot1_progress == "chase" then
-            self.newscene = chase
-        elseif save.slot1_progress == "cutscene7" then
-            self.newscene = cutscene
-            self.sceneargs = {7}
-        elseif save.slot1_progress == "race5" then
-            self.newscene = intro
-            self.sceneargs = {5}
-        elseif save.slot1_progress == "cutscene8" then
-            self.newscene = cutscene
-            self.sceneargs = {8}
-        elseif save.slot1_progress == "race6" then
-            self.newscene = intro
-            self.sceneargs = {6}
-        elseif save.slot1_progress == "cutscene9" then
-            self.newscene = cutscene
-            self.sceneargs = {9}
-        elseif save.slot1_progress == "race7" then
-            self.newscene = intro
-            self.sceneargs = {10}
-        elseif save.slot1_progress == "finish" then
-            self.newscene = chapters
-        end
-    elseif save.current_story_slot == 2 then
-        if save.slot2_progress == nil then
-            self.newscene = opening
-        elseif save.slot2_progress == "cutscene1" then
-            self.newscene = cutscene
-            self.sceneargs = {1}
-        elseif save.slot2_progress == "tutorial" then
-            self.newscene = race
-            self.sceneargs = {0, "tutorial"}
-        elseif save.slot2_progress == "cutscene2" then
-            self.newscene = cutscene
-            self.sceneargs = {2}
-        elseif save.slot2_progress == "race1" then
-            self.newscene = intro
-            self.sceneargs = {1}
-        elseif save.slot2_progress == "cutscene3" then
-            self.newscene = cutscene
-            self.sceneargs = {3}
-        elseif save.slot2_progress == "race2" then
-            self.newscene = intro
-            self.sceneargs = {2}
-        elseif save.slot2_progress == "cutscene4" then
-            self.newscene = cutscene
-            self.sceneargs = {4}
-        elseif save.slot2_progress == "race3" then
-            self.newscene = intro
-            self.sceneargs = {3}
-        elseif save.slot2_progress == "cutscene5" then
-            self.newscene = cutscene
-            self.sceneargs = {5}
-        elseif save.slot2_progress == "race4" then
-            self.newscene = intro
-            self.sceneargs = {4}
-        elseif save.slot2_progress == "cutscene6" then
-            self.newscene = cutscene
-            self.sceneargs = {6}
-        elseif save.slot2_progress == "chase" then
-            self.newscene = chase
-        elseif save.slot2_progress == "cutscene7" then
-            self.newscene = cutscene
-            self.sceneargs = {7}
-        elseif save.slot2_progress == "race5" then
-            self.newscene = intro
-            self.sceneargs = {5}
-        elseif save.slot2_progress == "cutscene8" then
-            self.newscene = cutscene
-            self.sceneargs = {8}
-        elseif save.slot2_progress == "race6" then
-            self.newscene = intro
-            self.sceneargs = {6}
-        elseif save.slot2_progress == "cutscene9" then
-            self.newscene = cutscene
-            self.sceneargs = {9}
-        elseif save.slot2_progress == "race7" then
-            self.newscene = intro
-            self.sceneargs = {10}
-        elseif save.slot2_progress == "finish" then
-            self.newscene = chapters
-        end
-    elseif save.current_story_slot == 3 then
-        if save.slot3_progress == nil then
-            self.newscene = opening
-        elseif save.slot3_progress == "cutscene1" then
-            self.newscene = cutscene
-            self.sceneargs = {1}
-        elseif save.slot3_progress == "tutorial" then
-            self.newscene = race
-            self.sceneargs = {0, "tutorial"}
-        elseif save.slot3_progress == "cutscene2" then
-            self.newscene = cutscene
-            self.sceneargs = {2}
-        elseif save.slot3_progress == "race1" then
-            self.newscene = intro
-            self.sceneargs = {1}
-        elseif save.slot3_progress == "cutscene3" then
-            self.newscene = cutscene
-            self.sceneargs = {3}
-        elseif save.slot3_progress == "race2" then
-            self.newscene = intro
-            self.sceneargs = {2}
-        elseif save.slot3_progress == "cutscene4" then
-            self.newscene = cutscene
-            self.sceneargs = {4}
-        elseif save.slot3_progress == "race3" then
-            self.newscene = intro
-            self.sceneargs = {3}
-        elseif save.slot3_progress == "cutscene5" then
-            self.newscene = cutscene
-            self.sceneargs = {5}
-        elseif save.slot3_progress == "race4" then
-            self.newscene = intro
-            self.sceneargs = {4}
-        elseif save.slot3_progress == "cutscene6" then
-            self.newscene = cutscene
-            self.sceneargs = {6}
-        elseif save.slot3_progress == "chase" then
-            self.newscene = chase
-        elseif save.slot3_progress == "cutscene7" then
-            self.newscene = cutscene
-            self.sceneargs = {7}
-        elseif save.slot3_progress == "race5" then
-            self.newscene = intro
-            self.sceneargs = {5}
-        elseif save.slot3_progress == "cutscene8" then
-            self.newscene = cutscene
-            self.sceneargs = {8}
-        elseif save.slot3_progress == "race6" then
-            self.newscene = intro
-            self.sceneargs = {6}
-        elseif save.slot3_progress == "cutscene9" then
-            self.newscene = cutscene
-            self.sceneargs = {9}
-        elseif save.slot3_progress == "race7" then
-            self.newscene = intro
-            self.sceneargs = {10}
-        elseif save.slot3_progress == "finish" then
-            self.newscene = credits
-        end
+    if save["slot" .. save.current_story_slot .. '_progress'] == nil then
+        self.newscene = opening
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene1" then
+        self.newscene = cutscene
+        self.sceneargs = {1}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "tutorial" then
+        self.newscene = tutorial
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene2" then
+        self.newscene = cutscene
+        self.sceneargs = {2}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "race1" then
+        self.newscene = intro
+        self.sceneargs = {1}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene3" then
+        self.newscene = cutscene
+        self.sceneargs = {3}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "race2" then
+        self.newscene = intro
+        self.sceneargs = {2}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene4" then
+        self.newscene = cutscene
+        self.sceneargs = {4}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "race3" then
+        self.newscene = intro
+        self.sceneargs = {3}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene5" then
+        self.newscene = cutscene
+        self.sceneargs = {5}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "race4" then
+        self.newscene = intro
+        self.sceneargs = {4}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene6" then
+        self.newscene = cutscene
+        self.sceneargs = {6}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "chase" then
+        self.newscene = chase
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene7" then
+        self.newscene = cutscene
+        self.sceneargs = {7}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "race5" then
+        self.newscene = intro
+        self.sceneargs = {5}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene8" then
+        self.newscene = cutscene
+        self.sceneargs = {8}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "race6" then
+        self.newscene = intro
+        self.sceneargs = {6}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene9" then
+        self.newscene = cutscene
+        self.sceneargs = {9}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "race7" then
+        self.newscene = intro
+        self.sceneargs = {7}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene10" then
+        self.newscene = cutscene
+        self.sceneargs = {10}
+    elseif save["slot" .. save.current_story_slot .. '_progress'] == "finish" then
+        self.newscene = credits
     end
 end
 

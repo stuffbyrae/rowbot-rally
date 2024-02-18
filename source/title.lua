@@ -600,7 +600,7 @@ function title:checkpercent(slot)
     elseif save['slot' .. slot .. '_progress'] == 'cutscene6' then
         slot_percent = '55'
         assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
-    elseif save['slot' .. slot .. '_progress'] == 'shark' then
+    elseif save['slot' .. slot .. '_progress'] == 'chase' then
         slot_percent = '60'
         assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene7' then

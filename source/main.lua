@@ -14,6 +14,9 @@ scenemanager = scenemanager()
 -- Setting up basic SDK params
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
+local fle <const> = pd.sound.fileplayer
+local geo <const> = pd.geometry
 
 pd.display.setRefreshRate(30)
 gfx.setBackgroundColor(gfx.kColorBlack)
@@ -41,8 +44,8 @@ local button_image_small <const> = gfx.nineSlice.new('images/ui/button_small', 2
 local button_image_small2 <const> = gfx.nineSlice.new('images/ui/button_small2', 26, 4, 47, 15)
 
 local image_popup <const> = gfx.image.new('images/ui/popup') -- Pop-up UI Plate image
-local popup_in <const> = pd.sound.sampleplayer.new('audio/sfx/ui') -- Pop-up CHA-CHING! noise
-local popup_out <const> = pd.sound.sampleplayer.new('audio/sfx/whoosh') -- Pop-up out whoosh sound
+local popup_in <const> = smp.new('audio/sfx/ui') -- Pop-up CHA-CHING! noise
+local popup_out <const> = smp.new('audio/sfx/whoosh') -- Pop-up out whoosh sound
 
 -- Save check
 function savecheck()
@@ -177,7 +180,7 @@ end
 -- New music track. This should be called in a scene's init, only if there's no track leading into it. File is a path to an audio file in the PDX. Loop, if true, will loop the audio file. Range will set the loop's starting range.
 function newmusic(file, loop, range)
     if music == nil then -- If a music file isn't actively playing...then go ahead and set a new one.
-        music = pd.sound.fileplayer.new(file)
+        music = fle.new(file)
         music:setVolume(save.vol_music)
         music:setStopOnUnderrun(flag)
         if loop then -- If set to loop, then ... loop it!

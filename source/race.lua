@@ -1,9 +1,11 @@
+import 'title'
 import 'results'
 import 'boat'
 
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -27,10 +29,10 @@ function race:init(...)
         overlay_boost = gfx.imagetable.new('images/race/boost'),
         overlay_fade = gfx.imagetable.new('images/ui/fade/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
-        sfx_countdown = pd.sound.sampleplayer.new('audio/sfx/countdown'),
-        sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
-        sfx_finish = pd.sound.sampleplayer.new('audio/sfx/finish'),
-        sfx_ref = pd.sound.sampleplayer.new('audio/sfx/ref'),
+        sfx_countdown = smp.new('audio/sfx/countdown'),
+        sfx_start = smp.new('audio/sfx/start'),
+        sfx_finish = smp.new('audio/sfx/finish'),
+        sfx_ref = smp.new('audio/sfx/ref'),
     }
     assets.sfx_countdown:setVolume(save.vol_sfx/5)
     assets.sfx_start:setVolume(save.vol_sfx/5)
@@ -147,7 +149,7 @@ function race:init(...)
             end
         end
         -- Draw the timer
-        assets.image_timer:draw(vars.anim_hud:currentValue(), 5)
+        assets.image_timer:draw(vars.anim_hud:currentValue(), 3)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
         assets.times_new_rally:drawText(vars.mins .. ":" .. vars.secs .. "." .. vars.mils, 44 + vars.anim_hud:currentValue(), 20)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)

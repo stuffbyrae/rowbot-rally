@@ -1,6 +1,15 @@
+import 'title'
+import 'opening'
+import 'cutscene'
+import 'intro'
+import 'credits'
+
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
+local fle <const> = pd.sound.fileplayer
+local geo <const> = pd.geometry
 
 class('chapters').extends(gfx.sprite) -- Create the scene's class
 function chapters:init(...)

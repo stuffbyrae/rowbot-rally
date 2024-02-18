@@ -1,8 +1,10 @@
 import 'cutscene'
+import 'title'
 
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
 
 class('opening').extends(gfx.sprite) -- Create the scene's class
 function opening:init(...)
@@ -21,8 +23,8 @@ function opening:init(...)
         image_opening = gfx.imagetable.new('images/story/opening'),
         image_a = gfx.image.new('images/ui/a'),
         pedallica = gfx.font.new('fonts/pedallica'),
-        sfx_clickon = pd.sound.sampleplayer.new('audio/sfx/clickon'),
-        sfx_clickoff = pd.sound.sampleplayer.new('audio/sfx/clickoff'),
+        sfx_clickon = smp.new('audio/sfx/clickon'),
+        sfx_clickoff = smp.new('audio/sfx/clickoff'),
     }
     assets.sfx_clickon:setVolume(save.vol_sfx/5)
     assets.sfx_clickoff:setVolume(save.vol_sfx/5)

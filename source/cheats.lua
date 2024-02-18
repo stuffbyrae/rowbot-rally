@@ -1,6 +1,11 @@
+import 'title'
+
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
+local fle <const> = pd.sound.fileplayer
+local geo <const> = pd.geometry
 
 class('cheats').extends(gfx.sprite) -- Create the scene's class
 function cheats:init(...)

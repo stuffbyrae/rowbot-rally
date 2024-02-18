@@ -5,6 +5,7 @@ import 'race'
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
 
 class('stages').extends(gfx.sprite) -- Create the scene's class
 function stages:init(...)
@@ -36,12 +37,12 @@ function stages:init(...)
         image_medal_flawless = gfx.image.new('images/stages/medal_flawless'),
         image_medal_speedy = gfx.image.new('images/stages/medal_speedy'),
         image_buttons = gfx.image.new(156, 68),
-        sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
-        sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
-        sfx_leaderboard_in = pd.sound.sampleplayer.new('audio/sfx/leaderboard_in'),
-        sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
-        sfx_pop = pd.sound.sampleplayer.new('audio/sfx/pop'),
-        sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
+        sfx_whoosh = smp.new('audio/sfx/whoosh'),
+        sfx_bonk = smp.new('audio/sfx/bonk'),
+        sfx_leaderboard_in = smp.new('audio/sfx/leaderboard_in'),
+        sfx_proceed = smp.new('audio/sfx/proceed'),
+        sfx_pop = smp.new('audio/sfx/pop'),
+        sfx_menu = smp.new('audio/sfx/menu'),
     }
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
     assets.sfx_bonk:setVolume(save.vol_sfx/5)
@@ -68,8 +69,8 @@ function stages:init(...)
         assets.image_top = gfx.image.new(480, 300)
         gfx.pushContext(assets.image_top)
             gfx.fillRect(0, 0, 480, 50) -- Add the black rectangle
-            assets.image_timer:draw(0, 42) -- Draw the timer graphic
-            assets.kapel:drawText(gfx.getLocalizedText('besttime'), 33, 77) -- the "Best Time" label
+            assets.image_timer:draw(0, 40) -- Draw the timer graphic
+            assets.kapel:drawText(gfx.getLocalizedText('besttime'), 34, 80) -- the "Best Time" label
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Fill white...
             assets.kapel:drawText(gfx.getLocalizedText('stage') .. stage, 5, 7) -- The stage number
             assets.kapel_doubleup:drawText(gfx.getLocalizedText('stage_' .. stage .. '_name'), 5, 16) -- The stage's name
@@ -78,14 +79,14 @@ function stages:init(...)
             if show_desc then
                 assets.pedallica:drawText(gfx.getLocalizedText('stage_' .. stage .. '_desc'), 10, 95)
                 if save['stage' .. stage .. '_flawless'] then
-                    assets.image_medal_flawless:draw(150, 50)
+                    assets.image_medal_flawless:draw(135, 45)
                 else
-                    assets.image_medal_unobtained:draw(150, 50)
+                    assets.image_medal_unobtained:draw(135, 45)
                 end
                 if save['stage' .. stage .. '_speedy'] then
-                    assets.image_medal_speedy:draw(190, 50)
+                    assets.image_medal_speedy:draw(180, 45)
                 else
-                    assets.image_medal_unobtained:draw(190, 50)
+                    assets.image_medal_unobtained:draw(180, 45)
                 end
             end
             if ranking ~= nil then

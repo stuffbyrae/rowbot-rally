@@ -32,6 +32,8 @@
 "slot_1" = "Slot 1"
 "slot_2" = "Slot 2"
 "slot_3" = "Slot 3"
+"move" = "⬅ Move ⮕"
+"select" = "Ⓐ Select"
 "this_one" = "Ⓐ This One!"
 "start" = "Ⓐ Start!"
 "play" = "Ⓐ Play!"

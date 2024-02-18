@@ -3,18 +3,22 @@
 
 -- Importing other scenes that we'll have to travel to:
 import 'opening'
-import 'cutscene'
-import 'intro'
-import 'stages'
-import 'stats'
 import 'options'
-import 'notif'
-import 'chapters'
-import 'cheats'
+if not demo then
+    import 'cutscene'
+    import 'intro'
+    import 'stages'
+    import 'stats'
+    import 'notif'
+    import 'chapters'
+    import 'cheats'
+end
 
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
+local fle <const> = pd.sound.fileplayer
 
 -- Cheat code setup
 import "Tanuk_CodeSequence"
@@ -110,12 +114,14 @@ function title:init(...)
         pedallica = gfx.font.new('fonts/pedallica'),
         kapel = gfx.font.new('fonts/kapel'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
-        sfx_bonk = pd.sound.sampleplayer.new('audio/sfx/bonk'),
-        sfx_proceed = pd.sound.sampleplayer.new('audio/sfx/proceed'),
-        sfx_start = pd.sound.sampleplayer.new('audio/sfx/start'),
-        sfx_menu = pd.sound.sampleplayer.new('audio/sfx/menu'),
-        sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
-        sfx_ping = pd.sound.sampleplayer.new('audio/sfx/ping'),
+        sfx_bonk = smp.new('audio/sfx/bonk'),
+        sfx_proceed = smp.new('audio/sfx/proceed'),
+        sfx_start = smp.new('audio/sfx/start'),
+        sfx_menu = smp.new('audio/sfx/menu'),
+        sfx_whoosh = smp.new('audio/sfx/whoosh'),
+        sfx_ping = smp.new('audio/sfx/ping'),
+        sfx_rowboton = smp.new('audio/sfx/rowboton'),
+        fade = gfx.imagetable.new('images/ui/fade/fade'),
     }
     assets.sfx_bonk:setVolume(save.vol_sfx/5)
     assets.sfx_proceed:setVolume(save.vol_sfx/5)
@@ -123,6 +129,7 @@ function title:init(...)
     assets.sfx_menu:setVolume(save.vol_sfx/5)
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
     assets.sfx_ping:setVolume(save.vol_sfx/5)
+    assets.sfx_rowboton:setVolume(save.vol_sfx/5)
 
     gfx.setFont(assets.kapel_doubleup)
     
@@ -132,12 +139,16 @@ function title:init(...)
         slot_selection = 1,
         slots_open = false,
         slot_open = false,
-        anim_bg = gfx.animator.new(1000, -400, 0, pd.easingFunctions.outCubic),
+        anim_bg = gfx.animator.new(1000, -240, 0, pd.easingFunctions.outCubic),
         anim_item = gfx.animator.new(0, 200, 200),
         anim_fade = gfx.animator.new(0, 0, 0),
         anim_pulse = gfx.animator.new(1015, 15, 7, pd.easingFunctions.outCubic, 507),
+        anim_checker_x = gfx.animator.new(2300, 0, -124),
+        anim_checker_y = gfx.animator.new(2300, 0, -32),
     }
     vars.anim_pulse.repeats = true
+    vars.anim_checker_x.repeats = true
+    vars.anim_checker_y.repeats = true
     vars.titleHandlers = {
         leftButtonDown = function()
             self:newselection(false)
@@ -207,7 +218,7 @@ function title:init(...)
         end,
 
         BButtonDown = function()
-            self:closeslot(save.current_story_slot)
+            self:closeslot(true)
         end,
 
         upButtonDown = function()
@@ -245,11 +256,14 @@ function title:init(...)
         self:setCenter(0, 0)
         self:add()
     end
+    function title_checker:update()
+        self:moveTo(vars.anim_checker_x:currentValue(), vars.anim_checker_y:currentValue())
+    end
 
     class('title_bg').extends(gfx.sprite)
     function title_bg:init()
         title_bg.super.init(self)
-        self:setImage(assets.image_bg)
+        self:setSize(400, 480)
         self:setCenter(0, 0)
         self:add()
     end
@@ -258,20 +272,25 @@ function title:init(...)
             self:moveTo(0, vars.anim_bg:currentValue())
         end
     end
+    function title_bg:draw()
+        assets.image_bg:draw(0, 0)
+        assets.kapel:drawTextAligned(gfx.getLocalizedText('move'), 375, 115, kTextAlignment.right)
+        assets.kapel:drawTextAligned(gfx.getLocalizedText('select'), 380, 126, kTextAlignment.right)
+    end
 
     class('title_item').extends(gfx.sprite)
     function title_item:init()
         title_item.super.init(self)
         self:setImage(assets.image_item:scaledImage(2))
-        self:moveTo(200, 160)
+        self:moveTo(200, 170)
         self:add()
     end
     function title_item:update()
         if vars.anim_item ~= nil then
-            self:moveTo(vars.anim_item:currentValue(), 160)
+            self:moveTo(vars.anim_item:currentValue(), 170)
         end
         if not vars.anim_bg:ended() then
-            self:moveTo(200, vars.anim_bg:currentValue() + 160)
+            self:moveTo(200, vars.anim_bg:currentValue() + 170)
         end
     end
 
@@ -329,6 +348,15 @@ function title:init(...)
             assets.kapel:drawTextAligned(vars.slot_percent_1 .. '%', 25, 65, kTextAlignment.center)
             assets.kapel:drawTextAligned(vars.slot_percent_2 .. '%', 155, 65, kTextAlignment.center)
             assets.kapel:drawTextAligned(vars.slot_percent_3 .. '%', 285, 65, kTextAlignment.center)
+            if save.slot1_finished then
+                assets.kapel:drawTextAligned('🌟', 125, 65, kTextAlignment.right)
+            end
+            if save.slot2_finished then
+                assets.kapel:drawTextAligned('🌟', 255, 65, kTextAlignment.right)
+            end
+            if save.slot3_finished then
+                assets.kapel:drawTextAligned('🌟', 385, 65, kTextAlignment.right)
+            end
         end
         if not vars.slots_open then
             if save.current_story_slot == 1 then
@@ -368,6 +396,11 @@ function title:init(...)
         end
         assets.image_back:drawAnchored(395, 235, 1, 1)
         gfx.setLineWidth(2)
+        if vars.anim_overlay ~= nil then
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            vars.anim_overlay:draw(0, 0)
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        end
     end
 
     -- Set the sprites
@@ -490,19 +523,28 @@ function title:openslot(slot)
 end
 
 -- Closes the detailed slot options.
-function title:closeslot(slot)
-    assets.sfx_whoosh:play()
+function title:closeslot(transition)
     pd.inputHandlers.pop()
     vars.slot_open = false
-    vars.anim_fade = gfx.animator.new(250, 1, 0)
-    vars.anim_slot_u = gfx.animator.new(200, 43, 0, pd.easingFunctions.outCubic)
-    vars.anim_slot_d = gfx.animator.new(200, 115, 0, pd.easingFunctions.outCubic)
-    vars.anim_slot_r = gfx.animator.new(200, 800, 0, pd.easingFunctions.outCubic)
-    vars.anim_slot_l = gfx.animator.new(200, 400, 0, pd.easingFunctions.outCubic)
-    pd.timer.performAfterDelay(200, function()
+    if transition then
+        assets.sfx_whoosh:play()
+        vars.anim_fade = gfx.animator.new(250, 1, 0)
+        vars.anim_slot_u = gfx.animator.new(200, 43, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_d = gfx.animator.new(200, 115, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_r = gfx.animator.new(200, 800, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_l = gfx.animator.new(200, 400, 0, pd.easingFunctions.outCubic)
+        pd.timer.performAfterDelay(200, function()
+            vars.slots_open = true
+            pd.inputHandlers.push(vars.slotsHandlers, true)
+        end)
+    else
+        vars.anim_slot_u = gfx.animator.new(0, 0, 0)
+        vars.anim_slot_d = gfx.animator.new(0, 0, 0)
+        vars.anim_slot_r = gfx.animator.new(0, 0, 0)
+        vars.anim_slot_l = gfx.animator.new(0, 0, 0)
         vars.slots_open = true
         pd.inputHandlers.push(vars.slotsHandlers, true)
-    end)
+    end
 end
 
 -- Deletes the chosen slot.
@@ -514,8 +556,10 @@ function title:deleteslot(slot)
         save['slot' .. slot .. '_ngplus'] = false
         save['slot' .. slot .. '_crashes'] = 0
         save['slot' .. slot .. '_racetime'] = 0
-        vars['slot_percent_' .. current_story_slot] = '0'
-        self:closeslot()
+        vars['slot_percent_' .. save.current_story_slot] = '0'
+        vars.anim_overlay = gfx.animation.loop.new(20, assets.fade, false)
+        assets.sfx_rowboton:play()
+        self:closeslot(false)
     end)
 end
 

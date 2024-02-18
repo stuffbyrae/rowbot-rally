@@ -1,6 +1,12 @@
+import 'title'
+import 'cutscene'
+
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
+local fle <const> = pd.sound.fileplayer
+local geo <const> = pd.geometry
 
 class('chase').extends(gfx.sprite) -- Create the scene's class
 function chase:init(...)

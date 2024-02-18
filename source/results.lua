@@ -1,10 +1,16 @@
-import 'title'
-import 'stages'
+import 'notif'
 import 'race'
+if not demo then
+    import 'title'
+    import 'stages'
+end
 
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
+local fle <const> = pd.sound.fileplayer
+local geo <const> = pd.geometry
 
 class('results').extends(gfx.sprite) -- Create the scene's class
 function results:init(...)
@@ -21,8 +27,8 @@ function results:init(...)
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         image_plate = gfx.image.new('images/ui/popup'),
-        image_react_win = gfx.image.new('images/results/react_win'),
-        image_react_lose = gfx.image.new('images/results/react_lose'),
+        image_react_win = gfx.image.new('images/race/results_win'),
+        image_react_lose = gfx.image.new('images/race/results_lose'),
         kapel = gfx.font.new('fonts/kapel'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         double_time = gfx.font.new('fonts/double_time'),

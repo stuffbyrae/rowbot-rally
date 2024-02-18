@@ -3,6 +3,7 @@ import 'race'
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local smp <const> = pd.sound.sampleplayer
 
 class('intro').extends(gfx.sprite) -- Create the scene's class
 function intro:init(...)
@@ -26,7 +27,7 @@ function intro:init(...)
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         img_left = gfx.image.new(250, 150),
         img_bottom = gfx.image.new(400, 73),
-        sfx_whoosh = pd.sound.sampleplayer.new('audio/sfx/whoosh'),
+        sfx_whoosh = smp.new('audio/sfx/whoosh'),
     }
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
     

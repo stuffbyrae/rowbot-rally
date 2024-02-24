@@ -143,6 +143,14 @@ function math.clamp(val, lower, upper)
     return math.max(lower, math.min(upper, val))
 end
 
+-- Save the game mid-play.
+function savegame()
+    if not demo then -- Make sure you don't save in a demo, though.
+        pd.datastore.write(save)
+        corner('saving')
+    end
+end
+
 -- When the game closes...
 function pd.gameWillTerminate()
     if not demo then
@@ -343,7 +351,7 @@ function shakies(time, int)
 end
 
 import 'cutscene' -- Start to this screen for debugging in simulator
-scenemanager:switchscene(cutscene, 1)
+scenemanager:switchscene(title)
 
 function pd.update()
     -- Corner update logic

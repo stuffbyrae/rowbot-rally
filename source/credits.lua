@@ -43,6 +43,8 @@ function credits:init(...)
     -- Set the sprites
     self.x1 = credits_x1()
     self:add()
+
+    savegame() -- Save the game!
 end
 
 -- Scene update loop

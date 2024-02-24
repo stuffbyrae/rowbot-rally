@@ -133,6 +133,7 @@ function intro:init(...)
     self:add()
 
     newmusic('audio/music/intro') -- Adding new music
+    savegame() -- Save the game!
 end
 
 function intro:leave()

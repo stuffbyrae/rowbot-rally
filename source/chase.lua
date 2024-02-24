@@ -44,6 +44,8 @@ function chase:init(...)
     -- Set the sprites
     self.x1 = chase_x1()
     self:add()
+
+    savegame() -- Save the game!
 end
 
 -- Scene update loop

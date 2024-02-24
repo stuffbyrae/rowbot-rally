@@ -122,7 +122,7 @@ function opening:leave()
         save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
         vars.anim_fade = gfx.animator.new(1000, math.floor(vars.anim_fade:currentValue()), 0)
         pd.timer.performAfterDelay(1000, function()
-            scenemanager:switchscene(cutscene, 1)
+            scenemanager:switchstory()
         end)
     end
 end

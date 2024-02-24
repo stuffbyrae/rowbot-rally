@@ -94,6 +94,8 @@ function cutscene:init(...)
     -- Set the sprites
     self.border = cutscene_border()
     self:add()
+
+    savegame() -- Save the game!
 end
 
 -- Scene update loop

@@ -33,8 +33,10 @@ function results:init(...)
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         double_time = gfx.font.new('fonts/double_time'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
+        sfx_proceed = smp.new('audio/sfx/proceed'),
         image_bg = gfx.getDisplayImage(),
     }
+    assets.sfx_proceed:setVolume(save.vol_sfx/5)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- number, 1 through 7
@@ -50,6 +52,7 @@ function results:init(...)
     vars.resultsHandlers = {
         AButtonDown = function()
             fademusic()
+            assets.sfx_proceed:play()
             if vars.mode == "story" then
                 if vars.win then
                     if demo then
@@ -77,6 +80,7 @@ function results:init(...)
     pd.inputHandlers.push(vars.resultsHandlers)
 
     if vars.win then
+        savegame() -- Save the game!
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
             save.stages_unlocked = vars.stage

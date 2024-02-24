@@ -33,6 +33,20 @@ function title:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        local xoffset = 200
+        local pauseimage = gfx.getDisplayImage()
+        local kapel_doubleup = gfx.font.new('fonts/kapel_doubleup')
+        local pedallica = gfx.font.new('fonts/pedallica')
+        gfx.pushContext(pauseimage)
+            gfx.fillRect(0, 0, 400, 40)
+            gfx.fillRoundRect(10 + xoffset, 120, 180, 110, 10)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            gfx.drawRoundRect(10 + xoffset, 120, 180, 110, 10)
+            kapel_doubleup:drawText(gfx.getLocalizedText('paused'), 10 + xoffset, 5)
+            pedallica:drawText(gfx.getLocalizedText('rowtip1'), 20 + xoffset, 131)
+        gfx.popContext()
+        pd.setMenuImage(pauseimage, xoffset)
     end
 
     if not demo then -- If this game's not a demo, then...

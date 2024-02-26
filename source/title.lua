@@ -33,20 +33,7 @@ function title:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        local xoffset = 200
-        local pauseimage = gfx.getDisplayImage()
-        local kapel_doubleup = gfx.font.new('fonts/kapel_doubleup')
-        local pedallica = gfx.font.new('fonts/pedallica')
-        gfx.pushContext(pauseimage)
-            gfx.fillRect(0, 0, 400, 40)
-            gfx.fillRoundRect(10 + xoffset, 120, 180, 110, 10)
-            gfx.setColor(gfx.kColorWhite)
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            gfx.drawRoundRect(10 + xoffset, 120, 180, 110, 10)
-            kapel_doubleup:drawText(gfx.getLocalizedText('paused'), 10 + xoffset, 5)
-            pedallica:drawText(gfx.getLocalizedText('rowtip1'), 20 + xoffset, 131)
-        gfx.popContext()
-        pd.setMenuImage(pauseimage, xoffset)
+        setpauseimage(0)
     end
 
     if not demo then -- If this game's not a demo, then...
@@ -123,8 +110,8 @@ function title:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
-        image_bg = gfx.image.new('images/title/bg'),
-        image_checker = gfx.image.new('images/title/checker'),
+        image_bg = gfx.image.new('images/ui/title_bg'),
+        image_checker = gfx.image.new('images/ui/title_checker'),
         pedallica = gfx.font.new('fonts/pedallica'),
         kapel = gfx.font.new('fonts/kapel'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
@@ -571,7 +558,9 @@ function title:deleteslot(slot)
         save['slot' .. slot .. '_crashes'] = 0
         save['slot' .. slot .. '_racetime'] = 0
         vars['slot_percent_' .. save.current_story_slot] = '0'
-        vars.anim_overlay = gfx.animation.loop.new(20, assets.fade, false)
+        if not pd.getReduceFlashing() then
+            vars.anim_overlay = gfx.animation.loop.new(20, assets.fade, false)
+        end
         assets.sfx_rowboton:play()
         self:closeslot(false)
     end)

@@ -22,6 +22,18 @@ function results:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        setpauseimage(0)
+        if vars.mode == "story" then
+            if vars.win then
+                menu:addMenuItem(gfx.getLocalizedText('slide_onwards'), function() self:proceed() end)
+            else
+                menu:addMenuItem(gfx.getLocalizedText('slide_retry'), function() self:proceed() end)
+            end
+            menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function() self:back() end)
+        elseif vars.mode == "tt" then
+            menu:addMenuItem(gfx.getLocalizedText('slide_retry'), function() self:proceed() end)
+            menu:addMenuItem(gfx.getLocalizedText('slide_newstage'), function() self:back() end)
+        end
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -51,30 +63,11 @@ function results:init(...)
     }
     vars.resultsHandlers = {
         AButtonDown = function()
-            fademusic()
-            assets.sfx_proceed:play()
-            if vars.mode == "story" then
-                if vars.win then
-                    if demo then
-                        scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('demo_complete'), gfx.getLocalizedText('popup_demo'), gfx.getLocalizedText('title_screen'), false, function() scenemanager:switchscene(title) end)
-                    else
-                        scenemanager:transitionstoryoneway()
-                    end
-                else
-                    scenemanager:transitionsceneoneway(race, vars.stage, "story")
-                end
-            elseif vars.mode == "tt" then
-                scenemanager:transitionsceneoneway(race, vars.stage, "tt")
-            end
+            self:proceed()
         end,
 
         BButtonDown = function()
-            fademusic()
-            if vars.mode == "story" then
-                scenemanager:transitionsceneonewayback(title)
-            elseif vars.mode == "tt" then
-                scenemanager:transitionsceneback(stages)
-            end
+            self:back()
         end
     }
     pd.inputHandlers.push(vars.resultsHandlers)
@@ -246,7 +239,7 @@ function results:init(...)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
             elseif vars.mode == "tt" then
                 makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
-                makebutton(gfx.getLocalizedText('newtrack'), 'small'):drawAnchored(395, 235, 1, 1)
+                makebutton(gfx.getLocalizedText('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
                 assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 65, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 90, kTextAlignment.right)
                 if vars.stage == 1 then
@@ -331,7 +324,7 @@ function results:init(...)
             if vars.mode == "story" then
                 makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
             elseif vars.mode == "tt" then
-                makebutton(gfx.getLocalizedText('newtrack'), 'small'):drawAnchored(395, 235, 1, 1)
+                makebutton(gfx.getLocalizedText('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
             end
             assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 85, kTextAlignment.right)
             assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
@@ -411,4 +404,31 @@ function results:init(...)
     self.plate = results_plate()
     self.react = results_react(vars.win)
     self:add()
+end
+
+function results:proceed()
+    fademusic()
+    assets.sfx_proceed:play()
+    if vars.mode == "story" then
+        if vars.win then
+            if demo then
+                scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('demo_complete'), gfx.getLocalizedText('popup_demo'), gfx.getLocalizedText('title_screen'), false, function() scenemanager:switchscene(title) end)
+            else
+                scenemanager:transitionstoryoneway()
+            end
+        else
+            scenemanager:transitionsceneoneway(race, vars.stage, "story")
+        end
+    elseif vars.mode == "tt" then
+        scenemanager:transitionsceneoneway(race, vars.stage, "tt")
+    end
+end
+
+function results:back()
+    fademusic()
+    if vars.mode == "story" then
+        scenemanager:transitionsceneonewayback(title)
+    elseif vars.mode == "tt" then
+        scenemanager:transitionsceneback(stages)
+    end
 end

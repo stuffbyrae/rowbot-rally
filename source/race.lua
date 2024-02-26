@@ -19,6 +19,22 @@ function race:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        if vars.in_progress then
+            menu:addMenuItem(gfx.getLocalizedText('disqualify'), function() self:finish(true) end)
+        end
+        if not vars.finished then
+            menu:addCheckmarkMenuItem(gfx.getLocalizedText('proui'), save.pro_ui, function(new)
+                save.pro_ui = new
+                if new then
+                    vars.anim_hud = gfx.animator.new(200, vars.anim_hud:currentValue(), -130, pd.easingFunctions.inOutSine)
+                    vars.anim_ui_offset = gfx.animator.new(200, vars.anim_ui_offset:currentValue(), 88, pd.easingFunctions.inOutSine)
+                else
+                    vars.anim_hud = gfx.animator.new(200, vars.anim_hud:currentValue(), 0, pd.easingFunctions.inOutSine)
+                    vars.anim_ui_offset = gfx.animator.new(200, vars.anim_ui_offset:currentValue(), 0, pd.easingFunctions.inOutSine)
+                end
+            end)
+        end
+        setpauseimage(100)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -51,7 +67,6 @@ function race:init(...)
         finished = false,
         rowbot = 0,
         player = 0,
-        anim_hud = gfx.animator.new(500, -130, 0, pd.easingFunctions.outSine),
         won = true,
     }
     vars.raceHandlers = {
@@ -77,6 +92,14 @@ function race:init(...)
     pd.inputHandlers.push(vars.raceHandlers)
 
     vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
+
+    if save.pro_ui then
+        vars.anim_hud = gfx.animator.new(500, -230, -130, pd.easingFunctions.outSine)
+        vars.anim_ui_offset = gfx.animator.new(0, 88, 88)
+    else
+        vars.anim_hud = gfx.animator.new(500, -130, 0, pd.easingFunctions.outSine)
+        vars.anim_ui_offset = gfx.animator.new(0, 0, 0)
+    end
 
     -- Load in the appropriate images depending on what stage is called. EZ!
     assets.image_stagec = gfx.image.new('images/race/stages/stagec' .. vars.stage)
@@ -149,9 +172,9 @@ function race:init(...)
             end
         end
         -- Draw the timer
-        assets.image_timer:draw(vars.anim_hud:currentValue(), 3)
+        assets.image_timer:draw(vars.anim_hud:currentValue() + vars.anim_ui_offset:currentValue(), 3 - (vars.anim_ui_offset:currentValue() / 7.4))
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.times_new_rally:drawText(vars.mins .. ":" .. vars.secs .. "." .. vars.mils, 44 + vars.anim_hud:currentValue(), 20)
+        assets.times_new_rally:drawText(vars.mins .. ":" .. vars.secs .. "." .. vars.mils, 44 + vars.anim_hud:currentValue() + vars.anim_ui_offset:currentValue(), 20 - (vars.anim_ui_offset:currentValue() / 7.4))
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
         -- Draw the Rocket Arms icon, when applicable
         if assets.image_item ~= nil then
@@ -214,7 +237,11 @@ end
 
 function race:finish(timeout)
     if vars.in_progress then
-        vars.anim_hud = gfx.animator.new(500, 0, -130, pd.easingFunctions.inSine)
+        if save.pro_ui then
+            vars.anim_hud = gfx.animator.new(500, vars.anim_hud:currentValue(), -230, pd.easingFunctions.inSine)
+        else
+            vars.anim_hud = gfx.animator.new(500, vars.anim_hud:currentValue(), -130, pd.easingFunctions.inSine)
+        end
         vars.in_progress = false
         vars.finished = true
         fademusic(1)

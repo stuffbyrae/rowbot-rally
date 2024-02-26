@@ -96,7 +96,6 @@ function cutscene:init(...)
     self:add()
 
     save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene' .. vars.play -- Story slot sanity check
-    savegame() -- Save the game!
 end
 
 -- Scene update loop

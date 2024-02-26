@@ -89,6 +89,7 @@ function scenemanager:switchstory()
     for i = 1, inputsize do
         pd.inputHandlers.pop()
     end
+    savegame()
     self:loadnewscene()
 end
 
@@ -113,6 +114,7 @@ function scenemanager:transitionstory()
     end
     self.transitioning = true
     self:findstory()
+    savegame()
     local transitiontimer = self:transition(750, 250, 0, -10)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()
@@ -175,6 +177,7 @@ function scenemanager:transitionstoryoneway()
     end
     self.transitioning = true
     self:findstory()
+    savegame()
     local transitiontimer = self:transitiononeway(441, -41, 0, -10)
     transitiontimer.timerEndedCallback = function()
         self:loadnewscene()

@@ -251,10 +251,6 @@ function corner(type)
             kapel:drawText(gfx.getLocalizedText('corner_' .. type), 3, 3) -- and draw the text!
             gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back,
         gfx.popContext() -- and leave the image context.
-        corner = gfx.sprite.new(img_corner) -- Create this image,
-        corner:setZIndex(9999) -- set it up front,
-        corner:setCenter(0, 0) -- in the corner,
-        corner:add() -- and pop it in.
         anim_corner_in = gfx.animator.new(500, -25, 0, pd.easingFunctions.outSine) -- Intro animation
     end
 end
@@ -321,6 +317,30 @@ function closepopup(callback)
     end
 end
 
+-- This function makes the pause image.
+-- 'xoffset' is a number that determines the x offset. naturally
+function setpauseimage(xoffset)
+    local pauseimage = gfx.image.new(400, 240)
+    if save.stages_unlocked == 7 then -- If the game's beaten,
+        rowtip_oracle = math.random(1, 16) -- Show this many. Please refer to en.strings.
+    elseif save.stages_unlocked >= 1 then -- If the time trials are unlocked only,
+        rowtip_oracle = math.random(1, 13) -- Show this many. Please refer to en.strings.
+    else -- If you're starting from pretty much scratch,
+        rowtip_oracle = math.random(1, 7) -- Show this many. Please refer to en.strings.
+    end
+    gfx.pushContext(pauseimage)
+        gfx.fillRect(0, 0, 400, 40)
+        gfx.fillRoundRect(10 + xoffset, 120, 180, 110, 10)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        gfx.drawRoundRect(10 + xoffset, 120, 180, 110, 10)
+        kapel_doubleup:drawText(gfx.getLocalizedText('paused'), 10 + xoffset, 5)
+        pedallica:drawText(gfx.getLocalizedText('rowtip' .. rowtip_oracle), 19 + xoffset, 131)
+    gfx.popContext()
+    pd.setMenuImage(pauseimage, xoffset)
+    rowtip_oracle = nil -- Nil!
+end
+
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
 function timecalc(num)
     local mins = string.format("%02.f", math.floor((num/30) / 60))
@@ -352,32 +372,15 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'cutscene' --- Debug scene to change to
+import 'race' --- Debug scene to change to
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(race, 1, "story")
 end
 
 function pd.update()
-    -- Corner update logic
-    if anim_corner_in ~= nil and corner ~= nil then -- If the intro anim exists...
-        corner:moveTo(1 * anim_corner_in:currentValue(), 1 * anim_corner_in:currentValue()) -- Move the corner piece in using it
-        if anim_corner_in:ended() then -- When it ends...
-            anim_corner_in = nil -- nil itself,
-            anim_corner_out = gfx.animator.new(250, 0, -25, pd.easingFunctions.inSine, 1500) -- and add the exit animation to play after some time.
-        end
-    end
-    if anim_corner_out ~= nil and corner ~= nil then -- When that exit animation comes into play...
-        corner:moveTo(1 * anim_corner_out:currentValue(), 1 * anim_corner_out:currentValue()) -- Move the corner piece all the same.
-        if anim_corner_out:ended() then -- When that ends,
-            corner:remove() -- remove everything
-            anim_corner_out = nil -- everything
-            img_corner = nil -- everything
-            corner_active = false -- EVERYTHING!!
-        end
-    end
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup:currentValue()) -- Move it there!
@@ -393,5 +396,23 @@ function pd.update()
     if pd.isCrankDocked() and show_crank then -- If the crank's docked, and the variable allows for it...
         pd.ui.crankIndicator:update() -- Show the Use the Crank! indicator.
     end
-    pd.drawFPS(10, 10)
+    -- Corner update logic
+    if anim_corner_in ~= nil and img_corner ~= nil then -- If the intro anim exists...
+        img_corner:drawIgnoringOffset(1 * anim_corner_in:currentValue(), 1 * anim_corner_in:currentValue()) -- Move the corner piece in using it
+        if anim_corner_in:ended() then -- When it ends...
+            anim_corner_in = nil -- nil itself,
+            anim_corner_out = gfx.animator.new(250, 0, -25, pd.easingFunctions.inSine, 1500) -- and add the exit animation to play after some time.
+        end
+    end
+    if anim_corner_out ~= nil and img_corner ~= nil then -- When that exit animation comes into play...
+        img_corner:drawIgnoringOffset(1 * anim_corner_out:currentValue(), 1 * anim_corner_out:currentValue()) -- Move the corner piece all the same.
+        if anim_corner_out:ended() then -- When that ends,
+            anim_corner_out = nil -- everything
+            img_corner = nil -- everything
+            corner_active = false -- EVERYTHING!!
+        end
+    end
+    if pd.isSimulator ~= 1 then
+        pd.drawFPS(10, 10)
+    end
 end

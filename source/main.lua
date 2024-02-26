@@ -8,7 +8,8 @@ import 'CoreLibs/graphics'
 import 'CoreLibs/animation'
 import 'CoreLibs/nineslice'
 import 'scenemanager'
-import 'title' -- Start up to this screen.
+import 'opening'
+import 'title'
 scenemanager = scenemanager()
 
 -- Setting up basic SDK params
@@ -125,6 +126,7 @@ function savecheck()
     if save.button_controls == nil then save.button_controls = false end
     save.sensitivty = save.sensitivity or 3
     -- Global stats
+    if save.first_launch == nil then save.first_launch = true end
     save.stages_unlocked = save.stages_unlocked or 0
     save.stories_completed = save.stories_completed or 0
     save.total_crashes = save.total_crashes or 0
@@ -350,8 +352,13 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'cutscene' -- Start to this screen for debugging in simulator
-scenemanager:switchscene(title)
+import 'cutscene' --- Debug scene to change to
+-- Final launch
+if save.first_launch then
+    scenemanager:switchscene(opening, true)
+else
+    scenemanager:switchscene(title)
+end
 
 function pd.update()
     -- Corner update logic

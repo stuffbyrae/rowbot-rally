@@ -15,7 +15,13 @@ end
 
 function scenemanager:findstory()
     if save["slot" .. save.current_story_slot .. '_progress'] == nil then
-        self.newscene = opening
+        if save.first_launch then -- If this variable is true, then nobody's started a story yet and the Opening scene will play on launch until they do.
+            self.newscene = cutscene
+            self.sceneargs = {1}
+            save.first_launch = false
+        else
+            self.newscene = opening
+        end
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene1" then
         self.newscene = cutscene
         self.sceneargs = {1}

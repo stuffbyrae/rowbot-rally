@@ -30,6 +30,7 @@ function opening:init(...)
     assets.sfx_clickoff:setVolume(save.vol_sfx/5)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
+        title = args[1],
         leaving = false,
         anim_fade = gfx.animator.new(2500, 1, 34, pd.easingFunctions.outCubic),
         progress = 1,
@@ -119,10 +120,14 @@ function opening:leave()
     if not vars.leaving then
         vars.leaving = true
         fademusic(999)
-        save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
         vars.anim_fade = gfx.animator.new(1000, math.floor(vars.anim_fade:currentValue()), 0)
         pd.timer.performAfterDelay(1000, function()
-            scenemanager:switchstory()
+            if vars.title then
+                scenemanager:switchscene(title)
+            else
+                save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
+                scenemanager:switchstory()
+            end
         end)
     end
 end

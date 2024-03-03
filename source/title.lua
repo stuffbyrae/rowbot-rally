@@ -10,7 +10,6 @@ if not demo then
     import 'stages'
     import 'stats'
     import 'notif'
-    import 'chapters'
     import 'cheats'
 end
 
@@ -33,7 +32,7 @@ function title:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        setpauseimage(0)
+        setpauseimage(200)
     end
 
     if not demo then -- If this game's not a demo, then...
@@ -178,13 +177,11 @@ function title:init(...)
                     assets.sfx_proceed:play()
                     scenemanager:transitionsceneoneway(stats)
                 elseif vars.item_list[vars.selection] == 'cheats' then
-                    fademusic()
                     assets.sfx_proceed:play()
-                    scenemanager:transitionscene(cheats)
+                    scenemanager:transitionsceneoneway(cheats)
                 elseif vars.item_list[vars.selection] == 'options' then
-                    fademusic()
                     assets.sfx_proceed:play()
-                    scenemanager:transitionscene(options)
+                    scenemanager:transitionsceneoneway(options)
                 end
             end
         end,
@@ -211,9 +208,11 @@ function title:init(...)
             fademusic()
             assets.sfx_proceed:play()
             -- If they've finished the game before, then bring them to the chapter select.
-            if save['slot' .. save.current_story_slot .. '_finished'] then
-                scenemanager:transitionscene(chapters)
-            else
+            if save['slot' .. save.current_story_slot .. '_progress'] == 'finish' and save['slot' .. save.current_story_slot .. '_circuit'] < 4 then
+                save['slot' .. save.current_story_slot .. '_circuit'] += 1
+                save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
+                scenemanager:transitionstoryoneway()
+            elseif save['slot' .. save.current_story_slot .. '_progress'] ~= 'finish' then
                 scenemanager:transitionstoryoneway()
             end
         end,
@@ -343,12 +342,37 @@ function title:init(...)
             gfx.fillRect(assets.fill2)
             gfx.fillRect(assets.fill3)
             gfx.setColor(gfx.kColorBlack)
-            assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_1'), 70, 100, kTextAlignment.center)
-            assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_2'), 200, 100, kTextAlignment.center)
-            assets.kapel:drawTextAligned(gfx.getLocalizedText('slot_3'), 330, 100, kTextAlignment.center)
-            assets.kapel:drawTextAligned(vars.slot_percent_1 .. '%', 25, 65, kTextAlignment.center)
-            assets.kapel:drawTextAligned(vars.slot_percent_2 .. '%', 155, 65, kTextAlignment.center)
-            assets.kapel:drawTextAligned(vars.slot_percent_3 .. '%', 285, 65, kTextAlignment.center)
+            assets.kapel:drawText(gfx.getLocalizedText('slot_1'), 20, 68)
+            assets.kapel:drawText(gfx.getLocalizedText('slot_2'), 150, 68)
+            assets.kapel:drawText(gfx.getLocalizedText('slot_3'), 280, 68)
+            assets.kapel:drawText(vars.slot_percent_1 .. '%', 20, 78)
+            assets.kapel:drawText(vars.slot_percent_2 .. '%', 150, 78)
+            assets.kapel:drawText(vars.slot_percent_3 .. '%', 280, 78)
+            if save.slot1_progress ~= nil then
+                assets.image_slot_full:draw(14, 94)
+            else
+                assets.image_slot_empty:draw(14, 94)
+            end
+            if save.slot2_progress ~= nil then
+                assets.image_slot_full:draw(144, 94)
+            else
+                assets.image_slot_empty:draw(144, 94)
+            end
+            if save.slot3_progress ~= nil then
+                assets.image_slot_full:draw(274, 94)
+            else
+                assets.image_slot_empty:draw(274, 94)
+            end
+            if (save.slot1_progress == 'finish' and save.slot1_circuit == 1) or (save.slot1_progress ~= 'finish' and save.slot1_circuit == 2) then
+                assets.kapel:drawTextAligned('🌟', 122, 68, kTextAlignment.right)
+            elseif (save.slot1_progress == 'finish' and save.slot1_circuit == 2) or (save.slot1_progress ~= 'finish' and save.slot1_circuit == 3) then
+                assets.kapel:drawTextAligned('🌟🌟', 122, 68, kTextAlignment.right)
+            elseif (save.slot1_progress == 'finish' and save.slot1_circuit == 3) or (save.slot1_progress ~= 'finish' and save.slot1_circuit == 4) then
+                assets.kapel:drawTextAligned('🌟🌟🌟', 122, 68, kTextAlignment.right)
+            elseif (save.slot1_progress == 'finish' and save.slot1_circuit == 4) then
+                assets.kapel:drawTextAligned('🌟🌟🌟🌟', 122, 68, kTextAlignment.right)
+            end
+
             if save.slot1_finished then
                 assets.kapel:drawTextAligned('🌟', 125, 65, kTextAlignment.right)
             end
@@ -376,10 +400,14 @@ function title:init(...)
             gfx.setColor(gfx.kColorBlack)
             gfx.setClipRect(assets.fillzoom)
             assets.kapel_doubleup:drawText(gfx.getLocalizedText('slot_' .. save.current_story_slot), 15, 28)
+            assets.pedallica:drawText(gfx.getLocalizedText('circuit') .. ' ' .. save['slot' .. save.current_story_slot .. '_circuit'], 15, 145)
             assets.pedallica:drawText(vars['slot_percent_' .. save.current_story_slot] .. gfx.getLocalizedText('percent_complete'), 15, 160)
             assets.pedallica:drawText(gfx.getLocalizedText('stats_racetime') .. ': ' .. vars.mins .. ':' .. vars.secs .. '.' .. vars.mils, 15, 175)
             assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. gfx.getLocalizedText('stats_crashes'), 15, 190)
-            assets.image_play:drawAnchored(385, 205, 1, 1)
+            if save['slot' .. save.current_story_slot .. '_progress'] == 'finish' and save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
+            else
+                assets.image_play:drawAnchored(385, 205, 1, 1)
+            end
             --TODO: add progress image here
             gfx.drawRect(150, 30, 235, 120)
             if not vars.anim_fade:ended() then
@@ -464,6 +492,8 @@ function title:openslots()
         vars.slot_percent_1 = self:checkpercent(1)
         vars.slot_percent_2 = self:checkpercent(2)
         vars.slot_percent_3 = self:checkpercent(3)
+        assets.image_slot_empty = gfx.image.new('images/ui/slot_empty')
+        assets.image_slot_full = gfx.image.new('images/ui/slot_full')
         assets.image_this_one = makebutton(gfx.getLocalizedText('this_one'), 'big')
         assets.image_back = makebutton(gfx.getLocalizedText('back'), 'small')
         assets.sfx_start:play()
@@ -513,6 +543,13 @@ function title:openslot(slot)
     assets.image_erase = makebutton(gfx.getLocalizedText('erase'), 'small')
     vars.mins, vars.secs, vars.mils = timecalc(save['slot' .. save.current_story_slot .. '_racetime'])
     vars.anim_fade = gfx.animator.new(250, 0, 1)
+    if save['slot' .. slot .. '_progress'] == nil then
+        assets.image_play = makebutton(gfx.getLocalizedText('start'), 'big')
+    elseif save['slot' .. slot .. '_progress'] == 'finish' and save['slot' .. slot .. '_circuit'] <= 3 then
+        assets.image_play = makebutton(gfx.getLocalizedText('newcircuit'), 'big')
+    else
+        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
+    end
     vars.anim_slot_u = gfx.animator.new(250, 0, 43, pd.easingFunctions.inCubic)
     vars.anim_slot_d = gfx.animator.new(250, 0, 115, pd.easingFunctions.inCubic)
     vars.anim_slot_r = gfx.animator.new(250, 0, 800, pd.easingFunctions.inCubic)
@@ -551,9 +588,9 @@ end
 -- Deletes the chosen slot.
 function title:deleteslot(slot)
     makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('ok'), true, function()
-        save['slot' .. slot .. '_active'] = false
         save['slot' .. slot .. '_progress'] = nil
-        save['slot' .. slot .. '_finished'] = false
+        save['slot' .. slot .. '_highest_progress'] = nil
+        save['slot' .. slot .. '_circuit'] = 1
         save['slot' .. slot .. '_ngplus'] = false
         save['slot' .. slot .. '_crashes'] = 0
         save['slot' .. slot .. '_racetime'] = 0
@@ -569,67 +606,46 @@ end
 function title:checkpercent(slot)
     if save['slot' .. slot .. '_progress'] == nil then
         slot_percent = '0'
-        assets.image_play = makebutton(gfx.getLocalizedText('start'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene1' then
         slot_percent = '5'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'tutorial' then
         slot_percent = '10'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene2' then
         slot_percent = '15'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'race1' then
         slot_percent = '20'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene3' then
         slot_percent = '25'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'race2' then
         slot_percent = '30'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene4' then
         slot_percent = '35'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'race3' then
         slot_percent = '40'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene5' then
         slot_percent = '45'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'race4' then
         slot_percent = '50'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene6' then
         slot_percent = '55'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'chase' then
         slot_percent = '60'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene7' then
         slot_percent = '65'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'race5' then
         slot_percent = '70'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene8' then
         slot_percent = '75'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'race6' then
         slot_percent = '80'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene9' then
         slot_percent = '85'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'race7' then
         slot_percent = '90'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'cutscene10' then
         slot_percent = '95'
-        assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'finish' then
         slot_percent = '100'
-        assets.image_play = makebutton(gfx.getLocalizedText('chapters'), 'big')
     end
     return slot_percent
 end

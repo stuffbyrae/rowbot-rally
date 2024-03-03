@@ -16,6 +16,7 @@ function opening:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        setpauseimage(100)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc

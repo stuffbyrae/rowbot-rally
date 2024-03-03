@@ -87,10 +87,6 @@ function boat:init(x, y, race)
     self.crankage = 0
     self.crashes = 0
 
-    if save['slot' .. save.current_story_slot .. '_ngplus'] then
-        self.dentable = true
-    end
-
     -- Final sprite stuff
     self:moveTo(x, y)
     self:setnewsize(85)

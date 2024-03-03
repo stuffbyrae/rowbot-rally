@@ -22,7 +22,7 @@ function results:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        setpauseimage(0)
+        setpauseimage(200) -- TODO: Set X offset
         if vars.mode == "story" then
             if vars.win then
                 menu:addMenuItem(gfx.getLocalizedText('slide_onwards'), function() self:proceed() end)
@@ -73,7 +73,6 @@ function results:init(...)
     pd.inputHandlers.push(vars.resultsHandlers)
 
     if vars.win then
-        savegame() -- Save the game!
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
             save.stages_unlocked = vars.stage
@@ -223,6 +222,7 @@ function results:init(...)
                 end
             end
         end
+        savegame() -- Save the game! This is put last so "Sending score..." takes precedence over "Saving..." corner UI
     else
         newmusic('audio/sfx/lose')
     end

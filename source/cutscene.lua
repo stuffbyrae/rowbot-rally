@@ -21,6 +21,14 @@ function cutscene:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        setpauseimage(100)
+        menu:addMenuItem(gfx.getLocalizedText('skipscene'), function()
+            assets.sfx:stop()
+        end)
+        menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
+            vars.title = true
+            assets.sfx:stop()
+        end)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -31,6 +39,7 @@ function cutscene:init(...)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         play = args[1], -- What scene do we play?
+        title = false,
     }
     assert(vars.play, 'hey find me a video you dummy') -- dummy.
     vars.anim_border = gfx.animation.loop.new(70, assets.img_border_intro, false) -- Set up the border intro animation
@@ -40,7 +49,7 @@ function cutscene:init(...)
     assets.music = fle.new('audio/story/scene' .. vars.play .. '_music') -- and the music.
 
     assets.video:renderFrame(0)
-    assets.sfx:setVolume(save.vol_sfx/5)
+    assets.sfx:setVolume(save.vol_sfx/5 + 0.01)
     assets.music:setVolume(save.vol_music/5)
     assets.sfx:play()
     assets.music:play()
@@ -49,28 +58,32 @@ function cutscene:init(...)
         assets.music:stop()
         vars.anim_border = gfx.animation.loop.new(70, assets.img_border_outro, false)
         pd.timer.performAfterDelay(550, function()
-            if vars.play == 1 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'tutorial'
-            elseif vars.play == 2 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'race1'
-            elseif vars.play == 3 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'race2'
-            elseif vars.play == 4 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'race3'
-            elseif vars.play == 5 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'race4'
-            elseif vars.play == 6 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'chase'
-            elseif vars.play == 7 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'race5'
-            elseif vars.play == 8 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'race6'
-            elseif vars.play == 9 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'race7'
-            elseif vars.play == 10 then
-                save['slot' .. save.current_story_slot .. '_progress'] = 'finish'
+            if vars.title then -- If this arg is true, move back to the title screen please.
+                scenemanager:switchscene(title)
+            else -- Progress the story.
+                if vars.play == 1 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'tutorial'
+                elseif vars.play == 2 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'race1'
+                elseif vars.play == 3 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'race2'
+                elseif vars.play == 4 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'race3'
+                elseif vars.play == 5 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'race4'
+                elseif vars.play == 6 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'chase'
+                elseif vars.play == 7 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'race5'
+                elseif vars.play == 8 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'race6'
+                elseif vars.play == 9 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'race7'
+                elseif vars.play == 10 then
+                    save['slot' .. save.current_story_slot .. '_progress'] = 'finish'
+                end
+                scenemanager:switchstory()
             end
-            scenemanager:switchstory()
         end)
     end)
 

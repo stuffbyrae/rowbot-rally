@@ -34,7 +34,7 @@ function race:init(...)
                 end
             end)
         end
-        setpauseimage(100)
+        setpauseimage(200) -- TODO: Set this X offset
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -282,9 +282,6 @@ function race:update()
         end
         save.total_racetime += 1
         if vars.mode == "story" then
-            if save['slot' .. save.current_story_slot .. '_ngplus'] and self.boat.crashes == 3 then
-                self:finish(true)
-            end
             save['slot' .. save.current_story_slot .. '_racetime'] += 1
         end
     end

@@ -94,29 +94,26 @@ function savecheck()
     if save.stage6_speedy == nil then save.stage6_speedy = false end
     if save.stage7_speedy == nil then save.stage7_speedy = false end
     -- Story slot 1
-    if save.slot1_active == nil then save.slot1_active = false end
     -- slotX_progress: nil means move to opening scene
     -- "cutsceneX" means move to whatever cutscene number X is. 1 through 10
     -- "tutorial" means move to tutorial.
     -- "raceX" means move to whatever stage number X is. 1 through 7
-    -- "finish" means move to chapter select.
+    -- "finish" means that it's done.
     save.slot1_progress = save.slot1_progress or nil
-    if save.slot1_finished == nil then save.slot1_finished = false end
-    if save.slot1_ngplus == nil then save.slot1_ngplus = false end
+    save.slot1_highest_progress = save.slot1_highest_progress or nil
+    save.slot1_circuit = save.slot1_circuit or 1
     save.slot1_crashes = save.slot1_crashes or 0
     save.slot1_racetime = save.slot1_racetime or 0
     -- Story slot 2
-    if save.slot2_active == nil then save.slot2_active = false end
     save.slot2_progress = save.slot2_progress or nil
-    if save.slot2_finished == nil then save.slot2_finished = false end
-    if save.slot2_ngplus == nil then save.slot2_ngplus = false end
+    save.slot2_highest_progress = save.slot2_highest_progress or nil
+    save.slot2_circuit = save.slot2_circuit or 1
     save.slot2_crashes = save.slot2_crashes or 0
     save.slot2_racetime = save.slot2_racetime or 0
     -- Story slot 3
-    if save.slot3_active == nil then save.slot3_active = false end
-    save.slot3_progress = save.slot1_progress or nil
-    if save.slot3_finished == nil then save.slot3_finished = false end
-    if save.slot3_ngplus == nil then save.slot3_ngplus = false end
+    save.slot3_progress = save.slot3_progress or nil
+    save.slot3_highest_progress = save.slot3_highest_progress or nil
+    save.slot3_circuit = save.slot3_circuit or 1
     save.slot3_crashes = save.slot3_crashes or 0
     save.slot3_racetime = save.slot3_racetime or 0
     -- Preferences, adjustable in Options menu
@@ -124,14 +121,14 @@ function savecheck()
     save.vol_sfx = save.vol_sfx or 5
     if save.pro_ui == nil then save.pro_ui = false end
     if save.button_controls == nil then save.button_controls = false end
-    save.sensitivty = save.sensitivity or 3
+    save.sensitivity = save.sensitivity or 3
     -- Global stats
     if save.first_launch == nil then save.first_launch = true end
     save.stages_unlocked = save.stages_unlocked or 0
     save.stories_completed = save.stories_completed or 0
     save.total_crashes = save.total_crashes or 0
     save.total_racetime = save.total_racetime or 0
-    save.total_races_completed = save.races_completed or 0
+    save.total_races_completed = save.total_races_completed or 0
     save.total_playtime = save.total_playtime or 0
     save.total_degrees_cranked = save.total_degrees_cranked or 0
     if save.metric == nil then save.metric = true end
@@ -189,7 +186,7 @@ function fademusic(delay)
 end
 -- New music track. This should be called in a scene's init, only if there's no track leading into it. File is a path to an audio file in the PDX. Loop, if true, will loop the audio file. Range will set the loop's starting range.
 function newmusic(file, loop, range)
-    if music == nil then -- If a music file isn't actively playing...then go ahead and set a new one.
+    if music == nil and save.vol_music > 0 then -- If a music file isn't actively playing...then go ahead and set a new one.
         music = fle.new(file)
         music:setVolume(save.vol_music)
         music:setStopOnUnderrun(flag)
@@ -372,12 +369,12 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'race' --- Debug scene to change to
+import 'cheats' -- Debug scene to change to
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "story")
+    scenemanager:switchscene(title)
 end
 
 function pd.update()

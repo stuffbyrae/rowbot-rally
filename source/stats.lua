@@ -15,6 +15,7 @@ function stats:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        setpauseimage(130) -- TODO: Set this X offset
         menu:addCheckmarkMenuItem(gfx.getLocalizedText('metric'), save.metric, function(new)
             save.metric = new
             self:draw_main_image()
@@ -29,7 +30,6 @@ function stats:init(...)
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         pedallica = gfx.font.new('fonts/pedallica'),
-        image_main = gfx.image.new(400, 240, gfx.kColorWhite),
         image_ticker = gfx.image.new(481, 20, gfx.kColorBlack),
         image_wave = gfx.image.new('images/ui/wave'),
         image_wave_composite = gfx.image.new(464, 280),

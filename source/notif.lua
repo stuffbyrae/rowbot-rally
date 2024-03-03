@@ -14,6 +14,7 @@ function notif:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        setpauseimage(100)
     end
     
     vars = { -- This scene takes the same args as the makepopup() function, just displays it in its own bespoke scene.

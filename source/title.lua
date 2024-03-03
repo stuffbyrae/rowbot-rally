@@ -363,6 +363,7 @@ function title:init(...)
             else
                 assets.image_slot_empty:draw(274, 94)
             end
+            
             if (save.slot1_progress == 'finish' and save.slot1_circuit == 1) or (save.slot1_progress ~= 'finish' and save.slot1_circuit == 2) then
                 assets.kapel:drawTextAligned('🌟', 122, 68, kTextAlignment.right)
             elseif (save.slot1_progress == 'finish' and save.slot1_circuit == 2) or (save.slot1_progress ~= 'finish' and save.slot1_circuit == 3) then
@@ -372,15 +373,25 @@ function title:init(...)
             elseif (save.slot1_progress == 'finish' and save.slot1_circuit == 4) then
                 assets.kapel:drawTextAligned('🌟🌟🌟🌟', 122, 68, kTextAlignment.right)
             end
+            
+            if (save.slot2_progress == 'finish' and save.slot2_circuit == 1) or (save.slot2_progress ~= 'finish' and save.slot2_circuit == 2) then
+                assets.kapel:drawTextAligned('🌟', 252, 68, kTextAlignment.right)
+            elseif (save.slot2_progress == 'finish' and save.slot2_circuit == 2) or (save.slot2_progress ~= 'finish' and save.slot2_circuit == 3) then
+                assets.kapel:drawTextAligned('🌟🌟', 252, 68, kTextAlignment.right)
+            elseif (save.slot2_progress == 'finish' and save.slot2_circuit == 3) or (save.slot2_progress ~= 'finish' and save.slot2_circuit == 4) then
+                assets.kapel:drawTextAligned('🌟🌟🌟', 252, 68, kTextAlignment.right)
+            elseif (save.slot2_progress == 'finish' and save.slot2_circuit == 4) then
+                assets.kapel:drawTextAligned('🌟🌟🌟🌟', 252, 68, kTextAlignment.right)
+            end
 
-            if save.slot1_finished then
-                assets.kapel:drawTextAligned('🌟', 125, 65, kTextAlignment.right)
-            end
-            if save.slot2_finished then
-                assets.kapel:drawTextAligned('🌟', 255, 65, kTextAlignment.right)
-            end
-            if save.slot3_finished then
-                assets.kapel:drawTextAligned('🌟', 385, 65, kTextAlignment.right)
+            if (save.slot3_progress == 'finish' and save.slot3_circuit == 1) or (save.slot3_progress ~= 'finish' and save.slot3_circuit == 2) then
+                assets.kapel:drawTextAligned('🌟', 382, 68, kTextAlignment.right)
+            elseif (save.slot3_progress == 'finish' and save.slot3_circuit == 2) or (save.slot3_progress ~= 'finish' and save.slot3_circuit == 3) then
+                assets.kapel:drawTextAligned('🌟🌟', 382, 68, kTextAlignment.right)
+            elseif (save.slot3_progress == 'finish' and save.slot3_circuit == 3) or (save.slot3_progress ~= 'finish' and save.slot3_circuit == 4) then
+                assets.kapel:drawTextAligned('🌟🌟🌟', 382, 68, kTextAlignment.right)
+            elseif (save.slot3_progress == 'finish' and save.slot3_circuit == 4) then
+                assets.kapel:drawTextAligned('🌟🌟🌟🌟', 382, 68, kTextAlignment.right)
             end
         end
         if not vars.slots_open then

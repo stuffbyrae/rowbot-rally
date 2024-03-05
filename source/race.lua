@@ -58,6 +58,7 @@ function race:init(...)
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
         mode = args[2], -- A string, either "story" or "tt", to determine which mode to choose.
+        debug = args[3], -- A boolean. If true, then this is polygon debug mode.
         current_time = 0,
         mins = "00",
         secs = "00",
@@ -74,7 +75,7 @@ function race:init(...)
             self:boost()
         end,
         AButtonDown = function()
-            self:finish() -- Temp to test out the function
+            
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -89,7 +90,52 @@ function race:init(...)
             self.boat.right = false
         end
     }
-    pd.inputHandlers.push(vars.raceHandlers)
+    if not vars.debug then
+        pd.inputHandlers.push(vars.raceHandlers)
+    end
+
+    local test = pd.geometry.polygon.new(335, 1410, 
+    335, 1280, 
+    335, 1120, 
+    355, 1020, 
+    400, 925, 
+    470, 845, 
+    560, 800, 
+    695, 775, 
+    800, 730, 
+    865, 635, 
+    885, 515, 
+    915, 395, 
+    985, 330, 
+    1130, 275, 
+    1250, 270, 
+    1365, 280, 
+    1490, 310, 
+    1595, 380, 
+    1640, 465, 
+    1650, 580, 
+    1620, 660, 
+    1590, 780, 
+    1595, 870, 
+    1615, 995, 
+    1625, 1110, 
+    1600, 1215, 
+    1535, 1275, 
+    1450, 1295, 
+    1345, 1310, 
+    1270, 1340, 
+    1215, 1380, 
+    1185, 1495, 
+    1200, 1570, 
+    1155, 1645, 
+    1045, 1675, 
+    910, 1700, 
+    715, 1720, 
+    555, 1700, 
+    435, 1655, 
+    375, 1585, 
+    360, 1505, 
+    335, 1395)
 
     vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
 
@@ -154,7 +200,9 @@ function race:init(...)
         self:setZIndex(99)
         self:setSize(400, 240)
         self:setIgnoresDrawOffset(true)
-        self:add()
+        if not vars.debug then
+            self:add()
+        end
     end
     function race_hud:draw()
         -- If there's some kind of stage overlay anim going on, play it.
@@ -189,17 +237,29 @@ function race:init(...)
         gfx.setLineWidth(2)
     end
 
+    class('race_debug').extends(gfx.sprite)
+    function race_debug:init()
+        race_debug.super.init(self)
+        self:moveTo(vars.boat_x, vars.boat_y)
+        self:setImage(gfx.image.new(4, 4, gfx.kColorBlack))
+        self:add()
+    end
+
     -- Set the sprites
     self.stage = race_stage()
-    self.boat = boat(vars.boat_x, vars.boat_y, true)
+    if vars.debug then
+        self.debug = race_debug()
+    else
+        self.boat = boat(vars.boat_x, vars.boat_y, true)
+        -- After the intro animation, start the race.
+        pd.timer.performAfterDelay(2000, function()
+            self:start()
+        end)
+    end
     self.stage_fg = race_stage_fg()
     self.hud = race_hud()
     self:add()
     
-    -- After the intro animation, start the race.
-    pd.timer.performAfterDelay(2000, function()
-        self:start()
-    end)
 end
 
 function race:boost()
@@ -272,20 +332,40 @@ end
 
 -- Scene update loop
 function race:update()
-    vars.rowbot = self.boat.turn_speedo.value
-    vars.player = self.boat.crankage
-    if vars.in_progress then
-        vars.current_time += 1
-        vars.mins, vars.secs, vars.mils = self:timecalc(vars.current_time)
-        if vars.current_time == 17970 then
-            self:finish(true)
+    if vars.debug then
+        if pd.buttonIsPressed('up') then
+            self.debug:moveBy(0, -5)
         end
-        save.total_racetime += 1
-        if vars.mode == "story" then
-            save['slot' .. save.current_story_slot .. '_racetime'] += 1
+        if pd.buttonIsPressed('down') then
+            self.debug:moveBy(0, 5)
         end
-    end
-    if vars.started and save.total_playtime % 2 == 0 then
-        self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
+        if pd.buttonIsPressed('left') then
+            self.debug:moveBy(-5, 0)
+        end
+        if pd.buttonIsPressed('right') then
+            self.debug:moveBy(5, 0)
+        end
+        if pd.buttonJustPressed('a') then
+            print(math.floor(self.debug.x) .. ', ' .. math.floor(self.debug.y) .. ', ')
+        end
+
+        gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120)
+    else
+        vars.rowbot = self.boat.turn_speedo.value
+        vars.player = self.boat.crankage
+        if vars.in_progress then
+            vars.current_time += 1
+            vars.mins, vars.secs, vars.mils = self:timecalc(vars.current_time)
+            if vars.current_time == 17970 then
+                self:finish(true)
+            end
+            save.total_racetime += 1
+            if vars.mode == "story" then
+                save['slot' .. save.current_story_slot .. '_racetime'] += 1
+            end
+        end
+        if vars.started and save.total_playtime % 2 == 0 then
+            self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
+        end
     end
 end

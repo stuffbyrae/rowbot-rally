@@ -94,11 +94,6 @@ function savecheck()
     if save.stage6_speedy == nil then save.stage6_speedy = false end
     if save.stage7_speedy == nil then save.stage7_speedy = false end
     -- Story slot 1
-    -- slotX_progress: nil means move to opening scene
-    -- "cutsceneX" means move to whatever cutscene number X is. 1 through 10
-    -- "tutorial" means move to tutorial.
-    -- "raceX" means move to whatever stage number X is. 1 through 7
-    -- "finish" means that it's done.
     save.slot1_progress = save.slot1_progress or nil
     save.slot1_highest_progress = save.slot1_highest_progress or nil
     save.slot1_circuit = save.slot1_circuit or 1
@@ -369,12 +364,12 @@ function shakies(time, int)
     anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'cheats' -- Debug scene to change to
+import 'race' -- Debug scene to change to
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(race, 1, "story", true)
 end
 
 function pd.update()

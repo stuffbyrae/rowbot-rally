@@ -16,7 +16,11 @@ function opening:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        setpauseimage(100)
+        local pauseimage = gfx.image.new(400, 240)
+        pd.setMenuImage(pauseimage, 100)
+        menu:addMenuItem(gfx.getLocalizedText('skipscene'), function()
+            self:leave()
+        end)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc
@@ -92,11 +96,13 @@ function opening:init(...)
 end
 
 function opening:progress()
-    vars.progress += 1
-    if vars.progress <= 7 then
-        self:newcontent(vars.progress)
-    else
-        self:leave()
+    if not vars.leaving then
+        vars.progress += 1
+        if vars.progress <= 7 then
+            self:newcontent(vars.progress)
+        else
+            self:leave()
+        end
     end
 end
 

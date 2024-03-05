@@ -29,7 +29,11 @@ function notif:init(...)
     }
     pd.inputHandlers.push(vars.notifHandlers)
 
-    makepopup(vars.head_text, vars.body_text, vars.button_text, vars.b_close, vars.callback)
+    makepopup(vars.head_text, vars.body_text, vars.button_text, vars.b_close, function()
+        pd.timer.performAfterDelay(250, function()
+            vars.callback()
+        end)
+    end)
 
     self:add()
 end

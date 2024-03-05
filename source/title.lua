@@ -11,6 +11,7 @@ if not demo then
     import 'stats'
     import 'notif'
     import 'cheats'
+    import "Tanuk_CodeSequence"
 end
 
 -- Setting up consts
@@ -18,9 +19,6 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
-
--- Cheat code setup
-import "Tanuk_CodeSequence"
 
 class('title').extends(gfx.sprite) -- Create the scene's class
 function title:init(...)
@@ -111,7 +109,6 @@ function title:init(...)
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
         image_bg = gfx.image.new('images/ui/title_bg'),
         image_checker = gfx.image.new('images/ui/title_checker'),
-        pedallica = gfx.font.new('fonts/pedallica'),
         kapel = gfx.font.new('fonts/kapel'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         sfx_bonk = smp.new('audio/sfx/bonk'),
@@ -121,7 +118,6 @@ function title:init(...)
         sfx_whoosh = smp.new('audio/sfx/whoosh'),
         sfx_ping = smp.new('audio/sfx/ping'),
         sfx_rowboton = smp.new('audio/sfx/rowboton'),
-        fade = gfx.imagetable.new('images/ui/fade/fade'),
     }
     assets.sfx_bonk:setVolume(save.vol_sfx/5)
     assets.sfx_proceed:setVolume(save.vol_sfx/5)
@@ -207,7 +203,7 @@ function title:init(...)
         AButtonDown = function()
             fademusic()
             assets.sfx_proceed:play()
-            -- If they've finished the game before, then bring them to the chapter select.
+            -- If they've finished the game before, then let them start a new Circuit.
             if save['slot' .. save.current_story_slot .. '_progress'] == 'finish' and save['slot' .. save.current_story_slot .. '_circuit'] < 4 then
                 save['slot' .. save.current_story_slot .. '_circuit'] += 1
                 save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
@@ -419,7 +415,7 @@ function title:init(...)
             else
                 assets.image_play:drawAnchored(385, 205, 1, 1)
             end
-            --TODO: add progress image here
+            assets.image_preview:draw(150, 30)
             gfx.drawRect(150, 30, 235, 120)
             if not vars.anim_fade:ended() then
                 gfx.setColor(gfx.kColorWhite)
@@ -547,6 +543,12 @@ end
 
 -- Opens the detailed options for each save slot.
 function title:openslot(slot)
+    assets.pedallica = gfx.font.new('fonts/pedallica')
+    if save['slot' .. slot .. '_progress'] == nil then
+        assets.image_preview = gfx.image.new('images/story/previews/empty')
+    else
+        assets.image_preview = gfx.image.new('images/story/previews/' .. save['slot' .. slot .. '_progress'])
+    end
     vars.slots_open = false
     save.current_story_slot = slot
     assets.sfx_ping:play()
@@ -607,6 +609,7 @@ function title:deleteslot(slot)
         save['slot' .. slot .. '_racetime'] = 0
         vars['slot_percent_' .. save.current_story_slot] = '0'
         if not pd.getReduceFlashing() then
+            assets.fade = gfx.imagetable.new('images/ui/fade/fade')
             vars.anim_overlay = gfx.animation.loop.new(20, assets.fade, false)
         end
         assets.sfx_rowboton:play()

@@ -48,6 +48,7 @@ function options:init(...)
         sfx_menu = smp.new('audio/sfx/menu'),
         sfx_clickon = smp.new('audio/sfx/clickon'),
         sfx_clickoff = smp.new('audio/sfx/clickoff'),
+        image_gears = gfx.imagetable.new('images/ui/options_gears')
     }
     self:sfx_change()
 
@@ -150,6 +151,7 @@ function options:init(...)
 
     vars.anim_ticker.repeatCount = -1
     vars.anim_wave_x.repeatCount = -1
+    vars.anim_gears = gfx.animation.loop.new(20, assets.image_gears, true)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
@@ -203,11 +205,25 @@ function options:init(...)
         self:moveTo(295, (vars.anim_wave_y:currentValue()*1.1))
     end
 
+    class('options_gear').extends(gfx.sprite)
+    function options_gear:init()
+        options_gear.super.init(self)
+        self:setZIndex(4)
+        self:setCenter(0, 0)
+        self:moveTo(25, 20)
+        self:add()
+    end
+    function options_gear:update()
+        self:setImage(vars.anim_gears:image())
+        self:moveTo(25, vars.anim_wave_y:currentValue() - 60)
+    end
+
     -- Set the sprites
     self.main = options_main()
     self.ticker = options_ticker()
     self.wave = options_wave()
     self.back = options_back()
+    self.gear = options_gear()
     self:add()
 
     self:draw_main_image()

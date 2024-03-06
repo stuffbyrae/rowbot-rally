@@ -39,6 +39,7 @@ function race:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
+        image_water = gfx.image.new('images/race/stages/water'),
         image_timer = gfx.image.new('images/race/timer'),
         image_meter = gfx.image.new('images/race/meter'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
@@ -150,6 +151,9 @@ function race:init(...)
     -- Load in the appropriate images depending on what stage is called. EZ!
     assets.image_stagec = gfx.image.new('images/race/stages/stagec' .. vars.stage)
     assets.image_stage = gfx.image.new('images/race/stages/stage' .. vars.stage)
+    assets.image_stagefg = gfx.image.new('images/race/stages/stagefg' .. vars.stage)
+
+    vars.stage_x, vars.stage_y = assets.image_stage:getSize()
     
     -- Adjust boat's starting X and Y, checkpoint/lap coords, etc. here
     if vars.stage == 1 then
@@ -177,6 +181,14 @@ function race:init(...)
         assets.image_water_bg:draw(0, 0)
     end)
 
+    class('race_water').extends(gfx.sprite)
+    function race_water:init()
+        race_water.super.init(self)
+        self:setImage(assets.image_water)
+        self:setIgnoresDrawOffset(true)
+        self:add()
+    end
+
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
         race_stage.super.init(self)
@@ -191,6 +203,8 @@ function race:init(...)
         race_stage_fg.super.init(self)
         self:setZIndex(98)
         self:setCenter(0, 0)
+        self:setImage(assets.image_stagefg)
+        self:add()
     end
 
     class('race_hud').extends(gfx.sprite)
@@ -246,6 +260,7 @@ function race:init(...)
     end
 
     -- Set the sprites
+    self.water = race_water()
     self.stage = race_stage()
     if vars.debug then
         self.debug = race_debug()
@@ -348,7 +363,6 @@ function race:update()
         if pd.buttonJustPressed('a') then
             print(math.floor(self.debug.x) .. ', ' .. math.floor(self.debug.y) .. ', ')
         end
-
         gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120)
     else
         vars.rowbot = self.boat.turn_speedo.value
@@ -365,7 +379,14 @@ function race:update()
             end
         end
         if vars.started and save.total_playtime % 2 == 0 then
-            self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
+            -- self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
         end
     end
+    local x, y = gfx.getDrawOffset() -- Gimme the draw offset
+    self.water:moveTo(x%-400, y%-240)
+    local stage_progress_x = (((-x + 200) / vars.stage_x) / 10)
+    local stage_progress_y = (((-y + 120) / vars.stage_y) / 10)
+    
+    self.stage_fg:moveTo(vars.stage_x * -stage_progress_x, vars.stage_y * -stage_progress_y)
+    print(self.stage_fg.x .. ' ' .. self.stage_fg.y)
 end

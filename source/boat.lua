@@ -257,13 +257,13 @@ end
 function boat:update()
     self.transform:reset()
     self.shadow:reset()
-    x, y = gfx.getDrawOffset() -- Gimme the draw offset
-    gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
+    local x, y = gfx.getDrawOffset() -- Gimme the draw offset
     if not self.crashed then
         self:moveBy(sin[self.rotation] * (self.speed * self.move_speedo.value), -cos[self.rotation] * (self.speed * self.move_speedo.value))
     else
         self:moveBy(sin[self.crash_direction] * (self.speed * self.move_speedo.value), -cos[self.crash_direction] * (self.speed * self.move_speedo.value))
     end
+    gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
     if save.button_controls or pd.isSimulator == 1 then
         if self.right then
             self.crankage += (self.turn * 2 - self.crankage) * self.turn_speedo.value * self.lerp

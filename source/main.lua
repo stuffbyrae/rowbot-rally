@@ -369,7 +369,7 @@ import 'race' -- Debug scene to change to
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "story", true)
+    scenemanager:switchscene(race, 1, "story")
 end
 
 function pd.update()

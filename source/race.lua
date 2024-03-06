@@ -40,7 +40,6 @@ function race:init(...)
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
         image_water = gfx.image.new('images/race/stages/water'),
-        image_timer = gfx.image.new('images/race/timer'),
         image_meter = gfx.image.new('images/race/meter'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         overlay_boost = gfx.imagetable.new('images/race/boost'),
@@ -66,9 +65,10 @@ function race:init(...)
         mils = "00",
         started = false,
         in_progress = false,
+        current_lap = 1,
+        current_checkpoint = 0,
+        last_checkpoint = 0,
         finished = false,
-        rowbot = 0,
-        player = 0,
         won = true,
     }
     vars.raceHandlers = {
@@ -159,12 +159,30 @@ function race:init(...)
     if vars.stage == 1 then
         vars.boat_x = 375
         vars.boat_y = 1400
+        vars.laps = 3
+        vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1295, 200, 20)
+        vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(725, 530, 225, 20)
+        vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(1465, 815, 200, 20)
+        vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(730, 1620, 20, 200)
+        assets.image_timer = gfx.image.new('images/race/timer_1')
     elseif vars.stage == 2 then
+        vars.laps = 3
+        assets.image_timer = gfx.image.new('images/race/timer_1')
     elseif vars.stage == 3 then
+        vars.laps = 3
+        assets.image_timer = gfx.image.new('images/race/timer_1')
     elseif vars.stage == 4 then
+        vars.laps = 1
+        assets.image_timer = gfx.image.new('images/race/timer')
     elseif vars.stage == 5 then
+        vars.laps = 3
+        assets.image_timer = gfx.image.new('images/race/timer_1')
     elseif vars.stage == 6 then
+        vars.laps = 3
+        assets.image_timer = gfx.image.new('images/race/timer_1')
     elseif vars.stage == 7 then
+        vars.laps = 1
+        assets.image_timer = gfx.image.new('images/race/timer')
     end
     assets.music = 'audio/music/stage' .. vars.stage
 
@@ -304,10 +322,40 @@ function race:start()
     vars.anim_overlay = gfx.animation.loop.new(68, assets.overlay_countdown, false)
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
-        -- newmusic(assets.music, true) -- Adding new music
+        newmusic(assets.music, true) -- Adding new music
         self.boat:state(true, true, true)
         self.boat:start()
     end)
+end
+
+function race:checkpoint(x)
+    if x == vars.checkpoint_1.x then
+        if vars.current_checkpoint == 0 and vars.last_checkpoint == 0 then
+            vars.current_checkpoint = 1
+        end
+        vars.last_checkpoint = 1
+    elseif x == vars.checkpoint_2.x then
+        if vars.current_checkpoint == 1 and vars.last_checkpoint == 1 then
+            vars.current_checkpoint = 2
+        end
+        vars.last_checkpoint = 2
+    elseif x == vars.checkpoint_3.x then
+        if vars.current_checkpoint == 2 and vars.last_checkpoint == 2 then
+            vars.current_checkpoint = 3
+        end
+        vars.last_checkpoint = 3
+    elseif x == vars.finish.x then -- Finish line
+        if vars.current_checkpoint == 3 and vars.last_checkpoint == 3 then
+            vars.current_checkpoint = 0
+            vars.current_lap += 1
+            if vars.current_lap > vars.laps then -- The race is done.
+                self:finish(false)
+            else
+                assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
+            end
+        end
+        vars.last_checkpoint = 0
+    end
 end
 
 function race:finish(timeout)
@@ -337,7 +385,6 @@ function race:finish(timeout)
 end
 
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
--- Local copy to see if that won't make it run a bit faster
 function race:timecalc(num)
     local mins = string.format("%02.f", math.floor((num/30) / 60))
     local secs = string.format("%02.f", math.floor((num/30) - mins * 60))
@@ -377,16 +424,18 @@ function race:update()
             if vars.mode == "story" then
                 save['slot' .. save.current_story_slot .. '_racetime'] += 1
             end
+            if #self.boat:overlappingSprites() > 0 then
+                self:checkpoint(self.boat:overlappingSprites()[1].x)
+            end
         end
         if vars.started and save.total_playtime % 2 == 0 then
-            -- self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
+            self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
         end
     end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
-    self.water:moveTo(x%-400, y%-240)
+    self.water:moveTo(x%400, y%240) -- Move the water sprite to keep it in frame
+    -- Set up the parallax!
     local stage_progress_x = (((-x + 200) / vars.stage_x) / 10)
     local stage_progress_y = (((-y + 120) / vars.stage_y) / 10)
-    
     self.stage_fg:moveTo(vars.stage_x * -stage_progress_x, vars.stage_y * -stage_progress_y)
-    print(self.stage_fg.x .. ' ' .. self.stage_fg.y)
 end

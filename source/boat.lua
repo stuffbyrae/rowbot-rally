@@ -36,7 +36,7 @@ function boat:init(x, y, race)
     -- Boat properties
     self.scale_factor = 1 -- Default scale of the boat.
     self.lerp = 0.15 -- Rate at which the cranking is interpolated.
-    self.speed = 6 -- Forward movement speed of the boat.
+    self.speed = 5 -- Forward movement speed of the boat.
     self.turn = 7 -- The RowBot's default turning rate.
 
     if enabled_cheats_big then

@@ -56,9 +56,16 @@ function results:init(...)
         time = args[3], -- number. send in the time!
         win = args[4], -- boolean, true or false. Only affects anything if in story mode.
         crashes = args[5], -- number. how many times did the boat crash while the race was active?
-        anim_fade = gfx.animator.new(750, 34, 11, pd.easingFunctions.outSine),
-        anim_plate = gfx.animator.new(350, 240, 0, pd.easingFunctions.outBack),
-        anim_react = gfx.animator.new(450, 420, 240, pd.easingFunctions.outCubic, 200),
+        anim_fade = pd.timer.new(750, 34, 11, pd.easingFunctions.outSine),
+        anim_plate = pd.timer.new(350, 240, 0, pd.easingFunctions.outBack),
+        anim_react = pd.timer.new(450, 420, 240, pd.easingFunctions.outCubic, 200),
+        stage1_speedy = 100,
+        stage2_speedy = 100,
+        stage3_speedy = 100,
+        stage4_speedy = 100,
+        stage5_speedy = 100,
+        stage6_speedy = 100,
+        stage7_speedy = 100,
         speedy = false,
     }
     vars.resultsHandlers = {
@@ -92,134 +99,20 @@ function results:init(...)
                 save['slot' .. save.current_story_slot .. '_progress'] = "cutscene10"
             end
         elseif vars.mode == "tt" then
-            if vars.stage == 1 then
-                if vars.time < save.stage1_best and not enabled_cheats then
-                    save.stage1_best = vars.time
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage1', vars.time, function(status, result)
-                        printTable(status)
-                        print(result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                end
-                -- TODO: Set the par time here.
-                if vars.time < 100 and not enabled_cheats then
-                    save.stage1_speedy = true
-                    vars.speedy = true
-                end
-                if vars.crashes == 0 and not enabled_cheats then
-                    save.stage1_flawless = true
-                end
-            elseif vars.stage == 2 then
-                if vars.time < save.stage2_best and not enabled_cheats then
-                    save.stage2_best = vars.time
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage2', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                end
-                -- TODO: Set the par time here.
-                if vars.time < 0 and not enabled_cheats then
-                    save.stage2_speedy = true
-                    vars.speedy = true
-                end
-                if vars.crashes == 0 and not enabled_cheats then
-                    save.stage2_flawless = true
-                end
-            elseif vars.stage == 3 then
-                if vars.time < save.stage3_best and not enabled_cheats then
-                    save.stage3_best = vars.time
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage3', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                end
-                -- TODO: Set the par time here.
-                if vars.time < 0 and not enabled_cheats then
-                    save.stage3_speedy = true
-                    vars.speedy = true
-                end
-                if vars.crashes == 0 and not enabled_cheats then
-                    save.stage3_flawless = true
-                end
-            elseif vars.stage == 4 then
-                if vars.time < save.stage4_best and not enabled_cheats then
-                    save.stage4_best = vars.time
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage4', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                end
-                -- TODO: Set the par time here.
-                if vars.time < 0 and not enabled_cheats then
-                    save.stage4_speedy = true
-                    vars.speedy = true
-                end
-                if vars.crashes == 0 and not enabled_cheats then
-                    save.stage4_flawless = true
-                end
-            elseif vars.stage == 5 then
-                if vars.time < save.stage5_best and not enabled_cheats then
-                    save.stage5_best = vars.time
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage5', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                end
-                -- TODO: Set the par time here.
-                if vars.time < 0 and not enabled_cheats then
-                    save.stage5_speedy = true
-                    vars.speedy = true
-                end
-                if vars.crashes == 0 and not enabled_cheats then
-                    save.stage5_flawless = true
-                end
-            elseif vars.stage == 6 then
-                if vars.time < save.stage1_best and not enabled_cheats then
-                    save.stage6_best = vars.time
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage6', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                end
-                -- TODO: Set the par time here.
-                if vars.time < 0 and not enabled_cheats then
-                    save.stage6_speedy = true
-                    vars.speedy = true
-                end
-                if vars.crashes == 0 and not enabled_cheats then
-                    save.stage6_flawless = true
-                end
-            elseif vars.stage == 7 then
-                if vars.time < save.stage7_best and not enabled_cheats then
-                    save.stage7_best = vars.time
-                    corner('sendscore')
-                    pd.scoreboards.addScore('stage7', vars.time, function(status, result)
-                        if status.code == "ERROR" then
-                            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                        end
-                    end)
-                end
-                -- TODO: Set the par time here.
-                if vars.time < 0 and not enabled_cheats then
-                    save.stage7_speedy = true
-                    vars.speedy = true
-                end
-                if vars.crashes == 0 and not enabled_cheats then
-                    save.stage7_flawless = true
-                end
+            if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
+                corner('sendscore')
+                pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
+                    if status.code == "ERROR" then
+                        makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                    end
+                end)
+            end
+            if vars.time < vars['stage' .. vars.stage .. '_speedy'] and not enabled_cheats then
+                save['stage' .. vars.stage .. '_speedy'] = true
+                vars.speedy = true
+            end
+            if vars.crashes == 0 and not enabled_cheats then
+                save['stage' .. vars.stage .. '_flawless'] = true
             end
         end
         savegame() -- Save the game! This is put last so "Sending score..." takes precedence over "Saving..." corner UI
@@ -242,71 +135,13 @@ function results:init(...)
                 makebutton(gfx.getLocalizedText('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
                 assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 65, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 90, kTextAlignment.right)
-                if vars.stage == 1 then
-                    if vars.time < save.stage1_best and not enabled_cheats then
-                        save.stage1_best = vars.time
-                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                        corner('sendscore')
-                        pd.scoreboards.addScore('stage1', vars.time, function(status, result)
-                            printTable(status)
-                            print(result)
-                            if status.code == "ERROR" then
-                                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                            end
-                        end)
-                    else
-                        local bestmins, bestsecs, bestmils = timecalc(save.stage1_best)
-                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                    end
-                elseif vars.stage == 2 then
-                    if vars.time < save.stage2_best and not enabled_cheats then
-                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    else
-                        local bestmins, bestsecs, bestmils = timecalc(save.stage2_best)
-                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                    end
-                elseif vars.stage == 3 then
-                    if vars.time < save.stage3_best and not enabled_cheats then
-                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    else
-                        local bestmins, bestsecs, bestmils = timecalc(save.stage3_best)
-                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                    end
-                elseif vars.stage == 4 then
-                    if vars.time < save.stage4_best and not enabled_cheats then
-                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    else
-                        local bestmins, bestsecs, bestmils = timecalc(save.stage4_best)
-                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                    end
-                elseif vars.stage == 5 then
-                    if vars.time < save.stage5_best and not enabled_cheats then
-                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    else
-                        local bestmins, bestsecs, bestmils = timecalc(save.stage5_best)
-                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                    end
-                elseif vars.stage == 6 then
-                    if vars.time < save.stage1_best and not enabled_cheats then
-                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    else
-                        local bestmins, bestsecs, bestmils = timecalc(save.stage6_best)
-                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                    end
-                elseif vars.stage == 7 then
-                    if vars.time < save.stage7_best and not enabled_cheats then
-                        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
-                    else
-                        local bestmins, bestsecs, bestmils = timecalc(save.stage7_best)
-                        assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
-                        assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
-                    end
+                if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
+                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                    save['stage' .. vars.stage .. '_best'] = vars.time
+                else
+                    local bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best'])
+                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                    assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                 end
                 if vars.crashes == 0 and vars.speedy then
                     gfx.imageWithText(gfx.getLocalizedText('perfect'), 200, 120):drawScaled(40, 20, 2)
@@ -332,21 +167,7 @@ function results:init(...)
     gfx.popContext()
 
     save.total_races_completed += 1
-    if vars.stage == 1 then
-        save.stage1_plays += 1
-    elseif vars.stage == 2 then
-        save.stage2_plays += 1
-    elseif vars.stage == 3 then
-        save.stage3_plays += 1
-    elseif vars.stage == 4 then
-        save.stage4_plays += 1
-    elseif vars.stage == 5 then
-        save.stage5_plays += 1
-    elseif vars.stage == 6 then
-        save.stage6_plays += 1
-    elseif vars.stage == 7 then
-        save.stage7_plays += 1
-    end
+    save['stage' .. vars.stage .. '_plays'] += 1
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         assets.image_bg:draw(0, 0)
@@ -361,7 +182,7 @@ function results:init(...)
     end
     function results_fade:update()
         if vars.anim_fade ~= nil then
-            self:setImage(assets.image_fade[math.floor(vars.anim_fade:currentValue())])
+            self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
@@ -376,7 +197,7 @@ function results:init(...)
     end
     function results_plate:update()
         if vars.anim_plate ~= nil then
-            self:moveTo(0, vars.anim_plate:currentValue())
+            self:moveTo(0, vars.anim_plate.value)
         end
     end
 
@@ -395,7 +216,7 @@ function results:init(...)
     end
     function results_react:update()
         if vars.anim_react ~= nil then
-            self:moveTo(-15, vars.anim_react:currentValue())
+            self:moveTo(-15, vars.anim_react.value)
         end
     end
 
@@ -403,6 +224,7 @@ function results:init(...)
     self.fade = results_fade()
     self.plate = results_plate()
     self.react = results_react(vars.win)
+    
     self:add()
 end
 

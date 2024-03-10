@@ -26,11 +26,11 @@ function race:init(...)
             menu:addCheckmarkMenuItem(gfx.getLocalizedText('proui'), save.pro_ui, function(new)
                 save.pro_ui = new
                 if new then
-                    vars.anim_hud = gfx.animator.new(200, vars.anim_hud:currentValue(), -130, pd.easingFunctions.inOutSine)
-                    vars.anim_ui_offset = gfx.animator.new(200, vars.anim_ui_offset:currentValue(), 88, pd.easingFunctions.inOutSine)
+                    vars.anim_hud = pd.timer.new(200, vars.anim_hud.value, -130, pd.easingFunctions.inOutSine)
+                    vars.anim_ui_offset = pd.timer.new(200, vars.anim_ui_offset.value, 88, pd.easingFunctions.inOutSine)
                 else
-                    vars.anim_hud = gfx.animator.new(200, vars.anim_hud:currentValue(), 0, pd.easingFunctions.inOutSine)
-                    vars.anim_ui_offset = gfx.animator.new(200, vars.anim_ui_offset:currentValue(), 0, pd.easingFunctions.inOutSine)
+                    vars.anim_hud = pd.timer.new(200, vars.anim_hud.value, 0, pd.easingFunctions.inOutSine)
+                    vars.anim_ui_offset = pd.timer.new(200, vars.anim_ui_offset.value, 0, pd.easingFunctions.inOutSine)
                 end
             end)
         end
@@ -76,7 +76,7 @@ function race:init(...)
             self:boost()
         end,
         AButtonDown = function()
-            
+            self:finish(false)
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -138,14 +138,15 @@ function race:init(...)
     360, 1505, 
     335, 1395)
 
-    vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
+    vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
+    vars.overlay = "fade"
 
     if save.pro_ui then
-        vars.anim_hud = gfx.animator.new(500, -230, -130, pd.easingFunctions.outSine)
-        vars.anim_ui_offset = gfx.animator.new(0, 88, 88)
+        vars.anim_hud = pd.timer.new(500, -230, -130, pd.easingFunctions.outSine)
+        vars.anim_ui_offset = pd.timer.new(0, 88, 88)
     else
-        vars.anim_hud = gfx.animator.new(500, -130, 0, pd.easingFunctions.outSine)
-        vars.anim_ui_offset = gfx.animator.new(0, 0, 0)
+        vars.anim_hud = pd.timer.new(500, -130, 0, pd.easingFunctions.outSine)
+        vars.anim_ui_offset = pd.timer.new(0, 0, 0)
     end
 
     -- Load in the appropriate images depending on what stage is called. EZ!
@@ -245,26 +246,26 @@ function race:init(...)
         if vars.anim_overlay ~= nil then
             if vars.finished or not vars.started then
                 gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-                vars.anim_overlay:draw(0, 0)
+                assets['overlay_' .. vars.overlay]:drawImage(math.floor(vars.anim_overlay.value), 0, 0)
                 gfx.setImageDrawMode(gfx.kDrawModeCopy)
             else
-                vars.anim_overlay:draw(0, 0)
+                assets['overlay_' .. vars.overlay]:drawImage(math.floor(vars.anim_overlay.value), 0, 0)
             end
         end
         -- Draw the timer
-        assets.image_timer:draw(vars.anim_hud:currentValue() + vars.anim_ui_offset:currentValue(), 3 - (vars.anim_ui_offset:currentValue() / 7.4))
+        assets.image_timer:draw(vars.anim_hud.value + vars.anim_ui_offset.value, 3 - (vars.anim_ui_offset.value / 7.4))
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.times_new_rally:drawText(vars.mins .. ":" .. vars.secs .. "." .. vars.mils, 44 + vars.anim_hud:currentValue() + vars.anim_ui_offset:currentValue(), 20 - (vars.anim_ui_offset:currentValue() / 7.4))
+        assets.times_new_rally:drawText(vars.mins .. ":" .. vars.secs .. "." .. vars.mils, 44 + vars.anim_hud.value + vars.anim_ui_offset.value, 20 - (vars.anim_ui_offset.value / 7.4))
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
         -- Draw the Rocket Arms icon, when applicable
         if assets.image_item ~= nil then
-            assets.image_item:draw(313 - vars.anim_hud:currentValue(), 0)
+            assets.image_item:draw(313 - vars.anim_hud.value, 0)
         end
         -- Draw the power meter
-        assets.image_meter:draw(0, 177 - vars.anim_hud:currentValue())
+        assets.image_meter:draw(0, 177 - vars.anim_hud.value)
         gfx.setLineWidth(8)
         if vars.rowbot > 0 then
-            gfx.drawArc(200, 380 - vars.anim_hud:currentValue(), 160, math.clamp(32 - vars.player * 2.2, 3, 32), 328 + (vars.rowbot * 15))
+            gfx.drawArc(200, 380 - vars.anim_hud.value, 160, math.clamp(32 - vars.player * 2.2, 3, 32), 328 + (vars.rowbot * 15))
         end
         gfx.setLineWidth(2)
     end
@@ -301,7 +302,9 @@ function race:boost()
             self.boat:boost()
             vars.boosts_remaining -= 1
             assets.image_item = gfx.image.new('images/race/item_active')
-            vars.anim_overlay = gfx.animation.loop.new(100, assets.overlay_boost, true)
+            vars.anim_overlay = pd.timer.new(500, 1, #assets.overlay_boost)
+            vars.overlay = "boost"
+            vars.anim_overlay.repeats = true
             pd.timer.performAfterDelay(50, function()
                 if vars.boosts_remaining ~= 0 then
                     assets.image_item = gfx.image.new('images/race/item_' .. vars.boosts_remaining)
@@ -319,7 +322,8 @@ end
 function race:start()
     vars.started = true
     assets.sfx_countdown:play()
-    vars.anim_overlay = gfx.animation.loop.new(68, assets.overlay_countdown, false)
+    vars.anim_overlay = pd.timer.new(4000, 1, #assets.overlay_countdown)
+    vars.overlay = "countdown"
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
         newmusic(assets.music, true) -- Adding new music
@@ -361,9 +365,9 @@ end
 function race:finish(timeout)
     if vars.in_progress then
         if save.pro_ui then
-            vars.anim_hud = gfx.animator.new(500, vars.anim_hud:currentValue(), -230, pd.easingFunctions.inSine)
+            vars.anim_hud = pd.timer.new(500, vars.anim_hud.value, -230, pd.easingFunctions.inSine)
         else
-            vars.anim_hud = gfx.animator.new(500, vars.anim_hud:currentValue(), -130, pd.easingFunctions.inSine)
+            vars.anim_hud = pd.timer.new(500, vars.anim_hud.value, -130, pd.easingFunctions.inSine)
         end
         vars.in_progress = false
         vars.finished = true
@@ -375,10 +379,11 @@ function race:finish(timeout)
             vars.anim_overlay = nil
             assets.sfx_ref:play()
         else
-            vars.anim_overlay = gfx.animation.loop.new(20, assets.overlay_fade, false)
+            vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
+            vars.overlay = "fade"
             assets.sfx_finish:play()
         end
-        pd.timer.performAfterDelay(2000, function()
+        pd.timer.performAfterDelay(2500, function()
             scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won, self.boat.crashes)
         end)
     end

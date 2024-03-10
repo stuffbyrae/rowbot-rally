@@ -55,9 +55,9 @@ function stats:init(...)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         transitioning = true,
-        anim_ticker = gfx.animator.new(2000, 0, -81),
-        anim_wave_x = gfx.animator.new(5000, 0, -58),
-        anim_wave_y = gfx.animator.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
+        anim_ticker = pd.timer.new(2000, 0, -81),
+        anim_wave_x = pd.timer.new(5000, 0, -58),
+        anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
         crank_distance_mm = (save.total_degrees_cranked / 360) * 125.66,
         crank_distance_in = (save.total_degrees_cranked / 360) * 4.95,
         stage_plays = { -- Each number here is the stage's total play count, with the stage's own number tacked onto the end for record-keeping.
@@ -81,13 +81,13 @@ function stats:init(...)
 
     pd.timer.performAfterDelay(1000, function() -- After the wave's done animating inward...
         vars.transitioning = false -- Start accepting button presses to go back.
-        vars.anim_wave_y = gfx.animator.new(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
-        vars.anim_wave_y.repeatCount = -1 -- make it repeat forever,
+        vars.anim_wave_y = pd.timer.new(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
+        vars.anim_wave_y.repeats = true -- make it repeat forever,
         vars.anim_wave_y.reverses = true -- and make it loop!
     end)
 
-    vars.anim_ticker.repeatCount = -1
-    vars.anim_wave_x.repeatCount = -1
+    vars.anim_ticker.repeats = true
+    vars.anim_wave_x.repeats = true
 
     table.sort(vars.stage_plays) -- Sorting the stage plays table...
     vars.mps = vars.stage_plays[7] -- Saving the most-played stage for shorthand
@@ -126,7 +126,7 @@ function stats:init(...)
         self:add()
     end
     function stats_ticker:update()
-        self:moveTo(vars.anim_ticker:currentValue(), 0)
+        self:moveTo(vars.anim_ticker.value, 0)
     end
 
     class('stats_wave').extends(gfx.sprite)
@@ -139,7 +139,7 @@ function stats:init(...)
         self:add()
     end
     function stats_wave:update()
-        self:moveTo(vars.anim_wave_x:currentValue(), vars.anim_wave_y:currentValue())
+        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
     end
 
     class('stats_back').extends(gfx.sprite)
@@ -152,7 +152,7 @@ function stats:init(...)
         self:add()
     end
     function stats_back:update()
-        self:moveTo(295, (vars.anim_wave_y:currentValue()*1.1))
+        self:moveTo(295, (vars.anim_wave_y.value*1.1))
     end
     
     -- Set the sprites
@@ -223,8 +223,8 @@ end
 
 function stats:leave() -- Leave and move back to the title screen
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
-    vars.anim_wave_y = gfx.animator.new(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
-    pd.timer.performAfterDelay(1000, function() -- After that animation's done...
+    vars.anim_wave_y = pd.timer.new(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
+    vars.anim_wave_y.timerEndedCallback = function() -- After that animation's done...
         scenemanager:switchscene(title) -- Switch back to the title!
-    end)
+    end
 end

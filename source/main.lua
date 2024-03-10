@@ -243,7 +243,16 @@ function corner(type)
             kapel:drawText(gfx.getLocalizedText('corner_' .. type), 3, 3) -- and draw the text!
             gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back,
         gfx.popContext() -- and leave the image context.
-        anim_corner_in = gfx.animator.new(500, -25, 0, pd.easingFunctions.outSine) -- Intro animation
+        anim_corner = pd.timer.new(501, -25, 0, pd.easingFunctions.outSine) -- Intro animation
+        anim_corner.timerEndedCallback = function()
+            anim_corner = pd.timer.new(501, 0, -25, pd.easingFunctions.inSine)
+            anim_corner.delay = 1500
+            anim_corner.timerEndedCallback = function()
+                anim_corner = nil
+                img_corner = nil
+                corner_active = false
+            end
+        end
     end
 end
 
@@ -279,7 +288,7 @@ function makepopup(head_text, body_text, button_text, b_close, callback)
             end
         }
         popup_transitioning = true -- Let the transition kick in, so you can't close it *too* immediately.
-        anim_popup = gfx.animator.new(350, 240, 0, pd.easingFunctions.outBack) -- Tee up that intro animation.
+        anim_popup = pd.timer.new(350, 240, 0, pd.easingFunctions.outBack) -- Tee up that intro animation.
         pd.timer.performAfterDelay(350, function()
             popup_transitioning = false
         end)
@@ -293,7 +302,7 @@ function closepopup(callback)
         popup_transitioning = true
         popup_out:setVolume(save.vol_sfx/5) -- Set the volume,
         popup_out:play() -- and play it!
-        anim_popup = gfx.animator.new(150, 0, 240, pd.easingFunctions.inCubic) -- Also, animate that out.
+        anim_popup = pd.timer.new(150, 0, 240, pd.easingFunctions.inCubic) -- Also, animate that out.
         pd.timer.performAfterDelay(151, function() -- When the animation's done...
             popup:remove() -- Remove the sprite,
             popup = nil -- Nil it,
@@ -361,7 +370,7 @@ function shakies(time, int)
     if pd.getReduceFlashing() then -- If reduce flashing is enabled, then don't shake.
         return
     end
-    anim_shakies = gfx.animator.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
+    anim_shakies = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
 import 'race' -- Debug scene to change to
@@ -369,17 +378,17 @@ import 'race' -- Debug scene to change to
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "story")
+    scenemanager:switchscene(title)
 end
 
 function pd.update()
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
-        popup:moveTo(0, anim_popup:currentValue()) -- Move it there!
+        popup:moveTo(0, anim_popup.value) -- Move it there!
     end
     -- Screen shake update logic
     if anim_shakies ~= nil then
-        pd.display.setOffset(anim_shakies:currentValue(), 0)
+        pd.display.setOffset(anim_shakies.value, 0)
     end
     save.total_playtime += 1 -- Up the total playtime by one every frame while the game is open.
     -- Catch-all stuff ...
@@ -389,20 +398,8 @@ function pd.update()
         pd.ui.crankIndicator:update() -- Show the Use the Crank! indicator.
     end
     -- Corner update logic
-    if anim_corner_in ~= nil and img_corner ~= nil then -- If the intro anim exists...
-        img_corner:drawIgnoringOffset(1 * anim_corner_in:currentValue(), 1 * anim_corner_in:currentValue()) -- Move the corner piece in using it
-        if anim_corner_in:ended() then -- When it ends...
-            anim_corner_in = nil -- nil itself,
-            anim_corner_out = gfx.animator.new(250, 0, -25, pd.easingFunctions.inSine, 1500) -- and add the exit animation to play after some time.
-        end
-    end
-    if anim_corner_out ~= nil and img_corner ~= nil then -- When that exit animation comes into play...
-        img_corner:drawIgnoringOffset(1 * anim_corner_out:currentValue(), 1 * anim_corner_out:currentValue()) -- Move the corner piece all the same.
-        if anim_corner_out:ended() then -- When that ends,
-            anim_corner_out = nil -- everything
-            img_corner = nil -- everything
-            corner_active = false -- EVERYTHING!!
-        end
+    if anim_corner ~= nil and img_corner ~= nil then -- If the intro anim exists...
+        img_corner:drawIgnoringOffset(1 * anim_corner.value, 1 * anim_corner.value) -- Move the corner piece in using it
     end
     if pd.isSimulator ~= 1 then
         pd.drawFPS(10, 10)

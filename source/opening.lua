@@ -37,7 +37,7 @@ function opening:init(...)
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         title = args[1],
         leaving = false,
-        anim_fade = gfx.animator.new(2500, 1, 34, pd.easingFunctions.outCubic),
+        anim_fade = pd.timer.new(2500, 1, 34, pd.easingFunctions.outCubic),
         progress = 1,
     }
     vars.openingHandlers = {
@@ -80,7 +80,7 @@ function opening:init(...)
     end
     function opening_fade:update()
         if vars.anim_fade ~= nil then
-            self:setImage(assets.image_fade[math.floor(vars.anim_fade:currentValue())])
+            self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
@@ -127,14 +127,14 @@ function opening:leave()
     if not vars.leaving then
         vars.leaving = true
         fademusic(999)
-        vars.anim_fade = gfx.animator.new(1000, math.floor(vars.anim_fade:currentValue()), 0)
-        pd.timer.performAfterDelay(1000, function()
+        vars.anim_fade = pd.timer.new(1000, math.floor(vars.anim_fade:currentValue()), 0)
+        vars.anim_fade.timerEndedCallback = function()
             if vars.title then
                 scenemanager:switchscene(title)
             else
                 save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
                 scenemanager:switchstory()
             end
-        end)
+        end
     end
 end

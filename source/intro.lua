@@ -35,9 +35,9 @@ function intro:init(...)
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1],
         leaving = false,
-        anim_left = gfx.animator.new(400, -400, 0, pd.easingFunctions.outCubic),
-        anim_right = gfx.animator.new(400, 600, 400, pd.easingFunctions.outCubic),
-        anim_bottom = gfx.animator.new(300, 350, 235, pd.easingFunctions.outBack, 500),
+        anim_left = pd.timer.new(400, -400, 0, pd.easingFunctions.outCubic),
+        anim_right = pd.timer.new(400, 600, 400, pd.easingFunctions.outCubic),
+        anim_bottom = pd.timer.new(300, 350, 235, pd.easingFunctions.outBack, 500),
     }
     vars.introHandlers = {
         AButtonDown = function()
@@ -80,7 +80,7 @@ function intro:init(...)
     end
     function intro_fade:update()
         if vars.anim_fade ~= nil then
-            self:setImage(assets.image_fade[math.floor(vars.anim_fade:currentValue())])
+            self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
@@ -94,7 +94,7 @@ function intro:init(...)
     end
     function intro_left:update()
         if vars.anim_left ~= nil then
-            self:moveTo(vars.anim_left:currentValue(), 0)
+            self:moveTo(vars.anim_left.value, 0)
         end
     end
 
@@ -108,7 +108,7 @@ function intro:init(...)
     end
     function intro_right:update()
         if vars.anim_right ~= nil then
-            self:moveTo(vars.anim_right:currentValue(), 0)
+            self:moveTo(vars.anim_right.value, 0)
         end
     end
 
@@ -122,7 +122,7 @@ function intro:init(...)
     end
     function intro_bottom:update()
         if vars.anim_left ~= nil then
-            self:moveTo(0, vars.anim_bottom:currentValue())
+            self:moveTo(0, vars.anim_bottom.value)
         end
     end
 
@@ -140,10 +140,10 @@ end
 function intro:leave()
     vars.leaving = true
     assets.sfx_whoosh:play()
-    vars.anim_left = gfx.animator.new(200, self.left.x, -400, pd.easingFunctions.inCubic)
-    vars.anim_right = gfx.animator.new(200, self.right.x, 600, pd.easingFunctions.inCubic)
-    vars.anim_bottom = gfx.animator.new(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
-    vars.anim_fade = gfx.animator.new(300, 1, 34)
+    vars.anim_left = pd.timer.new(200, self.left.x, -400, pd.easingFunctions.inCubic)
+    vars.anim_right = pd.timer.new(200, self.right.x, 600, pd.easingFunctions.inCubic)
+    vars.anim_bottom = pd.timer.new(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
+    vars.anim_fade = pd.timer.new(300, 1, 34)
     pd.timer.performAfterDelay(201, function()
         scenemanager:switchscene(race, vars.stage, "story")
     end)

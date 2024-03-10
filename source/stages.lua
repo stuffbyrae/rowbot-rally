@@ -120,8 +120,8 @@ function stages:init(...)
         selection = 1,
         leaderboards_open = false,
         leaderboards_closable = false,
-        anim_wave_x = gfx.animator.new(5000, 0, -58),
-        anim_boat_y = gfx.animator.new(2500, 195, 200, pd.easingFunctions.inOutCubic, -2000),
+        anim_wave_x = pd.timer.new(5000, 0, -58),
+        anim_boat_y = pd.timer.new(2500, 195, 200, pd.easingFunctions.inOutCubic),
     }
     vars.stagesHandlers = {
         leftButtonDown = function()
@@ -155,8 +155,8 @@ function stages:init(...)
     }
     pd.inputHandlers.push(vars.stagesHandlers)
 
-    vars.anim_wave_x.repeatCount = -1
-    vars.anim_boat_y.repeatCount = -1
+    vars.anim_wave_x.repeats = true
+    vars.anim_boat_y.repeats = true
     vars.anim_boat_y.reverses = true
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
@@ -175,9 +175,9 @@ function stages:init(...)
     end
     function stages_wave:update()
         if vars.anim_wave_y ~= nil then
-            self:moveTo(vars.anim_wave_x:currentValue(), vars.anim_wave_y:currentValue())
+            self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
         else
-            self:moveTo(vars.anim_wave_x:currentValue(), 225)
+            self:moveTo(vars.anim_wave_x.value, 225)
         end
     end
 
@@ -191,9 +191,9 @@ function stages:init(...)
     end
     function stages_boat:update()
         if vars.anim_boat_x ~= nil then
-            self:moveTo(vars.anim_boat_x:currentValue(), vars.anim_boat_y:currentValue())
+            self:moveTo(vars.anim_boat_x.value, vars.anim_boat_y.value)
         elseif vars.anim_boat_y ~= nil then
-            self:moveTo(45, vars.anim_boat_y:currentValue())
+            self:moveTo(45, vars.anim_boat_y.value)
         end
     end
 
@@ -208,7 +208,7 @@ function stages:init(...)
     end
     function stages_back:update()
         if vars.anim_back_y ~= nil then
-            self:moveTo(105, vars.anim_back_y:currentValue())
+            self:moveTo(105, vars.anim_back_y.value)
         end
     end
 
@@ -222,7 +222,7 @@ function stages:init(...)
     end
     function stages_top:update()
         if vars.anim_top_y ~= nil then
-            self:moveTo(0, vars.anim_top_y:currentValue())
+            self:moveTo(0, vars.anim_top_y.value)
         end
     end
 
@@ -237,7 +237,7 @@ function stages:init(...)
     end
     function stages_preview:update()
         if vars.anim_preview_x ~= nil then
-            self:moveTo(vars.anim_preview_x:currentValue(), 0)
+            self:moveTo(vars.anim_preview_x.value, 0)
         end
     end
 
@@ -252,7 +252,7 @@ function stages:init(...)
     end
     function stages_buttons:update()
         if vars.anim_preview_x ~= nil then
-            self:moveTo(vars.anim_preview_x:currentValue() - 10, 235)
+            self:moveTo(vars.anim_preview_x.value - 10, 235)
         end
     end
 
@@ -331,8 +331,8 @@ function stages:leaderboardsin()
     assets.image_rowbot_accent = gfx.imagetable.new('images/stages/rowbot_accent')
     assets.image_leaderboard_container = gfx.imagetable.new('images/stages/leaderboard_container')
     assets.image_leaderboard_container_intro = gfx.imagetable.new('images/stages/leaderboard_container_intro')
-    vars.anim_boat_y = gfx.animator.new(250, self.boat.y, 300, pd.easingFunctions.inCubic)
-    vars.anim_preview_x = gfx.animator.new(250, self.preview.x, 600, pd.easingFunctions.inCubic)
+    vars.anim_boat_y = pd.timer.new(250, self.boat.y, 300, pd.easingFunctions.inCubic)
+    vars.anim_preview_x = pd.timer.new(250, self.preview.x, 600, pd.easingFunctions.inCubic)
     vars.anim_lb_bubble = gfx.animation.loop.new(100, assets.image_leaderboard_container_intro, false)
     self.lb_accent:setImage(assets.image_rowbot_accent[2])
     self.lb_accent:add()
@@ -395,11 +395,11 @@ function stages:leaderboardsout()
     self.lb_text:remove()
     update_image_top(vars.selection, false)
     assets.image_leaderboard_container_outro = gfx.imagetable.new('images/stages/leaderboard_container_outro')
-    vars.anim_boat_y = gfx.animator.new(250, self.boat.y, 200, pd.easingFunctions.outCubic, 250)
-    vars.anim_preview_x = gfx.animator.new(250, self.preview.x, 400, pd.easingFunctions.outCubic, 250)
     vars.anim_lb_bubble = gfx.animation.loop.new(70, assets.image_leaderboard_container_outro, false)
     pd.timer.performAfterDelay(250, function()
         assets.sfx_whoosh:play()
+        vars.anim_boat_y = pd.timer.new(250, self.boat.y, 200, pd.easingFunctions.outCubic)
+        vars.anim_preview_x = pd.timer.new(250, self.preview.x, 400, pd.easingFunctions.outCubic)
     end)
     pd.timer.performAfterDelay(300, function()
         self.lb_bubble:remove()
@@ -411,8 +411,8 @@ function stages:leaderboardsout()
             self.lb_accent:remove()
             pd.inputHandlers.pop()
             update_image_top(vars.selection, true)
-            vars.anim_boat_y = gfx.animator.new(2500, 195, 200, pd.easingFunctions.inOutCubic, -1500)
-            vars.anim_boat_y.repeatCount = -1
+            vars.anim_boat_y = pd.timer.new(2500, 195, 200, pd.easingFunctions.inOutCubic)
+            vars.anim_boat_y.repeats = true
             vars.anim_boat_y.reverses = true
         end
     end)
@@ -423,12 +423,14 @@ function stages:enterrace()
     pd.inputHandlers.pop()
     assets.sfx_proceed:play()
     fademusic(1000)
-    vars.anim_boat_x = gfx.animator.new(800, self.boat.x, 450, pd.easingFunctions.inCubic)
-    vars.anim_preview_x = gfx.animator.new(250, self.preview.x, 600, pd.easingFunctions.inCubic, 250)
-    vars.anim_back_y = gfx.animator.new(250, self.back.y, 275, pd.easingFunctions.inCubic)
-    vars.anim_top_y = gfx.animator.new(250, self.top.y, -400, pd.easingFunctions.inCubic)
-    vars.anim_wave_y = gfx.animator.new(250, self.wave.y, 245, pd.easingFunctions.inBack, 750)
-    pd.timer.performAfterDelay(1001, function()
+    vars.anim_boat_x = pd.timer.new(750, self.boat.x, 450, pd.easingFunctions.inCubic)
+    vars.anim_preview_x = pd.timer.new(250, self.preview.x, 600, pd.easingFunctions.inCubic)
+    vars.anim_back_y = pd.timer.new(250, self.back.y, 275, pd.easingFunctions.inCubic)
+    vars.anim_top_y = pd.timer.new(250, self.top.y, -400, pd.easingFunctions.inCubic)
+    vars.anim_boat_x.timerEndedCallback = function()
+        vars.anim_wave_y = pd.timer.new(250, self.wave.y, 245, pd.easingFunctions.inBack)
+    end
+    pd.timer.performAfterDelay(1200, function()
         scenemanager:switchscene(race, vars.selection, "tt")
     end)
 end

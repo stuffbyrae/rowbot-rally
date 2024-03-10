@@ -70,9 +70,9 @@ function options:init(...)
     
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         transitioning = true,
-        anim_ticker = gfx.animator.new(2000, 0, -100),
-        anim_wave_x = gfx.animator.new(5000, 0, -58),
-        anim_wave_y = gfx.animator.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
+        anim_ticker = pd.timer.new(2000, 0, -100),
+        anim_wave_x = pd.timer.new(5000, 0, -58),
+        anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
         item_list = {'music', 'sfx', 'button_controls', 'sensitivity', 'ui'},
         selection = 1,
         offset = 1,
@@ -143,14 +143,14 @@ function options:init(...)
 
     pd.timer.performAfterDelay(1000, function() -- After the wave's done animating inward...
         vars.transitioning = false -- Start accepting button presses to go back.
-        vars.anim_wave_y = gfx.animator.new(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
+        vars.anim_wave_y = pd.timer.new(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
         vars.anim_wave_y.repeatCount = -1 -- make it repeat forever,
         vars.anim_wave_y.reverses = true -- and make it loop!
         pd.inputHandlers.push(vars.optionsHandlers) -- Wait to push the input handlers, so you can't fuck with shit before you have a chance to read it.
     end)
 
-    vars.anim_ticker.repeatCount = -1
-    vars.anim_wave_x.repeatCount = -1
+    vars.anim_ticker.repeats = true
+    vars.anim_wave_x.repeats = true
     vars.anim_gears = gfx.animation.loop.new(20, assets.image_gears, true)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
@@ -164,8 +164,6 @@ function options:init(...)
         self:setZIndex(0)
         self:add()
     end
-    function options_main:update()
-    end
 
     class('options_ticker').extends(gfx.sprite)
     function options_ticker:init()
@@ -176,7 +174,7 @@ function options:init(...)
         self:add()
     end
     function options_ticker:update()
-        self:moveTo(vars.anim_ticker:currentValue(), 0)
+        self:moveTo(vars.anim_ticker.value, 0)
     end
 
     class('options_wave').extends(gfx.sprite)
@@ -189,7 +187,7 @@ function options:init(...)
         self:add()
     end
     function options_wave:update()
-        self:moveTo(vars.anim_wave_x:currentValue(), vars.anim_wave_y:currentValue())
+        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
     end
 
     class('options_back').extends(gfx.sprite)
@@ -202,7 +200,7 @@ function options:init(...)
         self:add()
     end
     function options_back:update()
-        self:moveTo(295, (vars.anim_wave_y:currentValue()*1.1))
+        self:moveTo(295, (vars.anim_wave_y.value*1.1))
     end
 
     class('options_gear').extends(gfx.sprite)
@@ -215,7 +213,7 @@ function options:init(...)
     end
     function options_gear:update()
         self:setImage(vars.anim_gears:image())
-        self:moveTo(25, vars.anim_wave_y:currentValue() - 60)
+        self:moveTo(25, vars.anim_wave_y.value - 60)
     end
 
     -- Set the sprites
@@ -306,8 +304,8 @@ function options:leave() -- Leave and move back to the title screen
     savegame()
     pd.inputHandlers.pop() -- Pop the handlers, so you can't change anything as you're leaving.
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
-    vars.anim_wave_y = gfx.animator.new(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
-    pd.timer.performAfterDelay(1000, function() -- After that animation's done...
+    vars.anim_wave_y = pd.timer.new(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
+    vars.anim_wave_y.timerEndedCallback = function()
         scenemanager:switchscene(title) -- Switch back to the title!
-    end)
+    end
 end

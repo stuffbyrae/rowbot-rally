@@ -135,12 +135,12 @@ function title:init(...)
         slot_selection = 1,
         slots_open = false,
         slot_open = false,
-        anim_bg = gfx.animator.new(1000, -240, 0, pd.easingFunctions.outCubic),
-        anim_item = gfx.animator.new(0, 200, 200),
-        anim_fade = gfx.animator.new(0, 0, 0),
-        anim_pulse = gfx.animator.new(1015, 15, 7, pd.easingFunctions.outCubic, 507),
-        anim_checker_x = gfx.animator.new(2300, 0, -124),
-        anim_checker_y = gfx.animator.new(2300, 0, -32),
+        anim_bg = pd.timer.new(1000, -240, 0, pd.easingFunctions.outCubic),
+        anim_item = pd.timer.new(0, 200, 200),
+        anim_fade = pd.timer.new(0, 0, 0),
+        anim_pulse = pd.timer.new(1015, 15, 7, pd.easingFunctions.outCubic),
+        anim_checker_x = pd.timer.new(2300, 0, -124),
+        anim_checker_y = pd.timer.new(2300, 0, -32),
     }
     vars.anim_pulse.repeats = true
     vars.anim_checker_x.repeats = true
@@ -253,7 +253,7 @@ function title:init(...)
         self:add()
     end
     function title_checker:update()
-        self:moveTo(vars.anim_checker_x:currentValue(), vars.anim_checker_y:currentValue())
+        self:moveTo(vars.anim_checker_x.value, vars.anim_checker_y.value)
     end
 
     class('title_bg').extends(gfx.sprite)
@@ -265,7 +265,7 @@ function title:init(...)
     end
     function title_bg:update()
         if vars.anim_bg ~= nil then
-            self:moveTo(0, vars.anim_bg:currentValue())
+            self:moveTo(0, vars.anim_bg.value)
         end
     end
     function title_bg:draw()
@@ -283,10 +283,10 @@ function title:init(...)
     end
     function title_item:update()
         if vars.anim_item ~= nil then
-            self:moveTo(vars.anim_item:currentValue(), 170)
+            self:moveTo(vars.anim_item.value, 170)
         end
-        if not vars.anim_bg:ended() then
-            self:moveTo(200, vars.anim_bg:currentValue() + 170)
+        if vars.anim_bg.timeLeft ~= 0 then
+            self:moveTo(200, vars.anim_bg.value + 170)
         end
     end
 
@@ -299,7 +299,7 @@ function title:init(...)
     end
     function title_slots:update()
         if vars.anim_slots ~= nil then
-            self:moveTo(0, vars.anim_slots:currentValue())
+            self:moveTo(0, vars.anim_slots.value)
         end
         self:markDirty()
     end
@@ -309,7 +309,7 @@ function title:init(...)
         gfx.fillRect(0, 20, 400, 200)
         gfx.setColor(gfx.kColorBlack)
         gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-        gfx.setLineWidth(vars.anim_pulse:currentValue())
+        gfx.setLineWidth(vars.anim_pulse.value)
         if vars.slots_open then
             if vars.slot_selection == 1 then
                 gfx.drawRect(10, 60, 120, 90)
@@ -392,14 +392,14 @@ function title:init(...)
         end
         if not vars.slots_open then
             if save.current_story_slot == 1 then
-                assets.rectzoom = pd.geometry.rect.new(10 - vars.anim_slot_l:currentValue(), 60 - vars.anim_slot_u:currentValue(), 120 + vars.anim_slot_r:currentValue(), 90 + vars.anim_slot_d:currentValue())
-                assets.fillzoom = pd.geometry.rect.new(12 - vars.anim_slot_l:currentValue(), 62 - vars.anim_slot_u:currentValue(), 116 + vars.anim_slot_r:currentValue(), 86 + vars.anim_slot_d:currentValue())
+                assets.rectzoom = pd.geometry.rect.new(10 - vars.anim_slot_l.value, 60 - vars.anim_slot_u.value, 120 + vars.anim_slot_r.value, 90 + vars.anim_slot_d.value)
+                assets.fillzoom = pd.geometry.rect.new(12 - vars.anim_slot_l.value, 62 - vars.anim_slot_u.value, 116 + vars.anim_slot_r.value, 86 + vars.anim_slot_d.value)
             elseif save.current_story_slot == 2 then
-                assets.rectzoom = pd.geometry.rect.new(140 - vars.anim_slot_l:currentValue(), 60 - vars.anim_slot_u:currentValue(), 120 + vars.anim_slot_r:currentValue(), 90 + vars.anim_slot_d:currentValue())
-                assets.fillzoom = pd.geometry.rect.new(142 - vars.anim_slot_l:currentValue(), 62 - vars.anim_slot_u:currentValue(), 116 + vars.anim_slot_r:currentValue(), 86 + vars.anim_slot_d:currentValue())
+                assets.rectzoom = pd.geometry.rect.new(140 - vars.anim_slot_l.value, 60 - vars.anim_slot_u.value, 120 + vars.anim_slot_r.value, 90 + vars.anim_slot_d.value)
+                assets.fillzoom = pd.geometry.rect.new(142 - vars.anim_slot_l.value, 62 - vars.anim_slot_u.value, 116 + vars.anim_slot_r.value, 86 + vars.anim_slot_d.value)
             elseif save.current_story_slot == 3 then
-                assets.rectzoom = pd.geometry.rect.new(270 - vars.anim_slot_l:currentValue(), 60 - vars.anim_slot_u:currentValue(), 120 + vars.anim_slot_r:currentValue(), 90 + vars.anim_slot_d:currentValue())
-                assets.fillzoom = pd.geometry.rect.new(272 - vars.anim_slot_l:currentValue(), 62 - vars.anim_slot_u:currentValue(), 116 + vars.anim_slot_r:currentValue(), 86 + vars.anim_slot_d:currentValue())
+                assets.rectzoom = pd.geometry.rect.new(270 - vars.anim_slot_l.value, 60 - vars.anim_slot_u.value, 120 + vars.anim_slot_r.value, 90 + vars.anim_slot_d.value)
+                assets.fillzoom = pd.geometry.rect.new(272 - vars.anim_slot_l.value, 62 - vars.anim_slot_u.value, 116 + vars.anim_slot_r.value, 86 + vars.anim_slot_d.value)
             end
             gfx.drawRect(assets.rectzoom)
             gfx.setColor(gfx.kColorWhite)
@@ -417,9 +417,9 @@ function title:init(...)
             end
             assets.image_preview:draw(150, 30)
             gfx.drawRect(150, 30, 235, 120)
-            if not vars.anim_fade:ended() then
+            if vars.anim_fade.timeLeft ~= 0 then
                 gfx.setColor(gfx.kColorWhite)
-                gfx.setDitherPattern(vars.anim_fade:currentValue(), gfx.image.kDitherTypeBayer2x2)
+                gfx.setDitherPattern(vars.anim_fade.value, gfx.image.kDitherTypeBayer2x2)
                 gfx.fillRect(0, 0, 400, 240)
                 gfx.setColor(gfx.kColorBlack)
             end
@@ -469,11 +469,11 @@ function title:newselection(dir)
             vars.list_open = false
             assets.sfx_menu:play()
             if dir then
-                vars.anim_item = gfx.animator.new(200, 200, -200, pd.easingFunctions.inBack)
+                vars.anim_item = pd.timer.new(200, 200, -200, pd.easingFunctions.inBack)
             else
-                vars.anim_item = gfx.animator.new(200, 200, 600, pd.easingFunctions.inBack)
+                vars.anim_item = pd.timer.new(200, 200, 600, pd.easingFunctions.inBack)
             end
-            pd.timer.performAfterDelay(200, function()
+            vars.anim_item.timerEndedCallback = function()
                 if vars.selection == 1 and demo then -- Bring in the demo text if necessary
                     assets.image_item = gfx.imageWithText(gfx.getLocalizedText('play_demo'), 200, 120)
                 else
@@ -481,14 +481,14 @@ function title:newselection(dir)
                 end
                 self.item:setImage(assets.image_item:scaledImage(2))
                 if dir then
-                    vars.anim_item = gfx.animator.new(200, 600, 200, pd.easingFunctions.outCubic)
+                    vars.anim_item = pd.timer.new(200, 600, 200, pd.easingFunctions.outCubic)
                 else
-                    vars.anim_item = gfx.animator.new(200, -200, 200, pd.easingFunctions.outCubic)
+                    vars.anim_item = pd.timer.new(200, -200, 200, pd.easingFunctions.outCubic)
                 end
-                pd.timer.performAfterDelay(200, function()
+                vars.anim_item.timerEndedCallback = function()
                     vars.list_open = true
-                end)
-            end)
+                end
+            end
         end
     end
 end
@@ -507,7 +507,7 @@ function title:openslots()
         pd.inputHandlers.pop()
         pd.inputHandlers.push(vars.slotsHandlers, true)
         self.slots:add()
-        vars.anim_slots = gfx.animator.new(250, 400, 0, pd.easingFunctions.outCubic)
+        vars.anim_slots = pd.timer.new(250, 400, 0, pd.easingFunctions.outCubic)
         vars.slots_open = true
     end
 end
@@ -532,7 +532,7 @@ end
 -- Close the slot picker
 function title:closeslots()
     assets.sfx_whoosh:play()
-    vars.anim_slots = gfx.animator.new(200, 0, 400, pd.easingFunctions.inCubic)
+    vars.anim_slots = pd.timer.new(200, 0, 400, pd.easingFunctions.inCubic)
     pd.inputHandlers.pop()
     pd.inputHandlers.push(vars.titleHandlers)
     pd.timer.performAfterDelay(200, function()
@@ -555,7 +555,7 @@ function title:openslot(slot)
     pd.inputHandlers.pop()
     assets.image_erase = makebutton(gfx.getLocalizedText('erase'), 'small')
     vars.mins, vars.secs, vars.mils = timecalc(save['slot' .. save.current_story_slot .. '_racetime'])
-    vars.anim_fade = gfx.animator.new(250, 0, 1)
+    vars.anim_fade = pd.timer.new(250, 0, 1)
     if save['slot' .. slot .. '_progress'] == nil then
         assets.image_play = makebutton(gfx.getLocalizedText('start'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'finish' and save['slot' .. slot .. '_circuit'] <= 3 then
@@ -563,14 +563,14 @@ function title:openslot(slot)
     else
         assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     end
-    vars.anim_slot_u = gfx.animator.new(250, 0, 43, pd.easingFunctions.inCubic)
-    vars.anim_slot_d = gfx.animator.new(250, 0, 115, pd.easingFunctions.inCubic)
-    vars.anim_slot_r = gfx.animator.new(250, 0, 800, pd.easingFunctions.inCubic)
-    vars.anim_slot_l = gfx.animator.new(250, 0, 400, pd.easingFunctions.inCubic)
-    pd.timer.performAfterDelay(250, function()
+    vars.anim_slot_u = pd.timer.new(250, 0, 43, pd.easingFunctions.inCubic)
+    vars.anim_slot_d = pd.timer.new(250, 0, 115, pd.easingFunctions.inCubic)
+    vars.anim_slot_r = pd.timer.new(250, 0, 800, pd.easingFunctions.inCubic)
+    vars.anim_slot_l = pd.timer.new(250, 0, 400, pd.easingFunctions.inCubic)
+    vars.anim_slot_u.timerEndedCallback = function()
         pd.inputHandlers.push(vars.slotHandlers, true)
         vars.slot_open = true
-    end)
+    end
 end
 
 -- Closes the detailed slot options.
@@ -579,20 +579,20 @@ function title:closeslot(transition)
     vars.slot_open = false
     if transition then
         assets.sfx_whoosh:play()
-        vars.anim_fade = gfx.animator.new(250, 1, 0)
-        vars.anim_slot_u = gfx.animator.new(200, 43, 0, pd.easingFunctions.outCubic)
-        vars.anim_slot_d = gfx.animator.new(200, 115, 0, pd.easingFunctions.outCubic)
-        vars.anim_slot_r = gfx.animator.new(200, 800, 0, pd.easingFunctions.outCubic)
-        vars.anim_slot_l = gfx.animator.new(200, 400, 0, pd.easingFunctions.outCubic)
-        pd.timer.performAfterDelay(200, function()
+        vars.anim_fade = pd.timer.new(250, 1, 0)
+        vars.anim_slot_u = pd.timer.new(200, 43, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_d = pd.timer.new(200, 115, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_r = pd.timer.new(200, 800, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_l = pd.timer.new(200, 400, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_u.timerEndedCallback = function()
             vars.slots_open = true
             pd.inputHandlers.push(vars.slotsHandlers, true)
-        end)
+        end
     else
-        vars.anim_slot_u = gfx.animator.new(0, 0, 0)
-        vars.anim_slot_d = gfx.animator.new(0, 0, 0)
-        vars.anim_slot_r = gfx.animator.new(0, 0, 0)
-        vars.anim_slot_l = gfx.animator.new(0, 0, 0)
+        vars.anim_slot_u = pd.timer.new(0, 0, 0)
+        vars.anim_slot_d = pd.timer.new(0, 0, 0)
+        vars.anim_slot_r = pd.timer.new(0, 0, 0)
+        vars.anim_slot_l = pd.timer.new(0, 0, 0)
         vars.slots_open = true
         pd.inputHandlers.push(vars.slotsHandlers, true)
     end

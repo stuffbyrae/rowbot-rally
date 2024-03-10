@@ -15,7 +15,7 @@ function boat:init(x, y, race)
     boat.super.init(self)
 
     -- Boat image setup
-    self.poly_body = geo.polygon.new(0,-38, 11,-29, 17,-19, 20,-6, 18,20, 15,30, 12,33, -12,33, -15,30, -18,20, -20,6, -20,-6, -17,-19, -11,-29, 0,-38)
+    self.poly_body = geo.polygon.new(0,-38, 11,-29, 17,-19, 20,-6, 20,6, 18,20, 15,30, 12,33, -12,33, -15,30, -18,20, -20,6, -20,-6, -17,-19, -11,-29, 0,-38)
     self.poly_inside = geo.polygon.new(12,-20, 0,-23, -12,-20, -16,-7, 16,-7, 16,5, -16,5, -14,20, 14,20, 16,5, 16,-7, 12,-20)
     self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
     self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
@@ -297,6 +297,7 @@ function boat:update()
     -- Make sure rotation winds up as integer 1 through 360
     self.rotation = math.floor(self.rotation) % 360
     if self.rotation == 0 then self.rotation = 360 end
+    self.total_change = self.crankage - (self.turn_speedo.value * self.turn)
     -- Transform ALL the polygons!!!!1!
     self.transform:scale(self.scale.value * self.boost_x.value, self.scale.value * self.boost_y.value)
     self.shadow:scale(self.scale_factor * self.boost_x.value, self.scale_factor * self.boost_y.value)
@@ -308,6 +309,8 @@ end
 function boat:draw(x, y, width, height)
     self.transform:translate(self.boat_size / 2, self.boat_size / 2)
     self.shadow:translate(7 * self.scale_factor + self.boat_size / 2, 7 * self.scale_factor + self.boat_size / 2)
+    gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+    self.transform:translate(cos[self.rotation] * (self.total_change * (self.scale_factor * 0.65)), sin[self.rotation] * (self.total_change * (self.scale_factor * 0.65)))
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.shadow:transformedPolygon(self.poly_body))
     gfx.setColor(gfx.kColorWhite)
@@ -317,17 +320,43 @@ function boat:draw(x, y, width, height)
     gfx.setDitherPattern(0.75, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
+    self.transform:translate(-cos[self.rotation] * (self.total_change * (self.scale_factor * 0.25)), -sin[self.rotation] * (self.total_change * (self.scale_factor * 0.25)))
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillCircleAtPoint(cos[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, 11 * self.scale.value)
-    gfx.fillPolygon(self.transform:transformedPolygon(self.poly_rowbot_fill))
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawPolygon(self.transform:transformedPolygon(self.poly_rowbot))
-    gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, 11 * self.scale.value)
-    gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, 8 * self.scale.value)
-    gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-    gfx.fillCircleAtPoint(cos[self.rotation] * (-5 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-5 * self.scale.value) + self.boat_size / 2, 6 * self.scale.value)
-    gfx.fillCircleAtPoint(cos[self.rotation] * (-19 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-19 * self.scale.value) + self.boat_size / 2, 6 * self.scale.value)
-    gfx.fillCircleAtPoint(cos[self.rotation] * (13 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (13 * self.scale.value) + self.boat_size / 2, 3 * self.scale.value)
     gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
 end
+
+    -- gfx.setColor(gfx.kColorWhite)
+    -- gfx.fillCircleAtPoint(cos[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, 11 * self.scale.value)
+    -- gfx.fillPolygon(self.transform:transformedPolygon(self.poly_rowbot_fill))
+    -- gfx.setColor(gfx.kColorBlack)
+    -- gfx.drawPolygon(self.transform:transformedPolygon(self.poly_rowbot))
+    -- gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, 11 * self.scale.value)
+    -- gfx.drawCircleAtPoint(cos[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-12 * self.scale.value) + self.boat_size / 2, 8 * self.scale.value)
+    -- gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
+    -- gfx.fillCircleAtPoint(cos[self.rotation] * (-5 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-5 * self.scale.value) + self.boat_size / 2, 6 * self.scale.value)
+    -- gfx.fillCircleAtPoint(cos[self.rotation] * (-19 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (-19 * self.scale.value) + self.boat_size / 2, 6 * self.scale.value)
+    -- gfx.fillCircleAtPoint(cos[self.rotation] * (13 * self.scale.value) + self.boat_size / 2, sin[self.rotation] * (13 * self.scale.value) + self.boat_size / 2, 3 * self.scale.value)
+
+--     -- create vector of length 1, oriented to the boat's rotation
+-- -- the function assumes 0° points to the top so adjust accordingly!
+-- local boatVector = pd.geometry.vector2D.newPolar(1, boatAngle)
+-- -- whichever way you generate your character offset, store it in a vector too
+-- local characterOffset = pd.geometry.vector2D.new(offsetX, offsetY)
+-- -- now that's the bit I'm unsure about but if i understood the docs correctly, this should rotate the offset vector to match the boat vector
+-- characterOffset = characterOffset:projectAlong(boatVector)
+-- -- if that worked you should be able to apply the offset to the character's position
+-- 
+-- -- this is a function to rotate "vector" by "angle" (in degrees)
+-- function rotateVector(vector, angle)
+--     -- quick maff
+--     local x, y = vector:unpack()
+--     local angleRadians = math.rad(angle)
+--     local rotatedX = x * math.cos(angleRadians) - y * math.sin(angleRadians)
+--     local rotatedY = x * math.sin(angleRadians) + y * math.cos(angleRadians)
+--     local rotatedVector = pd.geometry.vector2D.new(rotatedX, rotatedY)
+--     return rotatedVector
+--   
+--   -- now you can create a vector for your character offset values, and rotate it!
+--   local characterOffset = pd.geometry.vector2D.new(offsetX, offsetY)
+--   local rotatedOffset = rotateVector(characterOffset, boatAngle)
+--   -- now you can apply the values of rotatedOffset to your characters!

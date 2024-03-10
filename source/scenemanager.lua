@@ -306,6 +306,9 @@ end
 function scenemanager:removealltimers()
     local alltimers = pd.timer.allTimers()
     for _, timer in ipairs(alltimers) do
-        timer:remove()
+        if timer.duration ~= 501 then
+            timer:remove()
+            timer = nil
+        end
     end
 end

@@ -72,11 +72,10 @@ function race:init(...)
         won = true,
     }
     vars.raceHandlers = {
-        BButtonDown = function() -- TODO: add rocket boost code here.
+        BButtonDown = function()
             self:boost()
         end,
         AButtonDown = function()
-            self:finish(false)
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -158,6 +157,7 @@ function race:init(...)
     
     -- Adjust boat's starting X and Y, checkpoint/lap coords, etc. here
     if vars.stage == 1 then
+        assets.image_timer = gfx.image.new('images/race/timer_1')
         vars.boat_x = 375
         vars.boat_y = 1400
         vars.laps = 3
@@ -165,25 +165,31 @@ function race:init(...)
         vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(725, 530, 225, 20)
         vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(1465, 815, 200, 20)
         vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(730, 1620, 20, 200)
-        assets.image_timer = gfx.image.new('images/race/timer_1')
+        vars.music_loop = 0.701
     elseif vars.stage == 2 then
-        vars.laps = 3
         assets.image_timer = gfx.image.new('images/race/timer_1')
+        vars.laps = 3
+        vars.music_loop = 0
     elseif vars.stage == 3 then
-        vars.laps = 3
         assets.image_timer = gfx.image.new('images/race/timer_1')
+        vars.laps = 3
+        vars.music_loop = 0
     elseif vars.stage == 4 then
-        vars.laps = 1
         assets.image_timer = gfx.image.new('images/race/timer')
+        vars.laps = 1
+        vars.music_loop = 0
     elseif vars.stage == 5 then
-        vars.laps = 3
         assets.image_timer = gfx.image.new('images/race/timer_1')
+        vars.laps = 3
+        vars.music_loop = 0
     elseif vars.stage == 6 then
-        vars.laps = 3
         assets.image_timer = gfx.image.new('images/race/timer_1')
+        vars.laps = 3
+        vars.music_loop = 0
     elseif vars.stage == 7 then
-        vars.laps = 1
         assets.image_timer = gfx.image.new('images/race/timer')
+        vars.laps = 1
+        vars.music_loop = 0
     end
     assets.music = 'audio/music/stage' .. vars.stage
 
@@ -205,13 +211,14 @@ function race:init(...)
         race_water.super.init(self)
         self:setImage(assets.image_water)
         self:setIgnoresDrawOffset(true)
+        self:setZIndex(-4)
         self:add()
     end
 
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
         race_stage.super.init(self)
-        self:setZIndex(5)
+        self:setZIndex(-3)
         self:setCenter(0, 0)
         self:setImage(assets.image_stage)
         self:add()
@@ -220,7 +227,7 @@ function race:init(...)
     class('race_stage_fg').extends(gfx.sprite)
     function race_stage_fg:init()
         race_stage_fg.super.init(self)
-        self:setZIndex(98)
+        self:setZIndex(1)
         self:setCenter(0, 0)
         self:setImage(assets.image_stagefg)
         self:add()
@@ -230,7 +237,7 @@ function race:init(...)
     function race_hud:init()
         race_hud.super.init(self)
         self:setCenter(0, 0)
-        self:setZIndex(99)
+        self:setZIndex(2)
         self:setSize(400, 240)
         self:setIgnoresDrawOffset(true)
         if not vars.debug then
@@ -326,7 +333,7 @@ function race:start()
     vars.overlay = "countdown"
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
-        newmusic(assets.music, true) -- Adding new music
+        newmusic(assets.music, true, vars.music_loop) -- Adding new music
         self.boat:state(true, true, true)
         self.boat:start()
     end)
@@ -355,6 +362,10 @@ function race:checkpoint(x)
             if vars.current_lap > vars.laps then -- The race is done.
                 self:finish(false)
             else
+                if vars.laps == 2 then
+                    assets.sfx_start:play()
+                elseif vars.laps == 3 then
+                end
                 assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
             end
         end
@@ -362,7 +373,7 @@ function race:checkpoint(x)
     end
 end
 
-function race:finish(timeout)
+function race:finish(timeout, duration)
     if vars.in_progress then
         if save.pro_ui then
             vars.anim_hud = pd.timer.new(500, vars.anim_hud.value, -230, pd.easingFunctions.inSine)
@@ -373,7 +384,7 @@ function race:finish(timeout)
         vars.finished = true
         fademusic(1)
         self.boat:state(false, false, false)
-        self.boat:finish(true)
+        self.boat:finish(false, duration)
         if timeout then -- If you ran the timer past 09:59.00...
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
             vars.anim_overlay = nil
@@ -430,11 +441,15 @@ function race:update()
                 save['slot' .. save.current_story_slot .. '_racetime'] += 1
             end
             if #self.boat:overlappingSprites() > 0 then
+                print('test')
                 self:checkpoint(self.boat:overlappingSprites()[1].x)
             end
         end
         if vars.started and save.total_playtime % 2 == 0 then
             self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
+            if self.boat.beached and vars.in_progress then
+                self:finish(true, 400)
+            end
         end
     end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset

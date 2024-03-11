@@ -111,7 +111,8 @@ function title:init(...)
         image_checker = gfx.image.new('images/ui/title_checker'),
         kapel = gfx.font.new('fonts/kapel'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
-        sfx_bonk = smp.new('audio/sfx/bonk'),
+        fade = gfx.imagetable.new('images/ui/fade/fade'),
+        sfx_bonk = smp.new('audio/sfx/bonk'), 
         sfx_proceed = smp.new('audio/sfx/proceed'),
         sfx_start = smp.new('audio/sfx/start'),
         sfx_menu = smp.new('audio/sfx/menu'),
@@ -600,7 +601,7 @@ end
 
 -- Deletes the chosen slot.
 function title:deleteslot(slot)
-    makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('ok'), true, function()
+    makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('yes_delete'), true, function()
         save['slot' .. slot .. '_progress'] = nil
         save['slot' .. slot .. '_highest_progress'] = nil
         save['slot' .. slot .. '_circuit'] = 1
@@ -609,7 +610,6 @@ function title:deleteslot(slot)
         save['slot' .. slot .. '_racetime'] = 0
         vars['slot_percent_' .. save.current_story_slot] = '0'
         if not pd.getReduceFlashing() then
-            assets.fade = gfx.imagetable.new('images/ui/fade/fade')
             vars.anim_overlay = gfx.animation.loop.new(20, assets.fade, false)
         end
         assets.sfx_rowboton:play()

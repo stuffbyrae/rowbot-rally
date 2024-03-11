@@ -23,17 +23,6 @@ function results:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(200) -- TODO: Set X offset
-        if vars.mode == "story" then
-            if vars.win then
-                menu:addMenuItem(gfx.getLocalizedText('slide_onwards'), function() self:proceed() end)
-            else
-                menu:addMenuItem(gfx.getLocalizedText('slide_retry'), function() self:proceed() end)
-            end
-            menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function() self:back() end)
-        elseif vars.mode == "tt" then
-            menu:addMenuItem(gfx.getLocalizedText('slide_retry'), function() self:proceed() end)
-            menu:addMenuItem(gfx.getLocalizedText('slide_newstage'), function() self:back() end)
-        end
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -82,7 +71,6 @@ function results:init(...)
     if vars.win then
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
-            save.stages_unlocked = vars.stage
             if vars.stage == 1 then
                 save['slot' .. save.current_story_slot .. '_progress'] = "cutscene3"
             elseif vars.stage == 2 then
@@ -178,6 +166,7 @@ function results:init(...)
         results_fade.super.init(self)
         self:setCenter(0, 0)
         self:setZIndex(0)
+        self:setIgnoresDrawOffset(true)
         self:add()
     end
     function results_fade:update()
@@ -236,7 +225,12 @@ function results:proceed()
             if demo then
                 scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('demo_complete'), gfx.getLocalizedText('popup_demo'), gfx.getLocalizedText('title_screen'), false, function() scenemanager:switchscene(title) end)
             else
-                scenemanager:transitionstoryoneway()
+                if save.stages_unlocked == 0 then
+                    scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('time_trials_unlocked'), gfx.getLocalizedText('popup_time_trials_unlocked'), gfx.getLocalizedText('ok'), false, function() scenemanager:switchstory() end)
+                else
+                    scenemanager:transitionstoryoneway()
+                end
+                save.stages_unlocked = vars.stage
             end
         else
             scenemanager:transitionsceneoneway(race, vars.stage, "story")

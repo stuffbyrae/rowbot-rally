@@ -75,6 +75,7 @@ function boat:init(x, y, race)
     self.rowbot = false -- Can the RowBot turn?
     self.turnable = false -- Can the player turn?
     self.crashed = false -- Are you crashed?
+    self.beached = false -- Are you beached? (Crashed from all angles)
     self.crashable = true -- Can you crash? (e.g. are you not in the air?)
     self.boosting = false -- Boosting?
     self.leaping = false -- Are you currently soaring into the air?
@@ -161,7 +162,7 @@ function boat:collision_check(image)
         moved_y = nil
     end
     if #points_collided == self.poly_body:count() then
-        self:beached()
+        self.beached = true
     end
     points_collided = nil
 end
@@ -195,13 +196,6 @@ function boat:crash(x, y)
         angle = math.deg(math.atan2(y, x))
         self.crash_direction = math.floor(angle - 90 + math.random(-20, 20)) % 360 + 1
     end
-end
-
-function boat:beached()
-    -- TODO: add logic for when the boat gets Beached (all points are colliding with something)
-    -- This means that the boat is stuck in quite the predicament, to put it lightly
-    -- So use some mario kart fishing logic to grab the boat, place it back at a safe point
-    print('beached!')
 end
 
 function boat:boost()
@@ -265,9 +259,9 @@ function boat:update()
     end
     gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
     if save.button_controls or pd.isSimulator == 1 then
-        if self.right then
+        if self.right and self.turnable then
             self.crankage += (self.turn * 2 - self.crankage) * self.turn_speedo.value * self.lerp
-        elseif self.straight then
+        elseif self.straight and self.turnable then
             self.crankage += (self.turn * 1.1 - self.crankage) * self.turn_speedo.value * self.lerp
         elseif self.crankage >= 0.01 then
             self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if nothing is going on
@@ -275,7 +269,7 @@ function boat:update()
             self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
         end
     else
-        if pd.getCrankChange() > 0 then
+        if pd.getCrankChange() > 0 and self.turnable then
             save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
             self.crankage += ((pd.getCrankChange() / 2.5) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
         elseif self.crankage >= 0.01 then
@@ -310,7 +304,7 @@ function boat:draw(x, y, width, height)
     self.transform:translate(self.boat_size / 2, self.boat_size / 2)
     self.shadow:translate(7 * self.scale_factor + self.boat_size / 2, 7 * self.scale_factor + self.boat_size / 2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
-    self.transform:translate(cos[self.rotation] * (self.total_change * (self.scale_factor * 0.65)), sin[self.rotation] * (self.total_change * (self.scale_factor * 0.65)))
+    self.transform:translate(cos[self.rotation] * (self.total_change * (self.scale_factor * 0.75)), sin[self.rotation] * (self.total_change * (self.scale_factor * 0.75)))
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.shadow:transformedPolygon(self.poly_body))
     gfx.setColor(gfx.kColorWhite)
@@ -320,7 +314,7 @@ function boat:draw(x, y, width, height)
     gfx.setDitherPattern(0.75, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-    self.transform:translate(-cos[self.rotation] * (self.total_change * (self.scale_factor * 0.25)), -sin[self.rotation] * (self.total_change * (self.scale_factor * 0.25)))
+    self.transform:translate(-cos[self.rotation] * (self.total_change * (self.scale_factor * 0.5)), -sin[self.rotation] * (self.total_change * (self.scale_factor * 0.5)))
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
     gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
 end

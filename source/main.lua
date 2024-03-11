@@ -147,9 +147,7 @@ end
 
 -- When the game closes...
 function pd.gameWillTerminate()
-    if not demo then
-        pd.datastore.write(save)
-    end
+    savegame()
     if pd.isSimulator ~= 1 then -- Only play the exit animation if the game's not running in Simulator.
         local img = gfx.getDisplayImage()
         local byebye = gfx.image.new('images/ui/byebye')
@@ -378,7 +376,7 @@ import 'race' -- Debug scene to change to
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(intro, 1)
 end
 
 function pd.update()

@@ -16,6 +16,9 @@ function intro:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(200)
+        menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
+            scenemanager:transitionsceneoneway(title)
+        end)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -144,7 +147,7 @@ function intro:leave()
     vars.anim_right = pd.timer.new(200, self.right.x, 600, pd.easingFunctions.inCubic)
     vars.anim_bottom = pd.timer.new(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
     vars.anim_fade = pd.timer.new(300, 1, 34)
-    pd.timer.performAfterDelay(201, function()
+    pd.timer.performAfterDelay(300, function()
         scenemanager:switchscene(race, vars.stage, "story")
     end)
 end

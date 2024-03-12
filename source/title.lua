@@ -91,6 +91,16 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
+        self.cheat_code_retro = Tanuk_CodeSequence({pd.kButtonLeft, pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonRight, pd.kButtonB, pd.kButtonUp, pd.kButtonUp, pd.kButtonB}, function()
+            save.unlocked_cheats = true
+            save.unlocked_cheats_scream = true
+            enabled_cheats = true
+            enabled_cheats_scream = true
+            fademusic()
+            scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_scream'), gfx.getLocalizedText('title_screen'), false, function()
+                scenemanager:switchscene(title)
+            end)
+        end, false)
         self.cheat_code_all = Tanuk_CodeSequence({pd.kButtonRight, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
             save.unlocked_cheats = true
             save.unlocked_cheats_big = true
@@ -98,6 +108,7 @@ function title:init(...)
             save.unlocked_cheats_tiny = true
             save.unlocked_cheats_dents = true
             save.unlocked_cheats_retro = true
+            save.unlocked_cheats_scream = true
             fademusic()
             scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('cheatcode'), gfx.getLocalizedText('popup_cheat_all'), gfx.getLocalizedText('title_screen'), false, function()
                 scenemanager:switchscene(title)
@@ -601,7 +612,7 @@ end
 
 -- Deletes the chosen slot.
 function title:deleteslot(slot)
-    makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite'), gfx.getLocalizedText('yes_delete'), true, function()
+    makepopup(gfx.getLocalizedText('heads_up'), gfx.getLocalizedText('popup_overwrite_a') .. save.current_story_slot .. gfx.getLocalizedText('popup_overwrite_b'), gfx.getLocalizedText('yes_delete'), true, function()
         save['slot' .. slot .. '_progress'] = nil
         save['slot' .. slot .. '_highest_progress'] = nil
         save['slot' .. slot .. '_circuit'] = 1

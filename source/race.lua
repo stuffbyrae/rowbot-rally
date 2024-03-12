@@ -76,6 +76,7 @@ function race:init(...)
             self:boost()
         end,
         AButtonDown = function()
+            self:leap()
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -161,7 +162,7 @@ function race:init(...)
         vars.boat_x = 375
         vars.boat_y = 1400
         vars.laps = 3
-        vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1295, 200, 20)
+        vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1285, 200, 20)
         vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(725, 530, 225, 20)
         vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(1465, 815, 200, 20)
         vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(730, 1620, 20, 200)
@@ -326,6 +327,17 @@ function race:boost()
     end
 end
 
+
+function race:leap()
+    if vars.in_progress and not self.boat.leaping then
+        self.boat:leap()
+        self.stage_fg:setZIndex(-2)
+        pd.timer.performAfterDelay(1400, function()
+            self.stage_fg:setZIndex(1)
+        end)
+    end
+end
+
 function race:start()
     vars.started = true
     assets.sfx_countdown:play()
@@ -362,9 +374,9 @@ function race:checkpoint(x)
             if vars.current_lap > vars.laps then -- The race is done.
                 self:finish(false)
             else
-                if vars.laps == 2 then
+                if vars.current_lap == 2 then
                     assets.sfx_start:play()
-                elseif vars.laps == 3 then
+                elseif vars.current_lap == 3 then
                 end
                 assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
             end
@@ -441,11 +453,10 @@ function race:update()
                 save['slot' .. save.current_story_slot .. '_racetime'] += 1
             end
             if #self.boat:overlappingSprites() > 0 then
-                print('test')
                 self:checkpoint(self.boat:overlappingSprites()[1].x)
             end
         end
-        if vars.started and save.total_playtime % 2 == 0 then
+        if self.boat.crashable then
             self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
             if self.boat.beached and vars.in_progress then
                 self:finish(true, 400)

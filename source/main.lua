@@ -35,6 +35,7 @@ enabled_cheats_small = false
 enabled_cheats_tiny = false
 enabled_cheats_dents = false
 enabled_cheats_retro = false
+enabled_cheats_scream = false
 
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
 local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
@@ -59,6 +60,7 @@ function savecheck()
     if save.unlocked_cheats_tiny == nil then save.unlocked_cheats_tiny = false end
     if save.unlocked_cheats_dents == nil then save.unlocked_cheats_dents = false end
     if save.unlocked_cheats_retro == nil then save.unlocked_cheats_retro = false end
+    if save.unlocked_cheats_scream == nil then save.unlocked_cheats_scream = false end
     -- Last saved slot, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
     save.current_story_slot = save.current_story_slot or 1
     -- Local best time-trial records for all courses
@@ -181,7 +183,7 @@ end
 function newmusic(file, loop, range)
     if music == nil and save.vol_music > 0 then -- If a music file isn't actively playing...then go ahead and set a new one.
         music = fle.new(file)
-        music:setVolume(save.vol_music)
+        music:setVolume(save.vol_music/5)
         music:setStopOnUnderrun(flag)
         if loop then -- If set to loop, then ... loop it!
             music:setLoopRange(range or 0)
@@ -376,7 +378,7 @@ import 'race' -- Debug scene to change to
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(intro, 1)
+    scenemanager:switchscene(race, 1, "story")
 end
 
 function pd.update()

@@ -74,7 +74,7 @@ function cheats:init(...)
         anim_ticker = pd.timer.new(2000, 0, -100),
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
-        item_list = {'big', 'small', 'tiny', 'dents', 'retro'},
+        item_list = {'big', 'small', 'tiny', 'dents', 'retro', 'scream'},
         selection = 1,
         offset = 1,
     }
@@ -124,6 +124,14 @@ function cheats:init(...)
                     assets.sfx_clickoff:play()
                 else
                     enabled_cheats_retro = true
+                    assets.sfx_clickon:play()
+                end
+            elseif vars.selection == 6 and save.unlocked_cheats_scream then -- Scream
+                if enabled_cheats_scream then
+                    enabled_cheats_scream = false
+                    assets.sfx_clickoff:play()
+                else
+                    enabled_cheats_scream = true
                     assets.sfx_clickon:play()
                 end
             else
@@ -243,14 +251,19 @@ function cheats:draw_main_image()
         else
             assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 60)
         end
+
         if save.unlocked_cheats_dents then
             assets.pedallica:drawText(gfx.getLocalizedText('dents_name'), 10, 85)
         else
             assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 85)
         end
-
         if save.unlocked_cheats_retro then
             assets.pedallica:drawText(gfx.getLocalizedText('retro_name'), 10, 100)
+        else
+            assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 100)
+        end
+        if save.unlocked_cheats_scream then
+            assets.pedallica:drawText(gfx.getLocalizedText('scream_name'), 10, 115)
         else
             assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 100)
         end
@@ -286,9 +299,15 @@ function cheats:draw_main_image()
         else
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 100, kTextAlignment.right)
         end
+        if enabled_cheats_scream then
+            enabled_cheats = true
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 115, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 115, kTextAlignment.right)
+        end
         
         if enabled_cheats then
-            assets.pedallica:drawText(gfx.getLocalizedText('cheats_warning'), 10, 130)
+            assets.pedallica:drawText(gfx.getLocalizedText('cheats_warning'), 10, 150)
         end
         
         if save['unlocked_cheats_' .. vars.item_list[vars.selection]] then

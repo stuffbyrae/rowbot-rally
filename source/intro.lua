@@ -17,6 +17,7 @@ function intro:init(...)
         menu:removeAllMenuItems()
         setpauseimage(200)
         menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
+            fademusic()
             scenemanager:transitionsceneoneway(title)
         end)
     end

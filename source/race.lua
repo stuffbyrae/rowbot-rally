@@ -11,8 +11,7 @@ class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
     race.super.init(self)
     local args = {...} -- Arguments passed in through the scene management will arrive here
-     -- Should the crank indicator be shown?
-    if save.button_controls or pd.isSimulator == 1 then show_crank = false else show_crank = true end
+    show_crank = false -- Should the crank indicator be shown?
     if enabled_cheats_retro then pd.display.setMosaic(2, 0) end
     gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
     
@@ -70,6 +69,8 @@ function race:init(...)
         last_checkpoint = 0,
         finished = false,
         won = true,
+        stage_progress_x = 0,
+        stage_progress_y = 0,
     }
     vars.raceHandlers = {
         BButtonDown = function()
@@ -167,6 +168,12 @@ function race:init(...)
         vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(1465, 815, 200, 20)
         vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(730, 1620, 20, 200)
         vars.music_loop = 0.701
+        vars.parallax_short_amount = 1.05
+        vars.parallax_long_amount = 1.1
+        vars.interp_lines_x = {265, 473, 555, 665, 780, 875, 930}
+        vars.interp_lines_y = {1306, 1306, 1000, 950, 915, 855, 760}
+        vars.shadow_x = pd.timer.new(600000, -30, -30)
+        vars.shadow_y = pd.timer.new(600000, -20, 20)
     elseif vars.stage == 2 then
         assets.image_timer = gfx.image.new('images/race/timer_1')
         vars.laps = 3
@@ -219,19 +226,33 @@ function race:init(...)
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
         race_stage.super.init(self)
-        self:setZIndex(-3)
-        self:setCenter(0, 0)
-        self:setImage(assets.image_stage)
-        self:add()
-    end
-
-    class('race_stage_fg').extends(gfx.sprite)
-    function race_stage_fg:init()
-        race_stage_fg.super.init(self)
         self:setZIndex(1)
         self:setCenter(0, 0)
-        self:setImage(assets.image_stagefg)
+        self:setSize(vars.stage_x, vars.stage_y)
         self:add()
+    end
+    function race_stage:draw()
+        assets.image_stage:draw(0, 0)
+        -- for i = 1, #vars.interp_lines_x do
+        --     gfx.setLineCapStyle(gfx.kLineCapStyleRound)
+        --     gfx.setLineWidth(23)
+        --     gfx.setDitherPattern(0.50, gfx.image.kDitherTypeBayer2x2)
+        --     gfx.drawLine(vars.interp_lines_x[i], vars.interp_lines_y[i], vars.interp_lines_x[i] + vars.shadow_x.value, vars.interp_lines_y[i] + vars.shadow_y.value)
+        --     gfx.setColor(gfx.kColorBlack)
+        --     gfx.drawLine(vars.interp_lines_x[i], vars.interp_lines_y[i], race:parallaxcalc(vars.interp_lines_x[i], true), race:parallaxcalc(vars.interp_lines_y[i], false))
+        --     gfx.setColor(gfx.kColorWhite)
+        --     gfx.setLineWidth(18)
+        --     gfx.drawLine(vars.interp_lines_x[i], vars.interp_lines_y[i], race:parallaxcalc(vars.interp_lines_x[i], true), race:parallaxcalc(vars.interp_lines_y[i], false))
+        --     gfx.setLineWidth(2)
+        --     gfx.setColor(gfx.kColorBlack)
+        -- end
+        gfx.setDitherPattern(0.50, gfx.image.kDitherTypeBayer2x2)
+        gfx.fillPolygon(pd.geometry.polygon.new(255, 1330, 255, 1415, 245 + vars.shadow_x.value, 1415 + vars.shadow_y.value, 245 + vars.shadow_x.value, 1330 + vars.shadow_y.value, 255, 1330))
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillPolygon(pd.geometry.polygon.new(255, 1330, 255, 1415, race:parallaxcalc(245, true), race:parallaxcalc(1415, false), race:parallaxcalc(245, true), race:parallaxcalc(1330, false), 255, 1330))
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawPolygon(pd.geometry.polygon.new(255, 1330, 255, 1415, race:parallaxcalc(245, true), race:parallaxcalc(1415, false), race:parallaxcalc(245, true), race:parallaxcalc(1330, false), 255, 1330))
+        assets.image_stagefg:draw(vars.stage_x * -vars.stage_progress_x, vars.stage_y * -vars.stage_progress_y)
     end
 
     class('race_hud').extends(gfx.sprite)
@@ -292,13 +313,12 @@ function race:init(...)
     if vars.debug then
         self.debug = race_debug()
     else
-        self.boat = boat(vars.boat_x, vars.boat_y, true)
+        self.boat = boat(vars.boat_x, vars.boat_y, true, vars.shadow_x, vars.shadow_y)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
         end)
     end
-    self.stage_fg = race_stage_fg()
     self.hud = race_hud()
     self:add()
     
@@ -327,13 +347,12 @@ function race:boost()
     end
 end
 
-
 function race:leap()
     if vars.in_progress and not self.boat.leaping then
         self.boat:leap()
-        self.stage_fg:setZIndex(-2)
+        self.stage:setZIndex(-2)
         pd.timer.performAfterDelay(1400, function()
-            self.stage_fg:setZIndex(1)
+            self.stage:setZIndex(1)
         end)
     end
 end
@@ -396,12 +415,13 @@ function race:finish(timeout, duration)
         vars.finished = true
         fademusic(1)
         self.boat:state(false, false, false)
-        self.boat:finish(false, duration)
         if timeout then -- If you ran the timer past 09:59.00...
+            self.boat:finish(false, duration)
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
             vars.anim_overlay = nil
             assets.sfx_ref:play()
         else
+            self.boat:finish(true, duration)
             vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
             vars.overlay = "fade"
             assets.sfx_finish:play()
@@ -409,6 +429,15 @@ function race:finish(timeout, duration)
         pd.timer.performAfterDelay(2500, function()
             scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won, self.boat.crashes)
         end)
+    end
+end
+
+-- Parallax interpolation calculator. Dir is a boolean — If true, it's on the X axis. False, Y.
+function race:parallaxcalc(num, dir)
+    if dir then
+        return (num * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_x)
+    else
+        return (num * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_y)
     end
 end
 
@@ -442,6 +471,7 @@ function race:update()
     else
         vars.rowbot = self.boat.turn_speedo.value
         vars.player = self.boat.crankage
+        -- self.hud:moveTo((math.clamp(vars.player, 0, self.boat.turn * 2) - (vars.rowbot * self.boat.turn)) * 10, 0)
         if vars.in_progress then
             vars.current_time += 1
             vars.mins, vars.secs, vars.mils = self:timecalc(vars.current_time)
@@ -466,7 +496,6 @@ function race:update()
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
     self.water:moveTo(x%400, y%240) -- Move the water sprite to keep it in frame
     -- Set up the parallax!
-    local stage_progress_x = (((-x + 200) / vars.stage_x) / 10)
-    local stage_progress_y = (((-y + 120) / vars.stage_y) / 10)
-    self.stage_fg:moveTo(vars.stage_x * -stage_progress_x, vars.stage_y * -stage_progress_y)
+    vars.stage_progress_x = (((-x + 200) / vars.stage_x) / 20)
+    vars.stage_progress_y = (((-y + 120) / vars.stage_y) / 20)
 end

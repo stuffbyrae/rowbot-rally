@@ -109,7 +109,7 @@ function boat:init(x, y, race)
 
     -- Final sprite stuff
     self:moveTo(x, y)
-    self:setnewsize(95)
+    self:setnewsize(110)
     self:setZIndex(0)
     self:add()
 end
@@ -141,6 +141,7 @@ function boat:start(duration) -- 1000 is default
     self.cam_x = pd.timer.new(duration * 1.5, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
     self.cam_y = pd.timer.new(duration * 1.5, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
     self.sfx_row:play(0)
+    if not save.button_controls and pd.isSimulator ~= 1 then show_crank = true end
     if enabled_cheats_scream then
         playdate.sound.micinput.startListening()
     end
@@ -149,8 +150,8 @@ end
 -- Stops boat movement and camera
 function boat:finish(peelout, duration) -- Disable peelout in tutorial!
     duration = duration or 1500
-    self.move_speedo = pd.timer.new(duration, 1.5, 0, pd.easingFunctions.inOutSine)
-    self.wobble_speedo = pd.timer.new(duration, 1.5, 0, pd.easingFunctions.outBack)
+    self.move_speedo = pd.timer.new(duration, self.move_speedo.value * 1.5, 0, pd.easingFunctions.inOutSine)
+    self.wobble_speedo = pd.timer.new(duration, self.wobble_speedo.value, 0, pd.easingFunctions.outBack)
     self.cam_x = pd.timer.new(duration, self.cam_x.value, 0, pd.easingFunctions.inOutSine)
     self.cam_y = pd.timer.new(duration, self.cam_y.value, 0, pd.easingFunctions.inOutSine)
     self.ripple_scale:reset()
@@ -158,6 +159,7 @@ function boat:finish(peelout, duration) -- Disable peelout in tutorial!
     self.ripple_scale:start()
     self.ripple_opacity:start()
     self.sfx_row:stop()
+    show_crank = false
     if peelout then
         if self.crankage > self.turn * 1.1 then
             self.peelout = pd.timer.new(duration, self.rotation, self.rotation + math.random(30, 75), pd.easingFunctions.outSine)
@@ -271,7 +273,7 @@ function boat:leap()
             -- Bounce-back animation
             self.scale = pd.timer.new(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
             -- Re-set boat size
-            self:setnewsize(95)
+            self:setnewsize(110)
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
@@ -293,37 +295,43 @@ function boat:update()
         self:moveBy(sin[self.crash_direction] * (self.speed * self.move_speedo.value), -cos[self.crash_direction] * (self.speed * self.move_speedo.value))
     end
     gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
-    if enabled_cheats_scream then
-        if pd.sound.micinput.getLevel() > 0 and self.turnable then
-            self.crankage += ((playdate.sound.micinput.getLevel() * 30) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
-        elseif self.crankage >= 0.01 then
-            self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
+    if self.turnable then
+        if enabled_cheats_scream then
+            if pd.sound.micinput.getLevel() > 0 then
+                self.crankage += ((playdate.sound.micinput.getLevel() * 30) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
+            elseif self.crankage >= 0.01 then
+                self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
+            else
+                self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
+            end
+        elseif save.button_controls or pd.isSimulator == 1 then
+            if self.right then
+                self.crankage += (self.turn * 2 - self.crankage) * self.turn_speedo.value * self.lerp
+            elseif self.straight then
+                self.crankage += (self.turn * 1.1 - self.crankage) * self.turn_speedo.value * self.lerp
+            elseif self.crankage >= 0.01 then
+                self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if nothing is going on
+            else
+                self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
+            end
         else
-            self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
+            if pd.getCrankChange() > 0 then
+                save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
+                self.crankage += ((pd.getCrankChange() / 2.5) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
+            elseif self.crankage >= 0.01 then
+                self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
+            else
+                self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
+            end
         end
-    elseif save.button_controls or pd.isSimulator == 1 then
-        if self.right and self.turnable then
-            self.crankage += (self.turn * 2 - self.crankage) * self.turn_speedo.value * self.lerp
-        elseif self.straight and self.turnable then
-            self.crankage += (self.turn * 1.1 - self.crankage) * self.turn_speedo.value * self.lerp
-        elseif self.crankage >= 0.01 then
+    else
+        if self.crankage >= 0.01 then
             self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if nothing is going on
         else
             self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
         end
-    else
-        if pd.getCrankChange() > 0 and self.turnable then
-            save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
-            self.crankage += ((pd.getCrankChange() / 2.5) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
-        elseif self.crankage >= 0.01 then
-            self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
-        else
-            self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
-        end
     end
-    if self.turnable then -- If the player can turn the boat,
-        self.rotation += self.crankage -- Add crankage value on there
-    end
+    self.rotation += self.crankage -- Add crankage value on there
     if self.rowbot then -- If the RowBot needs to turn the boat,
         self.rotation -= self.turn * self.turn_speedo.value -- Apply RowBot turning. Duh!
     end
@@ -380,13 +388,13 @@ function boat:draw(x, y, width, height)
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
     -- Offset params for passengers
-    local bunny_body_x, bunny_body_y = self:follow(8, -10)
-    local bunny_tuft_x, bunny_tuft_y = self:follow(11 + (self.total_change * (self.scale_factor * 0.1)), 10)
-    local rowbot_body_x, rowbot_body_y = self:follow(-8, -10)
-    local bunny_head_x, bunny_head_y = self:follow(12 + (self.total_change * (self.scale_factor * -0.5)), 0)
-    local bunny_ear_1_x, bunny_ear_1_y = self:follow(6 + (self.total_change * (self.scale_factor * -1)), -5 + self.wobble_speedo.value * (2 * self.scale.value))
-    local bunny_ear_2_x, bunny_ear_2_y = self:follow(19 + (self.total_change * (self.scale_factor * -1)), 4 + self.wobble_speedo.value * self.scale.value)
-    local rowbot_antennae_x, rowbot_antennae_y = self:follow(-14 + (self.total_change * (self.scale_factor * -1)), self.wobble_speedo.value * (2 * self.scale.value))
+    local bunny_body_x, bunny_body_y = self:follow(8, -10 + (self.cam_y.value * 0.05))
+    local bunny_tuft_x, bunny_tuft_y = self:follow(11 + (self.total_change * (self.scale_factor * 0.1)), 10 + (self.cam_y.value * 0.05))
+    local rowbot_body_x, rowbot_body_y = self:follow(-8, -10 + (self.cam_y.value * 0.05))
+    local bunny_head_x, bunny_head_y = self:follow(12 + (self.total_change * (self.scale_factor * -0.5)), self.cam_y.value * 0.05)
+    local bunny_ear_1_x, bunny_ear_1_y = self:follow(6 + (self.total_change * (self.scale_factor * -1)), -5 + self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1))
+    local bunny_ear_2_x, bunny_ear_2_y = self:follow(19 + (self.total_change * (self.scale_factor * -1)), 4 + self.wobble_speedo.value * self.scale.value + (self.cam_y.value * 0.1))
+    local rowbot_antennae_x, rowbot_antennae_y = self:follow(-14 + (self.total_change * (self.scale_factor * -0.5)), self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1))
     -- Drawing passenger bodies, and bunny's hair tuft
     gfx.setColor(gfx.kColorBlack)
     gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * self.scale.value)
@@ -394,8 +402,8 @@ function boat:draw(x, y, width, height)
     gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * self.scale.value)
     -- Drawing fills for heads
     gfx.setColor(gfx.kColorWhite)
-    self.transform:translate(-cos[self.rotation] * (self.total_change * (self.scale_factor * -0.5)), -sin[self.rotation] * (self.total_change * (self.scale_factor * -0.5)))
-    gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 *self.scale.value)
+    gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * self.scale.value)
+    self.transform:translate(-sin[self.rotation] * (self.cam_y.value * 0.05), cos[self.rotation] * (self.cam_y.value * 0.05))
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_rowbot_fill))
     -- Drawing hats, and ears/antennae
     gfx.setColor(gfx.kColorBlack)
@@ -405,5 +413,10 @@ function boat:draw(x, y, width, height)
     gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * self.scale.value)
     gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * self.scale.value)
     gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * self.scale.value)
+    -- if self.crashed and not pd.getReduceFlashing() then
+    --     gfx.setColor(gfx.kColorWhite)
+    --     gfx.setDitherPattern((self.move_speedo.value * -1) + 1.5 , gfx.image.kDitherTypeBayer4x4)
+    --     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+    -- end
     gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
 end

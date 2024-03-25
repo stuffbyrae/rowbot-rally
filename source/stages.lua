@@ -369,6 +369,9 @@ function stages:leaderboardsin()
                     end
                     assets.kapel:drawTextAligned(ordinal(v.rank), 180, (25 * v.rank) - 20, kTextAlignment.right)
                     assets.pedallica:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 180, (25 * v.rank) - 10, kTextAlignment.right)
+                    mins = nil
+                    secs = nil
+                    mils = nil
                 end
                 if next(result.scores) == nil then
                     assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_empty'), 100, 100, kTextAlignment.center)

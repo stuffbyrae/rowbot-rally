@@ -16,6 +16,7 @@ function boat:init(x, y, race)
 
     -- Boat image setup
     self.poly_body = geo.polygon.new(0,-38, 11,-29, 17,-19, 20,-6, 20,6, 18,20, 15,30, 12,33, -12,33, -15,30, -18,20, -20,6, -20,-6, -17,-19, -11,-29, 0,-38)
+    self.poly_body_crash = geo.polygon.new(0,-38, 17,-19, 20,6, 12,33, -12,33, -20,6, -17,-19, 0,-38)
     self.poly_inside = geo.polygon.new(12,-20, 0,-23, -12,-20, -16,-7, 16,-7, 16,5, -16,5, -14,20, 14,20, 16,5, 16,-7, 12,-20)
     self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
     self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
@@ -174,22 +175,28 @@ end
 
 function boat:collision_check(image)
     local points_collided = {}
-    for i = 1, self.poly_body:count() do
-        point_x, point_y = self.transform:transformedPolygon(self.poly_body):getPointAt(i):unpack()
+    for i = 1, self.poly_body_crash:count() do
+        local transformed_point = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(i)
+        local point_x, point_y = transformed_point:unpack()
         local moved_x = point_x + self.x
         local moved_y = point_y + self.y
         if image:sample(moved_x, moved_y) ~= gfx.kColorClear then
             self:crash(point_x, point_y)
             if self.dentable then
-                angle = math.deg(math.atan2(point_y, point_x))
                 new_point = self.poly_body:getPointAt(i)
                 new_point_x, new_point_y = new_point:unpack()
                 self.poly_body:setPointAt(i, 0 + (new_point_x * 0.9), 0 + (new_point_y * 0.9))
             end
             table.insert(points_collided, i)
         end
+        transformed_point = nil
         point_x = nil
         point_y = nil
+        moved_x = nil
+        moved_y = nil
+        new_point = nil
+        new_point_x = nil
+        new_point_y = nil
     end
     if #points_collided == self.poly_body:count() then -- If every point on the boat is tracking a collision,
         self.beached = true -- ...then that's a good indicator that it's beached.

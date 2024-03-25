@@ -40,6 +40,7 @@ function race:init(...)
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
         image_water = gfx.image.new('images/race/stages/water'),
         image_meter = gfx.image.new('images/race/meter'),
+        image_pole_cap = gfx.image.new('images/race/pole_cap'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         overlay_boost = gfx.imagetable.new('images/race/boost'),
         overlay_fade = gfx.imagetable.new('images/ui/fade/fade'),
@@ -53,13 +54,13 @@ function race:init(...)
     assets.sfx_start:setVolume(save.vol_sfx/5)
     assets.sfx_finish:setVolume(save.vol_sfx/5)
     assets.sfx_ref:setVolume(save.vol_sfx/5)
-    
+   
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
         mode = args[2], -- A string, either "story" or "tt", to determine which mode to choose.
         debug = args[3], -- A boolean. If true, then this is polygon debug mode.
         current_time = 0,
-        mins = "00",
+        mins = "0",
         secs = "00",
         mils = "00",
         started = false,
@@ -69,15 +70,21 @@ function race:init(...)
         last_checkpoint = 0,
         finished = false,
         won = true,
-        stage_progress_x = 0,
-        stage_progress_y = 0,
+        stage_progress_short_x = 0,
+        stage_progress_short_y = 0,
+        stage_progress_medium_x = 0,
+        stage_progress_medium_y = 0,
+        stage_progress_long_x = 0,
+        stage_progress_long_y = 0,
     }
     vars.raceHandlers = {
         BButtonDown = function()
-            self:boost()
+            if vars.mode == "tt" then
+                self:boost(true)
+            end
         end,
         AButtonDown = function()
-            self:leap()
+            -- Keeping for debug.
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -95,49 +102,6 @@ function race:init(...)
     if not vars.debug then
         pd.inputHandlers.push(vars.raceHandlers)
     end
-
-    local test = pd.geometry.polygon.new(335, 1410, 
-    335, 1280, 
-    335, 1120, 
-    355, 1020, 
-    400, 925, 
-    470, 845, 
-    560, 800, 
-    695, 775, 
-    800, 730, 
-    865, 635, 
-    885, 515, 
-    915, 395, 
-    985, 330, 
-    1130, 275, 
-    1250, 270, 
-    1365, 280, 
-    1490, 310, 
-    1595, 380, 
-    1640, 465, 
-    1650, 580, 
-    1620, 660, 
-    1590, 780, 
-    1595, 870, 
-    1615, 995, 
-    1625, 1110, 
-    1600, 1215, 
-    1535, 1275, 
-    1450, 1295, 
-    1345, 1310, 
-    1270, 1340, 
-    1215, 1380, 
-    1185, 1495, 
-    1200, 1570, 
-    1155, 1645, 
-    1045, 1675, 
-    910, 1700, 
-    715, 1720, 
-    555, 1700, 
-    435, 1655, 
-    375, 1585, 
-    360, 1505, 
-    335, 1395)
 
     vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
     vars.overlay = "fade"
@@ -159,55 +123,59 @@ function race:init(...)
     
     -- Adjust boat's starting X and Y, checkpoint/lap coords, etc. here
     if vars.stage == 1 then
-        assets.image_timer = gfx.image.new('images/race/timer_1')
+        -- Where to start the boat? (This should probably change depending on story/TT mode)
         vars.boat_x = 375
         vars.boat_y = 1400
-        vars.laps = 3
+        vars.laps = 3 -- How many laps...
+        -- The checkpointzzzzz™
         vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1285, 200, 20)
         vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(725, 530, 225, 20)
         vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(1465, 815, 200, 20)
         vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(730, 1620, 20, 200)
-        vars.music_loop = 0.701
+        vars.finish:setTag(0)
+        vars.checkpoint_1:setTag(1)
+        vars.checkpoint_2:setTag(2)
+        vars.checkpoint_3:setTag(3)
+        vars.music_loop = 0.701 -- When to start the music loop
+        -- Chillin' out, parallaxin', relaxin' all cool
         vars.parallax_short_amount = 1.05
-        vars.parallax_long_amount = 1.1
-        vars.interp_lines_x = {265, 473, 555, 665, 780, 875, 930}
-        vars.interp_lines_y = {1306, 1306, 1000, 950, 915, 855, 760}
-        vars.shadow_x = pd.timer.new(600000, -30, -30)
-        vars.shadow_y = pd.timer.new(600000, -20, 20)
+        vars.parallax_medium_amount = 1.1
+        vars.parallax_long_amount = 1.25
+        -- Shootin' some B-ball outside of the school
+        vars.poles_short_x = {485, 497, 529, 575, 631, 681, 739, 793, 845, 881, 707, 715, 727, 743, 769, 803, 845, 891, 941, 997, 1053, 1111, 1167, 1455, 1455, 1457, 1451, 1421, 1373, 1317, 1261, 1207, 1163, 1135, 1129, 1129, 1133, 1127}
+        vars.poles_short_y = {1122, 1062, 1012, 982, 958, 938, 920, 900, 874, 832, 556, 502, 444, 388, 338, 288, 246, 216, 192, 174, 156, 158, 152, 920, 972, 1024, 1076, 1118, 1144, 1160, 1172, 1190, 1220, 1270, 1324, 1380, 1436, 1488}
+        vars.poles_medium_x = {267, 469}
+        vars.poles_medium_y = {1306, 1306}
     elseif vars.stage == 2 then
-        assets.image_timer = gfx.image.new('images/race/timer_1')
         vars.laps = 3
         vars.music_loop = 0
     elseif vars.stage == 3 then
-        assets.image_timer = gfx.image.new('images/race/timer_1')
         vars.laps = 3
         vars.music_loop = 0
     elseif vars.stage == 4 then
-        assets.image_timer = gfx.image.new('images/race/timer')
         vars.laps = 1
         vars.music_loop = 0
     elseif vars.stage == 5 then
-        assets.image_timer = gfx.image.new('images/race/timer_1')
         vars.laps = 3
         vars.music_loop = 0
     elseif vars.stage == 6 then
-        assets.image_timer = gfx.image.new('images/race/timer_1')
         vars.laps = 3
         vars.music_loop = 0
     elseif vars.stage == 7 then
-        assets.image_timer = gfx.image.new('images/race/timer')
         vars.laps = 1
         vars.music_loop = 0
     end
-    assets.music = 'audio/music/stage' .. vars.stage
+    assets.music = 'audio/music/stage' .. vars.stage -- Set the music
 
-    if vars.mode == "story" then
-    elseif vars.mode == "tt" then
+    if vars.laps > 1 then -- Set the timer graphic
+        assets.image_timer = gfx.image.new('images/race/timer_1')
+    else
+        assets.image_timer = gfx.image.new('images/race/timer')
+    end
+
+    if vars.mode == "tt" then -- If time trials is here, then add in some boosts.
         assets.image_item = gfx.image.new('images/race/item_3')
         vars.boosts_remaining = 3
-    else
-        print('Hey, what mode are we tryin to do here tough guy?')
-        playdate.stop()
     end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
@@ -232,27 +200,117 @@ function race:init(...)
         self:add()
     end
     function race_stage:draw()
+        vars.fill_polygons = {
+            pd.geometry.polygon.new(
+            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (255 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1312 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (480 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1310 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1310 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)),
+            pd.geometry.polygon.new(
+            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1320 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (255 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1320 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (480 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1318 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1318 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1320 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)),
+            pd.geometry.polygon.new(
+            257,
+            1336,
+            260,
+            1436,
+            (250 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1436 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (247 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1336 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            257,
+            1336),
+            pd.geometry.polygon.new(
+            259,
+            1458,
+            262,
+            1558,
+            (252 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1558 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (249 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1458 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            259,
+            1458),
+            pd.geometry.polygon.new(
+            485,
+            1348,
+            487,
+            1448,
+            (497 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1448 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (495 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+            (1348 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            485,
+            1348),
+        }
+        vars.draw_polygons = {
+            pd.geometry.polygon.new(
+            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1320 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1318 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1310 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
+            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+            (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)),
+        }
         assets.image_stage:draw(0, 0)
-        -- for i = 1, #vars.interp_lines_x do
-        --     gfx.setLineCapStyle(gfx.kLineCapStyleRound)
-        --     gfx.setLineWidth(23)
-        --     gfx.setDitherPattern(0.50, gfx.image.kDitherTypeBayer2x2)
-        --     gfx.drawLine(vars.interp_lines_x[i], vars.interp_lines_y[i], vars.interp_lines_x[i] + vars.shadow_x.value, vars.interp_lines_y[i] + vars.shadow_y.value)
-        --     gfx.setColor(gfx.kColorBlack)
-        --     gfx.drawLine(vars.interp_lines_x[i], vars.interp_lines_y[i], race:parallaxcalc(vars.interp_lines_x[i], true), race:parallaxcalc(vars.interp_lines_y[i], false))
-        --     gfx.setColor(gfx.kColorWhite)
-        --     gfx.setLineWidth(18)
-        --     gfx.drawLine(vars.interp_lines_x[i], vars.interp_lines_y[i], race:parallaxcalc(vars.interp_lines_x[i], true), race:parallaxcalc(vars.interp_lines_y[i], false))
-        --     gfx.setLineWidth(2)
-        --     gfx.setColor(gfx.kColorBlack)
-        -- end
-        gfx.setDitherPattern(0.50, gfx.image.kDitherTypeBayer2x2)
-        gfx.fillPolygon(pd.geometry.polygon.new(255, 1330, 255, 1415, 245 + vars.shadow_x.value, 1415 + vars.shadow_y.value, 245 + vars.shadow_x.value, 1330 + vars.shadow_y.value, 255, 1330))
+        gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
+        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+        assets.image_stage:draw(0, 0)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.clearStencil()
+        gfx.setLineWidth(18) -- Make the lines phat
+        for i = 1, #vars.poles_short_x do -- For every short pole,
+            -- Draw it from the base point to the short parallax point
+            gfx.drawLine(
+                vars.poles_short_x[i],
+                vars.poles_short_y[i],
+                (vars.poles_short_x[i] * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
+                (vars.poles_short_y[i] * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y))
+            assets.image_pole_cap:draw(
+                (vars.poles_short_x[i] - 6) * vars.parallax_short_amount + (vars.stage_x * -vars.stage_progress_short_x),
+                (vars.poles_short_y[i] - 6) * vars.parallax_short_amount + (vars.stage_y * -vars.stage_progress_short_y))
+        end
+        -- Draw the medium poles too
+        for i = 1, #vars.poles_medium_x do
+            gfx.drawLine(
+                vars.poles_medium_x[i],
+                vars.poles_medium_y[i],
+                (vars.poles_medium_x[i] * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
+                (vars.poles_medium_y[i] * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y))
+            assets.image_pole_cap:draw(
+                (vars.poles_medium_x[i] - 6) * vars.parallax_medium_amount + (vars.stage_x * -vars.stage_progress_medium_x),
+                (vars.poles_medium_y[i] - 6) * vars.parallax_medium_amount + (vars.stage_y * -vars.stage_progress_medium_y))
+        end
+        gfx.setLineWidth(2) -- Set the line width back
+        for i = 1, #vars.fill_polygons do
+            gfx.fillPolygon(vars.fill_polygons[i])
+        end
         gfx.setColor(gfx.kColorWhite)
-        gfx.fillPolygon(pd.geometry.polygon.new(255, 1330, 255, 1415, race:parallaxcalc(245, true), race:parallaxcalc(1415, false), race:parallaxcalc(245, true), race:parallaxcalc(1330, false), 255, 1330))
+        for i = 1, #vars.draw_polygons do
+            gfx.fillPolygon(vars.draw_polygons[i])
+        end
         gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(pd.geometry.polygon.new(255, 1330, 255, 1415, race:parallaxcalc(245, true), race:parallaxcalc(1415, false), race:parallaxcalc(245, true), race:parallaxcalc(1330, false), 255, 1330))
-        assets.image_stagefg:draw(vars.stage_x * -vars.stage_progress_x, vars.stage_y * -vars.stage_progress_y)
+        for i = 1, #vars.draw_polygons do
+            gfx.drawPolygon(vars.draw_polygons[i])
+        end
     end
 
     class('race_hud').extends(gfx.sprite)
@@ -284,7 +342,8 @@ function race:init(...)
         -- Draw the timer
         assets.image_timer:draw(vars.anim_hud.value + vars.anim_ui_offset.value, 3 - (vars.anim_ui_offset.value / 7.4))
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.times_new_rally:drawText(vars.mins .. ":" .. vars.secs .. "." .. vars.mils, 44 + vars.anim_hud.value + vars.anim_ui_offset.value, 20 - (vars.anim_ui_offset.value / 7.4))
+        vars.my_cool_buffer = vars.mins .. ":" .. vars.secs .. "." .. vars.mils
+        assets.times_new_rally:drawText(vars.my_cool_buffer, 44 + vars.anim_hud.value + vars.anim_ui_offset.value, 20 - (vars.anim_ui_offset.value / 7.4))
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
         -- Draw the Rocket Arms icon, when applicable
         if assets.image_item ~= nil then
@@ -299,21 +358,23 @@ function race:init(...)
         gfx.setLineWidth(2)
     end
 
+    -- Little debug dot, representing the middle of the screen.
     class('race_debug').extends(gfx.sprite)
     function race_debug:init()
         race_debug.super.init(self)
         self:moveTo(vars.boat_x, vars.boat_y)
         self:setImage(gfx.image.new(4, 4, gfx.kColorBlack))
+        self:setZIndex(99)
         self:add()
     end
 
     -- Set the sprites
     self.water = race_water()
     self.stage = race_stage()
-    if vars.debug then
+    if vars.debug then -- If there's debug mode, add the dot.
         self.debug = race_debug()
-    else
-        self.boat = boat(vars.boat_x, vars.boat_y, true, vars.shadow_x, vars.shadow_y)
+    else -- If not, then add the boat.
+        self.boat = boat(vars.boat_x, vars.boat_y, true)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
@@ -321,18 +382,25 @@ function race:init(...)
     end
     self.hud = race_hud()
     self:add()
-    
 end
 
-function race:boost()
-    if vars.mode == "tt" then
-        if vars.in_progress and not self.boat.boosting and vars.boosts_remaining > 0 then
-            self.boat:boost()
+-- BOOOOOOOOOOOOOOOOSH!!! This is for rocket arms in the time trials, and boost pads in the race courses.
+-- If rocketarms (bool) is true, then the player activated this at will in a time trial.
+function race:boost(rocketarms)
+    -- AND THEN AND THEN AND THEN AND THEN AND THEN
+    -- If the race is happening, AND the boat's not already boosting, AND you still have boosts left,
+    if vars.in_progress and not self.boat.boosting and vars.boosts_remaining > 0 then
+        -- ... then boost! :3
+        self.boat:boost() -- The boat does most of this, of course.
+        vars.anim_overlay = pd.timer.new(500, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
+        vars.overlay = "boost"
+        vars.anim_overlay.repeats = true
+        pd.timer.performAfterDelay(2500, function() -- and taking it away after a while.
+            vars.anim_overlay = nil
+        end)
+        if rocketarms then
             vars.boosts_remaining -= 1
             assets.image_item = gfx.image.new('images/race/item_active')
-            vars.anim_overlay = pd.timer.new(500, 1, #assets.overlay_boost)
-            vars.overlay = "boost"
-            vars.anim_overlay.repeats = true
             pd.timer.performAfterDelay(50, function()
                 if vars.boosts_remaining ~= 0 then
                     assets.image_item = gfx.image.new('images/race/item_' .. vars.boosts_remaining)
@@ -340,27 +408,29 @@ function race:boost()
                     assets.image_item = gfx.image.new('images/race/item_used')
                 end
             end)
-            pd.timer.performAfterDelay(2500, function()
-                vars.anim_overlay = nil
-            end)
         end
     end
 end
 
+-- The function what makes the boat leap up high in the air
 function race:leap()
+    -- If you're not already leaping,
     if vars.in_progress and not self.boat.leaping then
-        self.boat:leap()
-        self.stage:setZIndex(-2)
-        pd.timer.performAfterDelay(1400, function()
-            self.stage:setZIndex(1)
+        self.boat:leap() -- The boat.lua code handles most of this.
+        self.stage:setZIndex(-2) -- Put the stage under the boat
+        pd.timer.performAfterDelay(1450, function()
+            if vars.in_progress then -- If the race hasn't ended (e.g. if you haven't been beached,)
+                self.stage:setZIndex(1) -- Put the stage back over the boat
+            end
         end)
     end
 end
 
+-- Start the race! (Start the countdown for the race, more specifically.)
 function race:start()
     vars.started = true
     assets.sfx_countdown:play()
-    vars.anim_overlay = pd.timer.new(4000, 1, #assets.overlay_countdown)
+    vars.anim_overlay = pd.timer.new(3900, 1, #assets.overlay_countdown)
     vars.overlay = "countdown"
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
@@ -370,40 +440,9 @@ function race:start()
     end)
 end
 
-function race:checkpoint(x)
-    if x == vars.checkpoint_1.x then
-        if vars.current_checkpoint == 0 and vars.last_checkpoint == 0 then
-            vars.current_checkpoint = 1
-        end
-        vars.last_checkpoint = 1
-    elseif x == vars.checkpoint_2.x then
-        if vars.current_checkpoint == 1 and vars.last_checkpoint == 1 then
-            vars.current_checkpoint = 2
-        end
-        vars.last_checkpoint = 2
-    elseif x == vars.checkpoint_3.x then
-        if vars.current_checkpoint == 2 and vars.last_checkpoint == 2 then
-            vars.current_checkpoint = 3
-        end
-        vars.last_checkpoint = 3
-    elseif x == vars.finish.x then -- Finish line
-        if vars.current_checkpoint == 3 and vars.last_checkpoint == 3 then
-            vars.current_checkpoint = 0
-            vars.current_lap += 1
-            if vars.current_lap > vars.laps then -- The race is done.
-                self:finish(false)
-            else
-                if vars.current_lap == 2 then
-                    assets.sfx_start:play()
-                elseif vars.current_lap == 3 then
-                end
-                assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
-            end
-        end
-        vars.last_checkpoint = 0
-    end
-end
-
+-- Finish the race
+-- Timeout's a boolean for if you finished normally or by running the clock.
+-- Duration is a number for the amount of time the boat should take to stop.
 function race:finish(timeout, duration)
     if vars.in_progress then
         if save.pro_ui then
@@ -413,18 +452,18 @@ function race:finish(timeout, duration)
         end
         vars.in_progress = false
         vars.finished = true
-        fademusic(1)
+        fademusic(1) -- I gotta see if 0 works on this thing LOL
         self.boat:state(false, false, false)
         if timeout then -- If you ran the timer past 09:59.00...
-            self.boat:finish(false, duration)
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
+            self.boat:finish(false, duration) -- This true/false is for the turning peel-out, btw.
             vars.anim_overlay = nil
-            assets.sfx_ref:play()
+            assets.sfx_ref:play() -- TWEEEEEEEEEEEEET!!!
         else
             self.boat:finish(true, duration)
-            vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
+            vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade) -- Flash!
             vars.overlay = "fade"
-            assets.sfx_finish:play()
+            assets.sfx_finish:play() -- Applause!
         end
         pd.timer.performAfterDelay(2500, function()
             scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won, self.boat.crashes)
@@ -432,70 +471,96 @@ function race:finish(timeout, duration)
     end
 end
 
--- Parallax interpolation calculator. Dir is a boolean — If true, it's on the X axis. False, Y.
-function race:parallaxcalc(num, dir)
-    if dir then
-        return (num * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_x)
-    else
-        return (num * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_y)
-    end
-end
-
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
 function race:timecalc(num)
-    local mins = string.format("%02.f", math.floor((num/30) / 60))
-    local secs = string.format("%02.f", math.floor((num/30) - mins * 60))
-    local mils = string.format("%02.f", (num/30)*99 - mins * 5940 - secs * 99)
-    return mins, secs, mils
+    vars.mins = math.floor((num/30) / 60)
+    vars.secs = math.floor((num/30) - vars.mins * 60)
+    vars.mils = math.floor((num/30)*99 - vars.mins * 5940 - vars.secs * 99)
 end
 
 -- Scene update loop
 function race:update()
-    if vars.debug then
+    if vars.debug then -- If debug mode is enabled,
+        -- These have to be in the update loop because there's no way to just check if a button's held on every frame using an input handler. Weird.
         if pd.buttonIsPressed('up') then
-            self.debug:moveBy(0, -5)
+            self.debug:moveBy(0, -2)
         end
         if pd.buttonIsPressed('down') then
-            self.debug:moveBy(0, 5)
+            self.debug:moveBy(0, 2)
         end
         if pd.buttonIsPressed('left') then
-            self.debug:moveBy(-5, 0)
+            self.debug:moveBy(-2, 0)
         end
         if pd.buttonIsPressed('right') then
-            self.debug:moveBy(5, 0)
+            self.debug:moveBy(2, 0)
         end
-        if pd.buttonJustPressed('a') then
+        if pd.buttonJustPressed('a') then -- If A is pressed, print out the coords that the debug dot is sitting on.
             print(math.floor(self.debug.x) .. ', ' .. math.floor(self.debug.y) .. ', ')
         end
-        gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120)
+        gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120) -- Move the camera to wherever the debug dot is.
     else
         vars.rowbot = self.boat.turn_speedo.value
         vars.player = self.boat.crankage
         -- self.hud:moveTo((math.clamp(vars.player, 0, self.boat.turn * 2) - (vars.rowbot * self.boat.turn)) * 10, 0)
-        if vars.in_progress then
-            vars.current_time += 1
-            vars.mins, vars.secs, vars.mils = self:timecalc(vars.current_time)
-            if vars.current_time == 17970 then
-                self:finish(true)
+        if vars.in_progress then -- If the race is happenin', then
+            vars.current_time += 1 -- Up that timer, babyyyyyyyyy!
+            self:timecalc(vars.current_time) -- Calc this thing out for the timer
+            if vars.current_time == 17970 then -- If you pass 9:59.00 in game-time,
+                self:finish(true) -- YOU'RE OUT!!
             end
-            save.total_racetime += 1
-            if vars.mode == "story" then
-                save['slot' .. save.current_story_slot .. '_racetime'] += 1
+            save.total_racetime += 1 -- Statz!
+            if vars.mode == "story" then -- If you're in the story mode...
+                if save.current_story_slot == 1 then
+                    save.slot1_racetime += 1 -- Per-slot statz!!
+                elseif save.current_story_slot == 2 then
+                    save.slot2_racetime += 1 -- Per-slot statz!!
+                elseif save.current_story_slot == 3 then
+                    save.slot3_racetime += 1 -- Per-slot statz!!
+                end
             end
-            if #self.boat:overlappingSprites() > 0 then
-                self:checkpoint(self.boat:overlappingSprites()[1].x)
+            local _, _, collisions, count = self.boat:checkCollisions(self.boat.x, self.boat.y)
+            for i = 1, count do
+                local tag = collisions[i].other:getTag()
+                if tag > 0 then
+                    if vars.current_checkpoint == tag - 1 and vars.last_checkpoint == tag - 1 then
+                        vars.current_checkpoint = tag
+                    end
+                else
+                    if vars.current_checkpoint == 3 and vars.last_checkpoint == 3 then
+                        vars.current_checkpoint = 0
+                        vars.current_lap += 1
+                        if vars.current_lap > vars.laps then -- The race is done.
+                            self:finish(false)
+                        else
+                            if vars.current_lap == 2 then
+                                assets.sfx_start:play()
+                                -- TODO: visual feedback on timer
+                            elseif vars.current_lap == 3 then
+                                -- TODO: visual feedback on timer
+                                -- TODO: "final lap" audio que
+                                -- TODO: figure out how to speed up music
+                            end
+                            assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
+                        end
+                    end
+                end
+                vars.last_checkpoint = tag
             end
         end
-        if self.boat.crashable then
+        if self.boat.crashable then -- If the boat's crashable,
             self.boat:collision_check(assets.image_stagec) -- Have the boat do its collision check against the stage collide image
-            if self.boat.beached and vars.in_progress then
-                self:finish(true, 400)
+            if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
+                self:finish(true, 400) -- end the race. Ouch.
             end
         end
     end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
     self.water:moveTo(x%400, y%240) -- Move the water sprite to keep it in frame
     -- Set up the parallax!
-    vars.stage_progress_x = (((-x + 200) / vars.stage_x) / 20)
-    vars.stage_progress_y = (((-y + 120) / vars.stage_y) / 20)
+    vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
+    vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))
+    vars.stage_progress_medium_x = (((-x + 200) / vars.stage_x) * (vars.parallax_medium_amount - 1))
+    vars.stage_progress_medium_y = (((-y + 120) / vars.stage_y) * (vars.parallax_medium_amount - 1))
+    vars.stage_progress_long_x = (((-x + 200) / vars.stage_x) * (vars.parallax_long_amount - 1))
+    vars.stage_progress_long_y = (((-y + 120) / vars.stage_y) * (vars.parallax_long_amount - 1))
 end

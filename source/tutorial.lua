@@ -19,7 +19,10 @@ function tutorial:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function() scenemanager:transitionsceneback(title) end)
+        menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
+            self.boat.sfx_row:stop()
+            scenemanager:transitionsceneonewayback(title)
+        end)
         setpauseimage(200) -- TODO: Set this X offset
     end
     
@@ -29,12 +32,15 @@ function tutorial:init(...)
         image_meter = gfx.image.new('images/race/meter'),
         image_popup_banner = gfx.image.new('images/ui/popup_banner'),
         pedallica = gfx.font.new('fonts/pedallica'),
+        kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         overlay_fade = gfx.imagetable.new('images/ui/fade/fade'),
         sfx_ref = smp.new('audio/sfx/ref'),
         sfx_ui = smp.new('audio/sfx/ui'),
         sfx_clickon = smp.new('audio/sfx/clickon'),
         sfx_clickoff = smp.new('audio/sfx/clickoff'),
         image_a = gfx.image.new('images/ui/a'),
+        image_tutorial_crank = gfx.image.new('images/ui/tutorial_crank'),
+        image_tutorial_up = gfx.image.new('images/ui/tutorial_up'),
     }
     assets.sfx_ref:setVolume(save.vol_sfx/5)
     assets.sfx_ui:setVolume(save.vol_sfx/5)
@@ -47,6 +53,7 @@ function tutorial:init(...)
         hud_open = false,
         progress_delay = 1500,
         gameplay_progress = 0,
+        up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine)
     }
     vars.tutorialHandlers = {
         AButtonDown = function()
@@ -66,6 +73,10 @@ function tutorial:init(...)
         end
     }
     pd.inputHandlers.push(vars.tutorialHandlers)
+    
+    vars.up.repeats = true
+    vars.up.reverses = true
+    vars.up.reverseEasingFunction = pd.easingFunctions.outBack
 
     -- Show HUD no matter what Pro says. Power Meter is important
     vars.anim_hud = pd.timer.new(0, -130, -130)
@@ -127,6 +138,8 @@ function tutorial:init(...)
                     assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_6b'), 200, 14, kTextAlignment.center)
                 end
             elseif vars.current_step == 14 then
+                assets.image_tutorial_up:draw(10, 80 + vars.up.value)
+                assets.kapel_doubleup:drawText('Up!!', 30, 103 + vars.up.value)
                 if not save.button_controls and pd.isSimulator ~= 1 then
                     assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_14a'), 200, 14, kTextAlignment.center)
                 else

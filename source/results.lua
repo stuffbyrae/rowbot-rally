@@ -71,6 +71,7 @@ function results:init(...)
     if vars.win then
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
+            save.stages_unlocked = vars.stage
             if vars.stage == 1 then
                 save['slot' .. save.current_story_slot .. '_progress'] = "cutscene3"
             elseif vars.stage == 2 then
@@ -230,7 +231,6 @@ function results:proceed()
                 else
                     scenemanager:transitionstoryoneway()
                 end
-                save.stages_unlocked = vars.stage
             end
         else
             scenemanager:transitionsceneoneway(race, vars.stage, "story")

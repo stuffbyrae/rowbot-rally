@@ -21,6 +21,7 @@ local geo <const> = pd.geometry
 
 pd.display.setRefreshRate(30)
 gfx.setBackgroundColor(gfx.kColorBlack)
+gfx.setLineCapStyle(gfx.kLineCapStyleRound)
 gfx.setLineWidth(2)
 
 -- Game variables
@@ -179,6 +180,7 @@ function fademusic(delay)
         end)
     end
 end
+
 -- New music track. This should be called in a scene's init, only if there's no track leading into it. File is a path to an audio file in the PDX. Loop, if true, will loop the audio file. Range will set the loop's starting range.
 function newmusic(file, loop, range)
     if music == nil and save.vol_music > 0 then -- If a music file isn't actively playing...then go ahead and set a new one.
@@ -344,9 +346,11 @@ end
 
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
 function timecalc(num)
-    local mins = string.format("%02.f", math.floor((num/30) / 60))
-    local secs = string.format("%02.f", math.floor((num/30) - mins * 60))
-    local mils = string.format("%02.f", (num/30)*99 - mins * 5940 - secs * 99)
+    mins = math.floor((num/30) / 60)
+    secs = math.floor((num/30) - mins * 60)
+    mils = math.floor((num/30)*99 - mins * 5940 - secs * 99)
+    if secs < 10 then secs = '0' .. secs end
+    if mils < 10 then mils = '0' .. mils end
     return mins, secs, mils
 end
 
@@ -379,7 +383,7 @@ import 'race'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "tt")
+    scenemanager:switchscene(race, 1, "story")
 end
 
 function pd.update()

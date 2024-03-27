@@ -173,14 +173,14 @@ function boat:finish(peelout, duration) -- Disable peelout in tutorial!
     end
 end
 
-function boat:collision_check(image)
+function boat:collision_check(image, x, y)
     local points_collided = {}
     for i = 1, self.poly_body_crash:count() do
         local transformed_point = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(i)
         local point_x, point_y = transformed_point:unpack()
-        local moved_x = point_x + self.x
-        local moved_y = point_y + self.y
-        if image:sample(moved_x, moved_y) ~= gfx.kColorClear then
+        local moved_x = (point_x + self.x) - x
+        local moved_y = (point_y + self.y) - y
+        if image:sample(moved_x, moved_y) == gfx.kColorBlack then
             self:crash(point_x, point_y)
             if self.dentable then
                 new_point = self.poly_body:getPointAt(i)

@@ -508,7 +508,7 @@ function race:init(...)
     if vars.mode == "debug" then -- If there's debug mode, add the dot.
         self.debug = race_debug()
     else -- If not, then add the boat.
-        self.boat = boat(vars.boat_x, vars.boat_y, true)
+        self.boat = boat(vars.boat_x, vars.boat_y, true, vars.stage_x, vars.stage_y)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()

@@ -11,8 +11,10 @@ local cos = {0.9998477, 0.9993908, 0.9986295, 0.9975641, 0.9961947, 0.9945219, 0
 
 -- Bote!
 class('boat').extends(gfx.sprite)
-function boat:init(x, y, race)
+function boat:init(x, y, race, stage_x, stage_y)
     boat.super.init(self)
+
+    self.race = race
 
     -- Boat image setup
     self.poly_body = geo.polygon.new(0,-38, 11,-29, 17,-19, 20,-6, 20,6, 18,20, 15,30, 12,33, -12,33, -15,30, -18,20, -20,6, -20,-6, -17,-19, -11,-29, 0,-38)
@@ -73,7 +75,9 @@ function boat:init(x, y, race)
     self.wobble_speedo = pd.timer.new(0, 0, 0)
     self.turn_speedo = pd.timer.new(0, 0, 0) -- Current movement speed
     self.cam_x = pd.timer.new(0, 0, 0) -- Camera X position
-    if race then
+    if self.race then
+        self.stage_x = stage_x
+        self.stage_y = stage_y
         self.cam_y = pd.timer.new(2500, -300, 0, pd.easingFunctions.outCubic)
     else
         self.cam_y = pd.timer.new(0, 0, 0) -- Camera Y position
@@ -200,7 +204,7 @@ function boat:collision_check(image, x, y)
         new_point_x = nil
         new_point_y = nil
     end
-    if #points_collided == self.poly_body:count() then -- If every point on the boat is tracking a collision,
+    if #points_collided == self.poly_body_crash:count() then -- If every point on the boat is tracking a collision,
         self.beached = true -- ...then that's a good indicator that it's beached.
     end
 end
@@ -308,6 +312,12 @@ function boat:update()
         self:moveBy(sin[self.crash_direction] * (self.speed * self.move_speedo.value), -cos[self.crash_direction] * (self.speed * self.move_speedo.value))
     end
     gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
+    if race then
+        local x, y = gfx.getDrawOffset()
+        if x >= 0 then x = 0 elseif x - 400 <= -self.stage_x then x = -self.stage_x + 400 end
+        if y >= 0 then y = 0 elseif y - 240 <= -self.stage_y then y = -self.stage_y + 240 end
+        gfx.setDrawOffset(x, y)
+    end
     if self.turnable then
         if enabled_cheats_scream then
             if pd.sound.micinput.getLevel() > 0 then

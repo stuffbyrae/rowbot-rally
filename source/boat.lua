@@ -24,6 +24,8 @@ function boat:init(x, y, race)
     self.shadow = geo.affineTransform.new()
     self.ripple = geo.affineTransform.new()
 
+    self.image_crash = gfx.image.new('images/race/crash')
+
     -- Boat sound effects
     self.sfx_rowboton = smp.new('audio/sfx/rowboton')
     self.sfx_row = smp.new('audio/sfx/row')
@@ -103,14 +105,13 @@ function boat:init(x, y, race)
     self.straight = false -- For button controls. If this is enabled, the boat will move straight.
     self.right = false -- For button controls. If this is enabled, the boat will move right.
     self.dentable = enabled_cheats_dents -- Hidden dent mode for the boat's body.
-    self.crash_direction = 360
     self.rotation = 360
     self.crankage = 0
     self.crashes = 0
 
     -- Final sprite stuff
     self:moveTo(x, y)
-    self:setnewsize(110)
+    self:setnewsize(120)
     self:setZIndex(0)
     self:add()
 end
@@ -182,6 +183,7 @@ function boat:collision_check(image, x, y)
         local moved_y = (point_y + self.y) - y
         if image:sample(moved_x, moved_y) == gfx.kColorBlack then
             self:crash(point_x, point_y)
+            self.crash_point = i
             if self.dentable then
                 new_point = self.poly_body:getPointAt(i)
                 new_point_x, new_point_y = new_point:unpack()
@@ -207,11 +209,15 @@ function boat:crash(x, y)
     if self.crashable then
         if not self.crashed then
             self.crashed = true
+            self.show_crash_image = true
             self.sfx_crash:stop()
             self.sfx_crash:setRate(1 + (math.random() - 0.5))
             self.sfx_crash:setVolume(self:clamp(self.move_speedo.value, 0, save.vol_sfx/5))
             self.sfx_crash:play()
             self.crash_time = 500 * self:clamp(self.move_speedo.value, 0.25, 1)
+            pd.timer.performAfterDelay(200, function()
+                self.show_crash_image = false
+            end)
             if self.movable then
                 self.crashes += 1
                 save.total_crashes += 1
@@ -280,7 +286,7 @@ function boat:leap()
             -- Bounce-back animation
             self.scale = pd.timer.new(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
             -- Re-set boat size
-            self:setnewsize(110)
+            self:setnewsize(120)
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
@@ -386,6 +392,10 @@ function boat:draw(x, y, width, height)
     self.transform:translate(cos[self.rotation] * (self.total_change * (self.scale_factor * 0.75)), sin[self.rotation] * (self.total_change * (self.scale_factor * 0.75)))
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.shadow:transformedPolygon(self.poly_body))
+    if self.show_crash_image then
+        local x, y = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(self.crash_point):unpack()
+        self.image_crash:draw(x - (self.boat_size / 6), y - (self.boat_size / 6))
+    end
     gfx.setColor(gfx.kColorWhite)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
     gfx.setColor(gfx.kColorBlack)

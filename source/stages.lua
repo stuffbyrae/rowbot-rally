@@ -362,13 +362,13 @@ function stages:leaderboardsin()
                     if string.len(v.player) == 16 and tonumber(v.player) then -- If there's a player with a default username,
                         -- Assign them a random one.
                         vars.random = math.random(1, 12)
-                        assets.kapel:drawText(gfx.getLocalizedText('anon_' .. vars.random), 15, (25 * v.rank) - 20)
+                        assets.kapel:drawText(gfx.getLocalizedText('anon_' .. vars.random), 12, (26 * v.rank) - 22)
                     else
                         -- Otherwise, just draw their username. Duh!
-                        assets.kapel:drawText(v.player, 15, (25 * v.rank) - 20)
+                        assets.kapel:drawText(v.player, 12, (26 * v.rank) - 22)
                     end
-                    assets.kapel:drawTextAligned(ordinal(v.rank), 180, (25 * v.rank) - 20, kTextAlignment.right)
-                    assets.pedallica:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 180, (25 * v.rank) - 10, kTextAlignment.right)
+                    assets.kapel:drawTextAligned(ordinal(v.rank), 185, (26 * v.rank) - 22, kTextAlignment.right)
+                    assets.pedallica:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 185, (26 * v.rank) - 12, kTextAlignment.right)
                     mins = nil
                     secs = nil
                     mils = nil

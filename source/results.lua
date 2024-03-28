@@ -226,7 +226,7 @@ function results:proceed()
             if demo then
                 scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('demo_complete'), gfx.getLocalizedText('popup_demo'), gfx.getLocalizedText('title_screen'), false, function() scenemanager:switchscene(title) end)
             else
-                if save.stages_unlocked == 0 then
+                if save.stages_unlocked == 1 and vars.stage == 1 then
                     scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('time_trials_unlocked'), gfx.getLocalizedText('popup_time_trials_unlocked'), gfx.getLocalizedText('ok'), false, function() scenemanager:switchstory() end)
                 else
                     scenemanager:transitionstoryoneway()
@@ -243,7 +243,11 @@ end
 function results:back()
     fademusic()
     if vars.mode == "story" then
-        scenemanager:transitionsceneonewayback(title)
+        if save.stages_unlocked == 1 and vars.stage == 1 then
+            scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('time_trials_unlocked'), gfx.getLocalizedText('popup_time_trials_unlocked'), gfx.getLocalizedText('ok'), false, function() scenemanager:switchscene(title) end)
+        else
+            scenemanager:transitionsceneonewayback(title)
+        end
     elseif vars.mode == "tt" then
         scenemanager:transitionsceneback(stages)
     end

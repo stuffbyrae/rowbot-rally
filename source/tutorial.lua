@@ -19,6 +19,9 @@ function tutorial:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        menu:addMenuItem(gfx.getLocalizedText('skiptutorial'), function()
+            self:leave()
+        end)
         menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
             self.boat.sfx_row:stop()
             scenemanager:transitionsceneonewayback(title)
@@ -179,6 +182,8 @@ function tutorial:init(...)
             vars.progressable = true
         end)
     end)
+
+    newmusic('audio/sfx/sea', true)
 end
 
 function tutorial:progress()
@@ -233,6 +238,15 @@ function tutorial:progress()
 end
 
 function tutorial:leave()
+    save['slot' .. save.current_story_slot .. '_progress'] = "cutscene2"
+    self.boat.sfx_row:stop()
+    fademusic(999)
+    vars.anim_overlay = pd.timer.new(1000, #assets.overlay_fade, 1)
+    self.boat:state(false, false, false)
+    self.boat:finish(false)
+    pd.timer.performAfterDelay(1000, function()
+        scenemanager:switchstory()
+    end)
 end
 
 function tutorial:update()

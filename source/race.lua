@@ -9,6 +9,9 @@ local smp <const> = pd.sound.sampleplayer
 local geo <const> = pd.geometry
 local min <const> = math.min
 local max <const> = math.max
+local ceil <const> = math.ceil
+local floor <const> = math.floor
+local random <const> = math.random
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -27,7 +30,7 @@ function race:init(...)
         if not vars.finished then
             menu:addCheckmarkMenuItem(gfx.getLocalizedText('proui'), save.pro_ui, function(new)
                 save.pro_ui = new
-                if vars.in_progress then
+                if not vars.finished then
                     if new then
                         vars.anim_hud = pd.timer.new(200, vars.anim_hud.value, -130, pd.easingFunctions.inOutSine)
                         vars.anim_ui_offset = pd.timer.new(200, vars.anim_ui_offset.value, 88, pd.easingFunctions.inOutSine)
@@ -43,9 +46,10 @@ function race:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
-        image_water = gfx.image.new('images/race/stages/water'),
+        image_water = gfx.image.new('images/race/stages/water_2'),
         image_meter = gfx.image.new('images/race/meter'),
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
+        water = gfx.imagetable.new('images/race/stages/water'),
         trees = gfx.imagetable.new('images/race/stages/tree'),
         trunks = gfx.imagetable.new('images/race/stages/trunk'),
         treetops = gfx.imagetable.new('images/race/stages/treetop'),
@@ -82,10 +86,14 @@ function race:init(...)
         last_checkpoint = 0,
         finished = false,
         won = true,
+        water = pd.timer.new(2000, 1, 16),
+        edges = pd.timer.new(1000, 0, 1),
         audience_1 = pd.timer.new(5000, 10, -10),
         audience_2 = pd.timer.new(15000, 10, -10),
         audience_3 = pd.timer.new(25000, 10, -10),
     }
+    vars.water.repeats = true
+    vars.edges.repeats = true
     vars.audience_1.repeats = true
     vars.audience_1.reverses = true
     vars.audience_2.repeats = true
@@ -100,6 +108,7 @@ function race:init(...)
         end,
         AButtonDown = function()
             -- Keeping for debug.
+            self:leap()
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -133,9 +142,10 @@ function race:init(...)
     assets.image_stagec = gfx.image.new('images/race/stages/stagec' .. vars.stage)
     assets.image_stage = gfx.imagetable.new('images/race/stages/stage' .. vars.stage)
 
-    vars.stage_x, vars.stage_y = assets.image_stage[1]:getSize()
-    vars.stage_x *= 2
-    vars.stage_y *= 2
+    vars.tiles_x, vars.tiles_y = assets.image_stage:getSize()
+    vars.tile_x, vars.tile_y = assets.image_stage[1]:getSize()
+    vars.stage_x = vars.tile_x * vars.tiles_x
+    vars.stage_y = vars.tile_y * vars.tiles_y
     
     -- Adjust boat's starting X and Y, checkpoint/lap coords, etc. here
     if vars.stage == 1 then
@@ -167,20 +177,24 @@ function race:init(...)
         vars.trees_y = {146, 1210, 1050, 880, 726, 636, 472, 770, 626, 114, 444, 618, 118, 254, 402, 740, 1142, 1268, 1522, 1512, 1824, 1866, 1802, 1598, 1530}
         vars.trees_rand = {}
         for i = 1, #vars.trees_x do
-            table.insert(vars.trees_rand, 1)
+            table.insert(vars.trees_rand, #assets.trees)
         end
         vars.bushes_x = {175, 575, 607, 519, 683, 735, 1011, 956, 1163, 1155, 1267, 1215, 1095, 1391, 1451, 1839, 1823, 1851, 1399, 1399, 1387, 1767, 1799, 1775, 1587, 1359, 1051, 947, 1011, 839, 699, 767}
         vars.bushes_y = {1188, 1060, 1116, 636, 292, 264, 108, 82, 96, 424, 412, 408, 424, 120, 140, 524, 632, 584, 816, 940, 876, 1016, 900, 956, 1396, 1700, 1328, 1408, 1384, 1868, 1868, 1856}
         vars.bushes_rand = {}
         for i = 1, #vars.bushes_x do
-            table.insert(vars.bushes_rand, math.random(1, 8))
+            table.insert(vars.bushes_rand, random(1, #assets.bushes))
         end
         vars.audience_x = {219, 191, 219, 199, 219, 235, 223, 329, 371, 479, 571, 667, 695, 687, 1083, 955, 1623, 1663, 1763, 1707, 1727, 1703, 1615, 1519, 1419, 1391, 1375, 1287, 1239, 975, 931, 599, 435, 299, 247, 267, 535, 579, 563, 555, 523, 519, 887, 951, 1007, 1035, 1331, 1515, 1491, 1439, 1423, 1427, 1119, 1087, 1083, 927, 895, 795, 675, 639}
         vars.audience_y = {1520, 1472, 1432, 1360, 1320, 1244, 1144, 830, 798, 704, 708, 540, 416, 364, 120, 152, 204, 208, 652, 844, 884, 1012, 1332, 1424, 1404, 1436, 1636, 1760, 1760, 1860, 1836, 1844, 1792, 1692, 1672, 1620, 1436, 1432, 1392, 1340, 1300, 1108, 872, 672, 476, 440, 392, 464, 532, 712, 752, 1004, 1220, 1256, 1424, 1564, 1516, 1588, 1564, 1588}
         vars.audience_rand = {}
         for i = 1, #vars.audience_x do
-            table.insert(vars.audience_rand, math.random(1, 2))
+            table.insert(vars.audience_rand, random(1, #assets.audience))
         end
+        vars.edges_polygons = {
+            geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 270, 1315, 265, 1130, 265, 1095, 270, 1040, 275, 1030, 285, 990, 290, 970, 295, 945, 305, 925, 310, 910, 325, 885, 355, 850, 405, 805, 445, 780, 480, 765, 520, 750, 585, 725, 630, 710, 670, 685, 705, 655, 715, 635, 720, 580, 730, 515, 730, 500, 735, 470, 740, 450, 745, 420, 755, 400, 765, 365, 805, 310, 825, 285, 850, 260, 870, 245, 905, 225, 920, 215, 965, 200, 1035, 180, 1095, 170, 1160, 165, 1280, 165, 1350, 170, 1390, 175, 1415, 180, 1430, 180, 1470, 190, 1525, 200, 1580, 220, 1615, 235, 1655, 250, 1690, 280, 1715, 305, 1740, 330, 1755, 360, 1770, 395, 1780, 425, 1785, 480, 1780, 530, 1770, 570, 1755, 600, 1735, 640, 1705, 685, 1685, 725, 1665, 785, 1660, 835, 1665, 925, 1670, 1020, 1675, 1060, 1675, 1140, 1670, 1190, 1660, 1220, 1630, 1270, 1590, 1315, 1550, 1340, 1515, 1355, 1475, 1360, 1440, 1370, 1405, 1375, 1375, 1395, 1365, 1420, 1360, 1460, 1360, 1545, 1355, 1580, 1345, 1610, 1330, 1640, 1315, 1660, 1280, 1695, 1240, 1725, 1195, 1745, 1115, 1770, 1010, 1790, 930, 1800, 845, 1805, 670, 1805, 585, 1805, 520, 1790, 460, 1770, 405, 1745, 370, 1720, 335, 1685, 315, 1655, 295, 1615, 285, 1570, 275, 1490, 270, 1395, 270, 1315, 0, vars.stage_x, 0, 0),
+            geo.polygon.new(470, 1305, 465, 1170, 470, 1120, 475, 1090, 475, 1060, 485, 1050, 485, 1045, 495, 1025, 525, 995, 550, 975, 595, 955, 600, 950, 665, 925, 680, 920, 690, 915, 775, 890, 785, 885, 820, 870, 860, 830, 885, 800, 895, 780, 905, 745, 925, 675, 925, 665, 935, 615, 945, 555, 950, 530, 960, 495, 965, 480, 980, 450, 1010, 415, 1030, 405, 1055, 385, 1090, 375, 1185, 365, 1225, 360, 1325, 355, 1360, 355, 1410, 365, 1435, 370, 1480, 385, 1505, 400, 1535, 435, 1545, 465, 1550, 495, 1550, 530, 1540, 565, 1515, 610, 1495, 650, 1475, 690, 1465, 740, 1465, 835, 1470, 895, 1470, 945, 1470, 975, 1475, 1055, 1460, 1105, 1435, 1135, 1395, 1155, 1315, 1175, 1245, 1190, 1210, 1205, 1165, 1240, 1150, 1275, 1145, 1300, 1145, 1370, 1145, 1460, 1140, 1495, 1120, 1530, 1085, 1555, 1030, 1575, 985, 1590, 860, 1610, 805, 1615, 710, 1620, 625, 1615, 590, 1605, 535, 1575, 500, 1535, 480, 1495, 480, 1460, 475, 1385, 470, 1330, 470, 1305)
+        }
     elseif vars.stage == 2 then
         vars.laps = 3
         vars.music_loop = 0
@@ -213,17 +227,22 @@ function race:init(...)
         vars.boosts_remaining = 3
     end
     
-    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
-        assets.image_water_bg:draw(0, 0)
-    end)
-
     class('race_water').extends(gfx.sprite)
     function race_water:init()
         race_water.super.init(self)
-        self:setImage(assets.image_water)
+        self:setSize(800, 480)
         self:setIgnoresDrawOffset(true)
         self:setZIndex(-4)
         self:add()
+    end
+    function race_water:draw()
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillRect(0, 0, 800, 480)
+        gfx.setColor(gfx.kColorBlack)
+        gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+        gfx.fillRect(0, 0, 800, 480)
+        gfx.setColor(gfx.kColorBlack)
+        assets.water:drawImage(floor(vars.water.value), 0, 0)
     end
     
     class('race_stage').extends(gfx.sprite)
@@ -319,38 +338,35 @@ function race:init(...)
             (1135 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1436 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
             (1127 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1488 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y)),
         }
-        for i = 1, #vars.drawq do
-            drawq = vars.drawq[i]
-            if drawq == 1 then
-                assets.image_stage[1]:draw(0, 0)
-            elseif drawq == 2 then
-                assets.image_stage[2]:draw(vars.stage_x / 2, 0)
-            elseif drawq == 3 then
-                assets.image_stage[3]:draw(0, vars.stage_y / 2)
-            elseif drawq == 4 then
-                assets.image_stage[4]:draw(vars.stage_x / 2, vars.stage_y / 2)
+        -- gfx.setColor(gfx.kColorWhite)
+        -- gfx.setDitherPattern(vars.edges.value, gfx.image.kDitherTypeBayer4x4)
+        -- for i = 1, #vars.edges_polygons do
+        --     gfx.setLineWidth(30 * vars.edges.value)
+        --     gfx.drawPolygon(vars.edges_polygons[i])
+        -- end
+        -- gfx.setColor(gfx.kColorBlack)
+        for i = 1, vars.tiles_x * vars.tiles_y do
+            local draw_x = ((i-1) % vars.tiles_x)
+            local draw_y = ceil(i / vars.tiles_y) - 1
+            if max(-x-vars.tile_x, min(-x+400, vars.tile_x * draw_x)) == vars.tile_x * draw_x then
+                if max(-y-vars.tile_y, min(-y+240, vars.tile_y * draw_y)) == vars.tile_y * draw_y then
+                    assets.image_stage[i]:draw(vars.tile_x * draw_x, vars.tile_y * draw_y)
+                    -- gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
+                    -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+                    -- assets.image_stage[i]:draw(vars.tile_x * draw_x, vars.tile_y * draw_y)
+                    -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                    -- gfx.clearStencil()
+                end
             end
-            gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
-            gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-            if drawq == 1 then
-                assets.image_stage[1]:draw(0, 0)
-            elseif drawq == 2 then
-                assets.image_stage[2]:draw(vars.stage_x / 2, 0)
-            elseif drawq == 3 then
-                assets.image_stage[3]:draw(0, vars.stage_y / 2)
-            elseif drawq == 4 then
-                assets.image_stage[4]:draw(vars.stage_x / 2, vars.stage_y / 2)
-            end
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            gfx.clearStencil()
         end
         for i = 1, #vars.audience_x do
+            print('test ' .. vars.audience_rand[i])
             if max(-x-10, min(-x+410, vars.audience_x[i])) == vars.audience_x[i] then
                 if max(-y-10, min(-y+250, vars.audience_y[i])) == vars.audience_y[i] then
                     assets.audience:drawImage(
                         vars.audience_rand[i],
                         (vars.audience_x[i] - 25) * vars.parallax_short_amount + (vars.stage_x * -vars.stage_progress_short_x),
-                        (vars.audience_y[i] - 25) * vars.parallax_short_amount + (vars.stage_y * -vars.stage_progress_short_y) + vars['audience_' .. (vars.audience_rand[i] % 3)].value)
+                        (vars.audience_y[i] - 25) * vars.parallax_short_amount + (vars.stage_y * -vars.stage_progress_short_y) + vars['audience_' .. (vars.audience_rand[i] % 3) + 1].value)
                 end
             end
         end
@@ -365,14 +381,14 @@ function race:init(...)
                         vars.bushes_rand[i],
                         (vars.bushes_x[i] - 41) * vars.parallax_short_amount + (vars.stage_x * -vars.stage_progress_short_x),
                         (vars.bushes_y[i] - 39) * vars.parallax_short_amount + (vars.stage_y * -vars.stage_progress_short_y))
-                    gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
-                    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    assets.bushes:drawImage(
-                        vars.bushes_rand[i],
-                        (vars.bushes_x[i] - 41),
-                        (vars.bushes_y[i] - 39))
-                    gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                    gfx.clearStencil()
+                    -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
+                    -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+                    -- assets.bushes:drawImage(
+                    --     vars.bushes_rand[i],
+                    --     (vars.bushes_x[i] - 41),
+                    --     (vars.bushes_y[i] - 39))
+                    -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                    -- gfx.clearStencil()
                 end
             end
         end
@@ -438,14 +454,14 @@ function race:init(...)
                         vars.trees_rand[i],
                         (vars.trees_x[i] - 66) * vars.parallax_tippy_amount + (vars.stage_x * -vars.stage_progress_tippy_x),
                         (vars.trees_y[i] - 66) * vars.parallax_tippy_amount + (vars.stage_y * -vars.stage_progress_tippy_y))
-                    gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
-                    gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    assets.trees:drawImage(
-                        vars.trees_rand[i],
-                        (vars.trees_x[i] - 66) * vars.parallax_long_amount + (vars.stage_x * -vars.stage_progress_long_x),
-                        (vars.trees_y[i] - 66) * vars.parallax_long_amount + (vars.stage_y * -vars.stage_progress_long_y))
-                    gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                    gfx.clearStencil()
+                    -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
+                    -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+                    -- assets.trees:drawImage(
+                    --     vars.trees_rand[i],
+                    --     (vars.trees_x[i] - 66) * vars.parallax_long_amount + (vars.stage_x * -vars.stage_progress_long_x),
+                    --     (vars.trees_y[i] - 66) * vars.parallax_long_amount + (vars.stage_y * -vars.stage_progress_long_y))
+                    -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                    -- gfx.clearStencil()
                 end
             end
         end
@@ -471,10 +487,10 @@ function race:init(...)
         if vars.anim_overlay ~= nil then
             if vars.finished or not vars.started then
                 gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-                assets['overlay_' .. vars.overlay]:drawImage(math.floor(vars.anim_overlay.value), 0, 0)
+                assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
                 gfx.setImageDrawMode(gfx.kDrawModeCopy)
             else
-                assets['overlay_' .. vars.overlay]:drawImage(math.floor(vars.anim_overlay.value), 0, 0)
+                assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
             end
         end
         -- Draw the timer
@@ -488,8 +504,8 @@ function race:init(...)
             assets.image_item:draw(313 - vars.anim_hud.value, 0)
         end
         -- Draw the power meter
-        assets.image_meter_r:drawImage(math.floor((vars.rowbot * 15)) + 1, 0, 177 - vars.anim_hud.value)
-        assets.image_meter_p:drawImage(math.floor(math.clamp(32 - vars.player * 2.2, 3, 32)) + 1, 200, 177 - vars.anim_hud.value)
+        assets.image_meter_r:drawImage(floor((vars.rowbot * 15)) + 1, 0, 177 - vars.anim_hud.value)
+        assets.image_meter_p:drawImage(floor(max(3, min(32, 32 - vars.player * 2.2))) + 1, 200, 177 - vars.anim_hud.value)
     end
 
     -- Little debug dot, representing the middle of the screen.
@@ -607,33 +623,31 @@ end
 
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
 function race:timecalc(num)
-    vars.mins = math.floor((num/30) / 60)
-    vars.secs = math.floor((num/30) - vars.mins * 60)
-    vars.mils = math.floor((num/30)*99 - vars.mins * 5940 - vars.secs * 99)
+    vars.mins = floor((num/30) / 60)
+    vars.secs = floor((num/30) - vars.mins * 60)
+    vars.mils = floor((num/30)*99 - vars.mins * 5940 - vars.secs * 99)
+    if vars.secs < 10 then vars.secs = '0' .. vars.secs end
+    if vars.mils < 10 then vars.mils = '0' .. vars.mils end
 end
 
 -- Scene update loop
 function race:update()
     if vars.mode == "debug" then -- If debug mode is enabled,
-        vars.drawq = {1, 2, 3, 4}
         -- These have to be in the update loop because there's no way to just check if a button's held on every frame using an input handler. Weird.
         if pd.buttonIsPressed('up') then
-            self.debug:moveBy(0, -4)
+            self.debug:moveBy(0, -5)
         end
         if pd.buttonIsPressed('down') then
-            self.debug:moveBy(0, 4)
+            self.debug:moveBy(0, 5)
         end
         if pd.buttonIsPressed('left') then
-            self.debug:moveBy(-4, 0)
+            self.debug:moveBy(-5, 0)
         end
         if pd.buttonIsPressed('right') then
-            self.debug:moveBy(4, 0)
+            self.debug:moveBy(5, 0)
         end
         if pd.buttonJustPressed('a') then -- If A is pressed, print out the coords that the debug dot is sitting on.
-            print(math.floor(self.debug.x) .. ', ' .. math.floor(self.debug.y) .. ', ')
-            -- table.insert(vars.trees_x, self.debug.x)
-            -- table.insert(vars.trees_y, self.debug.y)
-            -- table.insert(vars.trees_rand, 1)
+            print(floor(self.debug.x) .. ', ' .. floor(self.debug.y) .. ', ')
         end
         gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120) -- Move the camera to wherever the debug dot is.
     else
@@ -674,6 +688,7 @@ function race:update()
                                 assets.sfx_start:play()
                                 -- TODO: visual feedback on timer
                             elseif vars.current_lap == 3 then
+                                fademusic(0)
                                 -- TODO: visual feedback on timer
                                 -- TODO: "final lap" audio que
                                 -- TODO: figure out how to speed up music
@@ -685,24 +700,9 @@ function race:update()
                 vars.last_checkpoint = tag
             end
         end
-        vars.drawq = {}
-        if self.boat.x < (vars.stage_x / 2) + 400 and self.boat.y < (vars.stage_y / 2) + 240 then
-            table.insert(vars.drawq, 1)
-        end
-        if self.boat.x > (vars.stage_x / 2) - 400 and self.boat.y < (vars.stage_y / 2) + 240 then
-            table.insert(vars.drawq, 2)
-        end
-        if self.boat.x < (vars.stage_x / 2) + 400 and self.boat.y > (vars.stage_y / 2) - 240 then
-            table.insert(vars.drawq, 3)
-        end
-        if self.boat.x > (vars.stage_x / 2) - 400 and self.boat.y > (vars.stage_y / 2) - 240 then
-            table.insert(vars.drawq, 4)
-        end
-        if self.boat.crashable then -- If the boat's crashable, then do a collision check.
-            self.boat:collision_check(assets.image_stagec, 0, 0)
-            if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
-                self:finish(true, 400) -- end the race. Ouch.
-            end
+        self.boat:collision_check(assets.image_stagec, 0, 0)
+        if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
+            self:finish(true, 400) -- end the race. Ouch.
         end
     end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset

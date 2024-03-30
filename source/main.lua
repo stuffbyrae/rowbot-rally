@@ -22,6 +22,7 @@ local geo <const> = pd.geometry
 pd.display.setRefreshRate(30)
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
+gfx.setPolygonFillRule(gfx.kPolygonFillEvenOdd)
 gfx.setLineWidth(2)
 
 -- Game variables

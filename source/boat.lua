@@ -4,6 +4,10 @@ local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local geo <const> = pd.geometry
 local lerp <const> = pd.math.lerp
+local min <const> = math.min
+local max <const> = math.max
+local floor <const> = math.floor
+local random <const> = math.random
 
 -- Baking sin and cos calculations for performance
 local sin = {0.01745241,0.0348995,0.05233596,0.06975647,0.08715574,0.1045285,0.1218693,0.1391731,0.1564345,0.1736482,0.190809,0.2079117,0.224951,0.2419219,0.258819,0.2756374,0.2923717,0.309017,0.3255681,0.3420201,0.3583679,0.3746066,0.3907311,0.4067366,0.4226183,0.4383712,0.4539905,0.4694716,0.4848096,0.5,0.5150381,0.5299193,0.5446391,0.5591929,0.5735765,0.5877852,0.601815,0.6156615,0.6293204,0.6427876,0.656059,0.6691306,0.6819984,0.6946584,0.7071068,0.7193398,0.7313537,0.7431449,0.7547095,0.7660444,0.7771459,0.7880107,0.7986355,0.809017,0.8191521,0.8290375,0.8386706,0.8480481,0.8571673,0.8660254,0.8746197,0.8829476,0.8910065,0.8987941,0.9063078,0.9135455,0.9205048,0.9271839,0.9335804,0.9396926,0.9455186,0.9510565,0.9563047,0.9612617,0.9659258,0.9702957,0.9743701,0.9781476,0.9816272,0.9848077,0.9876884,0.9902681,0.9925461,0.9945219,0.9961947,0.9975641,0.9986295,0.9993908,0.9998477,1.0,0.9998477,0.9993908,0.9986295,0.9975641,0.9961947,0.9945219,0.9925461,0.9902681,0.9876884,0.9848077,0.9816272,0.9781476,0.9743701,0.9702957,0.9659258,0.9612617,0.9563047,0.9510565,0.9455186,0.9396926,0.9335805,0.9271839,0.9205049,0.9135455,0.9063078,0.8987941,0.8910066,0.8829476,0.8746197,0.8660254,0.8571673,0.848048,0.8386706,0.8290376,0.819152,0.809017,0.7986355,0.7880108,0.777146,0.7660444,0.7547096,0.7431448,0.7313537,0.7193399,0.7071068,0.6946585,0.6819983,0.6691306,0.656059,0.6427876,0.6293205,0.6156614,0.6018151,0.5877852,0.5735765,0.559193,0.5446391,0.5299193,0.515038,0.5000001,0.4848095,0.4694716,0.4539906,0.4383711,0.4226183,0.4067366,0.3907312,0.3746067,0.3583679,0.3420202,0.3255681,0.309017,0.2923718,0.2756374,0.2588191,0.2419219,0.2249511,0.2079116,0.190809,0.1736483,0.1564344,0.1391732,0.1218693,0.1045285,0.08715588,0.06975647,0.05233605,0.03489945,0.01745246,-8.742278e-08,-0.01745239,-0.03489939,-0.05233599,-0.0697564,-0.08715581,-0.1045284,-0.1218692,-0.1391731,-0.1564344,-0.1736482,-0.190809,-0.2079118,-0.224951,-0.2419218,-0.2588191,-0.2756373,-0.2923718,-0.309017,-0.3255681,-0.3420202,-0.3583679,-0.3746066,-0.3907311,-0.4067365,-0.4226183,-0.4383711,-0.4539905,-0.4694715,-0.4848097,-0.5,-0.515038,-0.5299193,-0.544639,-0.559193,-0.5735764,-0.5877851,-0.601815,-0.6156614,-0.6293204,-0.6427876,-0.6560591,-0.6691306,-0.6819983,-0.6946584,-0.7071067,-0.7193398,-0.7313537,-0.7431448,-0.7547096,-0.7660446,-0.777146,-0.7880107,-0.7986354,-0.8090168,-0.8191521,-0.8290376,-0.8386706,-0.848048,-0.8571672,-0.8660254,-0.8746197,-0.8829476,-0.8910065,-0.8987941,-0.9063078,-0.9135454,-0.9205048,-0.9271838,-0.9335805,-0.9396927,-0.9455186,-0.9510565,-0.9563047,-0.9612617,-0.9659259,-0.9702957,-0.9743701,-0.9781476,-0.9816272,-0.9848078,-0.9876883,-0.9902681,-0.9925461,-0.9945219,-0.9961947,-0.997564,-0.9986295,-0.9993908,-0.9998477,-1.0,-0.9998477,-0.9993908,-0.9986295,-0.997564,-0.9961947,-0.9945219,-0.9925462,-0.9902681,-0.9876883,-0.9848077,-0.9816272,-0.9781476,-0.97437,-0.9702957,-0.9659258,-0.9612617,-0.9563048,-0.9510565,-0.9455186,-0.9396926,-0.9335805,-0.9271839,-0.9205048,-0.9135454,-0.9063078,-0.8987941,-0.8910066,-0.8829476,-0.8746197,-0.8660254,-0.8571674,-0.848048,-0.8386705,-0.8290376,-0.8191521,-0.8090171,-0.7986354,-0.7880107,-0.777146,-0.7660445,-0.7547097,-0.7431448,-0.7313536,-0.7193398,-0.7071069,-0.6946585,-0.6819983,-0.6691306,-0.6560591,-0.6427878,-0.6293206,-0.6156614,-0.601815,-0.5877853,-0.5735766,-0.5591931,-0.5446389,-0.5299193,-0.5150381,-0.5000002,-0.4848095,-0.4694715,-0.4539905,-0.4383712,-0.4226184,-0.4067365,-0.3907311,-0.3746066,-0.3583681,-0.3420204,-0.325568,-0.3090169,-0.2923717,-0.2756375,-0.2588193,-0.2419218,-0.224951,-0.2079118,-0.1908092,-0.1736484,-0.1564344,-0.1391731,-0.1218694,-0.1045287,-0.08715603,-0.06975638,-0.05233596,-0.0348996,-0.01745261,1.748456e-07}
@@ -45,7 +49,7 @@ function boat:init(x, y, race, stage_x, stage_y)
     
     -- Boat properties
     self.scale_factor = 1 -- Default scale of the boat.
-    self.lerp = 0.15 -- Rate at which the cranking is interpolated.
+    self.lerp = 0.2 -- Rate at which the cranking is interpolated.
     self.speed = 5 -- Forward movement speed of the boat.
     self.turn = 7 -- The RowBot's default turning rate.
 
@@ -115,7 +119,7 @@ function boat:init(x, y, race, stage_x, stage_y)
 
     -- Final sprite stuff
     self:moveTo(x, y)
-    self:setnewsize(120)
+    self:setnewsize(150)
     self:setZIndex(0)
     self:add()
 end
@@ -168,9 +172,9 @@ function boat:finish(peelout, duration) -- Disable peelout in tutorial!
     show_crank = false
     if peelout then
         if self.crankage > self.turn * 1.1 then
-            self.peelout = pd.timer.new(duration, self.rotation, self.rotation + math.random(30, 75), pd.easingFunctions.outSine)
+            self.peelout = pd.timer.new(duration, self.rotation, self.rotation + random(30, 75), pd.easingFunctions.outSine)
         else
-            self.peelout = pd.timer.new(duration, self.rotation, self.rotation - math.random(30, 75), pd.easingFunctions.outSine)
+            self.peelout = pd.timer.new(duration, self.rotation, self.rotation - random(30, 75), pd.easingFunctions.outSine)
         end
     end
     if enabled_cheats_scream then
@@ -179,33 +183,35 @@ function boat:finish(peelout, duration) -- Disable peelout in tutorial!
 end
 
 function boat:collision_check(image, x, y)
-    local points_collided = {}
-    for i = 1, self.poly_body_crash:count() do
-        local transformed_point = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(i)
-        local point_x, point_y = transformed_point:unpack()
-        local moved_x = (point_x + self.x) - x
-        local moved_y = (point_y + self.y) - y
-        if image:sample(moved_x, moved_y) == gfx.kColorBlack then
-            self:crash(point_x, point_y)
-            self.crash_point = i
-            if self.dentable then
-                new_point = self.poly_body:getPointAt(i)
-                new_point_x, new_point_y = new_point:unpack()
-                self.poly_body:setPointAt(i, 0 + (new_point_x * 0.9), 0 + (new_point_y * 0.9))
+    if self.crashable then
+        local points_collided = {}
+        for i = 1, self.poly_body_crash:count() do
+            local transformed_point = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(i)
+            local point_x, point_y = transformed_point:unpack()
+            local moved_x = (point_x + self.x) - x
+            local moved_y = (point_y + self.y) - y
+            if image:sample(moved_x, moved_y) == gfx.kColorBlack then
+                self:crash(point_x, point_y)
+                self.crash_point = i
+                if self.dentable then
+                    new_point = self.poly_body:getPointAt(i)
+                    new_point_x, new_point_y = new_point:unpack()
+                    self.poly_body:setPointAt(i, 0 + (new_point_x * 0.9), 0 + (new_point_y * 0.9))
+                end
+                table.insert(points_collided, i)
             end
-            table.insert(points_collided, i)
+            transformed_point = nil
+            point_x = nil
+            point_y = nil
+            moved_x = nil
+            moved_y = nil
+            new_point = nil
+            new_point_x = nil
+            new_point_y = nil
         end
-        transformed_point = nil
-        point_x = nil
-        point_y = nil
-        moved_x = nil
-        moved_y = nil
-        new_point = nil
-        new_point_x = nil
-        new_point_y = nil
-    end
-    if #points_collided == self.poly_body_crash:count() then -- If every point on the boat is tracking a collision,
-        self.beached = true -- ...then that's a good indicator that it's beached.
+        if #points_collided == self.poly_body_crash:count() then -- If every point on the boat is tracking a collision,
+            self.beached = true -- ...then that's a good indicator that it's beached.
+        end
     end
 end
 
@@ -215,10 +221,10 @@ function boat:crash(x, y)
             self.crashed = true
             self.show_crash_image = true
             self.sfx_crash:stop()
-            self.sfx_crash:setRate(1 + (math.random() - 0.5))
-            self.sfx_crash:setVolume(self:clamp(self.move_speedo.value, 0, save.vol_sfx/5))
+            self.sfx_crash:setRate(1 + (random() - 0.5))
+            self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))
             self.sfx_crash:play()
-            self.crash_time = 500 * self:clamp(self.move_speedo.value, 0.25, 1)
+            self.crash_time = 500 * (max(0.25, min(1, self.move_speedo.value)))
             pd.timer.performAfterDelay(200, function()
                 self.show_crash_image = false
             end)
@@ -243,7 +249,7 @@ function boat:crash(x, y)
             end
         end
         angle = math.deg(math.atan2(y, x))
-        self.crash_direction = math.floor(angle - 90 + math.random(-20, 20)) % 360 + 1
+        self.crash_direction = floor(angle - 90 + random(-20, 20)) % 360 + 1
     end
 end
 
@@ -276,7 +282,6 @@ function boat:leap()
     if self.movable and not self.leaping then
         self.leaping = true
         self.crashable = false
-        self:state(true, false, false) -- Disable turning. Do we need to do this?
         self:setnewsize(200)
         self.sfx_air:play()
         self.sfx_boost:play()
@@ -285,16 +290,15 @@ function boat:leap()
         self.scale.reverses = true
         self.scale.reverseEasingFunction = pd.easingFunctions.inCubic
         pd.timer.performAfterDelay(1400, function()
+            self.leaping = false
             self.sfx_splash:play()
-            self:state(true, true, true) -- Re-enable turning
             -- Bounce-back animation
             self.scale = pd.timer.new(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
             -- Re-set boat size
-            self:setnewsize(120)
+            self:setnewsize(150)
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
-                self.leaping = false
                 self.scale = pd.timer.new(2500, self.scale_factor, self.scale_factor * 1.1)
             end)
         end)
@@ -312,7 +316,7 @@ function boat:update()
         self:moveBy(sin[self.crash_direction] * (self.speed * self.move_speedo.value), -cos[self.crash_direction] * (self.speed * self.move_speedo.value))
     end
     gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
-    if race then
+    if self.race then
         local x, y = gfx.getDrawOffset()
         if x >= 0 then x = 0 elseif x - 400 <= -self.stage_x then x = -self.stage_x + 400 end
         if y >= 0 then y = 0 elseif y - 240 <= -self.stage_y then y = -self.stage_y + 240 end
@@ -354,18 +358,20 @@ function boat:update()
             self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
         end
     end
-    self.rotation += self.crankage -- Add crankage value on there
-    if self.rowbot then -- If the RowBot needs to turn the boat,
-        self.rotation -= self.turn * self.turn_speedo.value -- Apply RowBot turning. Duh!
+    if not self.leaping then
+        self.rotation += self.crankage -- Add crankage value on there
+        if self.rowbot then -- If the RowBot needs to turn the boat,
+            self.rotation -= self.turn * self.turn_speedo.value -- Apply RowBot turning. Duh!
+        end
     end
     -- If there's a peelout anim, ignore EVERYTHING BEFORE JUST NOW and respect that instead.
     if self.peelout ~= nil then
         self.rotation = self.peelout.value
     end
     -- Make sure rotation winds up as integer 1 through 360
-    self.rotation = math.floor(self.rotation) % 360
+    self.rotation = floor(self.rotation) % 360
     if self.rotation == 0 then self.rotation = 360 end
-    self.total_change = self:clamp(self.crankage, 0, self.turn * 2) - (self.turn_speedo.value * self.turn)
+    self.total_change = max(0, min(self.turn * 2, self.crankage)) - (self.turn_speedo.value * self.turn)
     -- Transform ALL the polygons!!!!1!
     self.transform:scale(self.scale.value * self.boost_x.value, self.scale.value * self.boost_y.value)
     self.shadow:scale(self.scale_factor * self.boost_x.value, self.scale_factor * self.boost_y.value)
@@ -374,18 +380,8 @@ function boat:update()
     self:markDirty()
 end
 
-function boat:follow(x, y)
-    local rotated_x = ((x * self.scale.value) * -cos[self.rotation] - y * sin[self.rotation]) + (self.boat_size / 2)
-    local rotated_y = ((x * self.scale.value) * -sin[self.rotation] + y * cos[self.rotation]) + (self.boat_size / 2)
-    return rotated_x, rotated_y
-end
-
-function boat:clamp(val, lower, upper)
-    return math.max(lower, math.min(upper, val))
-end
-
 function boat:draw(x, y, width, height)
-    if self.ripple_scale.value ~= self.ripple_scale.endValue then
+    if self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
         self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
         self.ripple:rotate(self.rotation)
         self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
@@ -415,13 +411,20 @@ function boat:draw(x, y, width, height)
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
     -- Offset params for passengers
-    local bunny_body_x, bunny_body_y = self:follow(8, -10 + (self.cam_y.value * 0.05))
-    local bunny_tuft_x, bunny_tuft_y = self:follow(11 + (self.total_change * (self.scale_factor * 0.1)), 10 + (self.cam_y.value * 0.05))
-    local rowbot_body_x, rowbot_body_y = self:follow(-8, -10 + (self.cam_y.value * 0.05))
-    local bunny_head_x, bunny_head_y = self:follow(12 + (self.total_change * (self.scale_factor * -0.5)), self.cam_y.value * 0.05)
-    local bunny_ear_1_x, bunny_ear_1_y = self:follow(6 + (self.total_change * (self.scale_factor * -1)), -5 + self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1))
-    local bunny_ear_2_x, bunny_ear_2_y = self:follow(19 + (self.total_change * (self.scale_factor * -1)), 4 + self.wobble_speedo.value * self.scale.value + (self.cam_y.value * 0.1))
-    local rowbot_antennae_x, rowbot_antennae_y = self:follow(-14 + (self.total_change * (self.scale_factor * -0.5)), self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1))
+    local bunny_body_x = ((8 * self.scale.value) * -cos[self.rotation] - (-10 + (self.cam_y.value * 0.05)) * sin[self.rotation]) + (self.boat_size / 2)
+    local bunny_body_y = ((8 * self.scale.value) * -sin[self.rotation] + (-10 + (self.cam_y.value * 0.05)) * cos[self.rotation]) + (self.boat_size / 2)
+    local bunny_tuft_x = (((11 + (self.total_change * (self.scale_factor * 0.1))) * self.scale.value) * -cos[self.rotation] - (10 + (self.cam_y.value * 0.05)) * sin[self.rotation]) + (self.boat_size / 2)
+    local bunny_tuft_y = (((11 + (self.total_change * (self.scale_factor * 0.1))) * self.scale.value) * -sin[self.rotation] + (10 + (self.cam_y.value * 0.05)) * cos[self.rotation]) + (self.boat_size / 2)
+    local rowbot_body_x = ((-8 * self.scale.value) * -cos[self.rotation] - (-10 + (self.cam_y.value * 0.05)) * sin[self.rotation]) + (self.boat_size / 2)
+    local rowbot_body_y = ((-8 * self.scale.value) * -sin[self.rotation] + (-10 + (self.cam_y.value * 0.05)) * cos[self.rotation]) + (self.boat_size / 2)
+    local bunny_head_x = (((12 + (self.total_change * (self.scale_factor * -0.5))) * self.scale.value) * -cos[self.rotation] - (self.cam_y.value * 0.05) * sin[self.rotation]) + (self.boat_size / 2)
+    local bunny_head_y = (((12 + (self.total_change * (self.scale_factor * -0.5))) * self.scale.value) * -sin[self.rotation] + (self.cam_y.value * 0.05) * cos[self.rotation]) + (self.boat_size / 2)
+    local bunny_ear_1_x = (((6 + (self.total_change * (self.scale_factor * -1))) * self.scale.value) * -cos[self.rotation] - (-5 + self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * sin[self.rotation]) + (self.boat_size / 2)
+    local bunny_ear_1_y = (((6 + (self.total_change * (self.scale_factor * -1))) * self.scale.value) * -sin[self.rotation] + (-5 + self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * cos[self.rotation]) + (self.boat_size / 2)
+    local bunny_ear_2_x = (((19 + (self.total_change * (self.scale_factor * -1))) * self.scale.value) * -cos[self.rotation] - (4 + self.wobble_speedo.value * self.scale.value + (self.cam_y.value * 0.1)) * sin[self.rotation]) + (self.boat_size / 2)
+    local bunny_ear_2_y = (((19 + (self.total_change * (self.scale_factor * -1))) * self.scale.value) * -sin[self.rotation] + (4 + self.wobble_speedo.value * self.scale.value + (self.cam_y.value * 0.1)) * cos[self.rotation]) + (self.boat_size / 2)
+    local rowbot_antennae_x = (((-14 + (self.total_change * (self.scale_factor * -0.5))) * self.scale.value) * -cos[self.rotation] - (self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * sin[self.rotation]) + (self.boat_size / 2)
+    local rowbot_antennae_y = (((-14 + (self.total_change * (self.scale_factor * -0.5))) * self.scale.value) * -sin[self.rotation] + (self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * cos[self.rotation]) + (self.boat_size / 2)
     -- Drawing passenger bodies, and bunny's hair tuft
     gfx.setColor(gfx.kColorBlack)
     gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * self.scale.value)

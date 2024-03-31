@@ -27,6 +27,7 @@ function boat:init(x, y, race, stage_x, stage_y)
     self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
     self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
     self.transform = geo.affineTransform.new()
+    self.crash_transform = geo.affineTransform.new()
     self.shadow = geo.affineTransform.new()
     self.ripple = geo.affineTransform.new()
 
@@ -182,35 +183,29 @@ function boat:finish(peelout, duration) -- Disable peelout in tutorial!
     end
 end
 
-function boat:collision_check(image, x, y)
+function boat:collision_check(polygons, image, x, y)
     if self.crashable then
-        local points_collided = {}
-        for i = 1, self.poly_body_crash:count() do
-            local transformed_point = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(i)
-            local point_x, point_y = transformed_point:unpack()
-            local moved_x = (point_x + self.x) - x
-            local moved_y = (point_y + self.y) - y
-            if image:sample(moved_x, moved_y) == gfx.kColorBlack then
-                self:crash(point_x, point_y)
-                self.crash_point = i
-                if self.dentable then
-                    new_point = self.poly_body:getPointAt(i)
-                    new_point_x, new_point_y = new_point:unpack()
-                    self.poly_body:setPointAt(i, 0 + (new_point_x * 0.9), 0 + (new_point_y * 0.9))
+        self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
+        for i = 1, #polygons do
+            if self.crash_body_scale:intersects(polygons[i]) then
+                local points_collided = {}
+                self.crash_body = self.crash_transform:transformedPolygon(self.poly_body_crash)
+                for i = 1, self.poly_body_crash:count() do
+                    local transformed_point = self.crash_body:getPointAt(i)
+                    local point_x, point_y = transformed_point:unpack()
+                    local moved_x = (point_x + self.x) - x
+                    local moved_y = (point_y + self.y) - y
+                    if image:sample(moved_x, moved_y) == gfx.kColorBlack then
+                        self:crash(point_x, point_y)
+                        self.crash_point = i
+                        -- TODO: re-add dentable code...somehow.
+                        table.insert(points_collided, i)
+                    end
+                    if #points_collided == self.poly_body_crash:count() then
+                        self.beached = true
+                    end
                 end
-                table.insert(points_collided, i)
             end
-            transformed_point = nil
-            point_x = nil
-            point_y = nil
-            moved_x = nil
-            moved_y = nil
-            new_point = nil
-            new_point_x = nil
-            new_point_y = nil
-        end
-        if #points_collided == self.poly_body_crash:count() then -- If every point on the boat is tracking a collision,
-            self.beached = true -- ...then that's a good indicator that it's beached.
         end
     end
 end
@@ -307,6 +302,7 @@ end
 
 function boat:update()
     self.transform:reset()
+    self.crash_transform:reset()
     self.shadow:reset()
     self.ripple:reset()
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
@@ -333,11 +329,9 @@ function boat:update()
             end
         elseif save.button_controls or pd.isSimulator == 1 then
             if self.right then
-                self.crankage += (self.turn * 2 - self.crankage) * self.turn_speedo.value * self.lerp
+                self.crankage = self.turn * 2
             elseif self.straight then
-                self.crankage += (self.turn * 1.1 - self.crankage) * self.turn_speedo.value * self.lerp
-            elseif self.crankage >= 0.01 then
-                self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if nothing is going on
+                self.crankage = self.turn
             else
                 self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
             end
@@ -371,11 +365,14 @@ function boat:update()
     -- Make sure rotation winds up as integer 1 through 360
     self.rotation = floor(self.rotation) % 360
     if self.rotation == 0 then self.rotation = 360 end
-    self.total_change = max(0, min(self.turn * 2, self.crankage)) - (self.turn_speedo.value * self.turn)
+    self.crankage_divvied = self.crankage / self.turn
+    self.total_change = (self.crankage_divvied * self.turn) - (self.turn_speedo.value * self.turn)
     -- Transform ALL the polygons!!!!1!
     self.transform:scale(self.scale.value * self.boost_x.value, self.scale.value * self.boost_y.value)
+    self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
     self.shadow:scale(self.scale_factor * self.boost_x.value, self.scale_factor * self.boost_y.value)
     self.transform:rotate(self.rotation)
+    self.crash_transform:rotate(self.rotation)
     self.shadow:rotate(self.rotation)
     self:markDirty()
 end
@@ -400,7 +397,7 @@ function boat:draw(x, y, width, height)
     gfx.fillPolygon(self.shadow:transformedPolygon(self.poly_body))
     if self.show_crash_image then
         local x, y = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(self.crash_point):unpack()
-        self.image_crash:draw(x - (self.boat_size / 6), y - (self.boat_size / 6))
+        self.image_crash:draw(x - 20, y - 20)
     end
     gfx.setColor(gfx.kColorWhite)
     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))

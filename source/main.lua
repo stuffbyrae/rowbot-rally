@@ -380,6 +380,7 @@ end
 
 import 'tutorial' -- Debug scene to change to
 import 'race'
+import 'chill'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)

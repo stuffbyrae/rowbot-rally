@@ -114,6 +114,10 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
+        self.cheat_code_chill = Tanuk_CodeSequence({pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
+            fademusic()
+            scenemanager:transitionsceneoneway(chill)
+        end, false)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.

@@ -127,7 +127,7 @@ function opening:leave()
     if not vars.leaving then
         vars.leaving = true
         fademusic(999)
-        vars.anim_fade = pd.timer.new(1000, math.floor(vars.anim_fade.value), 0)
+        vars.anim_fade = pd.timer.new(1000, math.floor(vars.anim_fade.value), 1)
         vars.anim_fade.timerEndedCallback = function()
             if vars.title then
                 scenemanager:switchscene(title)

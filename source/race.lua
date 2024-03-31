@@ -226,23 +226,21 @@ function race:init(...)
         assets.image_item = gfx.image.new('images/race/item_3')
         vars.boosts_remaining = 3
     end
+
+    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
+        assets.image_water_bg:draw(0, 0)
+    end)
     
     class('race_water').extends(gfx.sprite)
     function race_water:init()
         race_water.super.init(self)
-        self:setSize(800, 480)
+        self:setImage(assets.water[1])
         self:setIgnoresDrawOffset(true)
         self:setZIndex(-4)
         self:add()
     end
-    function race_water:draw()
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillRect(0, 0, 800, 480)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
-        gfx.fillRect(0, 0, 800, 480)
-        gfx.setColor(gfx.kColorBlack)
-        assets.water:drawImage(floor(vars.water.value), 0, 0)
+    function race_water:update()
+        self:setImage(assets.water[floor(vars.water.value)])
     end
     
     class('race_stage').extends(gfx.sprite)
@@ -255,89 +253,108 @@ function race:init(...)
     end
     function race_stage:draw()
         local x, y = gfx.getDrawOffset() -- Gimme the draw offset
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local tiles_x = vars.tiles_x
+        local tiles_y = vars.tiles_y
+        local tile_x = vars.tile_x
+        local tile_y = vars.tile_y
+        local parallax_short_amount = vars.parallax_short_amount
+        local parallax_medium_amount = vars.parallax_medium_amount
+        local parallax_long_amount = vars.parallax_long_amount
+        local parallax_tippy_amount = vars.parallax_tippy_amount
+        local stage_progress_short_x = vars.stage_progress_short_x
+        local stage_progress_short_y = vars.stage_progress_short_y
+        local stage_progress_medium_x = vars.stage_progress_medium_x
+        local stage_progress_medium_y = vars.stage_progress_medium_y
+        local stage_progress_long_x = vars.stage_progress_long_x
+        local stage_progress_long_y = vars.stage_progress_long_y
+        local stage_progress_tippy_x = vars.stage_progress_tippy_x
+        local stage_progress_tippy_y = vars.stage_progress_tippy_y
         vars.fill_polygons = {
             geo.polygon.new(
-            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (255 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1312 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (480 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1310 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1310 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)),
+            (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1312 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (255 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1312 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (480 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1310 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (480 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1310 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1312 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y)),
             geo.polygon.new(
-            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1320 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (255 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1320 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (480 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1318 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1318 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1320 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)),
+            (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1320 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (255 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1320 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (480 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1318 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (480 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1318 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1320 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y)),
             geo.polygon.new(
             259, 1458,
             262, 1558,
-            (252 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1558 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (249 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1458 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (252 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1558 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (249 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1458 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
             259, 1458),
         }
         vars.both_polygons = {
             geo.polygon.new(
             257, 1336,
             260,1436,
-            (250 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1436 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (247 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1336 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (250 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1436 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (247 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1336 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
             257, 1336),
             geo.polygon.new(
             485, 1348,
             487, 1448,
-            (497 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1448 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (495 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1348 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
+            (497 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1448 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (495 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1348 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
             485, 1348),
             geo.polygon.new(
-            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1320 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1318 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (480 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),(1310 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
-            (255 * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), (1312 * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)),
+            (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1312 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1320 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (480 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1318 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (480 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x),(1310 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
+            (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1312 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y)),
         }
         vars.draw_polygons = {
             geo.polygon.new(
-            (484 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1120 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (495 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1064 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (527 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1012 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (575 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (984 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (631 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (956 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (679 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (940 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (739 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (920 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (795 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (900 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (843 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (874 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (883 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (832 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y)),
+            (484 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1120 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (495 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1064 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (527 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1012 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (575 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (984 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (631 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (956 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (679 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (940 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (739 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (920 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (795 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (900 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (843 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (874 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (883 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (832 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
             geo.polygon.new(
-            (707 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (556 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (715 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (500 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (727 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (444 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (743 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (388 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (767 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (340 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (803 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (288 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (847 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (248 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (891 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (216 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (943 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (192 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (995 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (172 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1055 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (156 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1111 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (160 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1167 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (152 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y)),
+            (707 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (556 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (715 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (500 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (727 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (444 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (743 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (388 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (767 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (340 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (803 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (288 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (847 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (248 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (891 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (216 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (943 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (192 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (995 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (172 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1055 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (156 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1111 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (160 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1167 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (152 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
             geo.polygon.new(
-            (1455 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (920 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1455 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (972 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1459 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1024 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1451 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1076 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1423 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1116 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1375 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1144 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1315 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1160 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1259 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1172 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1207 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1192 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1163 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1220 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1135 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1272 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1127 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1324 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1127 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1380 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1135 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1436 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
-            (1127 * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), (1488 * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y)),
+            (1455 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (920 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1455 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (972 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1459 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1024 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1451 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1076 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1423 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1116 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1375 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1144 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1315 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1160 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1259 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1172 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1207 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1192 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1163 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1220 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1135 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1272 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1324 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1380 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1135 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1436 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
+            (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1488 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
         }
+
         -- gfx.setColor(gfx.kColorWhite)
         -- gfx.setDitherPattern(vars.edges.value, gfx.image.kDitherTypeBayer4x4)
         -- for i = 1, #vars.edges_polygons do
@@ -345,121 +362,180 @@ function race:init(...)
         --     gfx.drawPolygon(vars.edges_polygons[i])
         -- end
         -- gfx.setColor(gfx.kColorBlack)
-        for i = 1, vars.tiles_x * vars.tiles_y do
-            local draw_x = ((i-1) % vars.tiles_x)
-            local draw_y = ceil(i / vars.tiles_y) - 1
-            if max(-x-vars.tile_x, min(-x+400, vars.tile_x * draw_x)) == vars.tile_x * draw_x then
-                if max(-y-vars.tile_y, min(-y+240, vars.tile_y * draw_y)) == vars.tile_y * draw_y then
-                    assets.image_stage[i]:draw(vars.tile_x * draw_x, vars.tile_y * draw_y)
+
+        local image_stage
+        local draw_x
+        local draw_y
+        local calc_x
+        local calc_y
+        for i = 1, tiles_x * tiles_y do
+            draw_x = ((i-1) % tiles_x)
+            draw_y = ceil(i / tiles_y) - 1
+            calc_x = tile_x * draw_x
+            calc_y = tile_y * draw_y
+            if calc_x > -x-tile_x and calc_x < -x+400 then
+                if calc_y > -y-tile_y and calc_y < -y+240 then
+                    image_stage = assets.image_stage[i]
+                    image_stage:draw(calc_x, calc_y)
                     -- gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
                     -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    -- assets.image_stage[i]:draw(vars.tile_x * draw_x, vars.tile_y * draw_y)
+                    -- image_stage:draw(calc_x, calc_y)
                     -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
                     -- gfx.clearStencil()
                 end
             end
         end
+
+        local audience_x
+        local audience_y
+        local audience_rand
+        local tightened_rand
+        local audience = assets.audience
         for i = 1, #vars.audience_x do
-            print('test ' .. vars.audience_rand[i])
-            if max(-x-10, min(-x+410, vars.audience_x[i])) == vars.audience_x[i] then
-                if max(-y-10, min(-y+250, vars.audience_y[i])) == vars.audience_y[i] then
-                    assets.audience:drawImage(
-                        vars.audience_rand[i],
-                        (vars.audience_x[i] - 25) * vars.parallax_short_amount + (vars.stage_x * -vars.stage_progress_short_x),
-                        (vars.audience_y[i] - 25) * vars.parallax_short_amount + (vars.stage_y * -vars.stage_progress_short_y) + vars['audience_' .. (vars.audience_rand[i] % 3) + 1].value)
-                end
+            audience_x = vars.audience_x[i]
+            audience_y = vars.audience_y[i]
+            audience_rand = vars.audience_rand[i]
+            tightened_rand = (audience_rand % 3) + 1
+            if audience_x > -x-10 and audience_x < -x+410 then
+                if audience_y > -y-10 and audience_y < -y+250 then
+                    audience[audience_rand]:draw(
+                        (audience_x - 25) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                        (audience_y - 25) * parallax_short_amount + (stage_y * -stage_progress_short_y))
+                    end
             end
         end
+
+        local bushes_x
+        local bushes_y
+        local bushes_rand
+        local bushes = assets.bushes
+        local bushtops = assets.bushtops
         for i = 1, #vars.bushes_x do
-            if max(-x-40, min(-x+440, vars.bushes_x[i])) == vars.bushes_x[i] then
-                if max(-y-40, min(-y+280, vars.bushes_y[i])) == vars.bushes_y[i] then
-                    assets.bushes:drawImage(
-                        vars.bushes_rand[i],
-                        (vars.bushes_x[i] - 41),
-                        (vars.bushes_y[i] - 39))
-                    assets.bushtops:drawImage(
-                        vars.bushes_rand[i],
-                        (vars.bushes_x[i] - 41) * vars.parallax_short_amount + (vars.stage_x * -vars.stage_progress_short_x),
-                        (vars.bushes_y[i] - 39) * vars.parallax_short_amount + (vars.stage_y * -vars.stage_progress_short_y))
+            bushes_x = vars.bushes_x[i]
+            bushes_y = vars.bushes_y[i]
+            bushes_rand = vars.bushes_rand[i]
+            if bushes_x > -x-40 and bushes_x < -x+440 then
+                if bushes_y > -y-40 and bushes_y < -y+280 then
+                    bushes:drawImage(
+                        bushes_rand,
+                        (bushes_x - 41),
+                        (bushes_y - 39))
+                    bushtops:drawImage(
+                        bushes_rand,
+                        (bushes_x - 41) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                        (bushes_y - 39) * parallax_short_amount + (stage_y * -stage_progress_short_y))
                     -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
                     -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    -- assets.bushes:drawImage(
-                    --     vars.bushes_rand[i],
-                    --     (vars.bushes_x[i] - 41),
-                    --     (vars.bushes_y[i] - 39))
+                    -- bushes:drawImage(
+                    --     bushes_rand,
+                    --     (bushes_x - 41),
+                    --     (bushes_y - 39))
                     -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
                     -- gfx.clearStencil()
                 end
             end
         end
+
         gfx.setLineWidth(5)
+
+        local draw_polygons
         for i = 1, #vars.draw_polygons do
-            gfx.drawPolygon(vars.draw_polygons[i])
+            draw_polygons = vars.draw_polygons[i]
+            gfx.drawPolygon(draw_polygons)
         end
+
         gfx.setLineWidth(18) -- Make the lines phat
+
+        local poles_short_x
+        local poles_short_y
+        local image_pole_cap = assets.image_pole_cap
         for i = 1, #vars.poles_short_x do -- For every short pole,
+            poles_short_x = vars.poles_short_x[i]
+            poles_short_y = vars.poles_short_y[i]
             -- Draw it from the base point to the short parallax point
-            if max(-x-10, min(-x+410, vars.poles_short_x[i])) == vars.poles_short_x[i] then
-                if max(-y-10, min(-y+250, vars.poles_short_y[i])) == vars.poles_short_y[i] then
+            if poles_short_x > -x-10 and poles_short_x < -x+410 then
+                if poles_short_y > -y-10 and poles_short_y < -y+250 then
                     gfx.drawLine(
-                        vars.poles_short_x[i],
-                        vars.poles_short_y[i],
-                        (vars.poles_short_x[i] * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x),
-                        (vars.poles_short_y[i] * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y))
-                    assets.image_pole_cap:draw(
-                        (vars.poles_short_x[i] - 6) * vars.parallax_short_amount + (vars.stage_x * -vars.stage_progress_short_x),
-                        (vars.poles_short_y[i] - 6) * vars.parallax_short_amount + (vars.stage_y * -vars.stage_progress_short_y))
+                        poles_short_x,
+                        poles_short_y,
+                        (poles_short_x * parallax_short_amount) + (stage_x * -stage_progress_short_x),
+                        (poles_short_y * parallax_short_amount) + (stage_y * -stage_progress_short_y))
+                    image_pole_cap:draw(
+                        (poles_short_x - 6) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                        (poles_short_y - 6) * parallax_short_amount + (stage_y * -stage_progress_short_y))
                 end
             end
         end
+
         -- Draw the medium poles too
+        local poles_medium_x
+        local poles_medium_y
         for i = 1, #vars.poles_medium_x do
-            if max(-x-10, min(-x+410, vars.poles_medium_x[i])) == vars.poles_medium_x[i] then
-                if max(-y-10, min(-y+250, vars.poles_medium_y[i])) == vars.poles_medium_y[i] then
+            poles_medium_x = vars.poles_medium_x[i]
+            poles_medium_y = vars.poles_medium_y[i]
+            if poles_medium_x > -x-10 and poles_medium_x < -x+410 then
+                if poles_medium_y > -y-10 and poles_medium_y < -y+250 then
                     gfx.drawLine(
-                        vars.poles_medium_x[i],
-                        vars.poles_medium_y[i],
-                        (vars.poles_medium_x[i] * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x),
-                        (vars.poles_medium_y[i] * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y))
-                    assets.image_pole_cap:draw(
-                        (vars.poles_medium_x[i] - 6) * vars.parallax_medium_amount + (vars.stage_x * -vars.stage_progress_medium_x),
-                        (vars.poles_medium_y[i] - 6) * vars.parallax_medium_amount + (vars.stage_y * -vars.stage_progress_medium_y))
+                        poles_medium_x,
+                        poles_medium_y,
+                        (poles_medium_x * parallax_medium_amount) + (stage_x * -stage_progress_medium_x),
+                        (poles_medium_y * parallax_medium_amount) + (stage_y * -stage_progress_medium_y))
+                    image_pole_cap:draw(
+                        (poles_medium_x - 6) * parallax_medium_amount + (stage_x * -stage_progress_medium_x),
+                        (poles_medium_y - 6) * parallax_medium_amount + (stage_y * -stage_progress_medium_y))
                 end
             end
         end
+
         gfx.setLineWidth(2) -- Set the line width back
+
+        local fill_polygons
         for i = 1, #vars.fill_polygons do
-            gfx.fillPolygon(vars.fill_polygons[i])
+            fill_polygons = vars.fill_polygons[i]
+            gfx.fillPolygon(fill_polygons)
         end
+        local both_polygons
         gfx.setColor(gfx.kColorWhite)
         for i = 1, #vars.both_polygons do
-            gfx.fillPolygon(vars.both_polygons[i])
+            both_polygons = vars.both_polygons[i]
+            gfx.fillPolygon(both_polygons)
         end
         gfx.setColor(gfx.kColorBlack)
         for i = 1, #vars.both_polygons do
-            gfx.drawPolygon(vars.both_polygons[i])
+            both_polygons = vars.both_polygons[i]
+            gfx.drawPolygon(both_polygons)
         end
+
+        local trees_x
+        local trees_y
+        local trees_rand
+        local trunks = assets.trunks
+        local trees = assets.trees
+        local treetops = assets.treetops
         for i = 1, #vars.trees_x do
-            if max(-x-45, min(-x+445, vars.trees_x[i])) == vars.trees_x[i] then
-                if max(-y-45, min(-y+285, vars.trees_y[i])) == vars.trees_y[i] then
-                    assets.trunks:drawImage(
-                        vars.trees_rand[i],
-                        (vars.trees_x[i] - 66),
-                        (vars.trees_y[i] - 66))
-                    assets.trees:drawImage(
-                        vars.trees_rand[i],
-                        (vars.trees_x[i] - 66) * vars.parallax_long_amount + (vars.stage_x * -vars.stage_progress_long_x),
-                        (vars.trees_y[i] - 66) * vars.parallax_long_amount + (vars.stage_y * -vars.stage_progress_long_y))
-                    assets.treetops:drawImage(
-                        vars.trees_rand[i],
-                        (vars.trees_x[i] - 66) * vars.parallax_tippy_amount + (vars.stage_x * -vars.stage_progress_tippy_x),
-                        (vars.trees_y[i] - 66) * vars.parallax_tippy_amount + (vars.stage_y * -vars.stage_progress_tippy_y))
+            trees_x = vars.trees_x[i]
+            trees_y = vars.trees_y[i]
+            trees_rand = vars.trees_rand[i]
+            if trees_x > -x-45 and trees_x < -x+445 then
+                if trees_y > -y-45 and trees_y < -y+285 then
+                    trunks:drawImage(
+                        trees_rand,
+                        (trees_x - 66),
+                        (trees_y - 66))
+                    trees:drawImage(
+                        trees_rand,
+                        (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
+                        (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
+                    treetops:drawImage(
+                        trees_rand,
+                        (trees_x - 66) * parallax_tippy_amount + (stage_x * -stage_progress_tippy_x),
+                        (trees_y - 66) * parallax_tippy_amount + (stage_y * -stage_progress_tippy_y))
                     -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
                     -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    -- assets.trees:drawImage(
-                    --     vars.trees_rand[i],
-                    --     (vars.trees_x[i] - 66) * vars.parallax_long_amount + (vars.stage_x * -vars.stage_progress_long_x),
-                    --     (vars.trees_y[i] - 66) * vars.parallax_long_amount + (vars.stage_y * -vars.stage_progress_long_y))
+                    -- trees:drawImage(
+                    --     trees_rand,
+                    --     (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
+                    --     (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
                     -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
                     -- gfx.clearStencil()
                 end
@@ -487,10 +563,10 @@ function race:init(...)
         if vars.anim_overlay ~= nil then
             if vars.finished or not vars.started then
                 gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-                assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
+                assets['overlay_' .. vars.overlay][floor(vars.anim_overlay.value)]:draw(0, 0)
                 gfx.setImageDrawMode(gfx.kDrawModeCopy)
             else
-                assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
+                assets['overlay_' .. vars.overlay][floor(vars.anim_overlay.value)]:draw(0, 0)
             end
         end
         -- Draw the timer
@@ -504,8 +580,8 @@ function race:init(...)
             assets.image_item:draw(313 - vars.anim_hud.value, 0)
         end
         -- Draw the power meter
-        assets.image_meter_r:drawImage(floor((vars.rowbot * 15)) + 1, 0, 177 - vars.anim_hud.value)
-        assets.image_meter_p:drawImage(floor(max(3, min(32, 32 - vars.player * 2.2))) + 1, 200, 177 - vars.anim_hud.value)
+        assets.image_meter_r:drawImage(floor((vars.rowbot * 14.5)) + 1, 0, 177 - vars.anim_hud.value)
+        assets.image_meter_p:drawImage(min(30, max(1, 30 - floor(vars.player * 14.5))), 200, 177 - vars.anim_hud.value)
     end
 
     -- Little debug dot, representing the middle of the screen.
@@ -652,11 +728,10 @@ function race:update()
         gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120) -- Move the camera to wherever the debug dot is.
     else
         vars.rowbot = self.boat.turn_speedo.value
-        vars.player = self.boat.crankage
-        -- self.hud:moveTo((math.clamp(vars.player, 0, self.boat.turn * 2) - (vars.rowbot * self.boat.turn)) * 10, 0)
+        vars.player = self.boat.crankage_divvied
+        self:timecalc(vars.current_time) -- Calc this thing out for the timer
         if vars.in_progress then -- If the race is happenin', then
             vars.current_time += 1 -- Up that timer, babyyyyyyyyy!
-            self:timecalc(vars.current_time) -- Calc this thing out for the timer
             if vars.current_time == 17970 then -- If you pass 9:59.00 in game-time,
                 self:finish(true) -- YOU'RE OUT!!
             end
@@ -700,7 +775,7 @@ function race:update()
                 vars.last_checkpoint = tag
             end
         end
-        self.boat:collision_check(assets.image_stagec, 0, 0)
+        self.boat:collision_check(vars.edges_polygons, assets.image_stagec, 0, 0)
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
             self:finish(true, 400) -- end the race. Ouch.
         end

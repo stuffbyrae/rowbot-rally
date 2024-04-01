@@ -25,6 +25,14 @@ function chill:init(...)
         end)
         setpauseimage(0) -- TODO: Set this X offset
     end
+
+    function pd.gameWillResume()
+        self:checktime()
+    end
+
+    function pd.deviceDidUnlock()
+        self:checktime()
+    end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         bg = gfx.imagetable.new('images/story/chill-bg'),
@@ -43,7 +51,7 @@ function chill:init(...)
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_boat_y = pd.timer.new(2500, 175, 180, pd.easingFunctions.inOutCubic),
         bg_image = 1,
-        transitioning = true,
+        leaving = false,
         anim_fade = pd.timer.new(1000, 1, 34, pd.easingFunctions.outCubic),
     }
     vars.chillHandlers = {
@@ -52,10 +60,6 @@ function chill:init(...)
         end
     }
     pd.inputHandlers.push(vars.chillHandlers)
-
-    pd.timer.performAfterDelay(1000, function()
-        vars.transitioning = false
-    end)
 
     vars.anim_wave_x.repeats = true
     vars.anim_boat_y.repeats = true
@@ -145,9 +149,9 @@ function chill:checktime()
 end
 
 function chill:leave()
-    if not vars.transitioning then
-        vars.transitioning = true
-        vars.anim_fade = pd.timer.new(1000, 34, 1),
+    if not vars.leaving then
+        vars.leaving = true
+        vars.anim_fade = pd.timer.new(1000, math.floor(vars.anim_fade.value), 1),
         fademusic(999)
         vars.anim_fade.timerEndedCallback = function()
             pd.setAutoLockDisabled(false)

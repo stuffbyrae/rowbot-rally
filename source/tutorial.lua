@@ -241,7 +241,7 @@ function tutorial:leave()
     save['slot' .. save.current_story_slot .. '_progress'] = "cutscene2"
     self.boat.sfx_row:stop()
     fademusic(999)
-    vars.anim_overlay = pd.timer.new(1000, #assets.overlay_fade, 1)
+    vars.anim_overlay = pd.timer.new(1000, math.floor(vars.anim_overlay.value), 1)
     self.boat:state(false, false, false)
     self.boat:finish(false)
     pd.timer.performAfterDelay(1000, function()

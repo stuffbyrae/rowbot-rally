@@ -26,7 +26,7 @@ function options:init(...)
             save.pro_ui = false
             newmusic('audio/music/title', true, 1.1)
             self:sfx_change()
-            self:draw_main_image()
+            gfx.sprite.redrawBackground()
         end)
         menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function()
             if not vars.transitioning then
@@ -123,7 +123,7 @@ function options:init(...)
                     assets.sfx_clickon:play()
                 end
             end
-            self:draw_main_image()
+            gfx.sprite.redrawBackground()
         end,
 
         upButtonDown = function()
@@ -155,15 +155,46 @@ function options:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
-    end)
+        assets.image_popup_small:draw(192, 26)
+        if vars.selection >= 3 then vars.offset = 2 else vars.offset = 1 end
+        gfx.fillRect(0, 5 + 15 * vars.selection + 10 * vars.offset, 5, 15)
 
-    class('options_main').extends(gfx.sprite)
-    function options_main:init()
-        options_main.super.init(self)
-        self:setCenter(0, 0)
-        self:setZIndex(0)
-        self:add()
-    end
+        assets.pedallica:drawText(gfx.getLocalizedText('music_name'), 10, 30)
+        assets.pedallica:drawText(gfx.getLocalizedText('sfx_name'), 10, 45)
+
+        assets.pedallica:drawText(gfx.getLocalizedText('button_controls_name'), 10, 70)
+        assets.pedallica:drawText(gfx.getLocalizedText('sensitivity_name'), 10, 85)
+        assets.pedallica:drawText(gfx.getLocalizedText('ui_name'), 10, 100)
+
+        if save.vol_music > 0 then
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 30, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 30, kTextAlignment.right)
+        end
+        if save.vol_sfx > 0 then
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 45, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 45, kTextAlignment.right)
+        end
+        
+        if save.button_controls then
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 70, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 70, kTextAlignment.right)
+        end
+        if save.sensitivity < 3 then
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 85, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 85, kTextAlignment.right)
+        end
+        if save.pro_ui then
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 100, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 100, kTextAlignment.right)
+        end
+
+        assets.pedallica:drawText(gfx.getLocalizedText(vars.item_list[vars.selection] .. '_desc'), 213, 48)
+    end)
 
     class('options_ticker').extends(gfx.sprite)
     function options_ticker:init()
@@ -217,14 +248,11 @@ function options:init(...)
     end
 
     -- Set the sprites
-    self.main = options_main()
     self.ticker = options_ticker()
     self.wave = options_wave()
     self.back = options_back()
     self.gear = options_gear()
     self:add()
-
-    self:draw_main_image()
 end
 
 -- This needs to be its own function, because this is the only scene where these SFX can change volumes dynamically (depending on option change.)
@@ -233,53 +261,6 @@ function options:sfx_change()
     assets.sfx_menu:setVolume(save.vol_sfx/5)
     assets.sfx_clickon:setVolume(save.vol_sfx/5)
     assets.sfx_clickoff:setVolume(save.vol_sfx/5)
-end
-
--- Writing in the main stats image; wrapped inside a function so this can be refreshed if necessary.
-function options:draw_main_image()
-    assets.image_main = gfx.image.new(400, 240, gfx.kColorWhite)
-    gfx.pushContext(assets.image_main)
-        assets.image_popup_small:draw(192, 26)
-        if vars.selection >= 3 then vars.offset = 2 else vars.offset = 1 end
-        gfx.fillRect(0, 5 + 15 * vars.selection + 10 * vars.offset, 5, 15)
-
-        assets.pedallica:drawText(gfx.getLocalizedText('music_name'), 10, 30)
-        assets.pedallica:drawText(gfx.getLocalizedText('sfx_name'), 10, 45)
-
-        assets.pedallica:drawText(gfx.getLocalizedText('button_controls_name'), 10, 70)
-        assets.pedallica:drawText(gfx.getLocalizedText('sensitivity_name'), 10, 85)
-        assets.pedallica:drawText(gfx.getLocalizedText('ui_name'), 10, 100)
-
-        if save.vol_music > 0 then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 30, kTextAlignment.right)
-        else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 30, kTextAlignment.right)
-        end
-        if save.vol_sfx > 0 then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 45, kTextAlignment.right)
-        else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 45, kTextAlignment.right)
-        end
-        
-        if save.button_controls then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 70, kTextAlignment.right)
-        else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 70, kTextAlignment.right)
-        end
-        if save.sensitivity < 3 then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 85, kTextAlignment.right)
-        else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 85, kTextAlignment.right)
-        end
-        if save.pro_ui then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 100, kTextAlignment.right)
-        else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 100, kTextAlignment.right)
-        end
-
-        assets.pedallica:drawText(gfx.getLocalizedText(vars.item_list[vars.selection] .. '_desc'), 213, 48)
-    gfx.popContext()
-    self.main:setImage(assets.image_main)
 end
 
 -- Select a new stage using the arrow keys. dir is a boolean — left is false, right is true
@@ -296,7 +277,7 @@ function options:newselection(dir)
         shakies()
     else
         assets.sfx_menu:play()
-        self:draw_main_image()
+        gfx.sprite.redrawBackground()
     end
 end
 

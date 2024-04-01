@@ -22,7 +22,6 @@ local geo <const> = pd.geometry
 pd.display.setRefreshRate(30)
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
-gfx.setPolygonFillRule(gfx.kPolygonFillEvenOdd)
 gfx.setLineWidth(2)
 
 -- Game variables
@@ -131,6 +130,7 @@ function savecheck()
     save.total_playtime = save.total_playtime or 0
     save.total_degrees_cranked = save.total_degrees_cranked or 0
     if save.metric == nil then save.metric = true end
+    if save.seen_chill == nil then save.seen_chill = false end
 end
 
 -- ... now we run that!
@@ -166,6 +166,10 @@ function pd.gameWillTerminate()
             pd.display.flush()
         end
     end
+end
+
+function pd.deviceWillSleep()
+    savegame()
 end
 
 -- Setting up music
@@ -323,26 +327,19 @@ end
 
 -- This function makes the pause image.
 -- 'xoffset' is a number that determines the x offset. naturally
+rowtip_oracle = 4
 function setpauseimage(xoffset)
     local pauseimage = gfx.image.new(400, 240)
-    if save.stages_unlocked == 7 then -- If the game's beaten,
-        rowtip_oracle = math.random(1, 16) -- Show this many. Please refer to en.strings.
-    elseif save.stages_unlocked >= 1 then -- If the time trials are unlocked only,
-        rowtip_oracle = math.random(1, 13) -- Show this many. Please refer to en.strings.
-    else -- If you're starting from pretty much scratch,
-        rowtip_oracle = math.random(1, 7) -- Show this many. Please refer to en.strings.
-    end
     gfx.pushContext(pauseimage)
         gfx.fillRect(0, 0, 400, 40)
-        gfx.fillRoundRect(10 + xoffset, 120, 180, 110, 10)
+        gfx.fillRoundRect(10 + xoffset, 100, 180, 130, 10)
         gfx.setColor(gfx.kColorWhite)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawRoundRect(10 + xoffset, 120, 180, 110, 10)
+        gfx.drawRoundRect(10 + xoffset, 100, 180, 130, 10)
         kapel_doubleup:drawText(gfx.getLocalizedText('paused'), 10 + xoffset, 5)
-        pedallica:drawText(gfx.getLocalizedText('rowtip' .. rowtip_oracle), 19 + xoffset, 131)
+        pedallica:drawText(gfx.getLocalizedText('rowtip' .. rowtip_oracle), 19 + xoffset, 111)
     gfx.popContext()
     pd.setMenuImage(pauseimage, xoffset)
-    rowtip_oracle = nil -- Nil!
 end
 
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds

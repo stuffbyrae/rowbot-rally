@@ -15,7 +15,7 @@ local cos = {0.9998477, 0.9993908, 0.9986295, 0.9975641, 0.9961947, 0.9945219, 0
 
 -- Bote!
 class('boat').extends(gfx.sprite)
-function boat:init(x, y, race, stage_x, stage_y)
+function boat:init(x, y, race, stage_x, stage_y, crash_polygons, crash_image)
     boat.super.init(self)
 
     self.race = race
@@ -32,6 +32,8 @@ function boat:init(x, y, race, stage_x, stage_y)
     self.ripple = geo.affineTransform.new()
 
     self.image_crash = gfx.image.new('images/race/crash')
+    self.crash_polygons = crash_polygons
+    self.crash_image = crash_image
 
     -- Boat sound effects
     self.sfx_rowboton = smp.new('audio/sfx/rowboton')
@@ -117,10 +119,12 @@ function boat:init(x, y, race, stage_x, stage_y)
     self.rotation = 360
     self.crankage = 0
     self.crashes = 0
+    self.collision_size = 80 * self.scale_factor
 
     -- Final sprite stuff
     self:moveTo(x, y)
-    self:setnewsize(150)
+    self:setnewsize(120)
+    self:setCollideRect((self.boat_size - self.collision_size) / 2, (self.boat_size - self.collision_size) / 2, self.collision_size, self.collision_size)
     self:setZIndex(0)
     self:add()
 end
@@ -128,7 +132,6 @@ end
 function boat:setnewsize(size)
     self.boat_size = size * self.scale_factor
     self:setSize(self.boat_size, self.boat_size)
-    self:setCollideRect(0, 0, self.boat_size, self.boat_size)
 end
 
 -- Changes the boat's state. Make sure to call start and finish alongside if you're changing move state!
@@ -183,27 +186,26 @@ function boat:finish(peelout, duration) -- Disable peelout in tutorial!
     end
 end
 
-function boat:collision_check(polygons, image, x, y)
-    if self.crashable then
-        self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
-        for i = 1, #polygons do
-            if self.crash_body_scale:intersects(polygons[i]) then
-                local points_collided = {}
-                self.crash_body = self.crash_transform:transformedPolygon(self.poly_body_crash)
-                for i = 1, self.poly_body_crash:count() do
-                    local transformed_point = self.crash_body:getPointAt(i)
-                    local point_x, point_y = transformed_point:unpack()
-                    local moved_x = (point_x + self.x) - x
-                    local moved_y = (point_y + self.y) - y
-                    if image:sample(moved_x, moved_y) == gfx.kColorBlack then
-                        self:crash(point_x, point_y)
-                        self.crash_point = i
-                        -- TODO: re-add dentable code...somehow.
-                        table.insert(points_collided, i)
-                    end
-                    if #points_collided == self.poly_body_crash:count() then
-                        self.beached = true
-                    end
+function boat:collision_check(polygons, image)
+    self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
+    -- self.crash_body_scale:translate(self.x, self.y)
+    for i = 1, #polygons do
+        if self.crash_body_scale:intersects(polygons[i]) then
+            local points_collided = {}
+            self.crash_body = self.crash_transform:transformedPolygon(self.poly_body)
+            for i = 1, self.poly_body:count() do
+                local transformed_point = self.crash_body:getPointAt(i)
+                local point_x, point_y = transformed_point:unpack()
+                local moved_x = (point_x + self.x)
+                local moved_y = (point_y + self.y)
+                if image:sample(moved_x, moved_y) == gfx.kColorBlack then
+                    self:crash(point_x, point_y)
+                    self.crash_point = i
+                    -- TODO: re-add dentable code...somehow.
+                    table.insert(points_collided, i)
+                end
+                if #points_collided == self.poly_body:count() then
+                    self.beached = true
                 end
             end
         end
@@ -285,16 +287,16 @@ function boat:leap()
         self.scale.reverses = true
         self.scale.reverseEasingFunction = pd.easingFunctions.inCubic
         pd.timer.performAfterDelay(1400, function()
-            self.leaping = false
             self.sfx_splash:play()
             -- Bounce-back animation
             self.scale = pd.timer.new(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
             -- Re-set boat size
-            self:setnewsize(150)
+            self:setnewsize(120)
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
                 self.scale = pd.timer.new(2500, self.scale_factor, self.scale_factor * 1.1)
+                self.leaping = false
             end)
         end)
     end
@@ -329,9 +331,9 @@ function boat:update()
             end
         elseif save.button_controls or pd.isSimulator == 1 then
             if self.right then
-                self.crankage = self.turn * 2
+                self.crankage = self.turn * (self.turn_speedo.value * 2)
             elseif self.straight then
-                self.crankage = self.turn
+                self.crankage = self.turn * self.turn_speedo.value
             else
                 self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
             end
@@ -374,6 +376,7 @@ function boat:update()
     self.transform:rotate(self.rotation)
     self.crash_transform:rotate(self.rotation)
     self.shadow:rotate(self.rotation)
+    if self.crashable then self:collision_check(self.crash_polygons, self.crash_image) end
     self:markDirty()
 end
 
@@ -395,8 +398,8 @@ function boat:draw(x, y, width, height)
     self.transform:translate(cos[self.rotation] * (self.total_change * (self.scale_factor * 0.75)), sin[self.rotation] * (self.total_change * (self.scale_factor * 0.75)))
     gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
     gfx.fillPolygon(self.shadow:transformedPolygon(self.poly_body))
-    if self.show_crash_image then
-        local x, y = self.transform:transformedPolygon(self.poly_body_crash):getPointAt(self.crash_point):unpack()
+    if self.show_crash_image and not enabled_cheats then
+        local x, y = self.transform:transformedPolygon(self.poly_body):getPointAt(self.crash_point):unpack()
         self.image_crash:draw(x - 20, y - 20)
     end
     gfx.setColor(gfx.kColorWhite)
@@ -440,10 +443,5 @@ function boat:draw(x, y, width, height)
     gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * self.scale.value)
     gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * self.scale.value)
     gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * self.scale.value)
-    -- if self.crashed and not pd.getReduceFlashing() then
-    --     gfx.setColor(gfx.kColorWhite)
-    --     gfx.setDitherPattern((self.move_speedo.value * -1) + 1.5 , gfx.image.kDitherTypeBayer4x4)
-    --     gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
-    -- end
     gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
 end

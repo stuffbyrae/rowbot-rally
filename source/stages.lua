@@ -359,14 +359,7 @@ function stages:leaderboardsin()
                 gfx.pushContext(assets.image_lb_text)
                 for _, v in ipairs(result.scores) do
                     mins, secs, mils = timecalc(v.value)
-                    if string.len(v.player) == 16 and tonumber(v.player) then -- If there's a player with a default username,
-                        -- Assign them a random one.
-                        vars.random = math.random(1, 12)
-                        assets.kapel:drawText(gfx.getLocalizedText('anon_' .. vars.random), 12, (26 * v.rank) - 22)
-                    else
-                        -- Otherwise, just draw their username. Duh!
-                        assets.kapel:drawText(v.player, 12, (26 * v.rank) - 22)
-                    end
+                    assets.kapel:drawText(v.player, 12, (26 * v.rank) - 22)
                     assets.kapel:drawTextAligned(ordinal(v.rank), 185, (26 * v.rank) - 22, kTextAlignment.right)
                     assets.pedallica:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 185, (26 * v.rank) - 12, kTextAlignment.right)
                     mins = nil

@@ -30,6 +30,15 @@ function title:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        if save.seen_chill then
+            menu:addMenuItem(gfx.getLocalizedText('chillmode'), function()
+                fademusic()
+                scenemanager:transitionsceneoneway(chill)
+            end)
+        end
+        menu:addMenuItem(gfx.getLocalizedText('options'), function()
+            scenemanager:transitionsceneoneway(options)
+        end)
         setpauseimage(200)
     end
 
@@ -116,6 +125,7 @@ function title:init(...)
         end, false)
         self.cheat_code_chill = Tanuk_CodeSequence({pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
             fademusic()
+            save.seen_chill = true
             scenemanager:transitionsceneoneway(chill)
         end, false)
     end
@@ -485,9 +495,9 @@ function title:newselection(dir)
             vars.list_open = false
             assets.sfx_menu:play()
             if dir then
-                vars.anim_item = pd.timer.new(200, 200, -200, pd.easingFunctions.inBack)
+                vars.anim_item = pd.timer.new(150, 200, -200, pd.easingFunctions.inCubic)
             else
-                vars.anim_item = pd.timer.new(200, 200, 600, pd.easingFunctions.inBack)
+                vars.anim_item = pd.timer.new(150, 200, 600, pd.easingFunctions.inCubic)
             end
             vars.anim_item.timerEndedCallback = function()
                 if vars.selection == 1 and demo then -- Bring in the demo text if necessary
@@ -497,9 +507,9 @@ function title:newselection(dir)
                 end
                 self.item:setImage(assets.image_item:scaledImage(2))
                 if dir then
-                    vars.anim_item = pd.timer.new(200, 600, 200, pd.easingFunctions.outCubic)
+                    vars.anim_item = pd.timer.new(150, 600, 200, pd.easingFunctions.outBack)
                 else
-                    vars.anim_item = pd.timer.new(200, -200, 200, pd.easingFunctions.outCubic)
+                    vars.anim_item = pd.timer.new(150, -200, 200, pd.easingFunctions.outBack)
                 end
                 vars.anim_item.timerEndedCallback = function()
                     vars.list_open = true

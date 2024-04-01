@@ -57,6 +57,7 @@ function race:init(...)
         bushtops = gfx.imagetable.new('images/race/stages/bushtop'),
         audience = gfx.imagetable.new('images/race/stages/audience'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
+        kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
         overlay_boost = gfx.imagetable.new('images/race/boost'),
         overlay_fade = gfx.imagetable.new('images/ui/fade/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
@@ -64,6 +65,7 @@ function race:init(...)
         sfx_start = smp.new('audio/sfx/start'),
         sfx_finish = smp.new('audio/sfx/finish'),
         sfx_ref = smp.new('audio/sfx/ref'),
+        sfx_final = smp.new('audio/sfx/final'),
         image_meter_r = gfx.imagetable.new('images/race/meter/meter_r'),
         image_meter_p = gfx.imagetable.new('images/race/meter/meter_p'),
     }
@@ -71,6 +73,7 @@ function race:init(...)
     assets.sfx_start:setVolume(save.vol_sfx/5)
     assets.sfx_finish:setVolume(save.vol_sfx/5)
     assets.sfx_ref:setVolume(save.vol_sfx/5)
+    assets.sfx_final:setVolume(save.vol_sfx/5)
    
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
@@ -91,6 +94,8 @@ function race:init(...)
         audience_1 = pd.timer.new(5000, 10, -10),
         audience_2 = pd.timer.new(15000, 10, -10),
         audience_3 = pd.timer.new(25000, 10, -10),
+        lap_string = gfx.getLocalizedText('lap1'),
+        anim_lap_string = pd.timer.new(0, -30, -30),
     }
     vars.water.repeats = true
     vars.edges.repeats = true
@@ -154,7 +159,7 @@ function race:init(...)
         vars.boat_y = 1400
         vars.laps = 3 -- How many laps...
         -- The checkpointzzzzz™
-        vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1285, 200, 20)
+        vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1290, 200, 20)
         vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(725, 530, 225, 20)
         vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(1465, 815, 200, 20)
         vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(730, 1620, 20, 200)
@@ -192,7 +197,7 @@ function race:init(...)
             table.insert(vars.audience_rand, random(1, #assets.audience))
         end
         vars.edges_polygons = {
-            geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 270, 1315, 265, 1130, 265, 1095, 270, 1040, 275, 1030, 285, 990, 290, 970, 295, 945, 305, 925, 310, 910, 325, 885, 355, 850, 405, 805, 445, 780, 480, 765, 520, 750, 585, 725, 630, 710, 670, 685, 705, 655, 715, 635, 720, 580, 730, 515, 730, 500, 735, 470, 740, 450, 745, 420, 755, 400, 765, 365, 805, 310, 825, 285, 850, 260, 870, 245, 905, 225, 920, 215, 965, 200, 1035, 180, 1095, 170, 1160, 165, 1280, 165, 1350, 170, 1390, 175, 1415, 180, 1430, 180, 1470, 190, 1525, 200, 1580, 220, 1615, 235, 1655, 250, 1690, 280, 1715, 305, 1740, 330, 1755, 360, 1770, 395, 1780, 425, 1785, 480, 1780, 530, 1770, 570, 1755, 600, 1735, 640, 1705, 685, 1685, 725, 1665, 785, 1660, 835, 1665, 925, 1670, 1020, 1675, 1060, 1675, 1140, 1670, 1190, 1660, 1220, 1630, 1270, 1590, 1315, 1550, 1340, 1515, 1355, 1475, 1360, 1440, 1370, 1405, 1375, 1375, 1395, 1365, 1420, 1360, 1460, 1360, 1545, 1355, 1580, 1345, 1610, 1330, 1640, 1315, 1660, 1280, 1695, 1240, 1725, 1195, 1745, 1115, 1770, 1010, 1790, 930, 1800, 845, 1805, 670, 1805, 585, 1805, 520, 1790, 460, 1770, 405, 1745, 370, 1720, 335, 1685, 315, 1655, 295, 1615, 285, 1570, 275, 1490, 270, 1395, 270, 1315, 0, vars.stage_x, 0, 0),
+            geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 0, 0, 270, 1315, 265, 1130, 265, 1095, 270, 1040, 275, 1030, 285, 990, 290, 970, 295, 945, 305, 925, 310, 910, 325, 885, 355, 850, 405, 805, 445, 780, 480, 765, 520, 750, 585, 725, 630, 710, 670, 685, 705, 655, 715, 635, 720, 580, 730, 515, 730, 500, 735, 470, 740, 450, 745, 420, 755, 400, 765, 365, 805, 310, 825, 285, 850, 260, 870, 245, 905, 225, 920, 215, 965, 200, 1035, 180, 1095, 170, 1160, 165, 1280, 165, 1350, 170, 1390, 175, 1415, 180, 1430, 180, 1470, 190, 1525, 200, 1580, 220, 1615, 235, 1655, 250, 1690, 280, 1715, 305, 1740, 330, 1755, 360, 1770, 395, 1780, 425, 1785, 480, 1780, 530, 1770, 570, 1755, 600, 1735, 640, 1705, 685, 1685, 725, 1665, 785, 1660, 835, 1665, 925, 1670, 1020, 1675, 1060, 1675, 1140, 1670, 1190, 1660, 1220, 1630, 1270, 1590, 1315, 1550, 1340, 1515, 1355, 1475, 1360, 1440, 1370, 1405, 1375, 1375, 1395, 1365, 1420, 1360, 1460, 1360, 1545, 1355, 1580, 1345, 1610, 1330, 1640, 1315, 1660, 1280, 1695, 1240, 1725, 1195, 1745, 1115, 1770, 1010, 1790, 930, 1800, 845, 1805, 670, 1805, 585, 1805, 520, 1790, 460, 1770, 405, 1745, 370, 1720, 335, 1685, 315, 1655, 295, 1615, 285, 1570, 275, 1490, 270, 1395, 270, 1315, 0, 0),
             geo.polygon.new(470, 1305, 465, 1170, 470, 1120, 475, 1090, 475, 1060, 485, 1050, 485, 1045, 495, 1025, 525, 995, 550, 975, 595, 955, 600, 950, 665, 925, 680, 920, 690, 915, 775, 890, 785, 885, 820, 870, 860, 830, 885, 800, 895, 780, 905, 745, 925, 675, 925, 665, 935, 615, 945, 555, 950, 530, 960, 495, 965, 480, 980, 450, 1010, 415, 1030, 405, 1055, 385, 1090, 375, 1185, 365, 1225, 360, 1325, 355, 1360, 355, 1410, 365, 1435, 370, 1480, 385, 1505, 400, 1535, 435, 1545, 465, 1550, 495, 1550, 530, 1540, 565, 1515, 610, 1495, 650, 1475, 690, 1465, 740, 1465, 835, 1470, 895, 1470, 945, 1470, 975, 1475, 1055, 1460, 1105, 1435, 1135, 1395, 1155, 1315, 1175, 1245, 1190, 1210, 1205, 1165, 1240, 1150, 1275, 1145, 1300, 1145, 1370, 1145, 1460, 1140, 1495, 1120, 1530, 1085, 1555, 1030, 1575, 985, 1590, 860, 1610, 805, 1615, 710, 1620, 625, 1615, 590, 1605, 535, 1575, 500, 1535, 480, 1495, 480, 1460, 475, 1385, 470, 1330, 470, 1305)
         }
     elseif vars.stage == 2 then
@@ -355,13 +360,16 @@ function race:init(...)
             (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1488 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
         }
 
-        -- gfx.setColor(gfx.kColorWhite)
-        -- gfx.setDitherPattern(vars.edges.value, gfx.image.kDitherTypeBayer4x4)
-        -- for i = 1, #vars.edges_polygons do
-        --     gfx.setLineWidth(30 * vars.edges.value)
-        --     gfx.drawPolygon(vars.edges_polygons[i])
-        -- end
-        -- gfx.setColor(gfx.kColorBlack)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.setDitherPattern(vars.edges.value, gfx.image.kDitherTypeBayer4x4)
+        local edges_polygons
+        local edges_value = 30 * vars.edges.value
+        for i = 1, #vars.edges_polygons do
+            edges_polygons = vars.edges_polygons[i]
+            gfx.setLineWidth(edges_value)
+            gfx.drawPolygon(edges_polygons)
+        end
+        gfx.setColor(gfx.kColorBlack)
 
         local image_stage
         local draw_x
@@ -377,14 +385,25 @@ function race:init(...)
                 if calc_y > -y-tile_y and calc_y < -y+240 then
                     image_stage = assets.image_stage[i]
                     image_stage:draw(calc_x, calc_y)
-                    -- gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
-                    -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    -- image_stage:draw(calc_x, calc_y)
-                    -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                    -- gfx.clearStencil()
                 end
             end
         end
+        gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
+        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+        for i = 1, tiles_x * tiles_y do
+            draw_x = ((i-1) % tiles_x)
+            draw_y = ceil(i / tiles_y) - 1
+            calc_x = tile_x * draw_x
+            calc_y = tile_y * draw_y
+            if calc_x > -x-tile_x and calc_x < -x+400 then
+                if calc_y > -y-tile_y and calc_y < -y+240 then
+                    image_stage = assets.image_stage[i]
+                    image_stage:draw(calc_x, calc_y)
+                end
+            end
+        end
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        gfx.clearStencil()
 
         local audience_x
         local audience_y
@@ -401,7 +420,7 @@ function race:init(...)
                     audience[audience_rand]:draw(
                         (audience_x - 25) * parallax_short_amount + (stage_x * -stage_progress_short_x),
                         (audience_y - 25) * parallax_short_amount + (stage_y * -stage_progress_short_y))
-                    end
+                end
             end
         end
 
@@ -569,6 +588,7 @@ function race:init(...)
                 assets['overlay_' .. vars.overlay][floor(vars.anim_overlay.value)]:draw(0, 0)
             end
         end
+        assets.kapel_doubleup_outline:drawTextAligned(vars.lap_string, 200, vars.anim_lap_string.value, kTextAlignment.center)
         -- Draw the timer
         assets.image_timer:draw(vars.anim_hud.value + vars.anim_ui_offset.value, 3 - (vars.anim_ui_offset.value / 7.4))
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
@@ -600,7 +620,7 @@ function race:init(...)
     if vars.mode == "debug" then -- If there's debug mode, add the dot.
         self.debug = race_debug()
     else -- If not, then add the boat.
-        self.boat = boat(vars.boat_x, vars.boat_y, true, vars.stage_x, vars.stage_y)
+        self.boat = boat(vars.boat_x, vars.boat_y, true, vars.stage_x, vars.stage_y, vars.edges_polygons, assets.image_stagec)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
@@ -759,14 +779,24 @@ function race:update()
                         if vars.current_lap > vars.laps then -- The race is done.
                             self:finish(false)
                         else
+                            vars.lap_string = gfx.getLocalizedText('lap' .. vars.current_lap)
+                            vars.anim_lap_string = pd.timer.new(500, -30, 20, pd.easingFunctions.outBack)
+                            pd.timer.performAfterDelay(1500, function()
+                                vars.anim_lap_string = pd.timer.new(500, 20, -30, pd.easingFunctions.inBack)
+                            end)
                             if vars.current_lap == 2 then
                                 assets.sfx_start:play()
                                 -- TODO: visual feedback on timer
                             elseif vars.current_lap == 3 then
-                                fademusic(0)
+                                assets.sfx_final:play()
+                                music:pause()
+                                music:setOffset(0)
+                                music:setRate(1.1)
+                                pd.timer.performAfterDelay(1750, function()
+                                    music:play()
+                                end)
                                 -- TODO: visual feedback on timer
                                 -- TODO: "final lap" audio que
-                                -- TODO: figure out how to speed up music
                             end
                             assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
                         end
@@ -775,7 +805,6 @@ function race:update()
                 vars.last_checkpoint = tag
             end
         end
-        self.boat:collision_check(vars.edges_polygons, assets.image_stagec, 0, 0)
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
             self:finish(true, 400) -- end the race. Ouch.
         end

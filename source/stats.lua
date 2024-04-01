@@ -18,7 +18,7 @@ function stats:init(...)
         setpauseimage(130) -- TODO: Set this X offset
         menu:addCheckmarkMenuItem(gfx.getLocalizedText('metric'), save.metric, function(new)
             save.metric = new
-            self:draw_main_image()
+            gfx.sprite.redrawBackground()
         end)
         menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function()
             if not vars.transitioning then
@@ -107,68 +107,6 @@ function stats:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
-    end)
-
-    class('stats_main').extends(gfx.sprite)
-    function stats_main:init()
-        stats_main.super.init(self)
-        self:setCenter(0, 0)
-        self:setZIndex(0)
-        self:add()
-    end
-    
-    class('stats_ticker').extends(gfx.sprite)
-    function stats_ticker:init()
-        stats_ticker.super.init(self)
-        self:setImage(assets.image_ticker)
-        self:setCenter(0, 0)
-        self:setZIndex(1)
-        self:add()
-    end
-    function stats_ticker:update()
-        self:moveTo(vars.anim_ticker.value, 0)
-    end
-
-    class('stats_wave').extends(gfx.sprite)
-    function stats_wave:init()
-        stats_wave.super.init(self)
-        self:setImage(assets.image_wave_composite)
-        self:setCenter(0, 0)
-        self:setZIndex(2)
-        self:moveTo(0, 185)
-        self:add()
-    end
-    function stats_wave:update()
-        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
-    end
-
-    class('stats_back').extends(gfx.sprite)
-    function stats_back:init()
-        stats_back.super.init(self)
-        self:setCenter(0, 0)
-        self:setZIndex(3)
-        self:setImage(assets.image_back)
-        self:moveTo(295, 210)
-        self:add()
-    end
-    function stats_back:update()
-        self:moveTo(295, (vars.anim_wave_y.value*1.1))
-    end
-    
-    -- Set the sprites
-    self.main = stats_main()
-    self.ticker = stats_ticker()
-    self.wave = stats_wave()
-    self.back = stats_back()
-    self:add()
-
-    self:draw_main_image()
-end
-
--- Writing in the main stats image; wrapped inside a function so this can be refreshed if necessary.
-function stats:draw_main_image()
-    assets.image_main = gfx.image.new(400, 240, gfx.kColorWhite)
-    gfx.pushContext(assets.image_main)
         assets.pedallica:drawText(gfx.getLocalizedText('stats_total') .. gfx.getLocalizedText('stats_playtime'), 10, 30)
         assets.pedallica:drawText(gfx.getLocalizedText('stats_timespentracing'), 10, 45)
         assets.pedallica:drawText(gfx.getLocalizedText('stats_total') .. gfx.getLocalizedText('stats_crashes'), 10, 70)
@@ -217,8 +155,51 @@ function stats:draw_main_image()
         else
             assets.pedallica:drawTextAligned('N/A', 390, 155, kTextAlignment.right)
         end
-    gfx.popContext()
-    self.main:setImage(assets.image_main)
+    end)
+
+    class('stats_ticker').extends(gfx.sprite)
+    function stats_ticker:init()
+        stats_ticker.super.init(self)
+        self:setImage(assets.image_ticker)
+        self:setCenter(0, 0)
+        self:setZIndex(1)
+        self:add()
+    end
+    function stats_ticker:update()
+        self:moveTo(vars.anim_ticker.value, 0)
+    end
+
+    class('stats_wave').extends(gfx.sprite)
+    function stats_wave:init()
+        stats_wave.super.init(self)
+        self:setImage(assets.image_wave_composite)
+        self:setCenter(0, 0)
+        self:setZIndex(2)
+        self:moveTo(0, 185)
+        self:add()
+    end
+    function stats_wave:update()
+        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
+    end
+
+    class('stats_back').extends(gfx.sprite)
+    function stats_back:init()
+        stats_back.super.init(self)
+        self:setCenter(0, 0)
+        self:setZIndex(3)
+        self:setImage(assets.image_back)
+        self:moveTo(295, 210)
+        self:add()
+    end
+    function stats_back:update()
+        self:moveTo(295, (vars.anim_wave_y.value*1.1))
+    end
+    
+    -- Set the sprites
+    self.ticker = stats_ticker()
+    self.wave = stats_wave()
+    self.back = stats_back()
+    self:add()
 end
 
 function stats:leave() -- Leave and move back to the title screen

@@ -25,7 +25,7 @@ function cheats:init(...)
             enabled_cheats_tiny = false
             enabled_cheats_dents = false
             enabled_cheats_retro = false
-            self:draw_main_image()
+            gfx.sprite.redrawBackground()
         end)
         menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function()
             if not vars.transitioning then
@@ -138,7 +138,7 @@ function cheats:init(...)
                 assets.sfx_bonk:play()
                 shakies()
             end
-            self:draw_main_image()
+            gfx.sprite.redrawBackground()
         end,
 
         upButtonDown = function()
@@ -169,68 +169,6 @@ function cheats:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
-    end)
-
-    class('cheats_main').extends(gfx.sprite)
-    function cheats_main:init()
-        cheats_main.super.init(self)
-        self:setCenter(0, 0)
-        self:setZIndex(0)
-        self:add()
-    end
-
-    class('cheats_ticker').extends(gfx.sprite)
-    function cheats_ticker:init()
-        cheats_ticker.super.init(self)
-        self:setImage(assets.image_ticker)
-        self:setCenter(0, 0)
-        self:setZIndex(1)
-        self:add()
-    end
-    function cheats_ticker:update()
-        self:moveTo(vars.anim_ticker.value, 0)
-    end
-
-    class('cheats_wave').extends(gfx.sprite)
-    function cheats_wave:init()
-        cheats_wave.super.init(self)
-        self:setImage(assets.image_wave_composite)
-        self:setCenter(0, 0)
-        self:setZIndex(2)
-        self:moveTo(0, 185)
-        self:add()
-    end
-    function cheats_wave:update()
-        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
-    end
-
-    class('cheats_back').extends(gfx.sprite)
-    function cheats_back:init()
-        cheats_back.super.init(self)
-        self:setCenter(0, 0)
-        self:setZIndex(3)
-        self:setImage(assets.image_back)
-        self:moveTo(295, 210)
-        self:add()
-    end
-    function cheats_back:update()
-        self:moveTo(295, (vars.anim_wave_y.value*1.1))
-    end
-
-    -- Set the sprites
-    self.main = cheats_main()
-    self.ticker = cheats_ticker()
-    self.wave = cheats_wave()
-    self.back = cheats_back()
-    self:add()
-
-    self:draw_main_image()
-end
-
--- Writing in the main stats image; wrapped inside a function so this can be refreshed if necessary.
-function cheats:draw_main_image()
-    assets.image_main = gfx.image.new(400, 240, gfx.kColorWhite)
-    gfx.pushContext(assets.image_main)
         assets.image_popup_small:draw(192, 26)
         if vars.selection >= 4 then vars.offset = 2 else vars.offset = 1 end
         gfx.fillRect(0, 5 + 15 * vars.selection + 10 * vars.offset, 5, 15)
@@ -313,8 +251,51 @@ function cheats:draw_main_image()
         if save['unlocked_cheats_' .. vars.item_list[vars.selection]] then
             assets.pedallica:drawText(gfx.getLocalizedText(vars.item_list[vars.selection] .. '_desc'), 213, 48)
         end
-    gfx.popContext()
-    self.main:setImage(assets.image_main)
+    end)
+
+    class('cheats_ticker').extends(gfx.sprite)
+    function cheats_ticker:init()
+        cheats_ticker.super.init(self)
+        self:setImage(assets.image_ticker)
+        self:setCenter(0, 0)
+        self:setZIndex(1)
+        self:add()
+    end
+    function cheats_ticker:update()
+        self:moveTo(vars.anim_ticker.value, 0)
+    end
+
+    class('cheats_wave').extends(gfx.sprite)
+    function cheats_wave:init()
+        cheats_wave.super.init(self)
+        self:setImage(assets.image_wave_composite)
+        self:setCenter(0, 0)
+        self:setZIndex(2)
+        self:moveTo(0, 185)
+        self:add()
+    end
+    function cheats_wave:update()
+        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
+    end
+
+    class('cheats_back').extends(gfx.sprite)
+    function cheats_back:init()
+        cheats_back.super.init(self)
+        self:setCenter(0, 0)
+        self:setZIndex(3)
+        self:setImage(assets.image_back)
+        self:moveTo(295, 210)
+        self:add()
+    end
+    function cheats_back:update()
+        self:moveTo(295, (vars.anim_wave_y.value*1.1))
+    end
+
+    -- Set the sprites
+    self.ticker = cheats_ticker()
+    self.wave = cheats_wave()
+    self.back = cheats_back()
+    self:add()
 end
 
 -- Select a new stage using the arrow keys. dir is a boolean — left is false, right is true
@@ -331,7 +312,7 @@ function cheats:newselection(dir)
         shakies()
     else
         assets.sfx_menu:play()
-        self:draw_main_image()
+        gfx.sprite.redrawBackground()
     end
 end
 

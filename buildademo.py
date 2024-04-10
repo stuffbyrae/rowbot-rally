@@ -174,3 +174,5 @@ fd = fd.replace('RowBot Rally', 'RowBot Rally DEMO')
 fd = fd.replace('wtf.rae.rowbotrally', 'wtf.rae.rowbotrallydemo')
 with open(os.getcwd() + '/pdxinfo', 'w') as f:
     f.write(fd)
+
+os.system('')

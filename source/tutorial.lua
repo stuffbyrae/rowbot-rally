@@ -8,6 +8,9 @@ local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
+local min <const> = math.min
+local max <const> = math.max
+local floor <const> = math.floor
 
 class('tutorial').extends(gfx.sprite) -- Create the scene's class
 function tutorial:init(...)
@@ -31,8 +34,9 @@ function tutorial:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
-        image_water = gfx.image.new('images/race/stages/water'),
-        image_meter = gfx.image.new('images/race/meter'),
+        water = gfx.imagetable.new('images/race/stages/water'),
+        image_meter_r = gfx.imagetable.new('images/race/meter/meter_r'),
+        image_meter_p = gfx.imagetable.new('images/race/meter/meter_p'),
         image_popup_banner = gfx.image.new('images/ui/popup_banner'),
         pedallica = gfx.font.new('fonts/pedallica'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
@@ -54,13 +58,19 @@ function tutorial:init(...)
         current_step = 1,
         progressable = false,
         hud_open = false,
-        progress_delay = 1500,
+        progress_delay = 100,
         gameplay_progress = 0,
-        up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine)
+        up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
+        water = pd.timer.new(2000, 1, 16),
+        down = false,
     }
     vars.tutorialHandlers = {
         AButtonDown = function()
+            vars.down = true
+        end,
+        AButtonUp = function()
             self:progress()
+            vars.down = false
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -77,6 +87,7 @@ function tutorial:init(...)
     }
     pd.inputHandlers.push(vars.tutorialHandlers)
     
+    vars.water.repeats = true
     vars.up.repeats = true
     vars.up.reverses = true
     vars.up.reverseEasingFunction = pd.easingFunctions.outBack
@@ -96,10 +107,13 @@ function tutorial:init(...)
     class('tutorial_water').extends(gfx.sprite)
     function tutorial_water:init()
         tutorial_water.super.init(self)
-        self:setImage(assets.image_water)
+        self:setImage(assets.water[1])
         self:setIgnoresDrawOffset(true)
         self:setZIndex(-4)
         self:add()
+    end
+    function tutorial_water:update()
+        self:setImage(assets.water[floor(vars.water.value)])
     end
 
     class('tutorial_stage').extends(gfx.sprite)
@@ -108,14 +122,6 @@ function tutorial:init(...)
         self:setZIndex(-3)
         self:setCenter(0, 0)
         self:setImage(assets.image_stage)
-    end
-
-    class('tutorial_stage_fg').extends(gfx.sprite)
-    function tutorial_stage_fg:init()
-        tutorial_stage_fg.super.init(self)
-        self:setZIndex(1)
-        self:setCenter(0, 0)
-        self:setImage(assets.image_stagefg)
     end
 
     class('tutorial_hud').extends(gfx.sprite)
@@ -152,16 +158,16 @@ function tutorial:init(...)
                 assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_' .. vars.current_step), 200, 14, kTextAlignment.center)
             end
             if vars.progressable then
-                assets.image_a:draw(340, 50)
+                if vars.down then
+                    assets.image_a:draw(340, 55)
+                else
+                    assets.image_a:draw(340, 50)
+                end
             end
         end
         -- Draw the power meter
-        assets.image_meter:draw(0, 177 - vars.anim_hud.value)
-        gfx.setLineWidth(8)
-        if vars.rowbot > 0 then
-            gfx.drawArc(200, 380 - vars.anim_hud.value, 160, math.clamp(32 - vars.player * 2.2, 3, 32), 328 + (vars.rowbot * 15))
-        end
-        gfx.setLineWidth(2)
+        assets.image_meter_r:drawImage(floor((vars.rowbot * 14.5)) + 1, 0, 177 - vars.anim_hud.value)
+        assets.image_meter_p:drawImage(min(30, max(1, 30 - floor(vars.player * 14.5))), 200, 177 - vars.anim_hud.value)
         -- If there's some kind of gameplay overlay anim going on, play it.
         if vars.anim_overlay ~= nil then
             assets['overlay_fade']:drawImage(math.floor(vars.anim_overlay.value), 0, 0)
@@ -172,7 +178,6 @@ function tutorial:init(...)
     self.water = tutorial_water()
     self.stage = tutorial_stage()
     self.boat = boat(0, 0, false)
-    self.stage_fg = tutorial_stage_fg()
     self.hud = tutorial_hud()
     self:add()
 
@@ -193,17 +198,13 @@ function tutorial:progress()
         vars.current_step += 1
         vars.progressable = false
         if vars.current_step == 3 then
-            -- Turn rowbot on, play SFX
             self.boat:state(true, true, false)
             self.boat:start()
         elseif vars.current_step == 6 then
-            -- Turn on player turning, check for any rowing
             self.boat:state(true, true, true)
         elseif vars.current_step == 7 then
-            -- Turn off player turning
             self.boat:state(true, true, false)
         elseif vars.current_step == 8 then
-            -- Roll in power meter, play SFX
             vars.anim_hud = pd.timer.new(750, -130, 0, pd.easingFunctions.outSine)
             assets.sfx_ui:play()
         elseif vars.current_step == 14 then
@@ -211,7 +212,7 @@ function tutorial:progress()
             self.boat:state(true, true, true)
         elseif vars.current_step == 15 then
             -- Add in course just above player
-            -- Add in nets
+            -- Drop in peach's staircase logic
         end
         if vars.current_step <= 15 then -- If there's more progression, then show the new UI.
             if vars.current_step == 3 or vars.current_step == 8 then -- If you're just turning the Rowbot on, then give it some more time.
@@ -251,15 +252,22 @@ end
 
 function tutorial:update()
     vars.rowbot = self.boat.turn_speedo.value
-    vars.player = self.boat.crankage
+    vars.player = self.boat.crankage_divvied
     if vars.current_step == 6 and vars.player > 0 then
         vars.gameplay_progress += 1
-        if vars.gameplay_progress >= 250 then
+        if vars.gameplay_progress >= 90 then
             vars.progressable = true
             self:progress()
         end
     end
     if vars.current_step == 14 and vars.player > 0 then
+        if self.boat.rotation >= 340 or self.boat.rotation <= 20 then
+            vars.gameplay_progress += 1
+            if vars.gameplay_progress >= 180 then
+                vars.progressable = true
+                self:progress()
+            end
+        end
     end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
     self.water:moveTo(x%400, y%240) -- Move the water sprite to keep it in frame

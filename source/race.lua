@@ -12,6 +12,9 @@ local max <const> = math.max
 local ceil <const> = math.ceil
 local floor <const> = math.floor
 local random <const> = math.random
+local deg <const> = math.deg
+local atan <const> = math.atan2
+local abs <const> = math.abs
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -46,20 +49,21 @@ function race:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('images/race/stages/water_bg'),
-        image_water = gfx.image.new('images/race/stages/water_2'),
-        image_meter = gfx.image.new('images/race/meter'),
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
         water = gfx.imagetable.new('images/race/stages/water'),
+        caustics = gfx.imagetable.new('images/race/stages/caustics'),
         trees = gfx.imagetable.new('images/race/stages/tree'),
         trunks = gfx.imagetable.new('images/race/stages/trunk'),
         treetops = gfx.imagetable.new('images/race/stages/treetop'),
         bushes = gfx.imagetable.new('images/race/stages/bush'),
         bushtops = gfx.imagetable.new('images/race/stages/bushtop'),
-        audience = gfx.imagetable.new('images/race/stages/audience'),
+        audience1 = gfx.image.new('images/race/audience/audience1'),
+        audience2 = gfx.image.new('images/race/audience/audience2'),
+        audience3 = gfx.imagetable.new('images/race/audience/audience3'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
         overlay_boost = gfx.imagetable.new('images/race/boost'),
-        overlay_fade = gfx.imagetable.new('images/ui/fade/fade'),
+        overlay_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
         sfx_countdown = smp.new('audio/sfx/countdown'),
         sfx_start = smp.new('audio/sfx/start'),
@@ -94,6 +98,7 @@ function race:init(...)
         audience_1 = pd.timer.new(5000, 10, -10),
         audience_2 = pd.timer.new(15000, 10, -10),
         audience_3 = pd.timer.new(25000, 10, -10),
+        anim_parallax = pd.timer.new(0, 0, 0),
         lap_string = gfx.getLocalizedText('lap1'),
         anim_lap_string = pd.timer.new(0, -30, -30),
     }
@@ -155,8 +160,34 @@ function race:init(...)
     -- Adjust boat's starting X and Y, checkpoint/lap coords, etc. here
     if vars.stage == 1 then
         -- Where to start the boat? (This should probably change depending on story/TT mode)
-        vars.boat_x = 375
-        vars.boat_y = 1400
+        if vars.mode == "tt" then
+            vars.boat_x = 375
+            vars.boat_y = 1400
+        else
+            vars.boat_x = 410
+            vars.boat_y = 1400
+            vars.cpu_x = 335
+            vars.cpu_y = 1400
+            vars.cpu_current_lap = 1
+            vars.cpu_current_checkpoint = 0
+            vars.cpu_last_checkpoint = 0
+            vars.follow_polygon = pd.geometry.polygon.new(335, 1305, 
+            355, 1015, 
+            575, 845, 
+            820, 730, 
+            835, 455, 
+            1130, 245, 
+            1520, 270, 
+            1705, 500, 
+            1630, 765, 
+            1545, 1040, 
+            1490, 1235, 
+            1240, 1310, 
+            1195, 1560, 
+            915, 1745, 
+            630, 1755, 
+            360, 1545)
+        end
         vars.laps = 3 -- How many laps...
         -- The checkpointzzzzz™
         vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1290, 200, 20)
@@ -169,10 +200,10 @@ function race:init(...)
         vars.checkpoint_3:setTag(3)
         vars.music_loop = 0.701 -- When to start the music loop
         -- Chillin' out, parallaxin', relaxin' all cool
-        vars.parallax_short_amount = 1.05
-        vars.parallax_medium_amount = 1.1
-        vars.parallax_long_amount = 1.175
-        vars.parallax_tippy_amount = 1.225
+        vars.base_parallax_short_amount = 1.05
+        vars.base_parallax_medium_amount = 1.1
+        vars.base_parallax_long_amount = 1.175
+        vars.base_parallax_tippy_amount = 1.25
         -- Shootin' some B-ball outside of the school
         vars.poles_short_x = {485, 497, 529, 575, 631, 681, 739, 793, 845, 881, 707, 715, 727, 743, 769, 803, 845, 891, 941, 997, 1053, 1111, 1167, 1455, 1455, 1457, 1451, 1421, 1373, 1317, 1261, 1207, 1163, 1135, 1129, 1129, 1133, 1127}
         vars.poles_short_y = {1122, 1062, 1012, 982, 958, 938, 920, 900, 874, 832, 556, 502, 444, 388, 338, 288, 246, 216, 192, 174, 156, 158, 152, 920, 972, 1024, 1076, 1118, 1144, 1160, 1172, 1190, 1220, 1270, 1324, 1380, 1436, 1488}
@@ -194,7 +225,7 @@ function race:init(...)
         vars.audience_y = {1520, 1472, 1432, 1360, 1320, 1244, 1144, 830, 798, 704, 708, 540, 416, 364, 120, 152, 204, 208, 652, 844, 884, 1012, 1332, 1424, 1404, 1436, 1636, 1760, 1760, 1860, 1836, 1844, 1792, 1692, 1672, 1620, 1436, 1432, 1392, 1340, 1300, 1108, 872, 672, 476, 440, 392, 464, 532, 712, 752, 1004, 1220, 1256, 1424, 1564, 1516, 1588, 1564, 1588}
         vars.audience_rand = {}
         for i = 1, #vars.audience_x do
-            table.insert(vars.audience_rand, random(1, #assets.audience))
+            table.insert(vars.audience_rand, random(1, 3))
         end
         vars.edges_polygons = {
             geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 0, 0, 270, 1315, 265, 1130, 265, 1095, 270, 1040, 275, 1030, 285, 990, 290, 970, 295, 945, 305, 925, 310, 910, 325, 885, 355, 850, 405, 805, 445, 780, 480, 765, 520, 750, 585, 725, 630, 710, 670, 685, 705, 655, 715, 635, 720, 580, 730, 515, 730, 500, 735, 470, 740, 450, 745, 420, 755, 400, 765, 365, 805, 310, 825, 285, 850, 260, 870, 245, 905, 225, 920, 215, 965, 200, 1035, 180, 1095, 170, 1160, 165, 1280, 165, 1350, 170, 1390, 175, 1415, 180, 1430, 180, 1470, 190, 1525, 200, 1580, 220, 1615, 235, 1655, 250, 1690, 280, 1715, 305, 1740, 330, 1755, 360, 1770, 395, 1780, 425, 1785, 480, 1780, 530, 1770, 570, 1755, 600, 1735, 640, 1705, 685, 1685, 725, 1665, 785, 1660, 835, 1665, 925, 1670, 1020, 1675, 1060, 1675, 1140, 1670, 1190, 1660, 1220, 1630, 1270, 1590, 1315, 1550, 1340, 1515, 1355, 1475, 1360, 1440, 1370, 1405, 1375, 1375, 1395, 1365, 1420, 1360, 1460, 1360, 1545, 1355, 1580, 1345, 1610, 1330, 1640, 1315, 1660, 1280, 1695, 1240, 1725, 1195, 1745, 1115, 1770, 1010, 1790, 930, 1800, 845, 1805, 670, 1805, 585, 1805, 520, 1790, 460, 1770, 405, 1745, 370, 1720, 335, 1685, 315, 1655, 295, 1615, 285, 1570, 275, 1490, 270, 1395, 270, 1315, 0, 0),
@@ -206,6 +237,10 @@ function race:init(...)
     elseif vars.stage == 3 then
         vars.laps = 3
         vars.music_loop = 0
+        assets.shades = gfx.image.new('images/race/meter/shades')
+        vars.shades = true
+        vars.anim_shades_x = pd.timer.new(0, 0, 0)
+        vars.anim_shades_y = pd.timer.new(0, 0, 0)
     elseif vars.stage == 4 then
         vars.laps = 1
         vars.music_loop = 0
@@ -236,6 +271,18 @@ function race:init(...)
         assets.image_water_bg:draw(0, 0)
     end)
     
+    class('race_caustics').extends(gfx.sprite)
+    function race_caustics:init()
+        race_caustics.super.init(self)
+        self:setImage(assets.caustics[1])
+        self:setIgnoresDrawOffset(true)
+        self:setZIndex(-5)
+        self:add()
+    end
+    function race_caustics:update()
+        self:setImage(assets.caustics[floor(vars.water.value)])
+    end
+
     class('race_water').extends(gfx.sprite)
     function race_water:init()
         race_water.super.init(self)
@@ -363,13 +410,25 @@ function race:init(...)
         gfx.setColor(gfx.kColorWhite)
         gfx.setDitherPattern(vars.edges.value, gfx.image.kDitherTypeBayer4x4)
         local edges_polygons
-        local edges_value = 30 * vars.edges.value
+        local edges_count  
+        local edges_point
+        local edges_last_point
+        local edges_next_point
+        local edges_point_x
+        local edges_point_y
+        local edges_last_point_x
+        local edges_last_point_y
+        local edges_next_point_x
+        local edges_next_point_y
+        local edges_value = 40 * vars.edges.value
+        gfx.setLineWidth(edges_value)
         for i = 1, #vars.edges_polygons do
             edges_polygons = vars.edges_polygons[i]
-            gfx.setLineWidth(edges_value)
+            edges_count = edges_polygons:count()
             gfx.drawPolygon(edges_polygons)
         end
         gfx.setColor(gfx.kColorBlack)
+        gfx.setLineWidth(2)
 
         local image_stage
         local draw_x
@@ -381,45 +440,50 @@ function race:init(...)
             draw_y = ceil(i / tiles_y) - 1
             calc_x = tile_x * draw_x
             calc_y = tile_y * draw_y
-            if calc_x > -x-tile_x and calc_x < -x+400 then
-                if calc_y > -y-tile_y and calc_y < -y+240 then
-                    image_stage = assets.image_stage[i]
-                    image_stage:draw(calc_x, calc_y)
-                end
+            if (calc_x > -x-tile_x and calc_x < -x+400) and (calc_y > -y-tile_y and calc_y < -y+240) then
+                image_stage = assets.image_stage[i]
+                image_stage:draw(calc_x, calc_y)
             end
         end
-        gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
-        gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-        for i = 1, tiles_x * tiles_y do
-            draw_x = ((i-1) % tiles_x)
-            draw_y = ceil(i / tiles_y) - 1
-            calc_x = tile_x * draw_x
-            calc_y = tile_y * draw_y
-            if calc_x > -x-tile_x and calc_x < -x+400 then
-                if calc_y > -y-tile_y and calc_y < -y+240 then
-                    image_stage = assets.image_stage[i]
-                    image_stage:draw(calc_x, calc_y)
-                end
-            end
-        end
-        gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        gfx.clearStencil()
+        -- gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
+        -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+        -- for i = 1, tiles_x * tiles_y do
+        --     draw_x = ((i-1) % tiles_x)
+        --     draw_y = ceil(i / tiles_y) - 1
+        --     calc_x = tile_x * draw_x
+        --     calc_y = tile_y * draw_y
+        --     if (calc_x > -x-tile_x and calc_x < -x+400) and (calc_y > -y-tile_y and calc_y < -y+240) then
+        --         image_stage = assets.image_stage[i]
+        --         image_stage:draw(calc_x, calc_y)
+        --     end
+        -- end
+        -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        -- gfx.clearStencil()
 
         local audience_x
         local audience_y
         local audience_rand
         local tightened_rand
-        local audience = assets.audience
+        local audience_angle
+        local audience_image
         for i = 1, #vars.audience_x do
             audience_x = vars.audience_x[i]
             audience_y = vars.audience_y[i]
             audience_rand = vars.audience_rand[i]
             tightened_rand = (audience_rand % 3) + 1
-            if audience_x > -x-10 and audience_x < -x+410 then
-                if audience_y > -y-10 and audience_y < -y+250 then
-                    audience[audience_rand]:draw(
-                        (audience_x - 25) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                        (audience_y - 25) * parallax_short_amount + (stage_y * -stage_progress_short_y))
+            if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
+                audience_image = assets['audience' .. audience_rand]
+                if audience_image[1] ~= nil then
+                    audience_angle = (deg(atan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
+                    audience_image[(floor(audience_angle / 8)) + 1]:draw(
+                        (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                        (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
+                    )
+                else
+                    audience_image:draw(
+                        (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                        (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
+                    )
                 end
             end
         end
@@ -433,25 +497,23 @@ function race:init(...)
             bushes_x = vars.bushes_x[i]
             bushes_y = vars.bushes_y[i]
             bushes_rand = vars.bushes_rand[i]
-            if bushes_x > -x-40 and bushes_x < -x+440 then
-                if bushes_y > -y-40 and bushes_y < -y+280 then
-                    bushes:drawImage(
-                        bushes_rand,
-                        (bushes_x - 41),
-                        (bushes_y - 39))
-                    bushtops:drawImage(
-                        bushes_rand,
-                        (bushes_x - 41) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                        (bushes_y - 39) * parallax_short_amount + (stage_y * -stage_progress_short_y))
-                    -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
-                    -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    -- bushes:drawImage(
-                    --     bushes_rand,
-                    --     (bushes_x - 41),
-                    --     (bushes_y - 39))
-                    -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                    -- gfx.clearStencil()
-                end
+            if (bushes_x > -x-40 and bushes_x < -x+440) and (bushes_y > -y-40 and bushes_y < -y+280) then
+                bushes:drawImage(
+                    bushes_rand,
+                    (bushes_x - 41),
+                    (bushes_y - 39))
+                bushtops:drawImage(
+                    bushes_rand,
+                    (bushes_x - 41) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                    (bushes_y - 39) * parallax_short_amount + (stage_y * -stage_progress_short_y))
+                -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
+                -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+                -- bushes:drawImage(
+                --     bushes_rand,
+                --     (bushes_x - 41),
+                --     (bushes_y - 39))
+                -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                -- gfx.clearStencil()
             end
         end
 
@@ -472,17 +534,15 @@ function race:init(...)
             poles_short_x = vars.poles_short_x[i]
             poles_short_y = vars.poles_short_y[i]
             -- Draw it from the base point to the short parallax point
-            if poles_short_x > -x-10 and poles_short_x < -x+410 then
-                if poles_short_y > -y-10 and poles_short_y < -y+250 then
-                    gfx.drawLine(
-                        poles_short_x,
-                        poles_short_y,
-                        (poles_short_x * parallax_short_amount) + (stage_x * -stage_progress_short_x),
-                        (poles_short_y * parallax_short_amount) + (stage_y * -stage_progress_short_y))
-                    image_pole_cap:draw(
-                        (poles_short_x - 6) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                        (poles_short_y - 6) * parallax_short_amount + (stage_y * -stage_progress_short_y))
-                end
+            if (poles_short_x > -x-10 and poles_short_x < -x+410) and (poles_short_y > -y-10 and poles_short_y < -y+250) then
+                gfx.drawLine(
+                    poles_short_x,
+                    poles_short_y,
+                    (poles_short_x * parallax_short_amount) + (stage_x * -stage_progress_short_x),
+                    (poles_short_y * parallax_short_amount) + (stage_y * -stage_progress_short_y))
+                image_pole_cap:draw(
+                    (poles_short_x - 6) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                    (poles_short_y - 6) * parallax_short_amount + (stage_y * -stage_progress_short_y))
             end
         end
 
@@ -492,17 +552,15 @@ function race:init(...)
         for i = 1, #vars.poles_medium_x do
             poles_medium_x = vars.poles_medium_x[i]
             poles_medium_y = vars.poles_medium_y[i]
-            if poles_medium_x > -x-10 and poles_medium_x < -x+410 then
-                if poles_medium_y > -y-10 and poles_medium_y < -y+250 then
-                    gfx.drawLine(
-                        poles_medium_x,
-                        poles_medium_y,
-                        (poles_medium_x * parallax_medium_amount) + (stage_x * -stage_progress_medium_x),
-                        (poles_medium_y * parallax_medium_amount) + (stage_y * -stage_progress_medium_y))
-                    image_pole_cap:draw(
-                        (poles_medium_x - 6) * parallax_medium_amount + (stage_x * -stage_progress_medium_x),
-                        (poles_medium_y - 6) * parallax_medium_amount + (stage_y * -stage_progress_medium_y))
-                end
+            if (poles_medium_x > -x-10 and poles_medium_x < -x+410) and (poles_medium_y > -y-10 and poles_medium_y < -y+250) then
+                gfx.drawLine(
+                    poles_medium_x,
+                    poles_medium_y,
+                    (poles_medium_x * parallax_medium_amount) + (stage_x * -stage_progress_medium_x),
+                    (poles_medium_y * parallax_medium_amount) + (stage_y * -stage_progress_medium_y))
+                image_pole_cap:draw(
+                    (poles_medium_x - 6) * parallax_medium_amount + (stage_x * -stage_progress_medium_x),
+                    (poles_medium_y - 6) * parallax_medium_amount + (stage_y * -stage_progress_medium_y))
             end
         end
 
@@ -535,29 +593,27 @@ function race:init(...)
             trees_x = vars.trees_x[i]
             trees_y = vars.trees_y[i]
             trees_rand = vars.trees_rand[i]
-            if trees_x > -x-45 and trees_x < -x+445 then
-                if trees_y > -y-45 and trees_y < -y+285 then
-                    trunks:drawImage(
-                        trees_rand,
-                        (trees_x - 66),
-                        (trees_y - 66))
-                    trees:drawImage(
-                        trees_rand,
-                        (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
-                        (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
-                    treetops:drawImage(
-                        trees_rand,
-                        (trees_x - 66) * parallax_tippy_amount + (stage_x * -stage_progress_tippy_x),
-                        (trees_y - 66) * parallax_tippy_amount + (stage_y * -stage_progress_tippy_y))
-                    -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
-                    -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                    -- trees:drawImage(
-                    --     trees_rand,
-                    --     (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
-                    --     (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
-                    -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                    -- gfx.clearStencil()
-                end
+            if (trees_x > -x-45 and trees_x < -x+445) and (trees_y > -y-45 and trees_y < -y+285) then
+                trunks:drawImage(
+                    trees_rand,
+                    (trees_x - 66),
+                    (trees_y - 66))
+                trees:drawImage(
+                    trees_rand,
+                    (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
+                    (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
+                treetops:drawImage(
+                    trees_rand,
+                    (trees_x - 66) * parallax_tippy_amount + (stage_x * -stage_progress_tippy_x),
+                    (trees_y - 66) * parallax_tippy_amount + (stage_y * -stage_progress_tippy_y))
+                -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
+                -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
+                -- trees:drawImage(
+                --     trees_rand,
+                --     (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
+                --     (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
+                -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                -- gfx.clearStencil()
             end
         end
     end
@@ -580,13 +636,7 @@ function race:init(...)
         end
         -- If there's some kind of gameplay overlay anim going on, play it.
         if vars.anim_overlay ~= nil then
-            if vars.finished or not vars.started then
-                gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-                assets['overlay_' .. vars.overlay][floor(vars.anim_overlay.value)]:draw(0, 0)
-                gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            else
-                assets['overlay_' .. vars.overlay][floor(vars.anim_overlay.value)]:draw(0, 0)
-            end
+            assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
         end
         assets.kapel_doubleup_outline:drawTextAligned(vars.lap_string, 200, vars.anim_lap_string.value, kTextAlignment.center)
         -- Draw the timer
@@ -602,6 +652,9 @@ function race:init(...)
         -- Draw the power meter
         assets.image_meter_r:drawImage(floor((vars.rowbot * 14.5)) + 1, 0, 177 - vars.anim_hud.value)
         assets.image_meter_p:drawImage(min(30, max(1, 30 - floor(vars.player * 14.5))), 200, 177 - vars.anim_hud.value)
+        if assets.shades ~= nil then
+            assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
+        end
     end
 
     -- Little debug dot, representing the middle of the screen.
@@ -615,12 +668,16 @@ function race:init(...)
     end
 
     -- Set the sprites
+    self.caustics = race_caustics()
     self.water = race_water()
     self.stage = race_stage()
     if vars.mode == "debug" then -- If there's debug mode, add the dot.
         self.debug = race_debug()
     else -- If not, then add the boat.
-        self.boat = boat(vars.boat_x, vars.boat_y, true, vars.stage_x, vars.stage_y, vars.edges_polygons, assets.image_stagec)
+        if vars.mode == "story" then
+            self.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.edges_polygons, assets.image_stagec, vars.follow_polygon)
+        end
+        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y, vars.edges_polygons, assets.image_stagec)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
@@ -638,12 +695,21 @@ function race:boost(rocketarms)
     if vars.in_progress and not self.boat.boosting and vars.boosts_remaining > 0 then
         -- ... then boost! :3
         self.boat:boost() -- The boat does most of this, of course.
+        vars.anim_parallax = pd.timer.new(500, 0.1, 0, pd.easingFunctions.outSine)
         vars.anim_overlay = pd.timer.new(500, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
         vars.overlay = "boost"
         vars.anim_overlay.repeats = true
         pd.timer.performAfterDelay(2500, function() -- and taking it away after a while.
             vars.anim_overlay = nil
         end)
+        if vars.shades then
+            vars.shades = false
+            vars.anim_shades_x = pd.timer.new(800, 0, 80)
+            vars.anim_shades_y = pd.timer.new(400, 0, 20, pd.easingFunctions.outCubic)
+            vars.anim_shades_y.timerEndedCallback = function()
+                vars.anim_shades_y = pd.timer.new(400, 20, -30, pd.easingFunctions.inSine)
+            end
+        end
         if rocketarms then
             vars.boosts_remaining -= 1
             assets.image_item = gfx.image.new('images/race/item_active')
@@ -683,6 +749,10 @@ function race:start()
         newmusic(assets.music, true, vars.music_loop) -- Adding new music
         self.boat:state(true, true, true)
         self.boat:start()
+        if vars.mode == "story" then
+            self.cpu:state(true)
+            self.cpu:start()
+        end
     end)
 end
 
@@ -702,11 +772,11 @@ function race:finish(timeout, duration)
         self.boat:state(false, false, false)
         if timeout then -- If you ran the timer past 09:59.00...
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
-            self.boat:finish(false, duration) -- This true/false is for the turning peel-out, btw.
+            self.boat:finish(duration, false) -- This true/false is for the turning peel-out, btw.
             vars.anim_overlay = nil
             assets.sfx_ref:play() -- TWEEEEEEEEEEEEET!!!
         else
-            self.boat:finish(true, duration)
+            self.boat:finish(duration, true)
             vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade) -- Flash!
             vars.overlay = "fade"
             assets.sfx_finish:play() -- Applause!
@@ -724,6 +794,76 @@ function race:timecalc(num)
     vars.mils = floor((num/30)*99 - vars.mins * 5940 - vars.secs * 99)
     if vars.secs < 10 then vars.secs = '0' .. vars.secs end
     if vars.mils < 10 then vars.mils = '0' .. vars.mils end
+end
+
+function race:checkpointcheck(cpu)
+    if cpu then
+        local x, y, cpu_collisions, cpu_count = self.cpu:checkCollisions(self.cpu.x, self.cpu.y)
+        for i = 1, cpu_count do
+            local tag = cpu_collisions[i].other:getTag()
+            if tag >= 1 and tag <= 3 then
+                if vars.cpu_current_checkpoint == tag - 1 and vars.cpu_last_checkpoint == tag - 1 then
+                    vars.cpu_current_checkpoint = tag
+                end
+                vars.cpu_last_checkpoint = tag
+            elseif tag == 0 then
+                if vars.cpu_current_checkpoint == 3 and vars.cpu_last_checkpoint == 3 then
+                    vars.cpu_current_checkpoint = 0
+                    vars.cpu_current_lap += 1
+                    if vars.cpu_current_lap > vars.laps then
+                        self.cpu:finish(1500, true)
+                        if not vars.finished then
+                            vars.won = false
+                        end
+                    end
+                end
+                vars.cpu_last_checkpoint = tag
+            elseif tag == 255 and not self.cpu.crashed then
+                -- self.cpu:moveTo(x, y)
+                -- CPU is colliding with boat.
+            end
+        end
+    else
+        local _, _, boat_collisions, boat_count = self.boat:checkCollisions(self.boat.x, self.boat.y)
+        for i = 1, boat_count do
+            local tag = boat_collisions[i].other:getTag()
+            if tag >= 1 and tag <= 3 then
+                if vars.current_checkpoint == tag - 1 and vars.last_checkpoint == tag - 1 then
+                    vars.current_checkpoint = tag
+                end
+                vars.last_checkpoint = tag
+            elseif tag == 0 then
+                if vars.current_checkpoint == 3 and vars.last_checkpoint == 3 then
+                    vars.current_checkpoint = 0
+                    vars.current_lap += 1
+                    if vars.current_lap > vars.laps then -- The race is done.
+                        self:finish(false)
+                    else
+                        vars.lap_string = gfx.getLocalizedText('lap' .. vars.current_lap)
+                        vars.anim_lap_string = pd.timer.new(500, -30, 20, pd.easingFunctions.outBack)
+                        pd.timer.performAfterDelay(1500, function()
+                            vars.anim_lap_string = pd.timer.new(500, 20, -30, pd.easingFunctions.inBack)
+                        end)
+                        if vars.current_lap == 2 then
+                            assets.sfx_start:play()
+                        elseif vars.current_lap == 3 then
+                            assets.sfx_final:play()
+                            music:pause()
+                            music:setOffset(0)
+                            music:setRate(1.1)
+                            pd.timer.performAfterDelay(1750, function()
+                                music:play()
+                            end)
+                        end
+                        assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
+                    end
+                end
+                vars.last_checkpoint = tag
+            elseif tag == 255 then
+                -- Boat is colliding with CPU.
+            end
+        end
+    end
 end
 
 -- Scene update loop
@@ -749,6 +889,10 @@ function race:update()
     else
         vars.rowbot = self.boat.turn_speedo.value
         vars.player = self.boat.crankage_divvied
+        vars.parallax_short_amount = vars.base_parallax_short_amount + (abs(vars.player - vars.rowbot) * 0.025) + vars.anim_parallax.value
+        vars.parallax_medium_amount = vars.base_parallax_medium_amount + (abs(vars.player - vars.rowbot) * 0.025) + vars.anim_parallax.value
+        vars.parallax_long_amount = vars.base_parallax_long_amount + (abs(vars.player - vars.rowbot) * 0.025) + vars.anim_parallax.value
+        vars.parallax_tippy_amount = vars.base_parallax_tippy_amount + (abs(vars.player - vars.rowbot) * 0.025) + vars.anim_parallax.value
         self:timecalc(vars.current_time) -- Calc this thing out for the timer
         if vars.in_progress then -- If the race is happenin', then
             vars.current_time += 1 -- Up that timer, babyyyyyyyyy!
@@ -765,44 +909,9 @@ function race:update()
                     save.slot3_racetime += 1 -- Per-slot statz!!
                 end
             end
-            local _, _, collisions, count = self.boat:checkCollisions(self.boat.x, self.boat.y)
-            for i = 1, count do
-                local tag = collisions[i].other:getTag()
-                if tag > 0 then
-                    if vars.current_checkpoint == tag - 1 and vars.last_checkpoint == tag - 1 then
-                        vars.current_checkpoint = tag
-                    end
-                else
-                    if vars.current_checkpoint == 3 and vars.last_checkpoint == 3 then
-                        vars.current_checkpoint = 0
-                        vars.current_lap += 1
-                        if vars.current_lap > vars.laps then -- The race is done.
-                            self:finish(false)
-                        else
-                            vars.lap_string = gfx.getLocalizedText('lap' .. vars.current_lap)
-                            vars.anim_lap_string = pd.timer.new(500, -30, 20, pd.easingFunctions.outBack)
-                            pd.timer.performAfterDelay(1500, function()
-                                vars.anim_lap_string = pd.timer.new(500, 20, -30, pd.easingFunctions.inBack)
-                            end)
-                            if vars.current_lap == 2 then
-                                assets.sfx_start:play()
-                                -- TODO: visual feedback on timer
-                            elseif vars.current_lap == 3 then
-                                assets.sfx_final:play()
-                                music:pause()
-                                music:setOffset(0)
-                                music:setRate(1.1)
-                                pd.timer.performAfterDelay(1750, function()
-                                    music:play()
-                                end)
-                                -- TODO: visual feedback on timer
-                                -- TODO: "final lap" audio que
-                            end
-                            assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
-                        end
-                    end
-                end
-                vars.last_checkpoint = tag
+            self:checkpointcheck(false)
+            if self.cpu then
+                self:checkpointcheck(true)
             end
         end
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
@@ -810,7 +919,8 @@ function race:update()
         end
     end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
-    self.water:moveTo(x%400, y%240) -- Move the water sprite to keep it in frame
+    self.caustics:moveTo(floor(x / 4) * 2 % 400, floor(y / 4) * 2 % 240) -- Move the water sprite to keep it in frame
+    self.water:moveTo((x * 0.8) % 400, (y * 0.8) % 240) -- Move the water sprite to keep it in frame
     -- Set up the parallax!
     vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
     vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))

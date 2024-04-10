@@ -327,7 +327,7 @@ end
 
 -- This function makes the pause image.
 -- 'xoffset' is a number that determines the x offset. naturally
-rowtip_oracle = 4
+rowtip_oracle = 'demo'
 function setpauseimage(xoffset)
     local pauseimage = gfx.image.new(400, 240)
     gfx.pushContext(pauseimage)
@@ -382,7 +382,7 @@ import 'chill'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "story")
+    scenemanager:switchscene(race, 1, "tt")
 end
 
 function pd.update()

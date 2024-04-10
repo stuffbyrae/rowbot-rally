@@ -113,6 +113,7 @@
 
 -- Pause strings
 "paused" = "Paused!"
+"rowtipdemo" = "If you're enjoying this\ndemo, you should check\nout the full game! It's like\nthis, but...more!\n\n      🌐 play.date/g/rbr"
 "rowtip1" = "If you're having trouble\nusing the Crank, try\nenabling Button Controls\nfrom the Options, and use\nthe D-pad to play instead!"
 "rowtip2" = "Want a more streamlined\nand row-fessional racing\nexperience? Toggle the\nPro UI in Options (or in a\nrace)! So fresh, so clean."
 "rowtip3" = "RowBot R-10 models are\npowered by an advanced\nmulti-gear rowing\nmechanism, which\ndefinitely isn't prone to\nfailure. Ignore all the\nlawsuits."
@@ -182,10 +183,10 @@
 -- Story mode complete barrier (beaten all stages)
 "rowtip61" = "Alongside RowBots, Robo-X has a wide variety of robots built for other tasks, such as writing and art! Results may vary (from poor to worse)."
 "rowtip62" = "Some crafty engineers attempted to make RowBots spin their oars fast enough to soar the skies. This idea never took off."
-"rowtip63" = ""
+"rowtip63" = "The Robo-X factory actually had quite nice health and insurance benefits. Unfortunately, all the workers being machines, it was kinda moot."
 "rowtip64" = ""
 "rowtip65" = ""
-"rowtip66" = "Rumor has it, your RowBot has a few secret modes that can be activated by mashing some button combos on the control panel. "
+"rowtip66" = "Rumor has it, your RowBot has a few secret modes that can be activated by mashing some button combos on the control panel."
 "rowtip67" = ""
 "rowtip68" = ""
 "rowtip69" = ""

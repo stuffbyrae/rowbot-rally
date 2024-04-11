@@ -195,7 +195,7 @@ end
 -- Stops boat movement and camera
 function boat:finish(duration, peelout)
     duration = duration or 1500
-    self.move_speedo = pd.timer.new(duration, self.move_speedo.value * 1.5, 0, pd.easingFunctions.inOutSine)
+    self.move_speedo = pd.timer.new(duration, self.move_speedo.value, 0, pd.easingFunctions.inOutSine)
     self.wobble_speedo = pd.timer.new(duration, self.wobble_speedo.value, 0, pd.easingFunctions.outBack)
     self.ripple_scale:reset()
     self.ripple_opacity:reset()
@@ -221,7 +221,7 @@ function boat:finish(duration, peelout)
     end
 end
 
-function boat:collision_check(polygons, image)
+function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
     self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
     self.crash_body_scale:translate(self.x, self.y)
     for i = 1, #polygons do
@@ -231,8 +231,8 @@ function boat:collision_check(polygons, image)
             for i = 1, self.poly_body:count() do
                 local transformed_point = self.crash_body:getPointAt(i)
                 local point_x, point_y = transformed_point:unpack()
-                local moved_x = (point_x + self.x)
-                local moved_y = (point_y + self.y)
+                local moved_x = ((point_x + self.x) - crash_stage_x)
+                local moved_y = ((point_y + self.y) - crash_stage_y)
                 if image:sample(moved_x, moved_y) == gfx.kColorBlack then
                     self:crash(point_x, point_y)
                     self.crash_point = i
@@ -397,11 +397,11 @@ function boat:update()
         end
     else -- Player controlling
         gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
-        if self.race then -- Camera lock if the boat hits the edges of the map
-            if x >= 0 then x = 0 elseif x - 400 <= -self.stage_x then x = -self.stage_x + 400 end
-            if y >= 0 then y = 0 elseif y - 240 <= -self.stage_y then y = -self.stage_y + 240 end
-            gfx.setDrawOffset(x, y)
-        end
+        -- if self.mode == "race" then -- Camera lock if the boat hits the edges of the map
+        --     if x >= 0 then x = 0 elseif x - 400 <= -self.stage_x then x = -self.stage_x + 400 end
+        --     if y >= 0 then y = 0 elseif y - 240 <= -self.stage_y then y = -self.stage_y + 240 end
+        --     gfx.setDrawOffset(x, y)
+        -- end
         if self.turnable then
             if enabled_cheats_scream then
                 if pd.sound.micinput.getLevel() > 0 then
@@ -488,7 +488,6 @@ function boat:update()
     self.transform:rotate(self.rotation)
     self.crash_transform:rotate(self.rotation)
     self.shadow:rotate(self.rotation)
-    if self.crashable and self.crash_polygons ~= nil and self.crash_image ~= nil then self:collision_check(self.crash_polygons, self.crash_image) end
     self:markDirty()
 end
 

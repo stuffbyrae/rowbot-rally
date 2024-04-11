@@ -48,18 +48,7 @@ function race:init(...)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
-        image_water_bg = gfx.image.new('images/race/stages/water_bg'),
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
-        water = gfx.imagetable.new('images/race/stages/water'),
-        caustics = gfx.imagetable.new('images/race/stages/caustics'),
-        trees = gfx.imagetable.new('images/race/stages/tree'),
-        trunks = gfx.imagetable.new('images/race/stages/trunk'),
-        treetops = gfx.imagetable.new('images/race/stages/treetop'),
-        bushes = gfx.imagetable.new('images/race/stages/bush'),
-        bushtops = gfx.imagetable.new('images/race/stages/bushtop'),
-        audience1 = gfx.image.new('images/race/audience/audience1'),
-        audience2 = gfx.image.new('images/race/audience/audience2'),
-        audience3 = gfx.imagetable.new('images/race/audience/audience3'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
         overlay_boost = gfx.imagetable.new('images/race/boost'),
@@ -118,7 +107,6 @@ function race:init(...)
         end,
         AButtonDown = function()
             -- Keeping for debug.
-            self:leap()
         end,
         upButtonDown = function()
             self.boat.straight = true
@@ -149,8 +137,16 @@ function race:init(...)
     end
 
     -- Load in the appropriate images depending on what stage is called. EZ!
-    assets.image_stagec = gfx.image.new('images/race/stages/stagec' .. vars.stage)
-    assets.image_stage = gfx.imagetable.new('images/race/stages/stage' .. vars.stage)
+    assets.image_stage = gfx.imagetable.new('images/race/stages/tutorial/stage')
+    assets.image_stagec = gfx.image.new('images/race/stages/stage' .. vars.stage .. '/stagec')
+    assets.image_water_bg = gfx.image.new('images/race/stages/stage' .. vars.stage .. '/water_bg')
+    assets.water = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/water')
+    assets.caustics = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/caustics')
+    assets.trees = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/tree')
+    assets.trunks = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/trunk')
+    assets.treetops = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/treetop')
+    assets.bushes = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/bush')
+    assets.bushtops = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/bushtop')
 
     vars.tiles_x, vars.tiles_y = assets.image_stage:getSize()
     vars.tile_x, vars.tile_y = assets.image_stage[1]:getSize()
@@ -204,29 +200,40 @@ function race:init(...)
         vars.base_parallax_medium_amount = 1.1
         vars.base_parallax_long_amount = 1.175
         vars.base_parallax_tippy_amount = 1.25
-        -- Shootin' some B-ball outside of the school
+        vars.parallax_short_amount = 1.05
+        vars.parallax_medium_amount = 1.1
+        vars.parallax_long_amount = 1.175
+        vars.parallax_tippy_amount = 1.25
+        -- Poles
         vars.poles_short_x = {485, 497, 529, 575, 631, 681, 739, 793, 845, 881, 707, 715, 727, 743, 769, 803, 845, 891, 941, 997, 1053, 1111, 1167, 1455, 1455, 1457, 1451, 1421, 1373, 1317, 1261, 1207, 1163, 1135, 1129, 1129, 1133, 1127}
         vars.poles_short_y = {1122, 1062, 1012, 982, 958, 938, 920, 900, 874, 832, 556, 502, 444, 388, 338, 288, 246, 216, 192, 174, 156, 158, 152, 920, 972, 1024, 1076, 1118, 1144, 1160, 1172, 1190, 1220, 1270, 1324, 1380, 1436, 1488}
         vars.poles_medium_x = {267, 469}
         vars.poles_medium_y = {1306, 1306}
+        -- Trees
         vars.trees_x = {869, 521, 191, 259, 359, 641, 611, 953, 1035, 1265, 1421, 1415, 1573, 1797, 1827, 1739, 1773, 1693, 1439, 1039, 1093, 493, 343, 177, 555}
         vars.trees_y = {146, 1210, 1050, 880, 726, 636, 472, 770, 626, 114, 444, 618, 118, 254, 402, 740, 1142, 1268, 1522, 1512, 1824, 1866, 1802, 1598, 1530}
         vars.trees_rand = {}
         for i = 1, #vars.trees_x do
             table.insert(vars.trees_rand, #assets.trees)
         end
+        -- Bushes
         vars.bushes_x = {175, 575, 607, 519, 683, 735, 1011, 956, 1163, 1155, 1267, 1215, 1095, 1391, 1451, 1839, 1823, 1851, 1399, 1399, 1387, 1767, 1799, 1775, 1587, 1359, 1051, 947, 1011, 839, 699, 767}
         vars.bushes_y = {1188, 1060, 1116, 636, 292, 264, 108, 82, 96, 424, 412, 408, 424, 120, 140, 524, 632, 584, 816, 940, 876, 1016, 900, 956, 1396, 1700, 1328, 1408, 1384, 1868, 1868, 1856}
         vars.bushes_rand = {}
         for i = 1, #vars.bushes_x do
             table.insert(vars.bushes_rand, random(1, #assets.bushes))
         end
+        -- Audience members
+        assets.audience1 = gfx.image.new('images/race/audience/audience_basic')
+        assets.audience2 = gfx.image.new('images/race/audience/audience_fisher')
+        assets.audience3 = gfx.imagetable.new('images/race/audience/audience_nebula')
         vars.audience_x = {219, 191, 219, 199, 219, 235, 223, 329, 371, 479, 571, 667, 695, 687, 1083, 955, 1623, 1663, 1763, 1707, 1727, 1703, 1615, 1519, 1419, 1391, 1375, 1287, 1239, 975, 931, 599, 435, 299, 247, 267, 535, 579, 563, 555, 523, 519, 887, 951, 1007, 1035, 1331, 1515, 1491, 1439, 1423, 1427, 1119, 1087, 1083, 927, 895, 795, 675, 639}
         vars.audience_y = {1520, 1472, 1432, 1360, 1320, 1244, 1144, 830, 798, 704, 708, 540, 416, 364, 120, 152, 204, 208, 652, 844, 884, 1012, 1332, 1424, 1404, 1436, 1636, 1760, 1760, 1860, 1836, 1844, 1792, 1692, 1672, 1620, 1436, 1432, 1392, 1340, 1300, 1108, 872, 672, 476, 440, 392, 464, 532, 712, 752, 1004, 1220, 1256, 1424, 1564, 1516, 1588, 1564, 1588}
         vars.audience_rand = {}
         for i = 1, #vars.audience_x do
             table.insert(vars.audience_rand, random(1, 3))
         end
+        -- Race collision edges
         vars.edges_polygons = {
             geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 0, 0, 270, 1315, 265, 1130, 265, 1095, 270, 1040, 275, 1030, 285, 990, 290, 970, 295, 945, 305, 925, 310, 910, 325, 885, 355, 850, 405, 805, 445, 780, 480, 765, 520, 750, 585, 725, 630, 710, 670, 685, 705, 655, 715, 635, 720, 580, 730, 515, 730, 500, 735, 470, 740, 450, 745, 420, 755, 400, 765, 365, 805, 310, 825, 285, 850, 260, 870, 245, 905, 225, 920, 215, 965, 200, 1035, 180, 1095, 170, 1160, 165, 1280, 165, 1350, 170, 1390, 175, 1415, 180, 1430, 180, 1470, 190, 1525, 200, 1580, 220, 1615, 235, 1655, 250, 1690, 280, 1715, 305, 1740, 330, 1755, 360, 1770, 395, 1780, 425, 1785, 480, 1780, 530, 1770, 570, 1755, 600, 1735, 640, 1705, 685, 1685, 725, 1665, 785, 1660, 835, 1665, 925, 1670, 1020, 1675, 1060, 1675, 1140, 1670, 1190, 1660, 1220, 1630, 1270, 1590, 1315, 1550, 1340, 1515, 1355, 1475, 1360, 1440, 1370, 1405, 1375, 1375, 1395, 1365, 1420, 1360, 1460, 1360, 1545, 1355, 1580, 1345, 1610, 1330, 1640, 1315, 1660, 1280, 1695, 1240, 1725, 1195, 1745, 1115, 1770, 1010, 1790, 930, 1800, 845, 1805, 670, 1805, 585, 1805, 520, 1790, 460, 1770, 405, 1745, 370, 1720, 335, 1685, 315, 1655, 295, 1615, 285, 1570, 275, 1490, 270, 1395, 270, 1315, 0, 0),
             geo.polygon.new(470, 1305, 465, 1170, 470, 1120, 475, 1090, 475, 1060, 485, 1050, 485, 1045, 495, 1025, 525, 995, 550, 975, 595, 955, 600, 950, 665, 925, 680, 920, 690, 915, 775, 890, 785, 885, 820, 870, 860, 830, 885, 800, 895, 780, 905, 745, 925, 675, 925, 665, 935, 615, 945, 555, 950, 530, 960, 495, 965, 480, 980, 450, 1010, 415, 1030, 405, 1055, 385, 1090, 375, 1185, 365, 1225, 360, 1325, 355, 1360, 355, 1410, 365, 1435, 370, 1480, 385, 1505, 400, 1535, 435, 1545, 465, 1550, 495, 1550, 530, 1540, 565, 1515, 610, 1495, 650, 1475, 690, 1465, 740, 1465, 835, 1470, 895, 1470, 945, 1470, 975, 1475, 1055, 1460, 1105, 1435, 1135, 1395, 1155, 1315, 1175, 1245, 1190, 1210, 1205, 1165, 1240, 1150, 1275, 1145, 1300, 1145, 1370, 1145, 1460, 1140, 1495, 1120, 1530, 1085, 1555, 1030, 1575, 985, 1590, 860, 1610, 805, 1615, 710, 1620, 625, 1615, 590, 1605, 535, 1575, 500, 1535, 480, 1495, 480, 1460, 475, 1385, 470, 1330, 470, 1305)
@@ -237,8 +244,8 @@ function race:init(...)
     elseif vars.stage == 3 then
         vars.laps = 3
         vars.music_loop = 0
-        assets.shades = gfx.image.new('images/race/meter/shades')
         vars.shades = true
+        assets.shades = gfx.image.new('images/race/meter/shades')
         vars.anim_shades_x = pd.timer.new(0, 0, 0)
         vars.anim_shades_y = pd.timer.new(0, 0, 0)
     elseif vars.stage == 4 then
@@ -323,6 +330,7 @@ function race:init(...)
         local stage_progress_long_y = vars.stage_progress_long_y
         local stage_progress_tippy_x = vars.stage_progress_tippy_x
         local stage_progress_tippy_y = vars.stage_progress_tippy_y
+
         vars.fill_polygons = {
             geo.polygon.new(
             (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1312 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
@@ -343,6 +351,7 @@ function race:init(...)
             (249 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1458 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
             259, 1458),
         }
+
         vars.both_polygons = {
             geo.polygon.new(
             257, 1336,
@@ -363,6 +372,7 @@ function race:init(...)
             (480 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x),(1310 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y),
             (255 * parallax_medium_amount) + (stage_x * -stage_progress_medium_x), (1312 * parallax_medium_amount) + (stage_y * -stage_progress_medium_y)),
         }
+
         vars.draw_polygons = {
             geo.polygon.new(
             (484 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1120 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
@@ -410,21 +420,10 @@ function race:init(...)
         gfx.setColor(gfx.kColorWhite)
         gfx.setDitherPattern(vars.edges.value, gfx.image.kDitherTypeBayer4x4)
         local edges_polygons
-        local edges_count  
-        local edges_point
-        local edges_last_point
-        local edges_next_point
-        local edges_point_x
-        local edges_point_y
-        local edges_last_point_x
-        local edges_last_point_y
-        local edges_next_point_x
-        local edges_next_point_y
         local edges_value = 40 * vars.edges.value
         gfx.setLineWidth(edges_value)
         for i = 1, #vars.edges_polygons do
             edges_polygons = vars.edges_polygons[i]
-            edges_count = edges_polygons:count()
             gfx.drawPolygon(edges_polygons)
         end
         gfx.setColor(gfx.kColorBlack)
@@ -445,21 +444,7 @@ function race:init(...)
                 image_stage:draw(calc_x, calc_y)
             end
         end
-        -- gfx.setStencilPattern(0.25, gfx.image.kDitherTypeDiagonalLine)
-        -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-        -- for i = 1, tiles_x * tiles_y do
-        --     draw_x = ((i-1) % tiles_x)
-        --     draw_y = ceil(i / tiles_y) - 1
-        --     calc_x = tile_x * draw_x
-        --     calc_y = tile_y * draw_y
-        --     if (calc_x > -x-tile_x and calc_x < -x+400) and (calc_y > -y-tile_y and calc_y < -y+240) then
-        --         image_stage = assets.image_stage[i]
-        --         image_stage:draw(calc_x, calc_y)
-        --     end
-        -- end
-        -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        -- gfx.clearStencil()
-
+        
         local audience_x
         local audience_y
         local audience_rand
@@ -500,20 +485,12 @@ function race:init(...)
             if (bushes_x > -x-40 and bushes_x < -x+440) and (bushes_y > -y-40 and bushes_y < -y+280) then
                 bushes:drawImage(
                     bushes_rand,
-                    (bushes_x - 41),
-                    (bushes_y - 39))
-                bushtops:drawImage(
-                    bushes_rand,
                     (bushes_x - 41) * parallax_short_amount + (stage_x * -stage_progress_short_x),
                     (bushes_y - 39) * parallax_short_amount + (stage_y * -stage_progress_short_y))
-                -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
-                -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                -- bushes:drawImage(
-                --     bushes_rand,
-                --     (bushes_x - 41),
-                --     (bushes_y - 39))
-                -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                -- gfx.clearStencil()
+                bushtops:drawImage(
+                    bushes_rand,
+                    (bushes_x - 41) * parallax_medium_amount + (stage_x * -stage_progress_medium_x),
+                    (bushes_y - 39) * parallax_medium_amount + (stage_y * -stage_progress_medium_y))
             end
         end
 
@@ -606,14 +583,6 @@ function race:init(...)
                     trees_rand,
                     (trees_x - 66) * parallax_tippy_amount + (stage_x * -stage_progress_tippy_x),
                     (trees_y - 66) * parallax_tippy_amount + (stage_y * -stage_progress_tippy_y))
-                -- gfx.setStencilPattern(0.50, gfx.image.kDitherTypeDiagonalLine)
-                -- gfx.setImageDrawMode(gfx.kDrawModeFillBlack)
-                -- trees:drawImage(
-                --     trees_rand,
-                --     (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
-                --     (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
-                -- gfx.setImageDrawMode(gfx.kDrawModeCopy)
-                -- gfx.clearStencil()
             end
         end
     end
@@ -914,6 +883,7 @@ function race:update()
                 self:checkpointcheck(true)
             end
         end
+        if self.boat.crashable then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
             self:finish(true, 400) -- end the race. Ouch.
         end

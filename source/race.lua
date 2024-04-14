@@ -14,7 +14,10 @@ local floor <const> = math.floor
 local random <const> = math.random
 local deg <const> = math.deg
 local atan <const> = math.atan2
+local sqrt <const> = math.sqrt
 local abs <const> = math.abs
+local sin <const> = math.sin
+local cos <const> = math.cos
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -137,7 +140,7 @@ function race:init(...)
     end
 
     -- Load in the appropriate images depending on what stage is called. EZ!
-    assets.image_stage = gfx.imagetable.new('images/race/stages/tutorial/stage')
+    assets.image_stage = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/stage')
     assets.image_stagec = gfx.image.new('images/race/stages/stage' .. vars.stage .. '/stagec')
     assets.image_water_bg = gfx.image.new('images/race/stages/stage' .. vars.stage .. '/water_bg')
     assets.water = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/water')
@@ -787,9 +790,32 @@ function race:checkpointcheck(cpu)
                     end
                 end
                 vars.cpu_last_checkpoint = tag
-            elseif tag == 255 and not self.cpu.crashed then
-                -- self.cpu:moveTo(x, y)
+            elseif tag == 255 then
                 -- CPU is colliding with boat.
+                local cpu_body = self.cpu.transform:transformedPolygon(self.cpu.poly_body_crash)
+                cpu_body:translate(self.cpu.x, self.cpu.y)
+                local player_scale = self.boat.scale_factor
+                local player_body = self.boat.transform:transformedPolygon(self.boat.poly_body_crash)
+                player_body:translate(self.boat.x, self.boat.y)
+                for i = 1, player_body:count() do
+                    if cpu_body:containsPoint(player_body:getPointAt(i)) then
+                        local angle = atan(self.boat.y - self.cpu.y, self.boat.x - self.cpu.x) - 1.57
+                        if not self.cpu.in_wall then
+                            if self.boat.in_wall then
+                                self.cpu:moveBy(sin(angle) * 3.8, -cos(angle) * 3.8)
+                            else
+                                self.cpu:moveBy(sin(angle) * 1.9, -cos(angle) * 1.9)
+                            end
+                        end
+                        if not self.boat.in_wall then
+                            if self.cpu.in_wall then
+                                self.boat:moveBy(-sin(angle) * (3.8 * player_scale), cos(angle) * (3.8 * player_scale))
+                            else
+                                self.boat:moveBy(-sin(angle) * (1.9 * player_scale), cos(angle) * (1.9 * player_scale))
+                            end
+                        end
+                    end
+                end
             end
         end
     else
@@ -828,8 +854,6 @@ function race:checkpointcheck(cpu)
                     end
                 end
                 vars.last_checkpoint = tag
-            elseif tag == 255 then
-                -- Boat is colliding with CPU.
             end
         end
     end
@@ -879,15 +903,14 @@ function race:update()
                 end
             end
             self:checkpointcheck(false)
-            if self.cpu then
-                self:checkpointcheck(true)
-            end
         end
         if self.boat.crashable then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
+        if self.cpu.crashable then self.cpu:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
             self:finish(true, 400) -- end the race. Ouch.
         end
     end
+    if self.cpu then self:checkpointcheck(true) end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
     self.caustics:moveTo(floor(x / 4) * 2 % 400, floor(y / 4) * 2 % 240) -- Move the water sprite to keep it in frame
     self.water:moveTo((x * 0.8) % 400, (y * 0.8) % 240) -- Move the water sprite to keep it in frame

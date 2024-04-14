@@ -367,6 +367,20 @@ function ordinal(num)
     end
 end
 
+function pd.timer:resetnew(duration, startValue, endValue, easingFunction)
+	self.duration = duration
+	self._startValue = startValue
+	self._endValue = endValue or 0
+	self._easingFunction = easingFunction or pd.easingFunctions.linear
+	self._currentTime = 0
+	self._lastTime = nil
+	self.active = true
+	self.hasReversed = false
+	self.remainingDelay = self.delay
+	self.value = self._startValue
+	self._calledOnRepeat = nil
+end
+
 -- This function shakes the screen. int is a number representing intensity. time is a number representing duration
 function shakies(time, int)
     if pd.getReduceFlashing() then -- If reduce flashing is enabled, then don't shake.
@@ -382,7 +396,7 @@ import 'chill'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(tutorial)
+    scenemanager:switchscene(race, 1, "story")
 end
 
 function pd.update()

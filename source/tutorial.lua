@@ -76,7 +76,7 @@ function tutorial:init(...)
         current_step = 1,
         progressable = false,
         hud_open = false,
-        progress_delay = 10,
+        progress_delay = 1500,
         gameplay_progress = 0,
         up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
         water = pd.timer.new(2000, 1, 16),

@@ -81,6 +81,7 @@ function tutorial:init(...)
         up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
         water = pd.timer.new(2000, 1, 16),
         edges = pd.timer.new(1000, 0, 1),
+        anim_hud = pd.timer.new(0, -130, -130),
         leaving = false,
         down = false,
     }
@@ -112,16 +113,15 @@ function tutorial:init(...)
     vars.up.repeats = true
     vars.up.reverses = true
     vars.up.reverseEasingFunction = pd.easingFunctions.outBack
+    vars.anim_hud.discardOnCompletion = false
 
     vars.tiles_x, vars.tiles_y = assets.image_stage:getSize()
     vars.tile_x, vars.tile_y = assets.image_stage[1]:getSize()
     vars.stage_x = vars.tile_x * vars.tiles_x
     vars.stage_y = vars.tile_y * vars.tiles_y
 
-    -- Show HUD no matter what Pro says. Power Meter is important
-    vars.anim_hud = pd.timer.new(0, -130, -130)
-
     vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
+    vars.anim_overlay.discardOnCompletion = false
     vars.finish = gfx.sprite.addEmptyCollisionSprite(1, 1, 1, 1)
 
     -- Chillin' out, parallaxin', relaxin' all cool
@@ -451,7 +451,7 @@ function tutorial:progress()
         elseif vars.current_step == 7 then
             self.boat:state(true, true, false)
         elseif vars.current_step == 8 then
-            vars.anim_hud = pd.timer.new(750, -130, 0, pd.easingFunctions.outSine)
+            vars.anim_hud:resetnew(750, -130, 0, pd.easingFunctions.outSine)
             assets.sfx_ui:play()
         elseif vars.current_step == 14 then
             -- Turn player turning back on, check for straight line
@@ -507,7 +507,7 @@ function tutorial:leave()
         vars.leaving = true
         save['slot' .. save.current_story_slot .. '_progress'] = "cutscene2"
         fademusic(999)
-        vars.anim_overlay = pd.timer.new(1000, math.floor(vars.anim_overlay.value), 1)
+        vars.anim_overlay:resetnew(1000, math.floor(vars.anim_overlay.value), 1)
         self.boat:state(false, false, false)
         self.boat:finish(1500, false)
         pd.timer.performAfterDelay(1000, function()

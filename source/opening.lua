@@ -54,6 +54,8 @@ function opening:init(...)
     }
     pd.inputHandlers.push(vars.openingHandlers)
 
+    vars.anim_fade.discardOnCompletion = false
+
     class('opening_content').extends(gfx.sprite)
     function opening_content:init()
         opening_content.super.init(self)
@@ -127,7 +129,7 @@ function opening:leave()
     if not vars.leaving then
         vars.leaving = true
         fademusic(999)
-        vars.anim_fade = pd.timer.new(1000, math.floor(vars.anim_fade.value), 1)
+        vars.anim_fade:resetnew(1000, math.floor(vars.anim_fade.value), 1)
         vars.anim_fade.timerEndedCallback = function()
             if vars.title then
                 scenemanager:switchscene(title)

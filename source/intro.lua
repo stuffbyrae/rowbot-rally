@@ -29,7 +29,7 @@ function intro:init(...)
         image_a = gfx.image.new('images/ui/a'),
         image_gimmick_container = gfx.image.new('images/stages/gimmick_container'),
         image_gimmick_icons = gfx.imagetable.new('images/stages/gimmick_icons'),
-        image_fade = gfx.imagetable.new('images/ui/fade/fade'),
+        image_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         img_left = gfx.image.new(250, 150),
         img_bottom = gfx.image.new(400, 73),
         sfx_whoosh = smp.new('audio/sfx/whoosh'),
@@ -42,6 +42,7 @@ function intro:init(...)
         anim_left = pd.timer.new(400, -400, 0, pd.easingFunctions.outCubic),
         anim_right = pd.timer.new(400, 600, 400, pd.easingFunctions.outCubic),
         anim_bottom = pd.timer.new(300, 350, 235, pd.easingFunctions.outBack, 500),
+        anim_fade = pd.timer.new(1, 34, 34),
     }
     vars.introHandlers = {
         AButtonDown = function()
@@ -51,6 +52,11 @@ function intro:init(...)
         end
     }
     pd.inputHandlers.push(vars.introHandlers)
+
+    vars.anim_left.discardOnCompletion = false
+    vars.anim_right.discardOnCompletion = false
+    vars.anim_bottom.discardOnCompletion = false
+    vars.anim_fade.discardOnCompletion = false
 
     save['slot' .. save.current_story_slot .. '_progress'] = "race" .. vars.stage
     
@@ -71,14 +77,10 @@ function intro:init(...)
         assets.pedallica:drawText(gfx.getLocalizedText('gimmick_' .. vars.stage .. '_desc'), 85, 32)
     gfx.popContext()
 
-    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
-        gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
-    end)
-
     class('intro_fade').extends(gfx.sprite)
     function intro_fade:init()
         intro_fade.super.init(self)
-        self:setImage(assets.image_fade[1])
+        self:setImage(assets.image_fade[34])
         self:setCenter(0, 0)
         self:add()
     end
@@ -144,10 +146,11 @@ end
 function intro:leave()
     vars.leaving = true
     assets.sfx_whoosh:play()
-    vars.anim_left = pd.timer.new(200, self.left.x, -400, pd.easingFunctions.inCubic)
-    vars.anim_right = pd.timer.new(200, self.right.x, 600, pd.easingFunctions.inCubic)
-    vars.anim_bottom = pd.timer.new(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
-    vars.anim_fade = pd.timer.new(300, 1, 34)
+    fademusic(250)
+    vars.anim_left:resetnew(200, self.left.x, -400, pd.easingFunctions.inCubic)
+    vars.anim_right:resetnew(200, self.right.x, 600, pd.easingFunctions.inCubic)
+    vars.anim_bottom:resetnew(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
+    vars.anim_fade:resetnew(250, 34, 1)
     pd.timer.performAfterDelay(300, function()
         scenemanager:switchscene(race, vars.stage, "story")
     end)

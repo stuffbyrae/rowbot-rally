@@ -164,6 +164,11 @@ function title:init(...)
         anim_bg = pd.timer.new(1000, -240, 0, pd.easingFunctions.outCubic),
         anim_item = pd.timer.new(0, 200, 200),
         anim_fade = pd.timer.new(0, 0, 0),
+        anim_slots = pd.timer.new(0, 400, 400),
+        anim_slot_u = pd.timer.new(1, 0, 0),
+        anim_slot_d = pd.timer.new(1, 0, 0),
+        anim_slot_l = pd.timer.new(1, 0, 0),
+        anim_slot_r = pd.timer.new(1, 0, 0),
         anim_pulse = pd.timer.new(1015, 15, 7, pd.easingFunctions.outCubic),
         anim_checker_x = pd.timer.new(2300, 0, -124),
         anim_checker_y = pd.timer.new(2300, 0, -32),
@@ -251,6 +256,14 @@ function title:init(...)
         end
     }
     pd.inputHandlers.push(vars.titleHandlers)
+
+    vars.anim_item.discardOnCompletion = false
+    vars.anim_slots.discardOnCompletion = false
+    vars.anim_fade.discardOnCompletion = false
+    vars.anim_slot_u.discardOnCompletion = false
+    vars.anim_slot_d.discardOnCompletion = false
+    vars.anim_slot_l.discardOnCompletion = false
+    vars.anim_slot_r.discardOnCompletion = false
 
     vars.item_list = {'story_mode'} -- Add story mode — that's always there!
     if demo then -- If there's a demo around, change the wording accordingly.
@@ -495,9 +508,9 @@ function title:newselection(dir)
             vars.list_open = false
             assets.sfx_menu:play()
             if dir then
-                vars.anim_item = pd.timer.new(150, 200, -200, pd.easingFunctions.inCubic)
+                vars.anim_item:resetnew(150, 200, -200, pd.easingFunctions.inCubic)
             else
-                vars.anim_item = pd.timer.new(150, 200, 600, pd.easingFunctions.inCubic)
+                vars.anim_item:resetnew(150, 200, 600, pd.easingFunctions.inCubic)
             end
             vars.anim_item.timerEndedCallback = function()
                 if vars.selection == 1 and demo then -- Bring in the demo text if necessary
@@ -507,9 +520,9 @@ function title:newselection(dir)
                 end
                 self.item:setImage(assets.image_item:scaledImage(2))
                 if dir then
-                    vars.anim_item = pd.timer.new(150, 600, 200, pd.easingFunctions.outBack)
+                    vars.anim_item:resetnew(150, 600, 200, pd.easingFunctions.outBack)
                 else
-                    vars.anim_item = pd.timer.new(150, -200, 200, pd.easingFunctions.outBack)
+                    vars.anim_item:resetnew(150, -200, 200, pd.easingFunctions.outBack)
                 end
                 vars.anim_item.timerEndedCallback = function()
                     vars.list_open = true
@@ -533,7 +546,7 @@ function title:openslots()
         pd.inputHandlers.pop()
         pd.inputHandlers.push(vars.slotsHandlers, true)
         self.slots:add()
-        vars.anim_slots = pd.timer.new(250, 400, 0, pd.easingFunctions.outCubic)
+        vars.anim_slots:resetnew(250, 400, 0, pd.easingFunctions.outCubic)
         vars.slots_open = true
     end
 end
@@ -558,7 +571,7 @@ end
 -- Close the slot picker
 function title:closeslots()
     assets.sfx_whoosh:play()
-    vars.anim_slots = pd.timer.new(200, 0, 400, pd.easingFunctions.inCubic)
+    vars.anim_slots:resetnew(200, 0, 400, pd.easingFunctions.inCubic)
     pd.inputHandlers.pop()
     pd.inputHandlers.push(vars.titleHandlers)
     pd.timer.performAfterDelay(200, function()
@@ -581,7 +594,7 @@ function title:openslot(slot)
     pd.inputHandlers.pop()
     assets.image_erase = makebutton(gfx.getLocalizedText('erase'), 'small')
     vars.mins, vars.secs, vars.mils = timecalc(save['slot' .. save.current_story_slot .. '_racetime'])
-    vars.anim_fade = pd.timer.new(250, 0, 1)
+    vars.anim_fade:resetnew(250, 0, 1)
     if save['slot' .. slot .. '_progress'] == nil then
         assets.image_play = makebutton(gfx.getLocalizedText('start'), 'big')
     elseif save['slot' .. slot .. '_progress'] == 'finish' and save['slot' .. slot .. '_circuit'] <= 3 then
@@ -589,10 +602,10 @@ function title:openslot(slot)
     else
         assets.image_play = makebutton(gfx.getLocalizedText('play'), 'big')
     end
-    vars.anim_slot_u = pd.timer.new(250, 0, 43, pd.easingFunctions.inCubic)
-    vars.anim_slot_d = pd.timer.new(250, 0, 115, pd.easingFunctions.inCubic)
-    vars.anim_slot_r = pd.timer.new(250, 0, 800, pd.easingFunctions.inCubic)
-    vars.anim_slot_l = pd.timer.new(250, 0, 400, pd.easingFunctions.inCubic)
+    vars.anim_slot_u:resetnew(250, 0, 43, pd.easingFunctions.inCubic)
+    vars.anim_slot_d:resetnew(250, 0, 115, pd.easingFunctions.inCubic)
+    vars.anim_slot_r:resetnew(250, 0, 800, pd.easingFunctions.inCubic)
+    vars.anim_slot_l:resetnew(250, 0, 400, pd.easingFunctions.inCubic)
     vars.anim_slot_u.timerEndedCallback = function()
         pd.inputHandlers.push(vars.slotHandlers, true)
         vars.slot_open = true
@@ -605,22 +618,19 @@ function title:closeslot(transition)
     vars.slot_open = false
     if transition then
         assets.sfx_whoosh:play()
-        vars.anim_fade = pd.timer.new(250, 1, 0)
-        vars.anim_slot_u = pd.timer.new(200, 43, 0, pd.easingFunctions.outCubic)
-        vars.anim_slot_d = pd.timer.new(200, 115, 0, pd.easingFunctions.outCubic)
-        vars.anim_slot_r = pd.timer.new(200, 800, 0, pd.easingFunctions.outCubic)
-        vars.anim_slot_l = pd.timer.new(200, 400, 0, pd.easingFunctions.outCubic)
+        vars.anim_fade:resetnew(250, 1, 0)
+        vars.anim_slot_u:resetnew(200, 43, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_d:resetnew(200, 115, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_r:resetnew(200, 800, 0, pd.easingFunctions.outCubic)
+        vars.anim_slot_l:resetnew(200, 400, 0, pd.easingFunctions.outCubic)
         vars.anim_slot_u.timerEndedCallback = function()
             vars.slots_open = true
             pd.inputHandlers.push(vars.slotsHandlers, true)
         end
     else
-        vars.anim_slot_u = pd.timer.new(0, 0, 0)
-        vars.anim_slot_d = pd.timer.new(0, 0, 0)
-        vars.anim_slot_r = pd.timer.new(0, 0, 0)
-        vars.anim_slot_l = pd.timer.new(0, 0, 0)
         vars.slots_open = true
         pd.inputHandlers.push(vars.slotsHandlers, true)
+        print('test')
     end
 end
 

@@ -38,11 +38,11 @@ function race:init(...)
                 save.pro_ui = new
                 if not vars.finished then
                     if new then
-                        vars.anim_hud = pd.timer.new(200, vars.anim_hud.value, -130, pd.easingFunctions.inOutSine)
-                        vars.anim_ui_offset = pd.timer.new(200, vars.anim_ui_offset.value, 88, pd.easingFunctions.inOutSine)
+                        vars.anim_hud:resetnew(200, vars.anim_hud.value, -130, pd.easingFunctions.inOutSine)
+                        vars.anim_ui_offset:resetnew(200, vars.anim_ui_offset.value, 88, pd.easingFunctions.inOutSine)
                     else
-                        vars.anim_hud = pd.timer.new(200, vars.anim_hud.value, 0, pd.easingFunctions.inOutSine)
-                        vars.anim_ui_offset = pd.timer.new(200, vars.anim_ui_offset.value, 0, pd.easingFunctions.inOutSine)
+                        vars.anim_hud:resetnew(200, vars.anim_hud.value, 0, pd.easingFunctions.inOutSine)
+                        vars.anim_ui_offset:resetnew(200, vars.anim_ui_offset.value, 0, pd.easingFunctions.inOutSine)
                     end
                 end
             end)
@@ -91,11 +91,11 @@ function race:init(...)
         audience_2 = pd.timer.new(15000, 10, -10),
         audience_3 = pd.timer.new(25000, 10, -10),
         anim_parallax = pd.timer.new(0, 0, 0),
-        lap_string = gfx.getLocalizedText('lap1'),
-        anim_lap_string = pd.timer.new(0, -30, -30),
     }
+
     vars.water.repeats = true
     vars.edges.repeats = true
+    vars.anim_parallax.discardOnCompletion = false
     vars.audience_1.repeats = true
     vars.audience_1.reverses = true
     vars.audience_2.repeats = true
@@ -129,6 +129,7 @@ function race:init(...)
     end
 
     vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
+    vars.anim_overlay.discardOnCompletion = false
     vars.overlay = "fade"
 
     if save.pro_ui then
@@ -138,6 +139,8 @@ function race:init(...)
         vars.anim_hud = pd.timer.new(500, -130, 0, pd.easingFunctions.outSine)
         vars.anim_ui_offset = pd.timer.new(0, 0, 0)
     end
+    vars.anim_hud.discardOnCompletion = false
+    vars.anim_ui_offset.discardOnCompletion = false
 
     -- Load in the appropriate images depending on what stage is called. EZ!
     assets.image_stage = gfx.imagetable.new('images/race/stages/stage' .. vars.stage .. '/stage')
@@ -188,6 +191,11 @@ function race:init(...)
             360, 1545)
         end
         vars.laps = 3 -- How many laps...
+        vars.lap_string = gfx.getLocalizedText('lap1')
+        vars.lap_string_2 = gfx.getLocalizedText('lap2')
+        vars.lap_string_3 = gfx.getLocalizedText('lap3')
+        vars.anim_lap_string = pd.timer.new(0, -30, -30)
+        vars.anim_lap_string.discardOnCompletion = false
         -- The checkpointzzzzz™
         vars.finish = gfx.sprite.addEmptyCollisionSprite(270, 1290, 200, 20)
         vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(725, 530, 225, 20)
@@ -250,7 +258,9 @@ function race:init(...)
         vars.shades = true
         assets.shades = gfx.image.new('images/race/meter/shades')
         vars.anim_shades_x = pd.timer.new(0, 0, 0)
+        vars.anim_shades_x.discardOnCompletion = false
         vars.anim_shades_y = pd.timer.new(0, 0, 0)
+        vars.anim_shades_y.discardOnCompletion = false
     elseif vars.stage == 4 then
         vars.laps = 1
         vars.music_loop = 0
@@ -264,16 +274,26 @@ function race:init(...)
         vars.laps = 1
         vars.music_loop = 0
     end
-    assets.music = 'audio/music/stage' .. vars.stage -- Set the music
 
+    newmusic('audio/music/stage' .. vars.stage, true, vars.music_loop) -- Adding new music
+    music:pause()
+
+    
     if vars.laps > 1 then -- Set the timer graphic
         assets.image_timer = gfx.image.new('images/race/timer_1')
+        assets.image_timer_2 = gfx.image.new('images/race/timer_2')
+        assets.image_timer_3 = gfx.image.new('images/race/timer_3')
     else
-        assets.image_timer = gfx.image.new('images/race/timer')
+        assets.image_timer = gfx.image.new('images/race/timer') 
     end
 
     if vars.mode == "tt" then -- If time trials is here, then add in some boosts.
-        assets.image_item = gfx.image.new('images/race/item_3')
+        assets.image_item_3 = gfx.image.new('images/race/item_3')
+        assets.image_item_2 = gfx.image.new('images/race/item_2')
+        assets.image_item_1 = gfx.image.new('images/race/item_1')
+        assets.image_item_active = gfx.image.new('images/race/item_active')
+        assets.image_item_used = gfx.image.new('images/race/item_used')
+        assets.image_item = assets.image_item_3
         vars.boosts_remaining = 3
     end
 
@@ -667,29 +687,29 @@ function race:boost(rocketarms)
     if vars.in_progress and not self.boat.boosting and vars.boosts_remaining > 0 then
         -- ... then boost! :3
         self.boat:boost() -- The boat does most of this, of course.
-        vars.anim_parallax = pd.timer.new(500, 0.1, 0, pd.easingFunctions.outSine)
-        vars.anim_overlay = pd.timer.new(500, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
+        vars.anim_parallax:resetnew(750, 0.1, 0, pd.easingFunctions.outSine)
         vars.overlay = "boost"
+        vars.anim_overlay:resetnew(1000, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
         vars.anim_overlay.repeats = true
         pd.timer.performAfterDelay(2500, function() -- and taking it away after a while.
-            vars.anim_overlay = nil
+            vars.anim_overlay:resetnew(0, 0, 0)
         end)
         if vars.shades then
             vars.shades = false
-            vars.anim_shades_x = pd.timer.new(800, 0, 80)
-            vars.anim_shades_y = pd.timer.new(400, 0, 20, pd.easingFunctions.outCubic)
+            vars.anim_shades_x:resetnew(800, 0, 80)
+            vars.anim_shades_y:resetnew(400, 0, 20, pd.easingFunctions.outCubic)
             vars.anim_shades_y.timerEndedCallback = function()
-                vars.anim_shades_y = pd.timer.new(400, 20, -30, pd.easingFunctions.inSine)
+                vars.anim_shades_y:resetnew(400, 20, -30, pd.easingFunctions.inSine)
             end
         end
         if rocketarms then
             vars.boosts_remaining -= 1
-            assets.image_item = gfx.image.new('images/race/item_active')
+            assets.image_item = assets.image_item_active
             pd.timer.performAfterDelay(50, function()
                 if vars.boosts_remaining ~= 0 then
-                    assets.image_item = gfx.image.new('images/race/item_' .. vars.boosts_remaining)
+                    assets.image_item = assets['image_item_' .. vars.boosts_remaining]
                 else
-                    assets.image_item = gfx.image.new('images/race/item_used')
+                    assets.image_item = assets.image_item_used
                 end
             end)
         end
@@ -714,11 +734,11 @@ end
 function race:start()
     vars.started = true
     assets.sfx_countdown:play()
-    vars.anim_overlay = pd.timer.new(3900, 1, #assets.overlay_countdown)
+    vars.anim_overlay:resetnew(3900, 1, #assets.overlay_countdown)
     vars.overlay = "countdown"
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
-        newmusic(assets.music, true, vars.music_loop) -- Adding new music
+        music:play()
         self.boat:state(true, true, true)
         self.boat:start()
         if vars.mode == "story" then
@@ -734,9 +754,9 @@ end
 function race:finish(timeout, duration)
     if vars.in_progress then
         if save.pro_ui then
-            vars.anim_hud = pd.timer.new(500, vars.anim_hud.value, -230, pd.easingFunctions.inSine)
+            vars.anim_hud:resetnew(500, vars.anim_hud.value, -230, pd.easingFunctions.inSine)
         else
-            vars.anim_hud = pd.timer.new(500, vars.anim_hud.value, -130, pd.easingFunctions.inSine)
+            vars.anim_hud:resetnew(500, vars.anim_hud.value, -130, pd.easingFunctions.inSine)
         end
         vars.in_progress = false
         vars.finished = true
@@ -745,11 +765,11 @@ function race:finish(timeout, duration)
         if timeout then -- If you ran the timer past 09:59.00...
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
             self.boat:finish(duration, false) -- This true/false is for the turning peel-out, btw.
-            vars.anim_overlay = nil
+            vars.anim_overlay:resetnew(0, 0, 0)
             assets.sfx_ref:play() -- TWEEEEEEEEEEEEET!!!
         else
             self.boat:finish(duration, true)
-            vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade) -- Flash!
+            vars.anim_overlay:resetnew(1000, 1, #assets.overlay_fade) -- Flash!
             vars.overlay = "fade"
             assets.sfx_finish:play() -- Applause!
         end
@@ -834,10 +854,10 @@ function race:checkpointcheck(cpu)
                     if vars.current_lap > vars.laps then -- The race is done.
                         self:finish(false)
                     else
-                        vars.lap_string = gfx.getLocalizedText('lap' .. vars.current_lap)
-                        vars.anim_lap_string = pd.timer.new(500, -30, 20, pd.easingFunctions.outBack)
+                        vars.lap_string = vars['lap_string_' .. vars.current_lap]
+                        vars.anim_lap_string:resetnew(500, -30, 20, pd.easingFunctions.outBack)
                         pd.timer.performAfterDelay(1500, function()
-                            vars.anim_lap_string = pd.timer.new(500, 20, -30, pd.easingFunctions.inBack)
+                            vars.anim_lap_string:resetnew(500, 20, -30, pd.easingFunctions.inBack)
                         end)
                         if vars.current_lap == 2 then
                             assets.sfx_start:play()
@@ -850,7 +870,7 @@ function race:checkpointcheck(cpu)
                                 music:play()
                             end)
                         end
-                        assets.image_timer = gfx.image.new('images/race/timer_' .. vars.current_lap)
+                        assets.image_timer = assets['image_timer_' .. vars.current_lap]
                     end
                 end
                 vars.last_checkpoint = tag
@@ -905,7 +925,7 @@ function race:update()
             self:checkpointcheck(false)
         end
         if self.boat.crashable then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
-        if self.cpu.crashable then self.cpu:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
+        if self.cpu ~= nil and self.cpu.crashable then self.cpu:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
             self:finish(true, 400) -- end the race. Ouch.
         end

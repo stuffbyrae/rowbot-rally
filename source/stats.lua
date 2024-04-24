@@ -81,11 +81,12 @@ function stats:init(...)
 
     pd.timer.performAfterDelay(1000, function() -- After the wave's done animating inward...
         vars.transitioning = false -- Start accepting button presses to go back.
-        vars.anim_wave_y = pd.timer.new(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
+        vars.anim_wave_y:resetnew(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
         vars.anim_wave_y.repeats = true -- make it repeat forever,
         vars.anim_wave_y.reverses = true -- and make it loop!
     end)
 
+    vars.anim_wave_y.discardOnCompletion = false
     vars.anim_ticker.repeats = true
     vars.anim_wave_x.repeats = true
 
@@ -204,7 +205,7 @@ end
 
 function stats:leave() -- Leave and move back to the title screen
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
-    vars.anim_wave_y = pd.timer.new(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
+    vars.anim_wave_y:resetnew(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function() -- After that animation's done...
         scenemanager:switchscene(title) -- Switch back to the title!
     end)

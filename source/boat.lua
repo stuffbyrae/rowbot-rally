@@ -29,7 +29,6 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
     
     self.transform = geo.affineTransform.new()
     self.crash_transform = geo.affineTransform.new()
-    self.shadow = geo.affineTransform.new()
     self.ripple = geo.affineTransform.new()
 
     self.image_crash = gfx.image.new('images/race/crash')
@@ -53,8 +52,11 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
     self.scale.reverses = true -- Make the idle reverse after
     self.scale.repeats = true -- Make the idle loop
     self.move_speedo = pd.timer.new(0, 0, 0)
+    self.move_speedo.discardOnCompletion = false
     self.wobble_speedo = pd.timer.new(0, 0, 0)
+    self.wobble_speedo.discardOnCompletion = false
     self.turn_speedo = pd.timer.new(0, 0, 0) -- Current movement speed
+    self.turn_speedo.discardOnCompletion = false
     
     self.movable = false -- Can the boat be propelled forward?
     self.crashed = false -- Are you crashed?
@@ -67,6 +69,8 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
 
     self.boost_x = pd.timer.new(0, 1, 1) -- Boost animation on the X axis
     self.boost_y = pd.timer.new(0, 1, 1) -- Boost animation on the Y axis
+    self.boost_x.discardOnCompletion = false
+    self.boost_y.discardOnCompletion = false
 
     self.ripple_scale = pd.timer.new(2000 + (1000 * self.random), 0.95, 1.3)
     self.ripple_scale.discardOnCompletion = false
@@ -85,10 +89,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
         self.stage = stage
 
         self.follow_polygon = follow_polygon
-        self.stupid = false
-        self.stupidity_rate = 0.1
         self.lerp = ((self.stage / 2) * 0.09) * (1 + (save['slot' .. save.current_story_slot .. '_circuit'] / 8)) -- Rate at which the rotation towards the angle is interpolated.
-        self.old_rotation = 360
 
         self.follow_points = {}
         self.follow_count = self.follow_polygon:count()
@@ -127,6 +128,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
         end
         
         self.cam_x = pd.timer.new(0, 0, 0) -- Camera X position
+        self.cam_x.discardOnCompletion = false
         if self.mode == "race" then
             self.stage_x = stage_x
             self.stage_y = stage_y
@@ -134,6 +136,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
         else
             self.cam_y = pd.timer.new(0, 0, 0) -- Camera Y position
         end
+        self.cam_y.discardOnCompletion = false
 
         self.sensitivity = save.sensitivity
         self.lerp = 0.2 -- Rate at which the cranking is interpolated.
@@ -165,10 +168,10 @@ end
 -- Please don't call if the boat is CPU. instead, only use the start and finish functions.
 function boat:state(move, rowbot, turn)
     if self.rowbot and not rowbot then
-        self.turn_speedo = pd.timer.new(1000, self.turn_speedo.value, 0, pd.easingFunctions.inOutSine)
+        self.turn_speedo:resetnew(1000, self.turn_speedo.value, 0, pd.easingFunctions.inOutSine)
     elseif not self.rowbot and rowbot then
         self.sfx_rowboton:play()
-        self.turn_speedo = pd.timer.new(1000, self.turn_speedo.value, 1, pd.easingFunctions.inOutSine)
+        self.turn_speedo:resetnew(1000, self.turn_speedo.value, 1, pd.easingFunctions.inOutSine)
     end
     self.movable = move
     self.rowbot = rowbot
@@ -178,13 +181,13 @@ end
 -- Starts boat movement and camera
 function boat:start(duration) -- 1000 is default
     duration = duration or 1000
-    self.move_speedo = pd.timer.new(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
-    self.wobble_speedo = pd.timer.new(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
+    self.move_speedo:resetnew(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
+    self.wobble_speedo:resetnew(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
     if self.mode == "cpu" then
         self.movable = true
     else
-        self.cam_x = pd.timer.new(duration * 1.5, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
-        self.cam_y = pd.timer.new(duration * 1.5, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
+        self.cam_x:resetnew(duration * 1.5, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
+        self.cam_y:resetnew(duration * 1.5, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
         self.sfx_row:play(0)
         if not save.button_controls and pd.isSimulator ~= 1 then show_crank = true end
         if enabled_cheats_scream then
@@ -196,8 +199,8 @@ end
 -- Stops boat movement and camera
 function boat:finish(duration, peelout)
     duration = duration or 1500
-    self.move_speedo = pd.timer.new(duration, self.move_speedo.value, 0, pd.easingFunctions.inOutSine)
-    self.wobble_speedo = pd.timer.new(duration, self.wobble_speedo.value, 0, pd.easingFunctions.outBack)
+    self.move_speedo:resetnew(duration, self.move_speedo.value, 0, pd.easingFunctions.inOutSine)
+    self.wobble_speedo:resetnew(duration, self.wobble_speedo.value, 0, pd.easingFunctions.outBack)
     self.ripple_scale:reset()
     self.ripple_opacity:reset()
     self.ripple_scale:start()
@@ -205,8 +208,8 @@ function boat:finish(duration, peelout)
     if self.mode == "cpu" then
         self.movable = false
     else
-        self.cam_x = pd.timer.new(duration, self.cam_x.value, 0, pd.easingFunctions.inOutSine)
-        self.cam_y = pd.timer.new(duration, self.cam_y.value, 0, pd.easingFunctions.inOutSine)
+        self.cam_x:resetnew(duration, self.cam_x.value, 0, pd.easingFunctions.inOutSine)
+        self.cam_y:resetnew(duration, self.cam_y.value, 0, pd.easingFunctions.inOutSine)
         self.sfx_row:stop()
         show_crank = false
         if peelout then
@@ -262,13 +265,9 @@ function boat:crash(x, y)
         self.crash_direction = floor(angle - 90 + random(-20, 20)) % 360 + 1
         angle = nil
         self.crash_time = 500 * (max(0.25, min(1, self.move_speedo.value)))
-        self.show_crash_image = true
-        pd.timer.performAfterDelay(200, function()
-            self.show_crash_image = false
-        end)
         if self.movable then
-            self.move_speedo = pd.timer.new(self.crash_time, 1, 0, pd.easingFunctions.outSine)
-            self.wobble_speedo = pd.timer.new(self.crash_time / 2, self.wobble_speedo.value, -1.5, pd.easingFunctions.outBack)
+            self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
+            self.wobble_speedo:resetnew(self.crash_time / 2, self.wobble_speedo.value, -1.5, pd.easingFunctions.outBack)
             self.move_speedo.reverses = true
             self.wobble_speedo.reverses = true
             self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
@@ -279,6 +278,10 @@ function boat:crash(x, y)
             end)
         end
         if self.mode ~= "cpu" then
+            self.show_crash_image = true
+            pd.timer.performAfterDelay(200, function()
+                self.show_crash_image = false
+            end)
             self.sfx_crash:stop()
             self.sfx_crash:setRate(1 + (random() - 0.5))
             self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))
@@ -298,9 +301,9 @@ function boat:boost()
     if self.movable and not self.boosting then -- Make sure they're not boosting already
         self.boosting = true
         -- Stretch the boat
-        self.boost_x = pd.timer.new(500, 0.8, 1)
-        self.boost_y = pd.timer.new(500, 1.2, 1)
-        self.wobble_speedo = pd.timer.new(500, 1, 4, pd.easingFunctions.outBack)
+        self.boost_x:resetnew(500, 0.8, 1)
+        self.boost_y:resetnew(500, 1.2, 1)
+        self.wobble_speedo:resetnew(500, 1, 4, pd.easingFunctions.outBack)
         self.speed = self.speed * 2 -- Make the boat go faster (duh)
         self.lerp = 0.1 -- Make it turn a little less quickly, though!
         pd.timer.performAfterDelay(2000, function()
@@ -311,14 +314,14 @@ function boat:boost()
         if self.mode ~= "cpu" then
             self.sfx_boost:play()
             -- Throw the camera back
-            self.cam_x = pd.timer.new(500, self.cam_x.value, -40, pd.easingFunctions.outBack)
-            self.cam_y = pd.timer.new(500, self.cam_y.value, -40, pd.easingFunctions.outBack)
+            self.cam_x:resetnew(500, self.cam_x.value, -40, pd.easingFunctions.outBack)
+            self.cam_y:resetnew(500, self.cam_y.value, -40, pd.easingFunctions.outBack)
             pd.timer.performAfterDelay(2000, function()
-                self.wobble_speedo = pd.timer.new(2000, 4, 1, pd.easingFunctions.outBack)
+                self.wobble_speedo:resetnew(2000, 4, 1, pd.easingFunctions.outBack)
                 -- Throw the camera ... back
                 if self.movable then
-                    self.cam_x = pd.timer.new(1500, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
-                    self.cam_y = pd.timer.new(1500, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
+                    self.cam_x:resetnew(1500, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
+                    self.cam_y:resetnew(1500, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
                 end
             end)
         end
@@ -328,7 +331,7 @@ end
 function boat:leap()
     if self.movable and not self.leaping then
         if self.mode ~= "cpu" then
-            self.turn_speedo = pd.timer.new(400, 1, 0, pd.easingFunctions.outSine)
+            self.turn_speedo:resetnew(400, 1, 0, pd.easingFunctions.outSine)
             self.sfx_air:play()
             self.sfx_boost:play()
         end
@@ -336,22 +339,22 @@ function boat:leap()
         self.crashable = false
         self:setnewsize(200)
         -- Scale anim — this is like 90% of the work
-        self.scale = pd.timer.new(700, self.scale_factor, self.scale_factor * 2, pd.easingFunctions.outCubic)
+        self.scale:resetnew(700, self.scale_factor, self.scale_factor * 2, pd.easingFunctions.outCubic)
         self.scale.reverses = true
         self.scale.reverseEasingFunction = pd.easingFunctions.inCubic
         pd.timer.performAfterDelay(1400, function()
             self.sfx_splash:play()
             -- Bounce-back animation
-            self.scale = pd.timer.new(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
+            self.scale:resetnew(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
             -- Re-set boat size
             self:setnewsize(120)
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
                 if self.mode ~= "cpu" then
-                    self.turn_speedo = pd.timer.new(600, 0, 1, pd.easingFunctions.outSine)
+                    self.turn_speedo:resetnew(600, 0, 1, pd.easingFunctions.outSine)
                 end
-                self.scale = pd.timer.new(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1)
+                self.scale:resetnew(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1)
                 self.leaping = false
             end)
         end)
@@ -375,7 +378,6 @@ end
 function boat:update()
     self.transform:reset()
     self.crash_transform:reset()
-    self.shadow:reset()
     self.ripple:reset()
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
     if not self.crashed then -- Move the boat
@@ -478,52 +480,39 @@ function boat:update()
     -- Make sure rotation winds up as integer 1 through 360
     self.rotation = floor(self.rotation) % 360
     if self.rotation == 0 then self.rotation = 360 end
-    if self.mode == "cpu" then
-        if abs(self.rotation - self.old_rotation) < 40 then
-            self.total_change = (self.rotation - self.old_rotation)
-        end
-        self.old_rotation = self.rotation
-    end
     -- Transform ALL the polygons!!!!1!
     self.transform:scale((self.scale.value * self.boost_x.value) * self.reversed, self.scale.value * self.boost_y.value)
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
-    self.shadow:scale(self.scale_factor * self.boost_x.value, self.scale_factor * self.boost_y.value)
     self.transform:rotate(self.rotation)
     self.crash_transform:rotate(self.rotation)
-    self.shadow:rotate(self.rotation)
     self:markDirty()
 end
 
-function boat:draw(x, y, width, height) 
-    if self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
-        self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
-        self.ripple:rotate(self.rotation)
-        self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
-        gfx.setColor(gfx.kColorWhite)
-        gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
-        gfx.setLineWidth(self.ripple_opacity.value * 4)
-        gfx.drawPolygon(self.ripple:transformedPolygon(self.poly_body))
-        gfx.setLineWidth(2)
-        gfx.setColor(gfx.kColorBlack)
-    end
-    self.shadow:translate(7 * self.scale_factor + self.boat_size / 2, 14 * self.scale_factor + self.boat_size / 2)
-    self.transform:translate(self.boat_size / 2, self.boat_size / 2)
-    gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
-    self.transform:translate(cos[self.rotation] * (self.total_change * (self.scale_factor * 0.75)), sin[self.rotation] * (self.total_change * (self.scale_factor * 0.75)))
-    gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-    gfx.fillPolygon(self.shadow:transformedPolygon(self.poly_body))
-    if self.show_crash_image and not enabled_cheats then
-        local crash_x, crash_y = self.transform:transformedPolygon(self.poly_body):getPointAt(self.crash_point):unpack()
-        self.image_crash:draw(crash_x - 20, crash_y - 20)
-    end
-    gfx.setColor(gfx.kColorWhite)
-    gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
-    gfx.setColor(gfx.kColorBlack)
-    gfx.drawPolygon(self.transform:transformedPolygon(self.poly_body))
-    gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
-    gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
-    gfx.setColor(gfx.kColorBlack)
+function boat:draw(x, y, width, height)
     if self.mode == "cpu" then
+        if self.ripple_scale.value ~= self.ripple_scale.endValue then
+            self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
+            self.ripple:rotate(self.rotation)
+            self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
+            gfx.setLineWidth(self.ripple_opacity.value * 4)
+            gfx.drawPolygon(self.ripple:transformedPolygon(self.poly_body))
+            gfx.setLineWidth(2)
+            gfx.setColor(gfx.kColorBlack)
+        end
+        self.transform:translate(self.boat_size / 2, self.boat_size / 2)
+        self.transform:translate(7 * self.scale_factor, 7 * self.scale_factor)
+        gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
+        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+        self.transform:translate(-7 * self.scale_factor, -7 * self.scale_factor)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
+        gfx.setColor(gfx.kColorBlack)
         if self.stage == 1 then
             local r01_head_x = self.boat_size / 2
             local r01_head_y = self.boat_size / 2
@@ -539,10 +528,39 @@ function boat:draw(x, y, width, height)
             gfx.setColor(gfx.kColorBlack)
             gfx.drawCircleAtPoint(r01_head_x, r01_head_y, 15)
             gfx.drawCircleAtPoint(r01_head_x, r01_head_y, 10)
-            gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
-            gfx.fillCircleAtPoint(r01_head_x, r01_head_y, 10)
         end
+
     else
+
+        if self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
+            self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
+            self.ripple:rotate(self.rotation)
+            self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
+            gfx.setLineWidth(self.ripple_opacity.value * 4)
+            gfx.drawPolygon(self.ripple:transformedPolygon(self.poly_body))
+            gfx.setLineWidth(2)
+            gfx.setColor(gfx.kColorBlack)
+        end
+        self.transform:translate(self.boat_size / 2, self.boat_size / 2)
+        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+        self.transform:translate(cos[self.rotation] * (self.total_change * (self.scale_factor * 0.75)), sin[self.rotation] * (self.total_change * (self.scale_factor * 0.75)))
+        if self.show_crash_image and not enabled_cheats then
+            local crash_x, crash_y = self.transform:transformedPolygon(self.poly_body):getPointAt(self.crash_point):unpack()
+            self.image_crash:draw(crash_x - 20, crash_y - 20)
+        end
+        self.transform:translate(7 * self.scale_factor, 7 * self.scale_factor)
+        gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
+        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+        self.transform:translate(-7 * self.scale_factor, -7 * self.scale_factor)
+        gfx.setColor(gfx.kColorWhite)
+        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.setColor(gfx.kColorBlack)
+        gfx.drawPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
+        gfx.setColor(gfx.kColorBlack)
         -- Offset params for passengers
         local bunny_body_x = (((8 * self.reversed) * self.scale.value) * -cos[self.rotation] - (-10 + (self.cam_y.value * 0.05)) * sin[self.rotation]) + (self.boat_size / 2)
         local bunny_body_y = (((8 * self.reversed) * self.scale.value) * -sin[self.rotation] + (-10 + (self.cam_y.value * 0.05)) * cos[self.rotation]) + (self.boat_size / 2)
@@ -575,6 +593,7 @@ function boat:draw(x, y, width, height)
         gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * self.scale.value)
         gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * self.scale.value)
         gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * self.scale.value)
-        gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
+        
     end
+    gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
 end

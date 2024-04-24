@@ -64,8 +64,9 @@ function chill:init(...)
     vars.anim_wave_x.repeats = true
     vars.anim_boat_y.repeats = true
     vars.anim_boat_y.reverses = true
+    vars.anim_fade.discardOnCompletion = false
     
-    vars.update_timer = pd.timer.new(600000, function()
+    vars.update_timer = pd.timer.new(300000, function()
         self:checktime()
         gfx.sprite.redrawBackground()
     end)
@@ -151,7 +152,7 @@ end
 function chill:leave()
     if not vars.leaving then
         vars.leaving = true
-        vars.anim_fade = pd.timer.new(1000, math.floor(vars.anim_fade.value), 1),
+        vars.anim_fade:resetnew(1000, math.floor(vars.anim_fade.value), 1)
         fademusic(999)
         vars.anim_fade.timerEndedCallback = function()
             pd.setAutoLockDisabled(false)

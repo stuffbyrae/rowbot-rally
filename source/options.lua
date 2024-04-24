@@ -143,7 +143,7 @@ function options:init(...)
 
     pd.timer.performAfterDelay(1000, function() -- After the wave's done animating inward...
         vars.transitioning = false -- Start accepting button presses to go back.
-        vars.anim_wave_y = pd.timer.new(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
+        vars.anim_wave_y:resetnew(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
         vars.anim_wave_y.repeatCount = -1 -- make it repeat forever,
         vars.anim_wave_y.reverses = true -- and make it loop!
         pd.inputHandlers.push(vars.optionsHandlers) -- Wait to push the input handlers, so you can't fuck with shit before you have a chance to read it.
@@ -151,6 +151,7 @@ function options:init(...)
 
     vars.anim_ticker.repeats = true
     vars.anim_wave_x.repeats = true
+    vars.anim_wave_y.discardOnCompletion = false
     vars.anim_gears = gfx.animation.loop.new(20, assets.image_gears, true)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
@@ -285,7 +286,7 @@ function options:leave() -- Leave and move back to the title screen
     savegame()
     pd.inputHandlers.pop() -- Pop the handlers, so you can't change anything as you're leaving.
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
-    vars.anim_wave_y = pd.timer.new(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
+    vars.anim_wave_y:resetnew(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function()
         scenemanager:switchscene(title) -- Switch back to the title!
     end)

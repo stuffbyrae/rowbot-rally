@@ -39,9 +39,9 @@ function tutorial:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
-        image_water_bg = gfx.image.new('images/race/stages/stage1/water_bg'),
+        image_water_bg = gfx.image.new('images/race/stages/tutorial/water_bg'),
         water = gfx.imagetable.new('images/race/stages/stage1/water'),
-        caustics = gfx.imagetable.new('images/race/stages/stage1/caustics'),
+        caustics = gfx.imagetable.new('images/race/stages/tutorial/caustics'),
         image_meter_r = gfx.imagetable.new('images/race/meter/meter_r'),
         image_meter_p = gfx.imagetable.new('images/race/meter/meter_p'),
         image_stage = gfx.imagetable.new('images/race/stages/tutorial/stage'),
@@ -521,7 +521,7 @@ function tutorial:update()
     vars.player = self.boat.crankage_divvied
     if vars.current_step == 6 and vars.player > 0 then
         vars.gameplay_progress += 1
-        if vars.gameplay_progress >= 90 then
+        if vars.gameplay_progress >= 130 then
             vars.progressable = true
             self:progress()
         end
@@ -529,7 +529,7 @@ function tutorial:update()
     if vars.current_step == 14 and vars.player > 0 then
         if self.boat.rotation >= 340 or self.boat.rotation <= 20 then
             vars.gameplay_progress += 1
-            if vars.gameplay_progress >= 180 then
+            if vars.gameplay_progress >= 260 then
                 vars.progressable = true
                 self:progress()
             end

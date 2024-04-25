@@ -381,7 +381,8 @@ function pd.timer:resetnew(duration, startValue, endValue, easingFunction)
 	self.remainingDelay = self.delay
 	self.value = self._startValue
 	self._calledOnRepeat = nil
-    self:start()
+    self.discardOnCompletion = false
+    self.paused = false
 end
 
 -- This function shakes the screen. int is a number representing intensity. time is a number representing duration
@@ -399,7 +400,7 @@ import 'chill'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(intro, 1)
+    scenemanager:switchscene(race, 1, "story")
 end
 
 function pd.update()

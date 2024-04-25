@@ -110,6 +110,7 @@ function race:init(...)
         end,
         AButtonDown = function()
             -- Keeping for debug.
+            self:leap()
         end,
         upButtonDown = function()
             self.boat.straight = true

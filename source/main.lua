@@ -420,7 +420,7 @@ import 'chill'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "story")
+    scenemanager:switchscene(tutorial)
 end
 
 function pd.update()

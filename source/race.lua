@@ -250,6 +250,22 @@ function race:init(...)
             geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 0, 0, 270, 1315, 265, 1130, 265, 1095, 270, 1040, 275, 1030, 285, 990, 290, 970, 295, 945, 305, 925, 310, 910, 325, 885, 355, 850, 405, 805, 445, 780, 480, 765, 520, 750, 585, 725, 630, 710, 670, 685, 705, 655, 715, 635, 720, 580, 730, 515, 730, 500, 735, 470, 740, 450, 745, 420, 755, 400, 765, 365, 805, 310, 825, 285, 850, 260, 870, 245, 905, 225, 920, 215, 965, 200, 1035, 180, 1095, 170, 1160, 165, 1280, 165, 1350, 170, 1390, 175, 1415, 180, 1430, 180, 1470, 190, 1525, 200, 1580, 220, 1615, 235, 1655, 250, 1690, 280, 1715, 305, 1740, 330, 1755, 360, 1770, 395, 1780, 425, 1785, 480, 1780, 530, 1770, 570, 1755, 600, 1735, 640, 1705, 685, 1685, 725, 1665, 785, 1660, 835, 1665, 925, 1670, 1020, 1675, 1060, 1675, 1140, 1670, 1190, 1660, 1220, 1630, 1270, 1590, 1315, 1550, 1340, 1515, 1355, 1475, 1360, 1440, 1370, 1405, 1375, 1375, 1395, 1365, 1420, 1360, 1460, 1360, 1545, 1355, 1580, 1345, 1610, 1330, 1640, 1315, 1660, 1280, 1695, 1240, 1725, 1195, 1745, 1115, 1770, 1010, 1790, 930, 1800, 845, 1805, 670, 1805, 585, 1805, 520, 1790, 460, 1770, 405, 1745, 370, 1720, 335, 1685, 315, 1655, 295, 1615, 285, 1570, 275, 1490, 270, 1395, 270, 1315, 0, 0),
             geo.polygon.new(470, 1305, 465, 1170, 470, 1120, 475, 1090, 475, 1060, 485, 1050, 485, 1045, 495, 1025, 525, 995, 550, 975, 595, 955, 600, 950, 665, 925, 680, 920, 690, 915, 775, 890, 785, 885, 820, 870, 860, 830, 885, 800, 895, 780, 905, 745, 925, 675, 925, 665, 935, 615, 945, 555, 950, 530, 960, 495, 965, 480, 980, 450, 1010, 415, 1030, 405, 1055, 385, 1090, 375, 1185, 365, 1225, 360, 1325, 355, 1360, 355, 1410, 365, 1435, 370, 1480, 385, 1505, 400, 1535, 435, 1545, 465, 1550, 495, 1550, 530, 1540, 565, 1515, 610, 1495, 650, 1475, 690, 1465, 740, 1465, 835, 1470, 895, 1470, 945, 1470, 975, 1475, 1055, 1460, 1105, 1435, 1135, 1395, 1155, 1315, 1175, 1245, 1190, 1210, 1205, 1165, 1240, 1150, 1275, 1145, 1300, 1145, 1370, 1145, 1460, 1140, 1495, 1120, 1530, 1085, 1555, 1030, 1575, 985, 1590, 860, 1610, 805, 1615, 710, 1620, 625, 1615, 590, 1605, 535, 1575, 500, 1535, 480, 1495, 480, 1460, 475, 1385, 470, 1330, 470, 1305)
         }
+        -- Bounds for the calc'd polygons
+        vars.fill_bounds = {
+            {255, 1310, 480, 1312},
+            {255, 1318, 480, 1320},
+            {249, 1458, 262, 1558},
+        }
+        vars.both_bounds = {
+            {247, 1336, 260, 1436},
+            {485, 1348, 497, 1448},
+            {255, 1310, 480, 1320},
+        }
+        vars.draw_bounds = {
+            {484, 832, 883, 1120},
+            {707, 152, 1167, 556},
+            {1127, 920, 1459, 1488},
+        }
     elseif vars.stage == 2 then
         vars.laps = 3
         vars.music_loop = 0
@@ -379,7 +395,7 @@ function race:init(...)
         vars.both_polygons = {
             geo.polygon.new(
             257, 1336,
-            260,1436,
+            260, 1436,
             (250 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1436 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
             (247 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1336 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
             257, 1336),
@@ -521,9 +537,21 @@ function race:init(...)
         gfx.setLineWidth(5)
 
         local draw_polygons
+        local draw_bounds
+        local draw_lowest_point_x
+        local draw_highest_point_x
+        local draw_lowest_point_y
+        local draw_highest_point_y
         for i = 1, #vars.draw_polygons do
             draw_polygons = vars.draw_polygons[i]
-            gfx.drawPolygon(draw_polygons)
+            draw_bounds = vars.draw_bounds[i]
+            draw_lowest_point_x = draw_bounds[1]
+            draw_lowest_point_y = draw_bounds[2]
+            draw_highest_point_x = draw_bounds[3]
+            draw_highest_point_y = draw_bounds[4]
+            if (draw_lowest_point_x < -x + 400 and draw_highest_point_x > -x) and (draw_lowest_point_y < -y + 240 and draw_highest_point_y > -y) then
+                gfx.drawPolygon(draw_polygons)
+            end
         end
 
         gfx.setLineWidth(18) -- Make the lines phat
@@ -568,20 +596,42 @@ function race:init(...)
         gfx.setLineWidth(2) -- Set the line width back
 
         local fill_polygons
+        local fill_bounds
+        local fill_lowest_point_x
+        local fill_highest_point_x
+        local fill_lowest_point_y
+        local fill_highest_point_y
         for i = 1, #vars.fill_polygons do
             fill_polygons = vars.fill_polygons[i]
-            gfx.fillPolygon(fill_polygons)
+            fill_bounds = vars.fill_bounds[i]
+            fill_lowest_point_x = fill_bounds[1]
+            fill_lowest_point_y = fill_bounds[2]
+            fill_highest_point_x = fill_bounds[3]
+            fill_highest_point_y = fill_bounds[4]
+            if (fill_lowest_point_x < -x + 400 and fill_highest_point_x > -x) and (fill_lowest_point_y < -y + 240 and fill_highest_point_y > -y) then
+                gfx.fillPolygon(fill_polygons)
+            end
         end
+
         local both_polygons
-        gfx.setColor(gfx.kColorWhite)
+        local both_bounds
+        local both_lowest_point_x
+        local both_highest_point_x
+        local both_lowest_point_y
+        local both_highest_point_y
         for i = 1, #vars.both_polygons do
             both_polygons = vars.both_polygons[i]
-            gfx.fillPolygon(both_polygons)
-        end
-        gfx.setColor(gfx.kColorBlack)
-        for i = 1, #vars.both_polygons do
-            both_polygons = vars.both_polygons[i]
-            gfx.drawPolygon(both_polygons)
+            both_bounds = vars.both_bounds[i]
+            both_lowest_point_x = both_bounds[1]
+            both_lowest_point_y = both_bounds[2]
+            both_highest_point_x = both_bounds[3]
+            both_highest_point_y = both_bounds[4]
+            if (both_lowest_point_x < -x + 400 and both_highest_point_x > -x) and (both_lowest_point_y < -y + 240 and both_highest_point_y > -y) then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillPolygon(both_polygons)
+                gfx.setColor(gfx.kColorBlack)
+                gfx.drawPolygon(both_polygons)
+            end
         end
 
         local trees_x

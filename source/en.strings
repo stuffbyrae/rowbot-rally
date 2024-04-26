@@ -113,7 +113,7 @@
 
 -- Pause strings
 "paused" = "Paused!"
-"rowtipdemo" = "If you're enjoying this\ndemo, you should check\nout the full game! It's like\nthis, but...more!\n\n      🌐 play.date/g/rbr"
+"rowtipdemo" = "If you're enjoying this\ndemo, you should check\nout the full game! It's like\nthis, but...more!\n\n\n      🌐 play.date/g/rbr"
 "rowtip1" = "If you're having trouble\nusing the Crank, try\nenabling Button Controls\nfrom the Options, and use\nthe D-pad to play instead!"
 "rowtip2" = "Want a more streamlined\nand row-fessional racing\nexperience? Toggle the\nPro UI in Options (or in a\nrace)! So fresh, so clean."
 "rowtip3" = "RowBot R-10 models are\npowered by an advanced\nmulti-gear rowing\nmechanism, which\ndefinitely isn't prone to\nfailure. Ignore all the\nlawsuits."

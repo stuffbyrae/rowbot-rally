@@ -327,8 +327,28 @@ end
 
 -- This function makes the pause image.
 -- 'xoffset' is a number that determines the x offset. naturally
-rowtip_oracle = 'demo'
 function setpauseimage(xoffset)
+    if demo then
+        rowtip_oracle = 'demo'
+    else
+        if save.stages_unlocked == 7 then
+            rowtip_oracle = math.random(1, 75)
+        elseif save.stages_unlocked == 6 then
+            rowtip_oracle = math.random(1, 60)
+        elseif save.stages_unlocked == 5 then
+            rowtip_oracle = math.random(1, 55)
+        elseif save.stages_unlocked == 4 then
+            rowtip_oracle = math.random(1, 50)
+        elseif save.stages_unlocked == 3 then
+            rowtip_oracle = math.random(1, 45)
+        elseif save.stages_unlocked == 2 then
+            rowtip_oracle = math.random(1, 40)
+        elseif save.stages_unlocked == 1 then
+            rowtip_oracle = math.random(1, 35)
+        else
+            rowtip_oracle = math.random(1, 20)
+        end
+    end
     local pauseimage = gfx.image.new(400, 240)
     gfx.pushContext(pauseimage)
         gfx.fillRect(0, 0, 400, 40)

@@ -23,25 +23,32 @@ class('wake').extends(gfx.sprite)
 function wake:init(boat)
     wake.super.init(self)
     self.boat = boat
+    self.scale_factor = self.boat.scale_factor
 
-    Particles:setPrecision(0.1)
+    Particles:setPrecision(0.01)
 
     self.wake = ParticleCircle(self.boat.start_x, self.boat.start_y)
-    self.wake:setSize(120 * self.boat.scale_factor, 160 * self.boat.scale_factor)
+    self.wake:setSize(1200 * self.scale_factor, 1600 * self.scale_factor)
     self.wake:setMode(Particles.modes.DECAY)
-    self.wake:setDecay(0.3)
-    self.wake:setSpeed(10 * self.boat.scale_factor)
+    self.wake:setDecay(1.1)
+    self.wake:setSpeed(50 * self.scale_factor)
     self.wake:setColor(gfx.kColorWhite)
     
-    self:setSize(400 * self.boat.scale_factor, 240 * self.boat.scale_factor)
+    self.size_x = 160 * self.scale_factor
+    self.size_y = 160 * self.scale_factor
+    self:setSize(self.size_x, self.size_y)
     self:setZIndex(-1)
     self:add()
 end
 
 function wake:update()
-    self:moveTo(self.boat.x, self.boat.y)
-    self.wake:moveTo((self.boat.x - (sin[self.boat.rotation] * 20)) + (200 * self.boat.scale_factor), (self.boat.y + (cos[self.boat.rotation] * 20)) + (120 * self.boat.scale_factor))
-    self.wake:setSpread(self.boat.rotation + 170, self.boat.rotation + 190)
+    self.boat_x = self.boat.x
+    self.boat_y = self.boat.y
+    self.rotation = self.boat.rotation
+    self.speed = self.boat.move_speedo.value
+    self:moveTo(self.boat_x, self.boat_y)
+    self.wake:moveTo((self.boat_x - (sin[self.rotation] * (20 * self.speed))) + (self.size_x / 2), (self.boat_y + (cos[self.rotation] * (20 * self.speed))) + (self.size_y / 2))
+    self.wake:setSpread(self.rotation + 170, self.rotation + 190)
     if self.boat.movable and not self.boat.leaping then
         self.wake:add(1)
     end
@@ -49,8 +56,8 @@ end
 
 function wake:draw()
     local cam_x, cam_y = gfx.getDrawOffset()
-    gfx.setDrawOffset(cam_x - self.boat.x, cam_y - self.boat.y)
-    Particles:update()
+    gfx.setDrawOffset(cam_x - self.boat_x, cam_y - self.boat_y)
+    self.wake:update()
     gfx.setDrawOffset(cam_x, cam_y)
 end
 
@@ -192,7 +199,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
     
     self:setTag(255)
     self:moveTo(start_x, start_y)
-    self:setnewsize(90)
+    self:setnewsize(110)
     self:setCollideRect((self.boat_size - self.collision_size) / 2, (self.boat_size - self.collision_size) / 2, self.collision_size, self.collision_size)
     self:setZIndex(0)
     self:add()
@@ -222,6 +229,7 @@ function boat:start(duration) -- 1000 is default
     duration = duration or 1000
     self.move_speedo:resetnew(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
     self.wobble_speedo:resetnew(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
+    self:setnewsize(90)
     if self.mode == "cpu" then
         self.movable = true
     else
@@ -249,6 +257,7 @@ function boat:finish(duration, peelout)
     self.ripple_opacity:reset()
     self.ripple_scale:start()
     self.ripple_opacity:start()
+    self:setnewsize(110)
     if self.mode == "cpu" then
         self.movable = false
     else
@@ -323,8 +332,10 @@ function boat:crash(x, y)
         end
         if self.mode ~= "cpu" then
             self.show_crash_image = true
+            self:setnewsize(120)
             pd.timer.performAfterDelay(200, function()
                 self.show_crash_image = false
+                self:setnewsize(90)
             end)
             self.sfx_crash:stop()
             self.sfx_crash:setRate(1 + (random() - 0.5))

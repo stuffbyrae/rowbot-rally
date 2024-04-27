@@ -131,7 +131,7 @@ function title:init(...)
     end
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
-        image_water_bg = gfx.image.new('images/race/stages/stage1/water_bg'),
+        image_water_bg = gfx.image.new('stages/tutorial/water_bg'),
         image_bg = gfx.image.new('images/ui/title_bg'),
         image_checker = gfx.image.new('images/ui/title_checker'),
         kapel = gfx.font.new('fonts/kapel'),
@@ -630,7 +630,6 @@ function title:closeslot(transition)
     else
         vars.slots_open = true
         pd.inputHandlers.push(vars.slotsHandlers, true)
-        print('test')
     end
 end
 

@@ -5,8 +5,8 @@ import glob
 os.chdir('../')
 if os.path.exists('RowBot Rally DEMO') is True:
     shutil.rmtree('RowBot Rally DEMO')
-shutil.copytree('RowBot Rally/source', 'RowBot Rally DEMO')
-os.chdir('RowBot Rally DEMO')
+shutil.copytree('RowBot Rally/source', 'DEMO')
+os.chdir('DEMO')
 
 retain_dirs = [
     "/Users/rae/Developer/RowBot Rally DEMO/audio"
@@ -175,4 +175,4 @@ fd = fd.replace('wtf.rae.rowbotrally', 'wtf.rae.rowbotrallydemo')
 with open(os.getcwd() + '/pdxinfo', 'w') as f:
     f.write(fd)
 
-os.system('')
+os.system('pdc Developer/DEMO DEMO.pdx ')

@@ -28,14 +28,14 @@ function wake:init(boat)
     Particles:setPrecision(0.01)
 
     self.wake = ParticleCircle(self.boat.start_x, self.boat.start_y)
-    self.wake:setSize(1200 * self.scale_factor, 1600 * self.scale_factor)
+    self.wake:setSize(1500 * self.scale_factor, 1800 * self.scale_factor)
     self.wake:setMode(Particles.modes.DECAY)
-    self.wake:setDecay(1.1)
+    self.wake:setDecay(1)
     self.wake:setSpeed(50 * self.scale_factor)
     self.wake:setColor(gfx.kColorWhite)
     
-    self.size_x = 160 * self.scale_factor
-    self.size_y = 160 * self.scale_factor
+    self.size_x = 180 * self.scale_factor
+    self.size_y = 180 * self.scale_factor
     self:setSize(self.size_x, self.size_y)
     self:setZIndex(-1)
     self:add()
@@ -48,8 +48,8 @@ function wake:update()
     self.speed = self.boat.move_speedo.value
     self:moveTo(self.boat_x, self.boat_y)
     self.wake:moveTo((self.boat_x - (sin[self.rotation] * (20 * self.speed))) + (self.size_x / 2), (self.boat_y + (cos[self.rotation] * (20 * self.speed))) + (self.size_y / 2))
-    self.wake:setSpread(self.rotation + 170, self.rotation + 190)
-    if self.boat.movable and not self.boat.leaping then
+    self.wake:setSpread(self.rotation + 160, self.rotation + 200)
+    if self.boat.movable and not self.boat.leaping and save.total_playtime % 2 == 0 then
         self.wake:add(1)
     end
 end
@@ -540,7 +540,6 @@ function boat:update()
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
     self.transform:rotate(self.rotation)
     self.crash_transform:rotate(self.rotation)
-    self:markDirty()
 end
 
 function boat:draw(x, y, width, height)

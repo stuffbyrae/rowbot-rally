@@ -192,6 +192,7 @@ function title:init(...)
                         save.current_story_slot = 1
                         save.slot1_progress = nil
                         assets.sfx_proceed:play()
+                        fademusic()
                         scenemanager:transitionstoryoneway()
                     else -- Otherwise, open the slot picker.
                         self:openslots()
@@ -274,7 +275,9 @@ function title:init(...)
     if save.stages_unlocked >= 1 then
         table.insert(vars.item_list, 'time_trials')
     end
-    table.insert(vars.item_list, 'stats')
+    if not demo then
+        table.insert(vars.item_list, 'stats')
+    end
     if save.unlocked_cheats then
         table.insert(vars.item_list, 'cheats')
     end

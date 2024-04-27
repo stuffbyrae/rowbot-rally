@@ -80,12 +80,17 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
     self.crash_image = crash_image
     
     self.sfx_crash = smp.new('audio/sfx/crash')
-    self.sfx_air = smp.new('audio/sfx/air')
-    self.sfx_splash = smp.new('audio/sfx/splash')
-
     self.sfx_crash:setVolume(save.vol_sfx/5)
-    self.sfx_air:setVolume(save.vol_sfx/5)
-    self.sfx_splash:setVolume(save.vol_sfx/5)
+
+    if not demo then
+        self.sfx_air = smp.new('audio/sfx/air')
+        self.sfx_splash = smp.new('audio/sfx/splash')
+        self.sfx_boost = smp.new('audio/sfx/boost')
+        self.sfx_air:setVolume(save.vol_sfx/5)
+        self.sfx_splash:setVolume(save.vol_sfx/5)
+        self.sfx_boost:setVolume(save.vol_sfx/5)
+    end
+
     
     self.scale_factor = 1 -- Default scale of the boat.
     self.speed = 5 -- Forward movement speed of the boat.
@@ -112,11 +117,9 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
         
         self.sfx_rowboton = smp.new('audio/sfx/rowboton')
         self.sfx_row = smp.new('audio/sfx/row')
-        self.sfx_boost = smp.new('audio/sfx/boost')
         
         self.sfx_rowboton:setVolume(save.vol_sfx/5)
         self.sfx_row:setVolume(save.vol_sfx/5)
-        self.sfx_boost:setVolume(save.vol_sfx/5)
 
         if enabled_cheats_big then
             self.scale_factor = 1.70

@@ -1,8 +1,11 @@
 import 'title'
 import 'tutorial'
 import 'intro'
-import 'chase'
-import 'credits'
+
+if not demo then
+    import 'chase'
+    import 'credits'
+end
 
 -- Setting up consts
 local pd <const> = playdate

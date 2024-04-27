@@ -190,7 +190,11 @@ end
 function newmusic(file, loop, range)
     if music == nil and save.vol_music > 0 then -- If a music file isn't actively playing...then go ahead and set a new one.
         music = fle.new(file)
-        music:setVolume(save.vol_music/5)
+        if save.vol_music == 0 then
+            music:setVolume(0)
+        else
+            music:setVolume(save.vol_music/5)
+        end
         music:setStopOnUnderrun(flag)
         if loop then -- If set to loop, then ... loop it!
             music:setLoopRange(range or 0)
@@ -415,7 +419,6 @@ end
 
 import 'tutorial' -- Debug scene to change to
 import 'race'
-import 'chill'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)

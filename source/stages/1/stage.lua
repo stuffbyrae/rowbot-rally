@@ -73,10 +73,6 @@ function race:stage_init()
     vars.stage_progress_long_y = 0
     vars.stage_progress_tippy_x = 0
     vars.stage_progress_tippy_y = 0
-    vars.base_parallax_short_amount = 1.05
-    vars.base_parallax_medium_amount = 1.1
-    vars.base_parallax_long_amount = 1.175
-    vars.base_parallax_tippy_amount = 1.25
     vars.parallax_short_amount = 1.05
     vars.parallax_medium_amount = 1.1
     vars.parallax_long_amount = 1.175

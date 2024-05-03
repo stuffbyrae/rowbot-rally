@@ -52,6 +52,7 @@ function race:init(...)
     
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
+        image_pole = gfx.image.new('images/race/pole'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
         overlay_boost = gfx.imagetable.new('images/race/boost'),
@@ -86,16 +87,12 @@ function race:init(...)
         finished = false,
         won = true,
         water = pd.timer.new(2000, 1, 16),
-        edges = pd.timer.new(1000, 0, 1),
         audience_1 = pd.timer.new(5000, 10, -10),
         audience_2 = pd.timer.new(15000, 10, -10),
         audience_3 = pd.timer.new(25000, 10, -10),
-        anim_parallax = pd.timer.new(0, 0, 0),
     }
 
     vars.water.repeats = true
-    vars.edges.repeats = true
-    vars.anim_parallax.discardOnCompletion = false
     vars.audience_1.repeats = true
     vars.audience_1.reverses = true
     vars.audience_2.repeats = true
@@ -157,7 +154,102 @@ function race:init(...)
     end
 
     self:stage_init()
-    
+
+    assets.parallax_nothing_bake = gfx.image.new(vars.stage_x, vars.stage_y)
+    gfx.pushContext(assets.parallax_nothing_bake)
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local trees_x
+        local trees_y
+        local trees_rand
+        local trunks = assets.trunks
+        for i = 1, #vars.trees_x do
+            trees_x = vars.trees_x[i]
+            trees_y = vars.trees_y[i]
+            trees_rand = vars.trees_rand[i]
+            trunks:drawImage(
+                trees_rand,
+                (trees_x - 66),
+                (trees_y - 66))
+        end
+    gfx.popContext()
+
+    assets.parallax_short_bake = gfx.image.new(vars.stage_x * vars.parallax_short_amount, vars.stage_y * vars.parallax_short_amount)
+    gfx.pushContext(assets.parallax_short_bake)
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local bushes_x
+        local bushes_y
+        local bushes_rand
+        local bushes = assets.bushes
+        for i = 1, #vars.bushes_x do
+            bushes_x = vars.bushes_x[i]
+            bushes_y = vars.bushes_y[i]
+            bushes_rand = vars.bushes_rand[i]
+                bushes:drawImage(
+                    bushes_rand,
+                    (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                    (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
+        end
+    gfx.popContext()
+
+    assets.parallax_medium_bake = gfx.image.new(vars.stage_x * vars.parallax_medium_amount, vars.stage_y * vars.parallax_medium_amount)
+    gfx.pushContext(assets.parallax_medium_bake)
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local bushes_x
+        local bushes_y
+        local bushes_rand
+        local bushtops = assets.bushtops
+        for i = 1, #vars.bushes_x do
+            bushes_x = vars.bushes_x[i]
+            bushes_y = vars.bushes_y[i]
+            bushes_rand = vars.bushes_rand[i]
+                bushtops:drawImage(
+                    bushes_rand,
+                    (bushes_x - 41) * vars.parallax_medium_amount + (stage_x * -vars.stage_progress_medium_x),
+                    (bushes_y - 39) * vars.parallax_medium_amount + (stage_y * -vars.stage_progress_medium_y))
+        end
+    gfx.popContext()
+
+    assets.parallax_long_bake = gfx.image.new(vars.stage_x * vars.parallax_long_amount, vars.stage_y * vars.parallax_long_amount)
+    gfx.pushContext(assets.parallax_long_bake)
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local trees_x
+        local trees_y
+        local trees_rand
+        local trees = assets.trees
+        for i = 1, #vars.trees_x do
+            trees_x = vars.trees_x[i]
+            trees_y = vars.trees_y[i]
+            trees_rand = vars.trees_rand[i]
+            trees:drawImage(
+                trees_rand,
+                (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
+                (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
+        end
+    gfx.popContext()
+
+    assets.parallax_tippy_bake = gfx.image.new(vars.stage_x * vars.parallax_tippy_amount, vars.stage_y * vars.parallax_tippy_amount)
+    gfx.pushContext(assets.parallax_tippy_bake)
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local trees_x
+        local trees_y
+        local trees_rand
+        local treetops = assets.treetops
+        for i = 1, #vars.trees_x do
+            trees_x = vars.trees_x[i]
+            trees_y = vars.trees_y[i]
+            trees_rand = vars.trees_rand[i]
+            treetops:drawImage(
+                trees_rand,
+                (trees_x - 66) * vars.parallax_tippy_amount + (stage_x * -vars.stage_progress_tippy_x),
+                (trees_y - 66) * vars.parallax_tippy_amount + (stage_y * -vars.stage_progress_tippy_y))
+        end
+    gfx.popContext()
+
     if vars.laps > 1 then -- Set the timer graphic
         assets.image_timer = gfx.image.new('images/race/timer_1')
         assets.image_timer_2 = gfx.image.new('images/race/timer_2')
@@ -212,13 +304,6 @@ function race:init(...)
         self:setSize(vars.stage_x, vars.stage_y)
         self:add()
     end
-
-    function race_stage:update()
-        if save.total_playtime % 10 == 0 then
-            self:markDirty()
-        end
-    end
-
     function race_stage:draw()
         local x, y = gfx.getDrawOffset() -- Gimme the draw offset
         local time = save.total_playtime
@@ -247,18 +332,6 @@ function race:init(...)
             race:both_polygons()
             race:draw_polygons()
         end
-
-        gfx.setColor(gfx.kColorWhite)
-        gfx.setDitherPattern(vars.edges.value, gfx.image.kDitherTypeBayer4x4)
-        local edges_polygons
-        local edges_value = 40 * vars.edges.value
-        gfx.setLineWidth(edges_value)
-        for i = 1, #vars.edges_polygons do
-            edges_polygons = vars.edges_polygons[i]
-            gfx.drawPolygon(edges_polygons)
-        end
-        gfx.setColor(gfx.kColorBlack)
-        gfx.setLineWidth(2)
 
         local image_stage
         local draw_x
@@ -304,26 +377,11 @@ function race:init(...)
             end
         end
 
-        local bushes_x
-        local bushes_y
-        local bushes_rand
-        local bushes = assets.bushes
-        local bushtops = assets.bushtops
-        for i = 1, #vars.bushes_x do
-            bushes_x = vars.bushes_x[i]
-            bushes_y = vars.bushes_y[i]
-            bushes_rand = vars.bushes_rand[i]
-            if (bushes_x > -x-40 and bushes_x < -x+440) and (bushes_y > -y-40 and bushes_y < -y+280) then
-                bushes:drawImage(
-                    bushes_rand,
-                    (bushes_x - 41) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                    (bushes_y - 39) * parallax_short_amount + (stage_y * -stage_progress_short_y))
-                bushtops:drawImage(
-                    bushes_rand,
-                    (bushes_x - 41) * parallax_medium_amount + (stage_x * -stage_progress_medium_x),
-                    (bushes_y - 39) * parallax_medium_amount + (stage_y * -stage_progress_medium_y))
-            end
-        end
+        -- assets.parallax_nothing_bake:draw(0, 0)
+        -- assets.parallax_short_bake:draw(stage_x * -stage_progress_short_x, stage_y * -stage_progress_short_y)
+        -- assets.parallax_medium_bake:draw(stage_x * -stage_progress_medium_x, stage_y * -stage_progress_medium_y)
+        -- assets.parallax_long_bake:draw(stage_x * -stage_progress_long_x, stage_y * -stage_progress_long_y)
+        -- assets.parallax_tippy_bake:draw(stage_x * -stage_progress_tippy_x, stage_y * -stage_progress_tippy_y)
 
         gfx.setLineWidth(5)
 
@@ -349,17 +407,19 @@ function race:init(...)
 
         local poles_short_x
         local poles_short_y
+        local image_pole = assets.image_pole
         local image_pole_cap = assets.image_pole_cap
         for i = 1, #vars.poles_short_x do -- For every short pole,
             poles_short_x = vars.poles_short_x[i]
             poles_short_y = vars.poles_short_y[i]
             -- Draw it from the base point to the short parallax point
             if (poles_short_x > -x-10 and poles_short_x < -x+410) and (poles_short_y > -y-10 and poles_short_y < -y+250) then
-                gfx.drawLine(
-                    poles_short_x,
-                    poles_short_y,
-                    (poles_short_x * parallax_short_amount) + (stage_x * -stage_progress_short_x),
-                    (poles_short_y * parallax_short_amount) + (stage_y * -stage_progress_short_y))
+                image_pole:draw(
+                    poles_short_x - 8,
+                    poles_short_y - 8)
+                image_pole:draw(
+                    (poles_short_x - 8) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+                    (poles_short_y - 8) * parallax_short_amount + (stage_y * -stage_progress_short_y))
                 image_pole_cap:draw(
                     (poles_short_x - 6) * parallax_short_amount + (stage_x * -stage_progress_short_x),
                     (poles_short_y - 6) * parallax_short_amount + (stage_y * -stage_progress_short_y))
@@ -422,32 +482,6 @@ function race:init(...)
                 gfx.fillPolygon(both_polygons)
                 gfx.setColor(gfx.kColorBlack)
                 gfx.drawPolygon(both_polygons)
-            end
-        end
-
-        local trees_x
-        local trees_y
-        local trees_rand
-        local trunks = assets.trunks
-        local trees = assets.trees
-        local treetops = assets.treetops
-        for i = 1, #vars.trees_x do
-            trees_x = vars.trees_x[i]
-            trees_y = vars.trees_y[i]
-            trees_rand = vars.trees_rand[i]
-            if (trees_x > -x-45 and trees_x < -x+445) and (trees_y > -y-45 and trees_y < -y+285) then
-                trunks:drawImage(
-                    trees_rand,
-                    (trees_x - 66),
-                    (trees_y - 66))
-                trees:drawImage(
-                    trees_rand,
-                    (trees_x - 66) * parallax_long_amount + (stage_x * -stage_progress_long_x),
-                    (trees_y - 66) * parallax_long_amount + (stage_y * -stage_progress_long_y))
-                treetops:drawImage(
-                    trees_rand,
-                    (trees_x - 66) * parallax_tippy_amount + (stage_x * -stage_progress_tippy_x),
-                    (trees_y - 66) * parallax_tippy_amount + (stage_y * -stage_progress_tippy_y))
             end
         end
     end
@@ -529,7 +563,6 @@ function race:boost(rocketarms)
     if vars.in_progress and not self.boat.boosting and vars.boosts_remaining > 0 then
         -- ... then boost! :3
         self.boat:boost() -- The boat does most of this, of course.
-        vars.anim_parallax:resetnew(750, 0.1, 0, pd.easingFunctions.outSine)
         vars.overlay = "boost"
         vars.anim_overlay:resetnew(1000, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
         vars.anim_overlay.repeats = true
@@ -745,10 +778,6 @@ function race:update()
     else
         vars.rowbot = self.boat.turn_speedo.value
         vars.player = self.boat.crankage_divvied
-        vars.parallax_short_amount = vars.base_parallax_short_amount
-        vars.parallax_medium_amount = vars.base_parallax_medium_amount
-        vars.parallax_long_amount = vars.base_parallax_long_amount
-        vars.parallax_tippy_amount = vars.base_parallax_tippy_amount
         self:timecalc(vars.current_time) -- Calc this thing out for the timer
         if vars.in_progress then -- If the race is happenin', then
             vars.current_time += 1 -- Up that timer, babyyyyyyyyy!

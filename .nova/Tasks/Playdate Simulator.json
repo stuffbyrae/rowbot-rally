@@ -1,0 +1,25 @@
+{
+  "actions" : {
+    "build" : {
+      "postActions" : [
+        {
+          "script" : "#!\/bin\/sh\n\n# Path to pdx info to be updated\nFILE=.\/source\/pdxinfo\n\n# Path to folder for pdxinfo backup. Also add this folder to you .gitignore file\nBAK=.\/tmp\n\necho \"> Backing up pdxinfo\\n\"\ncp $FILE $BAK\n\necho \"> BACKED UP:\"\ncat $BAK\/pdxinfo\necho \"\\n\"\n\nBUILD=$(cat $FILE | grep buildNumber | tr -dc '0-9')\necho \"> CURRENT BUILD: $BUILD\"\n\nBUILD=$((BUILD+1))\necho \"> NEW BUILD: $BUILD\"\n\necho \"> WRITING NEW BUILD NUMBER: $BUILD\"\n# Make sure you already have a buildNumber=0 (or any number) in your pdxinfo\nsed -i '' \"s\/buildNumber=[0-9]*\/buildNumber=$BUILD\/g\" $FILE\necho \"\\n\"\n\necho \"> UPDATED pdxinfo:\"\ncat $FILE",
+          "type" : "runScript"
+        }
+      ]
+    }
+  },
+  "extension" : {
+    "identifier" : "com.panic.Playdate",
+    "name" : "Playdate"
+  },
+  "extensionTemplate" : "simulator",
+  "extensionValues" : {
+    "playdate.base-path" : ".",
+    "playdate.build-type" : "pdc",
+    "playdate.debugRequest" : "attach",
+    "playdate.output-path" : "..\/PlaydateSDK\/Disk\/Games",
+    "playdate.product-name" : "RowBot Rally"
+  },
+  "openLogOnRun" : "fail"
+}

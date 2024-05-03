@@ -417,13 +417,12 @@ function shakies(time, int)
     anim_shakies = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'tutorial' -- Debug scene to change to
 import 'race'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(race, 1, "tt")
 end
 
 function pd.update()

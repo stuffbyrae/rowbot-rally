@@ -291,7 +291,17 @@ end
 
 function scenemanager:cleanupscene()
     closepopup() -- Close any active popups that may be lingering.
-    assets = nil -- Nil all the assets,
+    if assets ~= nil then
+        for i = 1, #assets do
+            assets[i] = nil
+        end
+        assets = nil -- Nil all the assets,
+    end
+    if vars ~= nil then
+        for i = 1, #vars do
+            vars[i] = nil
+        end
+    end
     vars = nil -- and nil all the variables.
     gfx.sprite.performOnAllSprites(function(sprite)
         sprite:remove()

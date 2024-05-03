@@ -3,3 +3,5 @@
 .VSCodeCounter
 builds/
 Icon?
+tmp
+.nova

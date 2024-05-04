@@ -26,7 +26,7 @@ function race:init(...)
     show_crank = false -- Should the crank indicator be shown?
     if enabled_cheats_retro then pd.display.setMosaic(2, 0) end
     gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -49,7 +49,7 @@ function race:init(...)
         end
         setpauseimage(200) -- TODO: Set this X offset
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
         image_pole = gfx.image.new('images/race/pole'),
@@ -71,7 +71,7 @@ function race:init(...)
     assets.sfx_finish:setVolume(save.vol_sfx/5)
     assets.sfx_ref:setVolume(save.vol_sfx/5)
     assets.sfx_final:setVolume(save.vol_sfx/5)
-   
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
         mode = args[2], -- A string, either "story" or "tt" or "debug", to determine which mode to choose.
@@ -177,7 +177,7 @@ function race:init(...)
                     (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
                     (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
         end
-        
+
         local poles_short_x
         local poles_short_y
         local image_pole = assets.image_pole
@@ -223,7 +223,7 @@ function race:init(...)
         assets.image_timer_2 = gfx.image.new('images/race/timer_2')
         assets.image_timer_3 = gfx.image.new('images/race/timer_3')
     else
-        assets.image_timer = gfx.image.new('images/race/timer') 
+        assets.image_timer = gfx.image.new('images/race/timer')
     end
 
     if vars.mode == "tt" then -- If time trials is here, then add in some boosts.
@@ -240,9 +240,9 @@ function race:init(...)
         assets.image_water_bg:draw(0, 0)
         assets.caustics[floor(vars.water.value)]:draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
         assets.water[floor(vars.water.value)]:draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
-        
+
     end)
-    
+
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
         race_stage.super.init(self)
@@ -258,10 +258,6 @@ function race:init(...)
         local chop = vars.chop
         local stage_x = vars.stage_x
         local stage_y = vars.stage_y
-        local tiles_x = vars.tiles_x
-        local tiles_y = vars.tiles_y
-        local tile_x = vars.tile_x
-        local tile_y = vars.tile_y
         local parallax_short_amount = vars.parallax_short_amount
         local parallax_medium_amount = vars.parallax_medium_amount
         local parallax_long_amount = vars.parallax_long_amount
@@ -272,55 +268,41 @@ function race:init(...)
         local stage_progress_long_x = vars.stage_progress_long_x
         local stage_progress_long_y = vars.stage_progress_long_y
 
-        if time % 2 == 0 then
+        if time % 3 == 0 then
             race:fill_polygons()
             race:both_polygons()
             race:draw_polygons()
         end
 
-        local image_stage
-        local draw_x
-        local draw_y
-        local calc_x
-        local calc_y
-        for i = 1, tiles_x * tiles_y do
-            draw_x = ((i-1) % tiles_x)
-            draw_y = ceil(i / tiles_y) - 1
-            calc_x = tile_x * draw_x
-            calc_y = tile_y * draw_y
-            if (calc_x > -x-tile_x and calc_x < -x+400) and (calc_y > -y-tile_y and calc_y < -y+240) then
-                image_stage = assets.image_stage[i]
-                image_stage:draw(calc_x, calc_y)
-            end
-        end
-        
-        local audience_x
-        local audience_y
-        local audience_rand
-        local tightened_rand
-        local audience_angle
-        local audience_image
-        for i = 1, #vars.audience_x do
-            audience_x = vars.audience_x[i]
-            audience_y = vars.audience_y[i]
-            audience_rand = vars.audience_rand[i]
-            tightened_rand = (audience_rand % 3) + 1
-            if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
-                audience_image = assets['audience' .. audience_rand]
-                if audience_image[1] ~= nil then
-                    audience_angle = (deg(atan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
-                    audience_image[(floor(audience_angle / 8)) + 1]:draw(
-                        (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                        (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
-                    )
-                else
-                    audience_image:draw(
-                        (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                        (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
-                    )
-                end
-            end
-        end
+        assets.image_stage:draw(0, 0)
+
+        -- local audience_x
+        -- local audience_y
+        -- local audience_rand
+        -- local tightened_rand
+        -- local audience_angle
+        -- local audience_image
+        -- for i = 1, #vars.audience_x do
+        --     audience_x = vars.audience_x[i]
+        --     audience_y = vars.audience_y[i]
+        --     audience_rand = vars.audience_rand[i]
+        --     tightened_rand = (audience_rand % 3) + 1
+        --     if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
+        --         audience_image = assets['audience' .. audience_rand]
+        --         if audience_image[1] ~= nil then
+        --             audience_angle = (deg(atan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
+        --             audience_image[(floor(audience_angle / 8)) + 1]:draw(
+        --                 (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+        --                 (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
+        --             )
+        --         else
+        --             audience_image:draw(
+        --                 (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
+        --                 (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
+        --             )
+        --         end
+        --     end
+        -- end
 
         gfx.setLineWidth(5)
 
@@ -341,7 +323,7 @@ function race:init(...)
                 gfx.drawPolygon(draw_polygons)
             end
         end
-        
+
         assets.parallax_short_bake:draw(stage_x * -stage_progress_short_x, stage_y * -stage_progress_short_y)
         assets.parallax_long_bake:draw(stage_x * -stage_progress_long_x, stage_y * -stage_progress_long_y)
 
@@ -405,20 +387,9 @@ function race:init(...)
                 gfx.drawPolygon(both_polygons)
             end
         end
-    end
 
-    class('race_hud').extends(gfx.sprite)
-    function race_hud:init()
-        race_hud.super.init(self)
-        self:setCenter(0, 0)
-        self:setZIndex(2)
-        self:setSize(400, 240)
-        self:setIgnoresDrawOffset(true)
-        if vars.mode ~= "debug" then
-            self:add()
-        end
-    end
-    function race_hud:draw()
+        gfx.setDrawOffset(0, 0)
+
         -- If there's some kind of stage overlay anim going on, play it.
         if vars.anim_stage_overlay ~= nil then
             vars.anim_stage_overlay:draw(0, 0)
@@ -444,6 +415,8 @@ function race:init(...)
         if assets.shades ~= nil then
             assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
         end
+
+        gfx.setDrawOffset(vars.x, vars.y)
     end
 
     -- Little debug dot, representing the middle of the screen.
@@ -470,7 +443,6 @@ function race:init(...)
             self:start()
         end)
     end
-    self.hud = race_hud()
     self:add()
 end
 
@@ -726,7 +698,7 @@ function race:update()
     end
     if self.cpu then self:checkpointcheck(true) end
     -- Set up the parallax!
-    if time % 2 == 0 then
+    if time % 3 == 0 then
         vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
         vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))
         vars.stage_progress_medium_x = (((-x + 200) / vars.stage_x) * (vars.parallax_medium_amount - 1))

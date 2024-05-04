@@ -5,7 +5,7 @@ local geo <const> = pd.geometry
 local random <const> = math.random
 
 function race:stage_init()
-    assets.image_stage = gfx.imagetable.new('stages/1/stage')
+    assets.image_stage = gfx.image.new('stages/1/stage')
     assets.image_stagec = gfx.image.new('stages/1/stagec')
     assets.image_water_bg = gfx.image.new('stages/1/water_bg')
     assets.water = gfx.imagetable.new('stages/1/water')
@@ -16,10 +16,7 @@ function race:stage_init()
     assets.bushes = gfx.imagetable.new('stages/1/bush')
     assets.bushtops = gfx.imagetable.new('stages/1/bushtop')
 
-    vars.tiles_x, vars.tiles_y = assets.image_stage:getSize()
-    vars.tile_x, vars.tile_y = assets.image_stage[1]:getSize()
-    vars.stage_x = vars.tile_x * vars.tiles_x
-    vars.stage_y = vars.tile_y * vars.tiles_y
+    vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 
     if vars.mode == "tt" then
         vars.boat_x = 375
@@ -32,21 +29,21 @@ function race:stage_init()
         vars.cpu_current_lap = 1
         vars.cpu_current_checkpoint = 0
         vars.cpu_last_checkpoint = 0
-        vars.follow_polygon = pd.geometry.polygon.new(335, 1305, 
-        355, 1015, 
-        575, 845, 
-        820, 730, 
-        835, 455, 
-        1130, 245, 
-        1520, 270, 
-        1705, 500, 
-        1630, 765, 
-        1545, 1040, 
-        1490, 1235, 
-        1240, 1310, 
-        1195, 1560, 
-        915, 1745, 
-        630, 1755, 
+        vars.follow_polygon = pd.geometry.polygon.new(335, 1305,
+        355, 1015,
+        575, 845,
+        820, 730,
+        835, 455,
+        1130, 245,
+        1520, 270,
+        1705, 500,
+        1630, 765,
+        1545, 1040,
+        1490, 1235,
+        1240, 1310,
+        1195, 1560,
+        915, 1745,
+        630, 1755,
         360, 1545)
     end
     vars.laps = 3 -- How many laps...

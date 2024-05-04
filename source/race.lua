@@ -155,25 +155,6 @@ function race:init(...)
 
     self:stage_init()
 
-    assets.parallax_nothing_bake = gfx.image.new(vars.stage_x, vars.stage_y)
-    gfx.pushContext(assets.parallax_nothing_bake)
-        local stage_x = vars.stage_x
-        local stage_y = vars.stage_y
-        local trees_x
-        local trees_y
-        local trees_rand
-        local trunks = assets.trunks
-        for i = 1, #vars.trees_x do
-            trees_x = vars.trees_x[i]
-            trees_y = vars.trees_y[i]
-            trees_rand = vars.trees_rand[i]
-            trunks:drawImage(
-                trees_rand,
-                (trees_x - 66),
-                (trees_y - 66))
-        end
-    gfx.popContext()
-
     assets.parallax_short_bake = gfx.image.new(vars.stage_x * vars.parallax_short_amount, vars.stage_y * vars.parallax_short_amount)
     gfx.pushContext(assets.parallax_short_bake)
         local stage_x = vars.stage_x
@@ -182,6 +163,7 @@ function race:init(...)
         local bushes_y
         local bushes_rand
         local bushes = assets.bushes
+        local bushtops = assets.bushtops
         for i = 1, #vars.bushes_x do
             bushes_x = vars.bushes_x[i]
             bushes_y = vars.bushes_y[i]
@@ -190,25 +172,25 @@ function race:init(...)
                     bushes_rand,
                     (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
                     (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
-        end
-    gfx.popContext()
-
-    assets.parallax_medium_bake = gfx.image.new(vars.stage_x * vars.parallax_medium_amount, vars.stage_y * vars.parallax_medium_amount)
-    gfx.pushContext(assets.parallax_medium_bake)
-        local stage_x = vars.stage_x
-        local stage_y = vars.stage_y
-        local bushes_x
-        local bushes_y
-        local bushes_rand
-        local bushtops = assets.bushtops
-        for i = 1, #vars.bushes_x do
-            bushes_x = vars.bushes_x[i]
-            bushes_y = vars.bushes_y[i]
-            bushes_rand = vars.bushes_rand[i]
                 bushtops:drawImage(
                     bushes_rand,
-                    (bushes_x - 41) * vars.parallax_medium_amount + (stage_x * -vars.stage_progress_medium_x),
-                    (bushes_y - 39) * vars.parallax_medium_amount + (stage_y * -vars.stage_progress_medium_y))
+                    (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                    (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
+        end
+        
+        local poles_short_x
+        local poles_short_y
+        local image_pole = assets.image_pole
+        local image_pole_cap = assets.image_pole_cap
+        for i = 1, #vars.poles_short_x do
+            poles_short_x = vars.poles_short_x[i]
+            poles_short_y = vars.poles_short_y[i]
+            image_pole:draw(
+                (poles_short_x - 8) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                (poles_short_y - 8) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
+            image_pole_cap:draw(
+                (poles_short_x - 6) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                (poles_short_y - 6) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
         end
     gfx.popContext()
 
@@ -220,33 +202,19 @@ function race:init(...)
         local trees_y
         local trees_rand
         local trees = assets.trees
-        for i = 1, #vars.trees_x do
-            trees_x = vars.trees_x[i]
-            trees_y = vars.trees_y[i]
-            trees_rand = vars.trees_rand[i]
-            trees:drawImage(
-                trees_rand,
-                (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
-                (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
-        end
-    gfx.popContext()
-
-    assets.parallax_tippy_bake = gfx.image.new(vars.stage_x * vars.parallax_tippy_amount, vars.stage_y * vars.parallax_tippy_amount)
-    gfx.pushContext(assets.parallax_tippy_bake)
-        local stage_x = vars.stage_x
-        local stage_y = vars.stage_y
-        local trees_x
-        local trees_y
-        local trees_rand
         local treetops = assets.treetops
         for i = 1, #vars.trees_x do
             trees_x = vars.trees_x[i]
             trees_y = vars.trees_y[i]
             trees_rand = vars.trees_rand[i]
-            treetops:drawImage(
-                trees_rand,
-                (trees_x - 66) * vars.parallax_tippy_amount + (stage_x * -vars.stage_progress_tippy_x),
-                (trees_y - 66) * vars.parallax_tippy_amount + (stage_y * -vars.stage_progress_tippy_y))
+            trees:drawImage(
+                    trees_rand,
+                    (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
+                    (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
+                treetops:drawImage(
+                    trees_rand,
+                    (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
+                    (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
         end
     gfx.popContext()
 
@@ -270,31 +238,10 @@ function race:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         assets.image_water_bg:draw(0, 0)
+        assets.caustics[floor(vars.water.value)]:draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
+        assets.water[floor(vars.water.value)]:draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
+        
     end)
-    
-    class('race_caustics').extends(gfx.sprite)
-    function race_caustics:init()
-        race_caustics.super.init(self)
-        self:setImage(assets.caustics[1])
-        self:setIgnoresDrawOffset(true)
-        self:setZIndex(-5)
-        self:add()
-    end
-    function race_caustics:update()
-        self:setImage(assets.caustics[floor(vars.water.value)])
-    end
-
-    class('race_water').extends(gfx.sprite)
-    function race_water:init()
-        race_water.super.init(self)
-        self:setImage(assets.water[1])
-        self:setIgnoresDrawOffset(true)
-        self:setZIndex(-4)
-        self:add()
-    end
-    function race_water:update()
-        self:setImage(assets.water[floor(vars.water.value)])
-    end
     
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
@@ -305,7 +252,8 @@ function race:init(...)
         self:add()
     end
     function race_stage:draw()
-        local x, y = gfx.getDrawOffset() -- Gimme the draw offset
+        local x = vars.x
+        local y = vars.y
         local time = save.total_playtime
         local chop = vars.chop
         local stage_x = vars.stage_x
@@ -317,15 +265,12 @@ function race:init(...)
         local parallax_short_amount = vars.parallax_short_amount
         local parallax_medium_amount = vars.parallax_medium_amount
         local parallax_long_amount = vars.parallax_long_amount
-        local parallax_tippy_amount = vars.parallax_tippy_amount
         local stage_progress_short_x = vars.stage_progress_short_x
         local stage_progress_short_y = vars.stage_progress_short_y
         local stage_progress_medium_x = vars.stage_progress_medium_x
         local stage_progress_medium_y = vars.stage_progress_medium_y
         local stage_progress_long_x = vars.stage_progress_long_x
         local stage_progress_long_y = vars.stage_progress_long_y
-        local stage_progress_tippy_x = vars.stage_progress_tippy_x
-        local stage_progress_tippy_y = vars.stage_progress_tippy_y
 
         if time % 2 == 0 then
             race:fill_polygons()
@@ -377,12 +322,6 @@ function race:init(...)
             end
         end
 
-        -- assets.parallax_nothing_bake:draw(0, 0)
-        -- assets.parallax_short_bake:draw(stage_x * -stage_progress_short_x, stage_y * -stage_progress_short_y)
-        -- assets.parallax_medium_bake:draw(stage_x * -stage_progress_medium_x, stage_y * -stage_progress_medium_y)
-        -- assets.parallax_long_bake:draw(stage_x * -stage_progress_long_x, stage_y * -stage_progress_long_y)
-        -- assets.parallax_tippy_bake:draw(stage_x * -stage_progress_tippy_x, stage_y * -stage_progress_tippy_y)
-
         gfx.setLineWidth(5)
 
         local draw_polygons
@@ -402,29 +341,11 @@ function race:init(...)
                 gfx.drawPolygon(draw_polygons)
             end
         end
+        
+        assets.parallax_short_bake:draw(stage_x * -stage_progress_short_x, stage_y * -stage_progress_short_y)
+        assets.parallax_long_bake:draw(stage_x * -stage_progress_long_x, stage_y * -stage_progress_long_y)
 
         gfx.setLineWidth(18) -- Make the lines phat
-
-        local poles_short_x
-        local poles_short_y
-        local image_pole = assets.image_pole
-        local image_pole_cap = assets.image_pole_cap
-        for i = 1, #vars.poles_short_x do -- For every short pole,
-            poles_short_x = vars.poles_short_x[i]
-            poles_short_y = vars.poles_short_y[i]
-            -- Draw it from the base point to the short parallax point
-            if (poles_short_x > -x-10 and poles_short_x < -x+410) and (poles_short_y > -y-10 and poles_short_y < -y+250) then
-                image_pole:draw(
-                    poles_short_x - 8,
-                    poles_short_y - 8)
-                image_pole:draw(
-                    (poles_short_x - 8) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                    (poles_short_y - 8) * parallax_short_amount + (stage_y * -stage_progress_short_y))
-                image_pole_cap:draw(
-                    (poles_short_x - 6) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-                    (poles_short_y - 6) * parallax_short_amount + (stage_y * -stage_progress_short_y))
-            end
-        end
 
         -- Draw the medium poles too
         local poles_medium_x
@@ -536,8 +457,6 @@ function race:init(...)
     end
 
     -- Set the sprites
-    self.caustics = race_caustics()
-    self.water = race_water()
     self.stage = race_stage()
     if vars.mode == "debug" then -- If there's debug mode, add the dot.
         self.debug = race_debug()
@@ -756,6 +675,9 @@ end
 
 -- Scene update loop
 function race:update()
+    vars.x, vars.y = gfx.getDrawOffset() -- Gimme the draw offset
+    local x = vars.x
+    local y = vars.y
     local time = save.total_playtime
     if vars.mode == "debug" then -- If debug mode is enabled,
         -- These have to be in the update loop because there's no way to just check if a button's held on every frame using an input handler. Weird.
@@ -803,9 +725,6 @@ function race:update()
         end
     end
     if self.cpu then self:checkpointcheck(true) end
-    local x, y = gfx.getDrawOffset() -- Gimme the draw offset
-    self.caustics:moveTo(floor(x / 4) * 2 % 400, floor(y / 4) * 2 % 240) -- Move the water sprite to keep it in frame
-    self.water:moveTo((x * 0.8) % 400, (y * 0.8) % 240) -- Move the water sprite to keep it in frame
     -- Set up the parallax!
     if time % 2 == 0 then
         vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
@@ -814,7 +733,5 @@ function race:update()
         vars.stage_progress_medium_y = (((-y + 120) / vars.stage_y) * (vars.parallax_medium_amount - 1))
         vars.stage_progress_long_x = (((-x + 135) / vars.stage_x) * (vars.parallax_long_amount - 1))
         vars.stage_progress_long_y = (((-y + 60) / vars.stage_y) * (vars.parallax_long_amount - 1))
-        vars.stage_progress_tippy_x = (((-x + 135) / vars.stage_x) * (vars.parallax_tippy_amount - 1))
-        vars.stage_progress_tippy_y = (((-y + 60) / vars.stage_y) * (vars.parallax_tippy_amount - 1))
     end
 end

@@ -71,12 +71,9 @@ function race:stage_init()
     vars.stage_progress_medium_y = 0
     vars.stage_progress_long_x = 0
     vars.stage_progress_long_y = 0
-    vars.stage_progress_tippy_x = 0
-    vars.stage_progress_tippy_y = 0
     vars.parallax_short_amount = 1.05
     vars.parallax_medium_amount = 1.1
     vars.parallax_long_amount = 1.175
-    vars.parallax_tippy_amount = 1.25
     -- Poles
     vars.poles_short_x = {485, 497, 529, 575, 631, 681, 739, 793, 845, 881, 707, 715, 727, 743, 769, 803, 845, 891, 941, 997, 1053, 1111, 1167, 1455, 1455, 1457, 1451, 1421, 1373, 1317, 1261, 1207, 1163, 1135, 1129, 1129, 1133, 1127}
     vars.poles_short_y = {1122, 1062, 1012, 982, 958, 938, 920, 900, 874, 832, 556, 502, 444, 388, 338, 288, 246, 216, 192, 174, 156, 158, 152, 920, 972, 1024, 1076, 1118, 1144, 1160, 1172, 1190, 1220, 1270, 1324, 1380, 1436, 1488}

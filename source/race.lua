@@ -155,68 +155,7 @@ function race:init(...)
 
     self:stage_init()
 
-    assets.parallax_short_bake = gfx.image.new(vars.stage_x * vars.parallax_short_amount, vars.stage_y * vars.parallax_short_amount)
-    gfx.pushContext(assets.parallax_short_bake)
-        local stage_x = vars.stage_x
-        local stage_y = vars.stage_y
-        local bushes_x
-        local bushes_y
-        local bushes_rand
-        local bushes = assets.bushes
-        local bushtops = assets.bushtops
-        for i = 1, #vars.bushes_x do
-            bushes_x = vars.bushes_x[i]
-            bushes_y = vars.bushes_y[i]
-            bushes_rand = vars.bushes_rand[i]
-                bushes:drawImage(
-                    bushes_rand,
-                    (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
-                    (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
-                bushtops:drawImage(
-                    bushes_rand,
-                    (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
-                    (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
-        end
-
-        local poles_short_x
-        local poles_short_y
-        local image_pole = assets.image_pole
-        local image_pole_cap = assets.image_pole_cap
-        for i = 1, #vars.poles_short_x do
-            poles_short_x = vars.poles_short_x[i]
-            poles_short_y = vars.poles_short_y[i]
-            image_pole:draw(
-                (poles_short_x - 8) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
-                (poles_short_y - 8) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
-            image_pole_cap:draw(
-                (poles_short_x - 6) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
-                (poles_short_y - 6) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
-        end
-    gfx.popContext()
-
-    assets.parallax_long_bake = gfx.image.new(vars.stage_x * vars.parallax_long_amount, vars.stage_y * vars.parallax_long_amount)
-    gfx.pushContext(assets.parallax_long_bake)
-        local stage_x = vars.stage_x
-        local stage_y = vars.stage_y
-        local trees_x
-        local trees_y
-        local trees_rand
-        local trees = assets.trees
-        local treetops = assets.treetops
-        for i = 1, #vars.trees_x do
-            trees_x = vars.trees_x[i]
-            trees_y = vars.trees_y[i]
-            trees_rand = vars.trees_rand[i]
-            trees:drawImage(
-                    trees_rand,
-                    (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
-                    (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
-                treetops:drawImage(
-                    trees_rand,
-                    (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
-                    (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
-        end
-    gfx.popContext()
+    self:bake_parallax()
 
     if vars.laps > 1 then -- Set the timer graphic
         assets.image_timer = gfx.image.new('images/race/timer_1')
@@ -236,13 +175,6 @@ function race:init(...)
         vars.boosts_remaining = 3
     end
 
-    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
-        assets.image_water_bg:draw(0, 0)
-        assets.caustics[floor(vars.water.value)]:draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
-        assets.water[floor(vars.water.value)]:draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
-
-    end)
-
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
         race_stage.super.init(self)
@@ -252,139 +184,140 @@ function race:init(...)
         self:add()
     end
     function race_stage:draw()
-        local x = vars.x
-        local y = vars.y
-        local time = save.total_playtime
-        local chop = vars.chop
-        local stage_x = vars.stage_x
-        local stage_y = vars.stage_y
-        local parallax_short_amount = vars.parallax_short_amount
-        local parallax_medium_amount = vars.parallax_medium_amount
-        local parallax_long_amount = vars.parallax_long_amount
-        local stage_progress_short_x = vars.stage_progress_short_x
-        local stage_progress_short_y = vars.stage_progress_short_y
-        local stage_progress_medium_x = vars.stage_progress_medium_x
-        local stage_progress_medium_y = vars.stage_progress_medium_y
-        local stage_progress_long_x = vars.stage_progress_long_x
-        local stage_progress_long_y = vars.stage_progress_long_y
-
-        if time % 3 == 0 then
-            race:fill_polygons()
-            race:both_polygons()
-            race:draw_polygons()
-        end
-
         assets.image_stage:draw(0, 0)
 
-        -- local audience_x
-        -- local audience_y
-        -- local audience_rand
-        -- local tightened_rand
-        -- local audience_angle
-        -- local audience_image
-        -- for i = 1, #vars.audience_x do
-        --     audience_x = vars.audience_x[i]
-        --     audience_y = vars.audience_y[i]
-        --     audience_rand = vars.audience_rand[i]
-        --     tightened_rand = (audience_rand % 3) + 1
-        --     if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
-        --         audience_image = assets['audience' .. audience_rand]
-        --         if audience_image[1] ~= nil then
-        --             audience_angle = (deg(atan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
-        --             audience_image[(floor(audience_angle / 8)) + 1]:draw(
-        --                 (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-        --                 (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
-        --             )
-        --         else
-        --             audience_image:draw(
-        --                 (audience_x - 21) * parallax_short_amount + (stage_x * -stage_progress_short_x),
-        --                 (audience_y - 21) * parallax_short_amount + (stage_y * -stage_progress_short_y)
-        --             )
-        --         end
-        --     end
-        -- end
+        if not perf then
+            local x = vars.x
+            local y = vars.y
+            local time = save.total_playtime
+            local stage_x = vars.stage_x
+            local stage_y = vars.stage_y
+            local parallax_short_amount = vars.parallax_short_amount
+            local parallax_medium_amount = vars.parallax_medium_amount
+            local parallax_long_amount = vars.parallax_long_amount
+            local stage_progress_short_x = stage_x * -vars.stage_progress_short_x
+            local stage_progress_short_y = stage_y * -vars.stage_progress_short_y
+            local stage_progress_medium_x = stage_x * -vars.stage_progress_medium_x
+            local stage_progress_medium_y = stage_y * -vars.stage_progress_medium_y
+            local stage_progress_long_x = stage_x * -vars.stage_progress_long_x
+            local stage_progress_long_y = stage_y * -vars.stage_progress_long_y
 
-        gfx.setLineWidth(5)
-
-        local draw_polygons
-        local draw_bounds
-        local draw_lowest_point_x
-        local draw_highest_point_x
-        local draw_lowest_point_y
-        local draw_highest_point_y
-        for i = 1, #vars.draw_polygons do
-            draw_polygons = vars.draw_polygons[i]
-            draw_bounds = vars.draw_bounds[i]
-            draw_lowest_point_x = draw_bounds[1]
-            draw_lowest_point_y = draw_bounds[2]
-            draw_highest_point_x = draw_bounds[3]
-            draw_highest_point_y = draw_bounds[4]
-            if (draw_lowest_point_x < -x + 400 and draw_highest_point_x > -x) and (draw_lowest_point_y < -y + 240 and draw_highest_point_y > -y) then
-                gfx.drawPolygon(draw_polygons)
+            if time % 3 == 0 then
+                race:fill_polygons()
+                race:both_polygons()
+                race:draw_polygons()
             end
-        end
 
-        assets.parallax_short_bake:draw(stage_x * -stage_progress_short_x, stage_y * -stage_progress_short_y)
-        assets.parallax_long_bake:draw(stage_x * -stage_progress_long_x, stage_y * -stage_progress_long_y)
-
-        gfx.setLineWidth(18) -- Make the lines phat
-
-        -- Draw the medium poles too
-        local poles_medium_x
-        local poles_medium_y
-        for i = 1, #vars.poles_medium_x do
-            poles_medium_x = vars.poles_medium_x[i]
-            poles_medium_y = vars.poles_medium_y[i]
-            if (poles_medium_x > -x-10 and poles_medium_x < -x+410) and (poles_medium_y > -y-10 and poles_medium_y < -y+250) then
-                gfx.drawLine(
-                    poles_medium_x,
-                    poles_medium_y,
-                    (poles_medium_x * parallax_medium_amount) + (stage_x * -stage_progress_medium_x),
-                    (poles_medium_y * parallax_medium_amount) + (stage_y * -stage_progress_medium_y))
-                image_pole_cap:draw(
-                    (poles_medium_x - 6) * parallax_medium_amount + (stage_x * -stage_progress_medium_x),
-                    (poles_medium_y - 6) * parallax_medium_amount + (stage_y * -stage_progress_medium_y))
+            local audience_x
+            local audience_y
+            local audience_rand
+            local audience_angle
+            local audience_image
+            for i = 1, #vars.audience_x do
+                audience_x = vars.audience_x[i]
+                audience_y = vars.audience_y[i]
+                audience_rand = vars.audience_rand[i]
+                if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
+                    audience_image = assets['audience' .. audience_rand]
+                    if audience_image[1] ~= nil then
+                        audience_angle = (deg(race:fastatan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
+                        audience_image[(floor(audience_angle / 8)) + 1]:draw(
+                            (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
+                            (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
+                        )
+                    else
+                        audience_image:draw(
+                            (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
+                            (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
+                        )
+                    end
+                end
             end
-        end
 
-        gfx.setLineWidth(2) -- Set the line width back
+            gfx.setLineWidth(5)
 
-        local fill_polygons
-        local fill_bounds
-        local fill_lowest_point_x
-        local fill_highest_point_x
-        local fill_lowest_point_y
-        local fill_highest_point_y
-        for i = 1, #vars.fill_polygons do
-            fill_polygons = vars.fill_polygons[i]
-            fill_bounds = vars.fill_bounds[i]
-            fill_lowest_point_x = fill_bounds[1]
-            fill_lowest_point_y = fill_bounds[2]
-            fill_highest_point_x = fill_bounds[3]
-            fill_highest_point_y = fill_bounds[4]
-            if (fill_lowest_point_x < -x + 400 and fill_highest_point_x > -x) and (fill_lowest_point_y < -y + 240 and fill_highest_point_y > -y) then
-                gfx.fillPolygon(fill_polygons)
+            local draw_polygons
+            local draw_bounds
+            local draw_lowest_point_x
+            local draw_highest_point_x
+            local draw_lowest_point_y
+            local draw_highest_point_y
+            for i = 1, #vars.draw_polygons do
+                draw_polygons = vars.draw_polygons[i]
+                draw_bounds = vars.draw_bounds[i]
+                draw_lowest_point_x = draw_bounds[1]
+                draw_lowest_point_y = draw_bounds[2]
+                draw_highest_point_x = draw_bounds[3]
+                draw_highest_point_y = draw_bounds[4]
+                if (draw_lowest_point_x < -x + 400 and draw_highest_point_x > -x) and (draw_lowest_point_y < -y + 240 and draw_highest_point_y > -y) then
+                    gfx.drawPolygon(draw_polygons)
+                end
             end
-        end
 
-        local both_polygons
-        local both_bounds
-        local both_lowest_point_x
-        local both_highest_point_x
-        local both_lowest_point_y
-        local both_highest_point_y
-        for i = 1, #vars.both_polygons do
-            both_polygons = vars.both_polygons[i]
-            both_bounds = vars.both_bounds[i]
-            both_lowest_point_x = both_bounds[1]
-            both_lowest_point_y = both_bounds[2]
-            both_highest_point_x = both_bounds[3]
-            both_highest_point_y = both_bounds[4]
-            if (both_lowest_point_x < -x + 400 and both_highest_point_x > -x) and (both_lowest_point_y < -y + 240 and both_highest_point_y > -y) then
-                gfx.setColor(gfx.kColorWhite)
-                gfx.fillPolygon(both_polygons)
-                gfx.setColor(gfx.kColorBlack)
-                gfx.drawPolygon(both_polygons)
+            if assets.parallax_short_bake ~= nil then assets.parallax_short_bake:draw(stage_progress_short_x, stage_progress_short_y) end
+            if assets.parallax_medium_bake ~= nil then assets.parallax_medium_bake:draw(stage_progress_medium_x, stage_progress_medium_y) end
+            if assets.parallax_long_bake ~= nil then assets.parallax_long_bake:draw(stage_progress_long_x, stage_progress_long_y) end
+
+            gfx.setLineWidth(18) -- Make the lines phat
+
+            -- Draw the medium poles too
+            local poles_medium_x
+            local poles_medium_y
+            local image_pole_cap = assets.image_pole_cap
+            for i = 1, #vars.poles_medium_x do
+                poles_medium_x = vars.poles_medium_x[i]
+                poles_medium_y = vars.poles_medium_y[i]
+                if (poles_medium_x > -x-10 and poles_medium_x < -x+410) and (poles_medium_y > -y-10 and poles_medium_y < -y+250) then
+                    gfx.drawLine(
+                        poles_medium_x,
+                        poles_medium_y,
+                        (poles_medium_x * parallax_medium_amount) + (stage_progress_medium_x),
+                        (poles_medium_y * parallax_medium_amount) + (stage_progress_medium_y))
+                    image_pole_cap:draw(
+                        (poles_medium_x - 6) * parallax_medium_amount + (stage_progress_medium_x),
+                        (poles_medium_y - 6) * parallax_medium_amount + (stage_progress_medium_y))
+                end
+            end
+
+            gfx.setLineWidth(2) -- Set the line width back
+
+            local fill_polygons
+            local fill_bounds
+            local fill_lowest_point_x
+            local fill_highest_point_x
+            local fill_lowest_point_y
+            local fill_highest_point_y
+            for i = 1, #vars.fill_polygons do
+                fill_polygons = vars.fill_polygons[i]
+                fill_bounds = vars.fill_bounds[i]
+                fill_lowest_point_x = fill_bounds[1]
+                fill_lowest_point_y = fill_bounds[2]
+                fill_highest_point_x = fill_bounds[3]
+                fill_highest_point_y = fill_bounds[4]
+                if (fill_lowest_point_x < -x + 400 and fill_highest_point_x > -x) and (fill_lowest_point_y < -y + 240 and fill_highest_point_y > -y) then
+                    gfx.fillPolygon(fill_polygons)
+                end
+            end
+
+            local both_polygons
+            local both_bounds
+            local both_lowest_point_x
+            local both_highest_point_x
+            local both_lowest_point_y
+            local both_highest_point_y
+            for i = 1, #vars.both_polygons do
+                both_polygons = vars.both_polygons[i]
+                both_bounds = vars.both_bounds[i]
+                both_lowest_point_x = both_bounds[1]
+                both_lowest_point_y = both_bounds[2]
+                both_highest_point_x = both_bounds[3]
+                both_highest_point_y = both_bounds[4]
+                if (both_lowest_point_x < -x + 400 and both_highest_point_x > -x) and (both_lowest_point_y < -y + 240 and both_highest_point_y > -y) then
+                    gfx.setColor(gfx.kColorWhite)
+                    gfx.fillPolygon(both_polygons)
+                    gfx.setColor(gfx.kColorBlack)
+                    gfx.drawPolygon(both_polygons)
+                end
             end
         end
 
@@ -444,6 +377,17 @@ function race:init(...)
         end)
     end
     self:add()
+end
+
+-- fast atan2. Thanks, nnnn!
+function race:fastatan(y, x)
+    local a = min(abs(x), abs(y)) / max(abs(x), abs(y))
+    local s = a * a
+    local r = ((-0.0464964749 * s + 0.15931422) * s - 0.327622764) * s * a + a
+    if abs(y) > abs(x) then r = 1.57079637 - r end
+    if x < 0 then r = 3.14159274 - r end
+    if y < 0 then r = -r end
+    return r
 end
 
 -- BOOOOOOOOOOOOOOOOSH!!! This is for rocket arms in the time trials, and boost pads in the race courses.
@@ -690,13 +634,17 @@ function race:update()
             end
             self:checkpointcheck(false)
         end
-        if self.boat.crashable and time % 2 == 0 then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
-        if self.cpu ~= nil and self.cpu.crashable and time % 4 == 0 then self.cpu:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
+        if self.boat.crashable then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
+        if self.cpu ~= nil and time % 3 == 0 then
+            self:checkpointcheck(true)
+            if self.cpu.crashable then
+                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y)
+            end
+        end
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
             self:finish(true, 400) -- end the race. Ouch.
         end
     end
-    if self.cpu then self:checkpointcheck(true) end
     -- Set up the parallax!
     if time % 3 == 0 then
         vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))

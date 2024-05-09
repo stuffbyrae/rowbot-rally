@@ -238,6 +238,7 @@
 "button_controls_name" = "Button Controls"
 "sensitivity_name" = "Easier Rowing"
 "ui_name" = "Pro UI"
+"perf_name" = "Performance Mode"
 
 -- Options descriptions
 "music_desc" = "Toggles all the music\nthroughout the game;\nincluding gameplay,\nmenus, and cutscenes.\n\n\nPress A to toggle."
@@ -245,7 +246,7 @@
 "button_controls_desc" = "Use the D-pad to play!\nHold Up to start rowing\nstraight-on, and hold\nRight to row clockwise.\n\n\nPress A to toggle."
 "sensitivity_desc" = "Turning this on makes\nrowing require less\ncrankage. Good for if\nyou can't turn the\ncrank very quickly.\n\nPress A to toggle."
 "ui_desc" = "Toggles a simpler UI in\nraces, removing a lotta\nstuff. You can also\ntoggle this during\nraces, if you want.\n\nPress A to toggle."
-
+"perf_desc" = "Knocks down a lot of\nthe visual quality, in\nexchange for a better\nFPS when using\nPlaydate Mirror.\n\nPress A to toggle."
 -- Options toggles
 "off" = "❎"
 "on" = "✅"

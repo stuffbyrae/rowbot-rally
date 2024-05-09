@@ -68,9 +68,15 @@ function race:stage_init()
     vars.stage_progress_medium_y = 0
     vars.stage_progress_long_x = 0
     vars.stage_progress_long_y = 0
-    vars.parallax_short_amount = 1.05
-    vars.parallax_medium_amount = 1.1
-    vars.parallax_long_amount = 1.175
+    if perf then
+        vars.parallax_short_amount = 1
+        vars.parallax_medium_amount = 1
+        vars.parallax_long_amount = 1
+    else
+        vars.parallax_short_amount = 1.05
+        vars.parallax_medium_amount = 1.1
+        vars.parallax_long_amount = 1.175
+    end
     -- Poles
     vars.poles_short_x = {485, 497, 529, 575, 631, 681, 739, 793, 845, 881, 707, 715, 727, 743, 769, 803, 845, 891, 941, 997, 1053, 1111, 1167, 1455, 1455, 1457, 1451, 1421, 1373, 1317, 1261, 1207, 1163, 1135, 1129, 1129, 1133, 1127}
     vars.poles_short_y = {1122, 1062, 1012, 982, 958, 938, 920, 900, 874, 832, 556, 502, 444, 388, 338, 288, 246, 216, 192, 174, 156, 158, 152, 920, 972, 1024, 1076, 1118, 1144, 1160, 1172, 1190, 1220, 1270, 1324, 1380, 1436, 1488}
@@ -241,4 +247,184 @@ function race:draw_polygons()
         (1135 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1436 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
         (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1488 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
     }
+
+    if perf then
+        gfx.pushContext(assets.image_stage)
+            local bushes_x
+            local bushes_y
+            local bushes_rand
+            local bushes = assets.bushes
+            local bushtops = assets.bushtops
+            for i = 1, #vars.bushes_x do
+                bushes_x = vars.bushes_x[i]
+                bushes_y = vars.bushes_y[i]
+                bushes_rand = vars.bushes_rand[i]
+                    bushes:drawImage(
+                        bushes_rand,
+                        (bushes_x - 41),
+                        (bushes_y - 39))
+                    bushtops:drawImage(
+                        bushes_rand,
+                        (bushes_x - 41),
+                        (bushes_y - 39))
+            end
+
+            gfx.setLineWidth(5)
+
+            local draw_polygons
+            for i = 1, #vars.draw_polygons do
+                draw_polygons = vars.draw_polygons[i]
+                gfx.drawPolygon(draw_polygons)
+            end
+
+            local poles_short_x
+            local poles_short_y
+            local image_pole = assets.image_pole
+            local image_pole_cap = assets.image_pole_cap
+            for i = 1, #vars.poles_short_x do
+                poles_short_x = vars.poles_short_x[i]
+                poles_short_y = vars.poles_short_y[i]
+                image_pole:draw(
+                    (poles_short_x - 8),
+                    (poles_short_y - 8))
+                image_pole_cap:draw(
+                    (poles_short_x - 6),
+                    (poles_short_y - 6))
+            end
+
+            local audience_x
+            local audience_y
+            local audience_rand
+            local audience_image
+            for i = 1, #vars.audience_x do
+                audience_x = vars.audience_x[i]
+                audience_y = vars.audience_y[i]
+                audience_rand = vars.audience_rand[i]
+                audience_image = assets['audience' .. audience_rand]
+                if audience_image[1] ~= nil then
+                    audience_image[1]:draw(
+                        (audience_x - 21),
+                        (audience_y - 21))
+                else
+                    audience_image:draw(
+                        (audience_x - 21),
+                        (audience_y - 21))
+                end
+            end
+
+            local poles_medium_x
+            local poles_medium_y
+            for i = 1, #vars.poles_medium_x do
+                poles_medium_x = vars.poles_medium_x[i]
+                poles_medium_y = vars.poles_medium_y[i]
+                image_pole:draw(
+                    (poles_medium_x - 8),
+                    (poles_medium_y - 8))
+                image_pole_cap:draw(
+                    (poles_medium_x - 6),
+                    (poles_medium_y - 6))
+            end
+
+            gfx.setLineWidth(2) -- Set the line width back
+
+            local fill_polygons
+            for i = 1, #vars.fill_polygons do
+                fill_polygons = vars.fill_polygons[i]
+                gfx.fillPolygon(fill_polygons)
+            end
+
+            local both_polygons
+            for i = 1, #vars.both_polygons do
+                both_polygons = vars.both_polygons[i]
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillPolygon(both_polygons)
+                gfx.setColor(gfx.kColorBlack)
+                gfx.drawPolygon(both_polygons)
+            end
+
+            local trees_x
+            local trees_y
+            local trees_rand
+            local trees = assets.trees
+            local treetops = assets.treetops
+            for i = 1, #vars.trees_x do
+                trees_x = vars.trees_x[i]
+                trees_y = vars.trees_y[i]
+                trees_rand = vars.trees_rand[i]
+                trees:drawImage(
+                        trees_rand,
+                        (trees_x - 66),
+                        (trees_y - 66))
+                    treetops:drawImage(
+                        trees_rand,
+                        (trees_x - 66),
+                        (trees_y - 66))
+            end
+        gfx.popContext()
+    end
+end
+
+function race:bake_parallax()
+    assets.parallax_short_bake = gfx.image.new(vars.stage_x * vars.parallax_short_amount, vars.stage_y * vars.parallax_short_amount)
+    gfx.pushContext(assets.parallax_short_bake)
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local bushes_x
+        local bushes_y
+        local bushes_rand
+        local bushes = assets.bushes
+        local bushtops = assets.bushtops
+        for i = 1, #vars.bushes_x do
+            bushes_x = vars.bushes_x[i]
+            bushes_y = vars.bushes_y[i]
+            bushes_rand = vars.bushes_rand[i]
+                bushes:drawImage(
+                    bushes_rand,
+                    (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                    (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
+                bushtops:drawImage(
+                    bushes_rand,
+                    (bushes_x - 41) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                    (bushes_y - 39) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
+        end
+
+        local poles_short_x
+        local poles_short_y
+        local image_pole = assets.image_pole
+        local image_pole_cap = assets.image_pole_cap
+        for i = 1, #vars.poles_short_x do
+            poles_short_x = vars.poles_short_x[i]
+            poles_short_y = vars.poles_short_y[i]
+            image_pole:draw(
+                (poles_short_x - 8) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                (poles_short_y - 8) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
+            image_pole_cap:draw(
+                (poles_short_x - 6) * vars.parallax_short_amount + (stage_x * -vars.stage_progress_short_x),
+                (poles_short_y - 6) * vars.parallax_short_amount + (stage_y * -vars.stage_progress_short_y))
+        end
+    gfx.popContext()
+
+    assets.parallax_long_bake = gfx.image.new(vars.stage_x * vars.parallax_long_amount, vars.stage_y * vars.parallax_long_amount)
+    gfx.pushContext(assets.parallax_long_bake)
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+        local trees_x
+        local trees_y
+        local trees_rand
+        local trees = assets.trees
+        local treetops = assets.treetops
+        for i = 1, #vars.trees_x do
+            trees_x = vars.trees_x[i]
+            trees_y = vars.trees_y[i]
+            trees_rand = vars.trees_rand[i]
+            trees:drawImage(
+                    trees_rand,
+                    (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
+                    (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
+                treetops:drawImage(
+                    trees_rand,
+                    (trees_x - 66) * vars.parallax_long_amount + (stage_x * -vars.stage_progress_long_x),
+                    (trees_y - 66) * vars.parallax_long_amount + (stage_y * -vars.stage_progress_long_y))
+        end
+    gfx.popContext()
 end

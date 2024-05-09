@@ -38,6 +38,8 @@ enabled_cheats_dents = false
 enabled_cheats_retro = false
 enabled_cheats_scream = false
 
+perf = false
+
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
 local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
 local pedallica <const> = gfx.font.new('fonts/pedallica') -- Pedallica font
@@ -418,10 +420,12 @@ function shakies(time, int)
 end
 
 import 'race'
+import 'options'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
+    perf = false
     scenemanager:switchscene(race, 1, "story")
 end
 

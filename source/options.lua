@@ -13,7 +13,7 @@ function options:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -24,6 +24,7 @@ function options:init(...)
             save.button_controls = false
             save.sensitivity = 3
             save.pro_ui = false
+            perf = false
             newmusic('audio/music/title', true, 1.1)
             self:sfx_change()
             gfx.sprite.redrawBackground()
@@ -34,7 +35,7 @@ function options:init(...)
             end
         end)
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         kapel = gfx.font.new('fonts/kapel'),
         pedallica = gfx.font.new('fonts/pedallica'),
@@ -67,13 +68,13 @@ function options:init(...)
     gfx.pushContext(assets.image_wave_composite)
         assets.image_wave:drawTiled(0, 0, 464, 280)
     gfx.popContext()
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         transitioning = true,
         anim_ticker = pd.timer.new(2000, 0, -100),
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
-        item_list = {'music', 'sfx', 'button_controls', 'sensitivity', 'ui'},
+        item_list = {'music', 'sfx', 'button_controls', 'sensitivity', 'ui', 'perf'},
         selection = 1,
         offset = 1,
     }
@@ -122,6 +123,14 @@ function options:init(...)
                     save.pro_ui = true
                     assets.sfx_clickon:play()
                 end
+            elseif vars.selection == 6 then
+                if perf then
+                    perf = false
+                    assets.sfx_clickoff:play()
+                else
+                    perf = true
+                    assets.sfx_clickon:play()
+                end
             end
             gfx.sprite.redrawBackground()
         end,
@@ -166,6 +175,7 @@ function options:init(...)
         assets.pedallica:drawText(gfx.getLocalizedText('button_controls_name'), 10, 70)
         assets.pedallica:drawText(gfx.getLocalizedText('sensitivity_name'), 10, 85)
         assets.pedallica:drawText(gfx.getLocalizedText('ui_name'), 10, 100)
+        assets.pedallica:drawText(gfx.getLocalizedText('perf_name'), 10, 115)
 
         if save.vol_music > 0 then
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 30, kTextAlignment.right)
@@ -177,7 +187,7 @@ function options:init(...)
         else
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 45, kTextAlignment.right)
         end
-        
+
         if save.button_controls then
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 70, kTextAlignment.right)
         else
@@ -192,6 +202,11 @@ function options:init(...)
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 100, kTextAlignment.right)
         else
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 100, kTextAlignment.right)
+        end
+        if perf then
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 115, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 115, kTextAlignment.right)
         end
 
         assets.pedallica:drawText(gfx.getLocalizedText(vars.item_list[vars.selection] .. '_desc'), 213, 48)

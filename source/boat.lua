@@ -64,7 +64,7 @@ end
 
 -- Bote!
 class('boat').extends(gfx.sprite)
-function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygons, crash_image, follow_polygon)
+function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polygon)
     boat.super.init(self)
     self.mode = mode -- "cpu", "race", or "tutorial"
 
@@ -74,9 +74,6 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
 
     self.transform = geo.affineTransform.new()
     self.crash_transform = geo.affineTransform.new()
-
-    self.crash_polygons = crash_polygons
-    self.crash_image = crash_image
 
     self.scale_factor = 1 -- Default scale of the boat.
     self.speed = 5 -- Forward movement speed of the boat.
@@ -207,7 +204,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, crash_polygo
 
     self:setTag(255)
     self:moveTo(start_x, start_y)
-    self:setnewsize(110)
+    self:setnewsize(125)
     self:setZIndex(0)
     self:add()
 end
@@ -300,13 +297,11 @@ function boat:finish(duration, peelout)
 end
 
 function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
-    self.in_wall = false
     self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
     self.crash_body_scale:translate(self.x, self.y)
     for i = 1, #polygons do
         if self.crash_body_scale:intersects(polygons[i]) then
             local points_collided = {}
-            self.in_wall = true
             self.crash_body = self.crash_transform:transformedPolygon(self.poly_body)
             for i = 1, self.poly_body:count() do
                 local transformed_point = self.crash_body:getPointAt(i)
@@ -314,7 +309,7 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
                 local moved_x = ((point_x + self.x) - crash_stage_x)
                 local moved_y = ((point_y + self.y) - crash_stage_y)
                 if image:sample(moved_x, moved_y) == gfx.kColorBlack then
-                    if self.crashable and not self.crashed then
+                    if self.crashable then
                         self.crashed = true
                         local angle = deg(self:fastatan(point_y, point_x))
                         self.crash_direction = floor(angle - 90 + random(-20, 20)) % 360 + 1

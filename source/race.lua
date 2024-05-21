@@ -175,6 +175,12 @@ function race:init(...)
         vars.boosts_remaining = 3
     end
 
+    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
+        assets.image_water_bg:draw(0, 0)
+        assets.water[1]:draw(0, 0)
+        assets.water[2]:draw(0, 0)
+    end)
+
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
         race_stage.super.init(self)
@@ -254,29 +260,48 @@ function race:init(...)
                 end
             end
 
+            if assets.whirlpool ~= nil then
+                local whirlpools_x
+                local whirlpools_y
+                local whirlpool = assets.whirlpool
+                for i = 1, #vars.whirlpools_x do
+                    whirlpools_x = vars.whirlpools_x[i]
+                    whirlpools_y = vars.whirlpools_y[i]
+                    if (whirlpools_x < -x + 468 and whirlpools_x > -x - 68) and (whirlpools_y < -y + 308 and whirlpools_y > -y - 68) then
+                        whirlpool:drawImage(math.floor(vars.anim_whirlpool.value), whirlpools_x, whirlpools_y)
+                    end
+                end
+            end
+
             if assets.parallax_short_bake ~= nil then assets.parallax_short_bake:draw(stage_progress_short_x, stage_progress_short_y) end
             if assets.parallax_medium_bake ~= nil then assets.parallax_medium_bake:draw(stage_progress_medium_x, stage_progress_medium_y) end
             if assets.parallax_long_bake ~= nil then assets.parallax_long_bake:draw(stage_progress_long_x, stage_progress_long_y) end
 
             gfx.setLineWidth(18) -- Make the lines phat
-
-            -- Draw the medium poles too
-            local poles_medium_x
-            local poles_medium_y
             local image_pole_cap = assets.image_pole_cap
-            for i = 1, #vars.poles_medium_x do
-                poles_medium_x = vars.poles_medium_x[i]
-                poles_medium_y = vars.poles_medium_y[i]
-                if (poles_medium_x > -x-10 and poles_medium_x < -x+410) and (poles_medium_y > -y-10 and poles_medium_y < -y+250) then
-                    gfx.drawLine(
-                        poles_medium_x,
-                        poles_medium_y,
-                        (poles_medium_x * parallax_medium_amount) + (stage_progress_medium_x),
-                        (poles_medium_y * parallax_medium_amount) + (stage_progress_medium_y))
-                    image_pole_cap:draw(
-                        (poles_medium_x - 6) * parallax_medium_amount + (stage_progress_medium_x),
-                        (poles_medium_y - 6) * parallax_medium_amount + (stage_progress_medium_y))
-                end
+
+            local checkpoint_x = vars.checkpoint_x
+            local checkpoint_y = vars.checkpoint_y
+            local checkpoint_width = vars.checkpoint_width
+            if (checkpoint_x > -x-10 and checkpoint_x < -x+410) and (checkpoint_y > -y-10 and checkpoint_y < -y+250) then
+                gfx.drawLine(
+                    checkpoint_x,
+                    checkpoint_y,
+                    (checkpoint_x * parallax_medium_amount) + (stage_progress_medium_x),
+                    (checkpoint_y * parallax_medium_amount) + (stage_progress_medium_y))
+                image_pole_cap:draw(
+                    (checkpoint_x - 6) * parallax_medium_amount + (stage_progress_medium_x),
+                    (checkpoint_y - 6) * parallax_medium_amount + (stage_progress_medium_y))
+            end
+            if (checkpoint_x + checkpoint_width > -x-10 and checkpoint_x + checkpoint_width < -x+410) and (checkpoint_y > -y-10 and checkpoint_y < -y+250) then
+                gfx.drawLine(
+                    checkpoint_x + checkpoint_width,
+                    checkpoint_y,
+                    ((checkpoint_x + checkpoint_width) * parallax_medium_amount) + (stage_progress_medium_x),
+                    (checkpoint_y * parallax_medium_amount) + (stage_progress_medium_y))
+                image_pole_cap:draw(
+                    ((checkpoint_x + checkpoint_width) - 6) * parallax_medium_amount + (stage_progress_medium_x),
+                    (checkpoint_y - 6) * parallax_medium_amount + (stage_progress_medium_y))
             end
 
             gfx.setLineWidth(2) -- Set the line width back
@@ -321,42 +346,44 @@ function race:init(...)
             end
         end
 
-        gfx.setDrawOffset(0, 0)
+        if vars.mode ~= "debug" then
+            gfx.setDrawOffset(0, 0)
 
-        -- If there's some kind of stage overlay anim going on, play it.
-        if vars.anim_stage_overlay ~= nil then
-            vars.anim_stage_overlay:draw(0, 0)
-        end
-        -- If there's some kind of gameplay overlay anim going on, play it.
-        if vars.anim_overlay ~= nil then
-            assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
-        end
-        assets.kapel_doubleup_outline:drawTextAligned(vars.lap_string, 200, vars.anim_lap_string.value, kTextAlignment.center)
-        -- Draw the timer
-        assets.image_timer:draw(vars.anim_hud.value + vars.anim_ui_offset.value, 3 - (vars.anim_ui_offset.value / 7.4))
-        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        vars.my_cool_buffer = vars.mins .. ":" .. vars.secs .. "." .. vars.mils
-        assets.times_new_rally:drawText(vars.my_cool_buffer, 44 + vars.anim_hud.value + vars.anim_ui_offset.value, 20 - (vars.anim_ui_offset.value / 7.4))
-        gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        -- Draw the Rocket Arms icon, when applicable
-        if assets.image_item ~= nil then
-            assets.image_item:draw(313 - vars.anim_hud.value, 0)
-        end
-        -- Draw the power meter
-        assets.image_meter_r:drawImage(floor((vars.rowbot * 14.5)) + 1, 0, 177 - vars.anim_hud.value)
-        assets.image_meter_p:drawImage(min(30, max(1, 30 - floor(vars.player * 14.5))), 200, 177 - vars.anim_hud.value)
-        if assets.shades ~= nil then
-            assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
-        end
+            -- If there's some kind of stage overlay anim going on, play it.
+            if vars.anim_stage_overlay ~= nil then
+                assets['stage_overlay']:drawImage(floor(vars.anim_stage_overlay.value), 0, 0)
+            end
+            -- If there's some kind of gameplay overlay anim going on, play it.
+            if vars.anim_overlay ~= nil then
+                assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
+            end
+            assets.kapel_doubleup_outline:drawTextAligned(vars.lap_string, 200, vars.anim_lap_string.value, kTextAlignment.center)
+            -- Draw the timer
+            assets.image_timer:draw(vars.anim_hud.value + vars.anim_ui_offset.value, 3 - (vars.anim_ui_offset.value / 7.4))
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            vars.my_cool_buffer = vars.mins .. ":" .. vars.secs .. "." .. vars.mils
+            assets.times_new_rally:drawText(vars.my_cool_buffer, 44 + vars.anim_hud.value + vars.anim_ui_offset.value, 20 - (vars.anim_ui_offset.value / 7.4))
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+            -- Draw the Rocket Arms icon, when applicable
+            if assets.image_item ~= nil then
+                assets.image_item:draw(313 - vars.anim_hud.value, 0)
+            end
+            -- Draw the power meter
+            assets.image_meter_r:drawImage(floor((vars.rowbot * 14.5)) + 1, 0, 177 - vars.anim_hud.value)
+            assets.image_meter_p:drawImage(min(30, max(1, 30 - floor(vars.player * 14.5))), 200, 177 - vars.anim_hud.value)
+            if assets.shades ~= nil then
+                assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
+            end
 
-        gfx.setDrawOffset(vars.x, vars.y)
+            gfx.setDrawOffset(vars.x, vars.y)
+        end
     end
 
     -- Little debug dot, representing the middle of the screen.
     class('race_debug').extends(gfx.sprite)
     function race_debug:init()
         race_debug.super.init(self)
-        self:moveTo(vars.boat_x, vars.boat_y)
+        self:moveTo(vars.cpu_x, vars.cpu_y)
         self:setImage(gfx.image.new(4, 4, gfx.kColorBlack))
         self:setZIndex(99)
         self:add()
@@ -368,9 +395,9 @@ function race:init(...)
         self.debug = race_debug()
     else -- If not, then add the boat.
         if vars.cpu_x ~= nil then
-            self.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.edges_polygons, assets.image_stagec, vars.follow_polygon)
+            self.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.follow_polygon)
         end
-        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y, vars.edges_polygons, assets.image_stagec)
+        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
@@ -448,7 +475,7 @@ function race:start()
     vars.overlay = "countdown"
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
-        music:play()
+        music:play(0)
         self.boat:state(true, true, true)
         self.boat:start()
         if vars.mode == "story" then
@@ -530,22 +557,14 @@ function race:checkpointcheck(cpu)
                 for i = 1, player_body:count() do
                     if cpu_body:containsPoint(player_body:getPointAt(i)) then
                         local angle = atan(self.boat.y - self.cpu.y, self.boat.x - self.cpu.x) - 1.57
-                        if not self.cpu.in_wall then
-                            if self.boat.in_wall then
-                                self.cpu:moveBy(sin(angle) * 3.8, -cos(angle) * 3.8)
-                            else
-                                self.cpu:moveBy(sin(angle) * 1.9, -cos(angle) * 1.9)
-                            end
-                        end
-                        if not self.boat.in_wall then
-                            if self.cpu.in_wall then
-                                self.boat:moveBy(-sin(angle) * (3.8 * player_scale), cos(angle) * (3.8 * player_scale))
-                            else
-                                self.boat:moveBy(-sin(angle) * (1.9 * player_scale), cos(angle) * (1.9 * player_scale))
-                            end
-                        end
+                        self.cpu:moveBy(sin(angle) * 1.9, -cos(angle) * 1.9)
+                        self.boat:moveBy(-sin(angle) * (1.9 * player_scale), cos(angle) * (1.9 * player_scale))
                     end
                 end
+            elseif vars.whirlpools_x ~= nil then
+                -- CPU is colliding with a whirlpool.
+                local angle = atan(self.cpu.y - (vars.whirlpools_y[tag - 42] + 34), self.cpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
+                self.cpu:moveBy(sin(angle) * 2.5, -cos(angle) * 2.5)
             end
         end
     else
@@ -553,6 +572,13 @@ function race:checkpointcheck(cpu)
         for i = 1, boat_count do
             local tag = boat_collisions[i].other:getTag()
             if tag >= 1 and tag <= 3 then
+                if tag == 1 and vars.lever ~= nil then
+                    vars.lever = 2
+                    self:lever()
+                elseif tag == 3 and vars.lever ~= nil then
+                    vars.lever = 1
+                    self:lever()
+                end
                 if vars.current_checkpoint == tag - 1 and vars.last_checkpoint == tag - 1 then
                     vars.current_checkpoint = tag
                 end
@@ -584,6 +610,11 @@ function race:checkpointcheck(cpu)
                     end
                 end
                 vars.last_checkpoint = tag
+            elseif vars.whirlpools_x ~= nil and tag ~= 255 then
+                -- Boat is colliding with a whirlpool.
+                local player_scale = self.boat.scale_factor
+                local angle = atan(self.boat.y - (vars.whirlpools_y[tag - 42] + 34), self.boat.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
+                self.boat:moveBy(sin(angle) * (2.5 * player_scale), -cos(angle) * (2.5 * player_scale))
             end
         end
     end
@@ -635,10 +666,10 @@ function race:update()
             self:checkpointcheck(false)
         end
         if self.boat.crashable then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
-        if self.cpu ~= nil and time % 3 == 0 then
+        if self.cpu ~= nil then
             self:checkpointcheck(true)
             if self.cpu.crashable then
-                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y)
+                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, self.stage.x, self.stage.y)
             end
         end
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
@@ -646,7 +677,7 @@ function race:update()
         end
     end
     -- Set up the parallax!
-    if time % 3 == 0 then
+    if not perf then
         vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
         vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))
         vars.stage_progress_medium_x = (((-x + 200) / vars.stage_x) * (vars.parallax_medium_amount - 1))

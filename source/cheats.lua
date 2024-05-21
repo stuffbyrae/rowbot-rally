@@ -13,7 +13,7 @@ function cheats:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -33,7 +33,7 @@ function cheats:init(...)
             end
         end)
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         kapel = gfx.font.new('fonts/kapel'),
         pedallica = gfx.font.new('fonts/pedallica'),
@@ -52,7 +52,7 @@ function cheats:init(...)
     assets.sfx_menu:setVolume(save.vol_sfx/5)
     assets.sfx_clickon:setVolume(save.vol_sfx/5)
     assets.sfx_clickoff:setVolume(save.vol_sfx/5)
-    
+
     -- Writing in the image for the "Cheats" header ticker
     gfx.pushContext(assets.image_ticker)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
@@ -68,7 +68,7 @@ function cheats:init(...)
     gfx.pushContext(assets.image_wave_composite)
         assets.image_wave:drawTiled(0, 0, 464, 280)
     gfx.popContext()
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         transitioning = true,
         anim_ticker = pd.timer.new(2000, 0, -100),
@@ -155,7 +155,7 @@ function cheats:init(...)
             end
         end
     }
-    
+
     pd.timer.performAfterDelay(1000, function() -- After the wave's done animating inward...
         vars.transitioning = false -- Start accepting button presses to go back.
         vars.anim_wave_y:resetnew(5000, 185, 195, pd.easingFunctions.inOutCubic) -- Set the wave's idle animation,
@@ -219,7 +219,7 @@ function cheats:init(...)
         else
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 45, kTextAlignment.right)
         end
-        
+
         if enabled_cheats_tiny then
             enabled_cheats = true
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 60, kTextAlignment.right)
@@ -244,11 +244,11 @@ function cheats:init(...)
         else
             assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 115, kTextAlignment.right)
         end
-        
+
         if enabled_cheats then
             assets.pedallica:drawText(gfx.getLocalizedText('cheats_warning'), 10, 150)
         end
-        
+
         if save['unlocked_cheats_' .. vars.item_list[vars.selection]] then
             assets.pedallica:drawText(gfx.getLocalizedText(vars.item_list[vars.selection] .. '_desc'), 213, 48)
         end

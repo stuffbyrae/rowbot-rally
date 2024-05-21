@@ -5,6 +5,7 @@
 import 'opening'
 import 'options'
 if not demo then
+    import 'chill'
     import 'cutscene'
     import 'intro'
     import 'stages'
@@ -26,7 +27,7 @@ function title:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -129,7 +130,7 @@ function title:init(...)
             scenemanager:transitionsceneoneway(chill)
         end, false)
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_water_bg = gfx.image.new('stages/tutorial/water_bg'),
         image_bg = gfx.image.new('images/ui/title_bg'),
@@ -137,7 +138,7 @@ function title:init(...)
         kapel = gfx.font.new('fonts/kapel'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         fade = gfx.imagetable.new('images/ui/fade/fade'),
-        sfx_bonk = smp.new('audio/sfx/bonk'), 
+        sfx_bonk = smp.new('audio/sfx/bonk'),
         sfx_proceed = smp.new('audio/sfx/proceed'),
         sfx_start = smp.new('audio/sfx/start'),
         sfx_menu = smp.new('audio/sfx/menu'),
@@ -154,7 +155,7 @@ function title:init(...)
     assets.sfx_rowboton:setVolume(save.vol_sfx/5)
 
     gfx.setFont(assets.kapel_doubleup)
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         selection = 1,
         list_open = false,
@@ -226,7 +227,7 @@ function title:init(...)
         AButtonDown = function()
             self:openslot(vars.slot_selection)
         end,
-        
+
         BButtonDown = function()
             self:closeslots()
         end,
@@ -401,7 +402,7 @@ function title:init(...)
             else
                 assets.image_slot_empty:draw(274, 94)
             end
-            
+
             if (save.slot1_progress == 'finish' and save.slot1_circuit == 1) or (save.slot1_progress ~= 'finish' and save.slot1_circuit == 2) then
                 assets.kapel:drawTextAligned('🌟', 122, 68, kTextAlignment.right)
             elseif (save.slot1_progress == 'finish' and save.slot1_circuit == 2) or (save.slot1_progress ~= 'finish' and save.slot1_circuit == 3) then
@@ -411,7 +412,7 @@ function title:init(...)
             elseif (save.slot1_progress == 'finish' and save.slot1_circuit == 4) then
                 assets.kapel:drawTextAligned('🌟🌟🌟🌟', 122, 68, kTextAlignment.right)
             end
-            
+
             if (save.slot2_progress == 'finish' and save.slot2_circuit == 1) or (save.slot2_progress ~= 'finish' and save.slot2_circuit == 2) then
                 assets.kapel:drawTextAligned('🌟', 252, 68, kTextAlignment.right)
             elseif (save.slot2_progress == 'finish' and save.slot2_circuit == 2) or (save.slot2_progress ~= 'finish' and save.slot2_circuit == 3) then

@@ -18,13 +18,13 @@ function results:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(200) -- TODO: Set X offset
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         image_plate = gfx.image.new('images/ui/popup'),
@@ -38,7 +38,7 @@ function results:init(...)
         image_bg = gfx.getDisplayImage(),
     }
     assets.sfx_proceed:setVolume(save.vol_sfx/5)
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- number, 1 through 7
         mode = args[2], -- string; "story" or "tt"
@@ -48,8 +48,8 @@ function results:init(...)
         anim_fade = pd.timer.new(750, 34, 11, pd.easingFunctions.outSine),
         anim_plate = pd.timer.new(350, 240, 0, pd.easingFunctions.outBack),
         anim_react = pd.timer.new(450, 420, 240, pd.easingFunctions.outCubic, 200),
-        stage1_speedy = 100,
-        stage2_speedy = 100,
+        stage1_speedy = 2700,
+        stage2_speedy = 3390,
         stage3_speedy = 100,
         stage4_speedy = 100,
         stage5_speedy = 100,
@@ -214,7 +214,7 @@ function results:init(...)
     self.fade = results_fade()
     self.plate = results_plate()
     self.react = results_react(vars.win)
-    
+
     self:add()
 end
 

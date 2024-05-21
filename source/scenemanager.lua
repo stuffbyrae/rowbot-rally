@@ -83,25 +83,23 @@ function scenemanager:findstory()
 end
 
 function scenemanager:switchstory()
-    self:findstory()
     -- Pop any rogue input handlers, leaving the default one.
     local inputsize = #playdate.inputHandlers - 1
     for i = 1, inputsize do
         pd.inputHandlers.pop()
     end
     savegame()
-    self:loadnewscene()
+    self:loadnewstory()
 end
 
 function scenemanager:switchscene(scene, ...)
-    self.newscene = scene
-    self.sceneargs = {...}
     -- Pop any rogue input handlers, leaving the default one.
     local inputsize = #playdate.inputHandlers - 1
     for i = 1, inputsize do
         pd.inputHandlers.pop()
     end
-    self:loadnewscene()
+    self.sceneargs = {...}
+    self:loadnewscene(scene)
 end
 
 function scenemanager:transitionstory()
@@ -113,11 +111,10 @@ function scenemanager:transitionstory()
         pd.inputHandlers.pop()
     end
     self.transitioning = true
-    self:findstory()
     savegame()
     local transitiontimer = self:transition(750, 250, 0, -10)
     transitiontimer.timerEndedCallback = function()
-        self:loadnewscene()
+        self:loadnewstory()
         transitiontimer = self:transition(250, -350, 10, 0)
         transitiontimer.timerEndedCallback = function()
             self.transitioning = false
@@ -134,11 +131,10 @@ function scenemanager:transitionscene(scene, ...)
         pd.inputHandlers.pop()
     end
     self.transitioning = true
-    self.newscene = scene
     self.sceneargs = {...}
     local transitiontimer = self:transition(750, 250, 0, -10)
     transitiontimer.timerEndedCallback = function()
-        self:loadnewscene()
+        self:loadnewscene(scene)
         transitiontimer = self:transition(250, -350, 10, 0)
         transitiontimer.timerEndedCallback = function()
             self.transitioning = false
@@ -155,11 +151,10 @@ function scenemanager:transitionsceneback(scene, ...)
         pd.inputHandlers.pop()
     end
     self.transitioning = true
-    self.newscene = scene
     self.sceneargs = {...}
     local transitiontimer = self:transition(-350, 250, 0, 10)
     transitiontimer.timerEndedCallback = function()
-        self:loadnewscene()
+        self:loadnewscene(scene)
         transitiontimer = self:transition(250, 750, -10, 0)
         transitiontimer.timerEndedCallback = function()
             self.transitioning = false
@@ -176,11 +171,10 @@ function scenemanager:transitionstoryoneway()
         pd.inputHandlers.pop()
     end
     self.transitioning = true
-    self:findstory()
     savegame()
     local transitiontimer = self:transitiononeway(441, -41, 0, -10)
     transitiontimer.timerEndedCallback = function()
-        self:loadnewscene()
+        self:loadnewstory()
         self.transitioning = false
         gfx.setDrawOffset(0, 0)
     end
@@ -195,11 +189,10 @@ function scenemanager:transitionsceneoneway(scene, ...)
         pd.inputHandlers.pop()
     end
     self.transitioning = true
-    self.newscene = scene
     self.sceneargs = {...}
     local transitiontimer = self:transitiononeway(441, -41, 0, -10)
     transitiontimer.timerEndedCallback = function()
-        self:loadnewscene()
+        self:loadnewscene(scene)
         self.transitioning = false
         gfx.setDrawOffset(0, 0)
     end
@@ -214,11 +207,10 @@ function scenemanager:transitionsceneonewayback(scene, ...)
         pd.inputHandlers.pop()
     end
     self.transitioning = true
-    self.newscene = scene
     self.sceneargs = {...}
     local transitiontimer = self:transitiononewayback(-482, 0, 0, 10)
     transitiontimer.timerEndedCallback = function()
-        self:loadnewscene()
+        self:loadnewscene(scene)
         self.transitioning = false
         gfx.setDrawOffset(0, 0)
     end
@@ -284,8 +276,15 @@ function scenemanager:loadingspriteotherway()
     return loading
 end
 
-function scenemanager:loadnewscene()
+function scenemanager:loadnewscene(scene)
     self:cleanupscene()
+    self.newscene = scene
+    self.newscene(table.unpack(self.sceneargs))
+end
+
+function scenemanager:loadnewstory()
+    self:cleanupscene()
+    self:findstory()
     self.newscene(table.unpack(self.sceneargs))
 end
 
@@ -303,9 +302,11 @@ function scenemanager:cleanupscene()
         end
     end
     vars = nil -- and nil all the variables.
+    if self.newscene ~= nil then
+        self.newscene = nil
+    end
     gfx.sprite.performOnAllSprites(function(sprite)
         sprite:remove()
-        sprite = nil
     end)
     self:removealltimers() -- Remove every timer,
     collectgarbage('collect') -- and collect the garbage.

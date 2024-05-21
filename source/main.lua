@@ -199,7 +199,9 @@ function newmusic(file, loop, range)
         end
         music:setStopOnUnderrun(flag)
         if loop then -- If set to loop, then ... loop it!
-            music:setLoopRange(range or 0)
+            if range then
+                music:setLoopRange(range)
+            end
             music:play(0)
         else
             music:play()
@@ -396,9 +398,12 @@ end
 function pd.timer:resetnew(duration, startValue, endValue, easingFunction)
 	self.duration = duration
 	self._startValue = startValue
+    self.originalValues.startValue = startValue
 	self._endValue = endValue or 0
+    self.originalValues.endValue = endValue or 0
 	self._easingFunction = easingFunction or pd.easingFunctions.linear
-	self._currentTime = 0
+	self.originalValues.easingFunction = easingFunction or pd.easingFunctions.linear
+    self._currentTime = 0
 	self._lastTime = nil
 	self.active = true
 	self.hasReversed = false
@@ -425,8 +430,8 @@ import 'options'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    perf = false
-    scenemanager:switchscene(race, 1, "story")
+    -- scenemanager:switchscene(title)
+    scenemanager:switchscene(race, 2, "story")
 end
 
 function pd.update()

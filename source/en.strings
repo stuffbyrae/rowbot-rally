@@ -95,7 +95,7 @@
 
 -- Stage gimmick names
 "gimmick_1_name" = "First Rally"
-"gimmick_2_name" = "Currents"
+"gimmick_2_name" = "Whirlpools"
 "gimmick_3_name" = "Boost Pad"
 "gimmick_4_name" = "A-maze-ing!"
 "gimmick_5_name" = "Leap Pad"
@@ -104,7 +104,7 @@
 
 -- Stage gimmick descriptions
 "gimmick_1_desc" = "  Mind the controls! Are you\nable to keep a steady line?"
-"gimmick_2_desc" = "  Up your cranking game to\ntraverse the strong currents!"
+"gimmick_2_desc" = "  Watch out for those strong\nswirling whirlpools!"
 "gimmick_3_desc" = "  These send your boat flying!\nWatch out for obstacles!"
 "gimmick_4_desc" = "  Try to navigate the turns\nof this winding hedge maze!"
 "gimmick_5_desc" = "  Clear the large obstacles by\nsoaring up high into the air!"

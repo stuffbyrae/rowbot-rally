@@ -11,7 +11,7 @@ function stats:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -26,7 +26,7 @@ function stats:init(...)
             end
         end)
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         pedallica = gfx.font.new('fonts/pedallica'),
@@ -52,7 +52,7 @@ function stats:init(...)
     gfx.pushContext(assets.image_wave_composite)
         assets.image_wave:drawTiled(0, 0, 464, 280)
     gfx.popContext()
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         transitioning = true,
         anim_ticker = pd.timer.new(2000, 0, -81),
@@ -195,7 +195,7 @@ function stats:init(...)
     function stats_back:update()
         self:moveTo(295, (vars.anim_wave_y.value*1.1))
     end
-    
+
     -- Set the sprites
     self.ticker = stats_ticker()
     self.wave = stats_wave()

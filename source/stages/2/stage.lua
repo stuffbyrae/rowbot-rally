@@ -161,15 +161,15 @@ function race:stage_init()
     }
     -- Bounds for the calc'd polygons
     vars.fill_bounds = {
-        {0, 0, 50, 50},
+        {0, 0, 1, 1},
     }
     self:fill_polygons()
     vars.both_bounds = {
-        {0, 0, 50, 50},
+        {0, 0, 1, 1},
     }
     self:both_polygons()
     vars.draw_bounds = {
-        {0, 0, 50, 50},
+        {0, 0, 1, 1},
     }
     self:draw_polygons()
 
@@ -185,7 +185,7 @@ function race:fill_polygons()
     local stage_progress_short_x = vars.stage_progress_short_x
     local stage_progress_short_y = vars.stage_progress_short_y
     vars.fill_polygons = {
-        geo.polygon.new(0, 0, 0, 50, 50, 50, 50, 0, 0, 0),
+        geo.polygon.new(0, 0, 0, 1, 1, 1, 1, 0, 0, 0),
     }
     table.insert(vars.fill_polygons, geo.polygon.new(
         ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
@@ -211,7 +211,7 @@ function race:both_polygons()
     local stage_progress_short_x = vars.stage_progress_short_x
     local stage_progress_short_y = vars.stage_progress_short_y
     vars.both_polygons = {
-        geo.polygon.new(0, 0, 0, 50, 50, 50, 50, 0, 0, 0),
+        geo.polygon.new(0, 0, 0, 1, 1, 1, 1, 0, 0, 0),
     }
     table.insert(vars.both_polygons, geo.polygon.new(
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
@@ -230,7 +230,7 @@ function race:draw_polygons()
     local stage_progress_short_x = vars.stage_progress_short_x
     local stage_progress_short_y = vars.stage_progress_short_y
     vars.draw_polygons = {
-        geo.polygon.new(0, 0, 0, 50, 50, 50, 50, 0, 0, 0),
+        geo.polygon.new(0, 0, 0, 1, 1, 1, 1, 0, 0, 0),
     }
 end
 
@@ -260,14 +260,6 @@ function race:bake_parallax()
                     bushes_rand,
                     (bushes_x - 41),
                     (bushes_y - 39))
-            end
-
-            gfx.setLineWidth(5)
-
-            local draw_polygons
-            for i = 1, #vars.draw_polygons do
-                draw_polygons = vars.draw_polygons[i]
-                gfx.drawPolygon(draw_polygons)
             end
 
             local audience_x
@@ -311,21 +303,6 @@ function race:bake_parallax()
                 (checkpoint_y - 6))
 
             gfx.setLineWidth(2) -- Set the line width back
-
-            local fill_polygons
-            for i = 1, #vars.fill_polygons do
-                fill_polygons = vars.fill_polygons[i]
-                gfx.fillPolygon(fill_polygons)
-            end
-
-            local both_polygons
-            for i = 1, #vars.both_polygons do
-                both_polygons = vars.both_polygons[i]
-                gfx.setColor(gfx.kColorWhite)
-                gfx.fillPolygon(both_polygons)
-                gfx.setColor(gfx.kColorBlack)
-                gfx.drawPolygon(both_polygons)
-            end
 
             gfx.setColor(gfx.kColorWhite)
             gfx.fillPolygon(geo.polygon.new(

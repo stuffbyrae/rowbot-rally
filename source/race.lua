@@ -260,28 +260,30 @@ function race:init(...)
                 race:draw_polygons()
             end
 
-            local audience_x
-            local audience_y
-            local audience_rand
-            local audience_angle
-            local audience_image
-            for i = 1, #vars.audience_x do
-                audience_x = vars.audience_x[i]
-                audience_y = vars.audience_y[i]
-                audience_rand = vars.audience_rand[i]
-                if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
-                    audience_image = assets['audience' .. audience_rand]
-                    if audience_image[1] ~= nil then
-                        audience_angle = (deg(race:fastatan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
-                        audience_image[(floor(audience_angle / 8)) + 1]:draw(
-                            (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
-                            (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
-                        )
-                    else
-                        audience_image:draw(
-                            (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
-                            (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
-                        )
+            if vars.audience_x ~= nil then
+                local audience_x
+                local audience_y
+                local audience_rand
+                local audience_angle
+                local audience_image
+                for i = 1, #vars.audience_x do
+                    audience_x = vars.audience_x[i]
+                    audience_y = vars.audience_y[i]
+                    audience_rand = vars.audience_rand[i]
+                    if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
+                        audience_image = assets['audience' .. audience_rand]
+                        if audience_image[1] ~= nil then
+                            audience_angle = (deg(race:fastatan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
+                            audience_image[(floor(audience_angle / 8)) + 1]:draw(
+                                (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
+                                (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
+                            )
+                        else
+                            audience_image:draw(
+                                (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
+                                (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
+                            )
+                        end
                     end
                 end
             end
@@ -388,13 +390,15 @@ function race:init(...)
 
             -- If there's some kind of stage overlay anim going on, play it.
             if vars.anim_stage_overlay ~= nil then
-                assets['stage_overlay']:drawImage(floor(vars.anim_stage_overlay.value), 0, 0)
+                assets.stage_overlay:drawImage(floor(vars.anim_stage_overlay.value), 0, 0)
             end
             -- If there's some kind of gameplay overlay anim going on, play it.
             if vars.anim_overlay ~= nil then
                 assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
             end
-            assets.kapel_doubleup_outline:drawTextAligned(vars.lap_string, 200, vars.anim_lap_string.value, kTextAlignment.center)
+            if vars.lap_string ~= nil then
+                assets.kapel_doubleup_outline:drawTextAligned(vars.lap_string, 200, vars.anim_lap_string.value, kTextAlignment.center)
+            end
             -- Draw the timer
             assets.image_timer:draw(vars.anim_hud.value + vars.anim_ui_offset.value, 3 - (vars.anim_ui_offset.value / 7.4))
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
@@ -420,7 +424,7 @@ function race:init(...)
     class('race_debug').extends(gfx.sprite)
     function race_debug:init()
         race_debug.super.init(self)
-        self:moveTo(vars.cpu_x, vars.cpu_y)
+        self:moveTo(vars.boat_x, vars.boat_y)
         self:setImage(gfx.image.new(4, 4, gfx.kColorBlack))
         self:setZIndex(99)
         self:add()
@@ -517,7 +521,7 @@ function race:start()
         music:play(0)
         self.boat:state(true, true, true)
         self.boat:start()
-        if vars.mode == "story" then
+        if vars.cpu_x ~= nil then
             self.cpu:state(true)
             self.cpu:start()
         end

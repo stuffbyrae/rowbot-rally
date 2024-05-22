@@ -418,10 +418,17 @@ end
 
 -- This function shakes the screen. int is a number representing intensity. time is a number representing duration
 function shakies(time, int)
-    if pd.getReduceFlashing() then -- If reduce flashing is enabled, then don't shake.
+    if pd.getReduceFlashing() or perf then -- If reduce flashing is enabled, then don't shake.
         return
     end
     anim_shakies = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
+end
+
+function shakies_y(time, int)
+    if pd.getReduceFlashing() or perf then
+        return
+    end
+    anim_shakies_y = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
 import 'race'
@@ -431,7 +438,7 @@ if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
     -- scenemanager:switchscene(title)
-    scenemanager:switchscene(race, 3, "tt")
+    scenemanager:switchscene(race, 4, "story")
 end
 
 function pd.update()
@@ -439,9 +446,14 @@ function pd.update()
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup.value) -- Move it there!
     end
+    local offsetx, offsety = pd.display.getOffset()
     -- Screen shake update logic
     if anim_shakies ~= nil then
-        pd.display.setOffset(anim_shakies.value, 0)
+        pd.display.setOffset(anim_shakies.value, offsety)
+    end
+    local offsetx, offsety = pd.display.getOffset()
+    if anim_shakies_y ~= nil then
+        pd.display.setOffset(offsetx, anim_shakies_y.value)
     end
     save.total_playtime += 1 -- Up the total playtime by one every frame while the game is open.
     -- Catch-all stuff ...

@@ -368,6 +368,8 @@ end
 
 function boat:boost()
     if self.movable and not self.boosting then -- Make sure they're not boosting already
+        shakies(500, 10)
+        shakies_y(750, 10)
         self.boosting = true
         -- Stretch the boat
         self.boost_x:resetnew(500, 0.8, 1)
@@ -383,8 +385,8 @@ function boat:boost()
         if self.mode ~= "cpu" then
             self.sfx_boost:play()
             -- Throw the camera back
-            self.cam_x:resetnew(500, self.cam_x.value, -40, pd.easingFunctions.outBack)
-            self.cam_y:resetnew(500, self.cam_y.value, -40, pd.easingFunctions.outBack)
+            self.cam_x:resetnew(1000, self.cam_x.value, 70, pd.easingFunctions.inOutSine)
+            self.cam_y:resetnew(1000, self.cam_y.value, 70, pd.easingFunctions.inOutSine)
             pd.timer.performAfterDelay(2000, function()
                 self.wobble_speedo:resetnew(2000, 4, 1, pd.easingFunctions.outBack)
                 -- Throw the camera ... back
@@ -559,7 +561,7 @@ function boat:draw(x, y, width, height)
             self.ripple:rotate(self.rotation)
             self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
             gfx.setColor(gfx.kColorWhite)
-            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer2x2)
+            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
             gfx.setLineWidth(self.ripple_opacity.value * 4)
             gfx.drawPolygon(self.ripple:transformedPolygon(self.poly_body))
             gfx.setLineWidth(2)
@@ -616,7 +618,7 @@ function boat:draw(x, y, width, height)
             self.ripple:rotate(self.rotation)
             self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
             gfx.setColor(gfx.kColorWhite)
-            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer2x2)
+            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
             gfx.setLineWidth(self.ripple_opacity.value * 4)
             gfx.drawPolygon(self.ripple:transformedPolygon(self.poly_body))
             gfx.setLineWidth(2)

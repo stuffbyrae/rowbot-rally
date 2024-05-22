@@ -76,7 +76,6 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self.crash_transform = geo.affineTransform.new()
 
     self.scale_factor = 1 -- Default scale of the boat.
-    self.speed = 5 -- Forward movement speed of the boat.
     self.turn = 7 -- The RowBot's default turning rate.
     self.random = random()
 
@@ -85,6 +84,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
         self.follow_polygon = follow_polygon
         self.lerp = ((self.stage / 2) * 0.09) * (1 + (save['slot' .. save.current_story_slot .. '_circuit'] / 8)) -- Rate at which the rotation towards the angle is interpolated.
+        self.speed = 4.7 -- Forward movement speed of the boat.
 
         self.follow_points = {}
         self.follow_count = self.follow_polygon:count()
@@ -95,6 +95,8 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         end
         self.point_x, self.point_y = self.follow_polygon:getPointAt(self.follow_next):unpack()
     else
+        self.speed = 5 -- Forward movement speed of the boat.
+
         self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
         self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
 
@@ -457,7 +459,7 @@ function boat:update()
                 self.rotation += (targetangle - self.rotation) * self.lerp
                 local dx = self.x - self.point_x
                 local dy = self.y - self.point_y
-                if sqrt(dx * dx + dy * dy) <= 50 then
+                if sqrt(dx * dx + dy * dy) <= 70 then
                     self.follow_next += 1
                     if self.follow_next > self.follow_count then
                         self.follow_next = 1
@@ -467,6 +469,12 @@ function boat:update()
             end
         else -- Player controlling
             gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
+            if self.mode == "race" then
+                local x, y = gfx.getDrawOffset()
+                if x >= 0 then x = 0 elseif x - 400 <= -self.stage_x then x = -self.stage_x + 400 end
+                if y >= 0 then y = 0 elseif y - 240 <= -self.stage_y then y = -self.stage_y + 240 end
+                gfx.setDrawOffset(x, y)
+            end
             if self.turnable then
                 if enabled_cheats_scream then
                     if pd.sound.micinput.getLevel() > 0 then
@@ -585,6 +593,20 @@ function boat:draw(x, y, width, height)
             gfx.setColor(gfx.kColorBlack)
             gfx.drawCircleAtPoint(r01_head, r01_head, 15)
             gfx.drawCircleAtPoint(r01_head, r01_head, 10)
+        elseif self.stage == 2 then
+            local robuzz_head = self.boat_size / 2
+            local robuzz_body_x = -10 * sin[self.rotation] + (self.boat_size / 2)
+            local robuzz_body_y = -10 * -cos[self.rotation] + (self.boat_size / 2)
+            local robuzz_tail_x = -12 * -sin[self.rotation] + (self.boat_size / 2)
+            local robuzz_tail_y = -12 * cos[self.rotation] + (self.boat_size / 2)
+            gfx.fillCircleAtPoint(robuzz_tail_x, robuzz_tail_y, 8)
+            gfx.fillCircleAtPoint(robuzz_body_x, robuzz_body_y, 10)
+            gfx.setColor(gfx.kColorWhite)
+            gfx.fillCircleAtPoint(robuzz_head, robuzz_head, 12)
+            gfx.setColor(gfx.kColorBlack)
+            gfx.setLineWidth(2)
+            gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 12)
+            gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 8)
         end
 
     else

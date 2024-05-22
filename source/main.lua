@@ -431,7 +431,7 @@ if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
     -- scenemanager:switchscene(title)
-    scenemanager:switchscene(race, 2, "story")
+    scenemanager:switchscene(race, 3, "tt")
 end
 
 function pd.update()

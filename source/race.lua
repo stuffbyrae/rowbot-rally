@@ -177,9 +177,55 @@ function race:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         assets.image_water_bg:draw(0, 0)
-        assets.water[1]:draw(0, 0)
-        assets.water[2]:draw(0, 0)
+        assets.caustics[floor(vars.water.value)]:draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
+         assets.water[floor(vars.water.value)]:draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
     end)
+
+    class('race_below').extends(gfx.sprite)
+    function race_below:init()
+        race_below.super.init(self)
+        self:setZIndex(-1)
+        self:setCenter(0, 0)
+        self:setSize(vars.stage_x, vars.stage_y)
+        if assets.whirlpool ~= nil or assets.boost_pad ~= nil then
+            self:add()
+        end
+    end
+    function race_below:draw()
+        local x = vars.x
+        local y = vars.y
+        local time = save.total_playtime
+        local stage_x = vars.stage_x
+        local stage_y = vars.stage_y
+
+        if assets.whirlpool ~= nil then
+            local whirlpools_x
+            local whirlpools_y
+            local whirlpool = assets.whirlpool
+            for i = 1, #vars.whirlpools_x do
+                whirlpools_x = vars.whirlpools_x[i]
+                whirlpools_y = vars.whirlpools_y[i]
+                if (whirlpools_x < -x + 468 and whirlpools_x > -x - 68) and (whirlpools_y < -y + 308 and whirlpools_y > -y - 68) then
+                    whirlpool:drawImage(math.floor(vars.anim_whirlpool.value), whirlpools_x, whirlpools_y)
+                end
+            end
+        end
+
+        if assets.boost_pad ~= nil then
+            local boost_pads_x
+            local boost_pads_y
+            local boost_pads_flip
+            local boost_pad = assets.boost_pad
+            for i = 1, #vars.boost_pads_x do
+                boost_pads_x = vars.boost_pads_x[i]
+                boost_pads_y = vars.boost_pads_y[i]
+                boost_pads_flip = vars.boost_pads_flip[i]
+                if (boost_pads_x < -x + 498 and boost_pads_x > -x - 98) and (boost_pads_y < -y + 363 and boost_pads_y > -y - 123) then
+                    boost_pad:drawImage(math.floor(vars.anim_boost_pad.value), boost_pads_x, boost_pads_y, boost_pads_flip)
+                end
+            end
+        end
+    end
 
     class('race_stage').extends(gfx.sprite)
     function race_stage:init()
@@ -260,19 +306,6 @@ function race:init(...)
                 end
             end
 
-            if assets.whirlpool ~= nil then
-                local whirlpools_x
-                local whirlpools_y
-                local whirlpool = assets.whirlpool
-                for i = 1, #vars.whirlpools_x do
-                    whirlpools_x = vars.whirlpools_x[i]
-                    whirlpools_y = vars.whirlpools_y[i]
-                    if (whirlpools_x < -x + 468 and whirlpools_x > -x - 68) and (whirlpools_y < -y + 308 and whirlpools_y > -y - 68) then
-                        whirlpool:drawImage(math.floor(vars.anim_whirlpool.value), whirlpools_x, whirlpools_y)
-                    end
-                end
-            end
-
             if assets.parallax_short_bake ~= nil then assets.parallax_short_bake:draw(stage_progress_short_x, stage_progress_short_y) end
             if assets.parallax_medium_bake ~= nil then assets.parallax_medium_bake:draw(stage_progress_medium_x, stage_progress_medium_y) end
             if assets.parallax_long_bake ~= nil then assets.parallax_long_bake:draw(stage_progress_long_x, stage_progress_long_y) end
@@ -344,6 +377,10 @@ function race:init(...)
                     gfx.drawPolygon(both_polygons)
                 end
             end
+
+            if assets.wave ~= nil then
+                assets.wave[floor(vars.anim_wave.value)]:draw(stage_x - 388, 0)
+            end
         end
 
         if vars.mode ~= "debug" then
@@ -390,6 +427,7 @@ function race:init(...)
     end
 
     -- Set the sprites
+    self.below = race_below()
     self.stage = race_stage()
     if vars.mode == "debug" then -- If there's debug mode, add the dot.
         self.debug = race_debug()
@@ -420,35 +458,36 @@ end
 -- BOOOOOOOOOOOOOOOOSH!!! This is for rocket arms in the time trials, and boost pads in the race courses.
 -- If rocketarms (bool) is true, then the player activated this at will in a time trial.
 function race:boost(rocketarms)
-    -- AND THEN AND THEN AND THEN AND THEN AND THEN
-    -- If the race is happening, AND the boat's not already boosting, AND you still have boosts left,
-    if vars.in_progress and not self.boat.boosting and vars.boosts_remaining > 0 then
-        -- ... then boost! :3
-        self.boat:boost() -- The boat does most of this, of course.
-        vars.overlay = "boost"
-        vars.anim_overlay:resetnew(1000, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
-        vars.anim_overlay.repeats = true
-        pd.timer.performAfterDelay(2500, function() -- and taking it away after a while.
-            vars.anim_overlay:resetnew(0, 0, 0)
-        end)
-        if vars.shades then
-            vars.shades = false
-            vars.anim_shades_x:resetnew(800, 0, 80)
-            vars.anim_shades_y:resetnew(400, 0, 20, pd.easingFunctions.outCubic)
-            vars.anim_shades_y.timerEndedCallback = function()
-                vars.anim_shades_y:resetnew(400, 20, -30, pd.easingFunctions.inSine)
-            end
-        end
-        if rocketarms then
-            vars.boosts_remaining -= 1
-            assets.image_item = assets.image_item_active
-            pd.timer.performAfterDelay(50, function()
-                if vars.boosts_remaining ~= 0 then
-                    assets.image_item = assets['image_item_' .. vars.boosts_remaining]
-                else
-                    assets.image_item = assets.image_item_used
-                end
+    if rocketarms and vars.boosts_remaining > 0 or not rocketarms then
+        if vars.in_progress and not self.boat.boosting then
+            -- ... then boost! :3
+            self.boat:boost() -- The boat does most of this, of course.
+            vars.overlay = "boost"
+            vars.anim_overlay:resetnew(1000, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
+            vars.anim_overlay.repeats = true
+            pd.timer.performAfterDelay(2500, function() -- and taking it away after a while.
+                vars.anim_overlay:resetnew(0, 0, 0)
             end)
+            if vars.shades then
+                vars.shades = false
+                vars.anim_shades_x:resetnew(800, 0, 80)
+                vars.anim_shades_y:resetnew(400, 0, 20, pd.easingFunctions.outCubic)
+                vars.anim_shades_y.timerEndedCallback = function()
+                    vars.anim_shades_y:resetnew(400, 20, -30, pd.easingFunctions.inSine)
+                    vars.anim_shades_y.timerEndedCallback = nil
+                end
+            end
+            if rocketarms then
+                vars.boosts_remaining -= 1
+                assets.image_item = assets.image_item_active
+                pd.timer.performAfterDelay(50, function()
+                    if vars.boosts_remaining ~= 0 then
+                        assets.image_item = assets['image_item_' .. vars.boosts_remaining]
+                    else
+                        assets.image_item = assets.image_item_used
+                    end
+                end)
+            end
         end
     end
 end
@@ -615,6 +654,9 @@ function race:checkpointcheck(cpu)
                 local player_scale = self.boat.scale_factor
                 local angle = atan(self.boat.y - (vars.whirlpools_y[tag - 42] + 34), self.boat.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
                 self.boat:moveBy(sin(angle) * (2.5 * player_scale), -cos(angle) * (2.5 * player_scale))
+            elseif vars.boost_pads_x ~= nil and tag ~= 255 then
+                -- Boat is colliding with a boost pad.
+                self:boost(false)
             end
         end
     end

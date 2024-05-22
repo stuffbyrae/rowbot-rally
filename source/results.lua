@@ -50,7 +50,7 @@ function results:init(...)
         anim_react = pd.timer.new(450, 420, 240, pd.easingFunctions.outCubic, 200),
         stage1_speedy = 2700,
         stage2_speedy = 3390,
-        stage3_speedy = 100,
+        stage3_speedy = 3600,
         stage4_speedy = 100,
         stage5_speedy = 100,
         stage6_speedy = 100,

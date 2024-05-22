@@ -12,6 +12,7 @@ function race:stage_init()
     assets.image_stagec_2 = gfx.image.new('stages/2/stagec_2')
     assets.bug_1 = gfx.imagetable.new('stages/2/bug_1')
     assets.bug_2 = gfx.imagetable.new('stages/2/bug_2')
+    assets.bug_3 = gfx.imagetable.new('stages/2/bug_3')
     assets.image_dome_medium = gfx.image.new('stages/2/dome_medium')
     assets.image_dome_long = gfx.image.new('stages/2/dome_long')
     assets.image_water_bg = gfx.image.new('stages/2/water_bg')
@@ -27,11 +28,11 @@ function race:stage_init()
     assets.image_stagec = assets.image_stagec_1
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 
-    assets.stage_overlay = assets['bug_' .. random(1, 2)]
+    assets.stage_overlay = assets['bug_' .. random(1, 3)]
     vars.anim_stage_overlay = pd.timer.new(6500, 1, 91)
     vars.anim_stage_overlay.timerEndedCallback = function()
         assets.stage_overlay = nil
-        assets.stage_overlay = assets['bug_' .. random(1, 2)]
+        assets.stage_overlay = assets['bug_' .. random(1, 3)]
     end
     vars.anim_stage_overlay.repeats = true
 
@@ -122,8 +123,6 @@ function race:stage_init()
         vars.parallax_long_amount = 1.5
     end
     -- Poles
-    vars.poles_short_x = {}
-    vars.poles_short_y = {}
     vars.checkpoint_x = 230
     vars.checkpoint_y = 1645
     vars.checkpoint_width = 230
@@ -141,7 +140,7 @@ function race:stage_init()
         vars['whirlpool_' .. i] = gfx.sprite.addEmptyCollisionSprite(vars.whirlpools_x[i] + 16, vars.whirlpools_y[i] + 16, 42, 42)
         vars['whirlpool_' .. i]:setTag(42 + i)
     end
-    vars.anim_whirlpool = pd.timer.new(500, 1, 4)
+    vars.anim_whirlpool = pd.timer.new(500, 1, 4.99)
     vars.anim_whirlpool.repeats = true
     -- Audience members
     assets.audience1 = gfx.image.new('images/race/audience/audience_basic')
@@ -263,36 +262,12 @@ function race:bake_parallax()
                     (bushes_y - 39))
             end
 
-            local whirlpools_x
-            local whirlpools_y
-            local whirlpool = assets.whirlpool
-            for i = 1, #vars.whirlpools_x do
-                whirlpools_x = vars.whirlpools_x[i]
-                whirlpools_y = vars.whirlpools_y[i]
-                whirlpool:drawImage(1, whirlpools_x, whirlpools_y)
-            end
-
             gfx.setLineWidth(5)
 
             local draw_polygons
             for i = 1, #vars.draw_polygons do
                 draw_polygons = vars.draw_polygons[i]
                 gfx.drawPolygon(draw_polygons)
-            end
-
-            local poles_short_x
-            local poles_short_y
-            local image_pole = assets.image_pole
-            local image_pole_cap = assets.image_pole_cap
-            for i = 1, #vars.poles_short_x do
-                poles_short_x = vars.poles_short_x[i]
-                poles_short_y = vars.poles_short_y[i]
-                image_pole:draw(
-                    (poles_short_x - 8),
-                    (poles_short_y - 8))
-                image_pole_cap:draw(
-                    (poles_short_x - 6),
-                    (poles_short_y - 6))
             end
 
             local audience_x
@@ -318,6 +293,8 @@ function race:bake_parallax()
             local checkpoint_x = vars.checkpoint_x
             local checkpoint_y = vars.checkpoint_y
             local checkpoint_width = vars.checkpoint_width
+            local image_pole = assets.image_pole
+            local image_pole_cap = assets.image_pole_cap
 
             image_pole:draw(
                 (checkpoint_x - 8),
@@ -397,21 +374,6 @@ function race:bake_parallax()
                         bushes_rand,
                         (bushes_x - 41) * vars.parallax_short_amount,
                         (bushes_y - 39) * vars.parallax_short_amount)
-            end
-
-            local poles_short_x
-            local poles_short_y
-            local image_pole = assets.image_pole
-            local image_pole_cap = assets.image_pole_cap
-            for i = 1, #vars.poles_short_x do
-                poles_short_x = vars.poles_short_x[i]
-                poles_short_y = vars.poles_short_y[i]
-                image_pole:draw(
-                    (poles_short_x - 8) * vars.parallax_short_amount,
-                    (poles_short_y - 8) * vars.parallax_short_amount)
-                image_pole_cap:draw(
-                    (poles_short_x - 6) * vars.parallax_short_amount,
-                    (poles_short_y - 6) * vars.parallax_short_amount)
             end
         gfx.popContext()
 

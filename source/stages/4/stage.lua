@@ -5,14 +5,18 @@ local geo <const> = pd.geometry
 local random <const> = math.random
 
 function race:stage_init()
-    assets.image_stage = gfx.image.new('stages/4/stage')
+    if perf then
+        assets.image_stage = gfx.image.new('stages/4/stage_flat')
+    else
+        assets.image_stage = gfx.image.new('stages/4/stage')
+    end
     assets.image_stagec = gfx.image.new('stages/4/stagec')
     assets.parallax_short_bake = gfx.image.new('stages/4/parallax_short_bake')
     assets.parallax_medium_bake = gfx.image.new('stages/4/parallax_medium_bake')
     assets.parallax_long_bake = gfx.image.new('stages/4/parallax_long_bake')
     assets.image_water_bg = gfx.image.new('stages/4/water_bg')
     assets.water = gfx.imagetable.new('stages/4/water')
-    assets.caustics = gfx.imagetable.new('stages/4/caustics')
+    assets.popeyes = gfx.image.new('stages/4/popeyes')
     assets.stage_overlay = gfx.imagetable.new('stages/4/vignette')
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
@@ -23,7 +27,7 @@ function race:stage_init()
     vars.boat_y = 1805
     vars.laps = 1 -- How many laps...
     -- The checkpointzzzzz™
-    vars.finish = gfx.sprite.addEmptyCollisionSprite(1830, 195, 230, 20)
+    vars.finish = gfx.sprite.addEmptyCollisionSprite(1830, 190, 230, 20)
     vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(0, 1623, 2238, 20)
     vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(0, 1053, 2238, 20)
     vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(0, 368, 2238, 20)

@@ -49,10 +49,13 @@ function wake:update()
     self.boat_x = self.boat.x
     self.boat_y = self.boat.y
     self.rotation = self.boat.rotation
+    self.leaping = self.boat.leaping
     self:moveTo(self.boat_x, self.boat_y)
     self.wake:moveTo((self.boat_x - (sin[self.rotation] * 20)) + (self.size_x / 2), (self.boat_y + (cos[self.rotation] * 20)) + (self.size_y / 2))
     self.wake:setSpread(self.rotation)
-    self.wake:add(1)
+    if not self.leaping then
+        self.wake:add(1)
+    end
 end
 
 function wake:draw()
@@ -83,7 +86,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.stage = stage
 
         self.follow_polygon = follow_polygon
-        self.lerp = ((self.stage / 2) * 0.09) * (1 + (save['slot' .. save.current_story_slot .. '_circuit'] / 8)) -- Rate at which the rotation towards the angle is interpolated.
+        self.lerp = 0.06 -- Rate at which the rotation towards the angle is interpolated.
         self.speed = 4.7 -- Forward movement speed of the boat.
 
         self.follow_points = {}
@@ -176,6 +179,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self.crashed = false -- Are you crashed?
     self.crashable = true -- Can you crash? (e.g. are you not in the air?)
     self.leaping = false -- Are you currently soaring into the air?
+    self.leap_boosting = false -- A temporary boost while leaping to clear obstacles.
     self.in_wall = false
     self.rotation = 360
     self.reversed = 1 -- Flips the direction of both RowBot and bunny turning.
@@ -319,7 +323,7 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
                         self.crash_time = 500 * (max(0.25, min(1, self.move_speedo.value)))
                         if self.movable then
                             self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
-                            self.wobble_speedo:resetnew(self.crash_time / 2, self.wobble_speedo.value, -1.5, pd.easingFunctions.outBack)
+                            self.wobble_speedo:resetnew(self.crash_time / 2, 1, -1.5, pd.easingFunctions.outBack)
                             self.move_speedo.reverses = true
                             self.wobble_speedo.reverses = true
                             self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
@@ -368,13 +372,11 @@ end
 
 function boat:boost()
     if self.movable and not self.boosting then -- Make sure they're not boosting already
-        shakies(500, 10)
-        shakies_y(750, 10)
         self.boosting = true
         -- Stretch the boat
-        self.boost_x:resetnew(500, 0.8, 1)
-        self.boost_y:resetnew(500, 1.2, 1)
-        self.wobble_speedo:resetnew(500, 1, 4, pd.easingFunctions.outBack)
+        self.boost_x:resetnew(700, 0.9, 1)
+        self.boost_y:resetnew(700, 1.1, 1)
+        self.wobble_speedo:resetnew(500, 1, 3, pd.easingFunctions.outBack)
         self.speed = self.speed * 2 -- Make the boat go faster (duh)
         self.lerp = 0.1 -- Make it turn a little less quickly, though!
         pd.timer.performAfterDelay(2000, function()
@@ -383,12 +385,14 @@ function boat:boost()
             self.lerp = 0.2 -- Set the lerp back
         end)
         if self.mode ~= "cpu" then
+            shakies(500, 10)
+            shakies_y(750, 10)
             self.sfx_boost:play()
             -- Throw the camera back
             self.cam_x:resetnew(1000, self.cam_x.value, 70, pd.easingFunctions.inOutSine)
             self.cam_y:resetnew(1000, self.cam_y.value, 70, pd.easingFunctions.inOutSine)
             pd.timer.performAfterDelay(2000, function()
-                self.wobble_speedo:resetnew(2000, 4, 1, pd.easingFunctions.outBack)
+                self.wobble_speedo:resetnew(2000, 3, 1, pd.easingFunctions.outBack)
                 -- Throw the camera ... back
                 if self.movable then
                     self.cam_x:resetnew(1500, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
@@ -402,7 +406,6 @@ end
 function boat:leap()
     if self.movable and not self.leaping then
         if self.mode ~= "cpu" then
-            self.turn_speedo:resetnew(400, 1, 0, pd.easingFunctions.outSine)
             self.sfx_air:play()
             self.sfx_boost:play()
         end
@@ -413,22 +416,29 @@ function boat:leap()
         self.scale:resetnew(700, self.scale_factor, self.scale_factor * 2, pd.easingFunctions.outCubic)
         self.scale.reverses = true
         self.scale.reverseEasingFunction = pd.easingFunctions.inCubic
+        if not self.boosting and not self.leap_boosting then
+            self.leap_boosting = true
+            self.speed = self.speed * 1.5
+        end
         pd.timer.performAfterDelay(1400, function()
-            self.sfx_splash:play()
+            if self.mode ~= "cpu" then
+                self.sfx_splash:play()
+            end
+            if self.leap_boosting then
+                self.leap_boosting = false
+                self.speed = self.speed / 1.5
+            end
             -- Bounce-back animation
             self.scale:resetnew(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
             -- Re-set boat size
             self:setnewsize(90)
+            self.leaping = false
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
-                if self.mode ~= "cpu" and not self.beached then
-                    self.turn_speedo:resetnew(600, 0, 1, pd.easingFunctions.outSine)
-                    if not perf then
-                        self.scale:resetnew(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1)
-                    end
+                if not perf then
+                    self.scale:resetnew(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1)
                 end
-                self.leaping = false
             end)
         end)
     end

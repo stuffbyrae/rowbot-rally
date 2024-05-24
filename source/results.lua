@@ -52,7 +52,7 @@ function results:init(...)
         stage2_speedy = 3390,
         stage3_speedy = 3150,
         stage4_speedy = 900,
-        stage5_speedy = 100,
+        stage5_speedy = 4050,
         stage6_speedy = 100,
         stage7_speedy = 100,
         speedy = false,

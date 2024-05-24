@@ -18,8 +18,9 @@ function race:stage_init()
     assets.image_water_bg = gfx.image.new('stages/2/water_bg')
     assets.water = gfx.imagetable.new('stages/2/water')
     assets.caustics = gfx.imagetable.new('stages/2/caustics')
-    assets.bushes = gfx.imagetable.new('stages/1/bush')
-    assets.bushtops = gfx.imagetable.new('stages/1/bushtop')
+    assets.caustics_overlay = gfx.image.new('stages/2/caustics_overlay')
+    assets.bushes = gfx.imagetable.new('stages/2/bush')
+    assets.bushtops = gfx.imagetable.new('stages/2/bushtop')
     assets.whirlpool = gfx.imagetable.new('stages/2/whirlpool')
 
     assets.image_stage = assets.image_stage_1
@@ -140,7 +141,7 @@ function race:stage_init()
         vars['whirlpool_' .. i] = gfx.sprite.addEmptyCollisionSprite(vars.whirlpools_x[i] + 16, vars.whirlpools_y[i] + 16, 42, 42)
         vars['whirlpool_' .. i]:setTag(42 + i)
     end
-    vars.anim_whirlpool = pd.timer.new(500, 1, 4.99)
+    vars.anim_whirlpool = pd.timer.new(750, 1, 8.99)
     vars.anim_whirlpool.repeats = true
     -- Audience members
     assets.audience1 = gfx.image.new('images/race/audience/audience_basic')

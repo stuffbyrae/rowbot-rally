@@ -9,8 +9,8 @@ function race:stage_init()
     assets.image_stagec = gfx.image.new('stages/3/stagec')
     assets.image_stagec_cpu = assets.image_stagec
     assets.image_water_bg = gfx.image.new('stages/3/water_bg')
-    assets.water = gfx.imagetable.new('stages/3/water')
     assets.caustics = gfx.imagetable.new('stages/3/caustics')
+    assets.caustics_overlay = gfx.image.new('stages/3/caustics_overlay')
     assets.umbrella = gfx.image.new('stages/3/umbrella')
     assets.wave = gfx.imagetable.new('stages/3/wave')
     assets.boost_pad = gfx.imagetable.new('stages/3/boost_pad')
@@ -107,7 +107,7 @@ function race:stage_init()
     vars.boost_pads_y = {155, 510, 1320}
     vars.boost_pads_flip = {gfx.kImageUnflipped, gfx.kImageFlippedX, gfx.kImageFlippedX}
     for i = 1, #vars.boost_pads_x do
-        vars['boost_pad_' .. i] = gfx.sprite.addEmptyCollisionSprite(vars.boost_pads_x[i], vars.boost_pads_y[i], 98, 123)
+        vars['boost_pad_' .. i] = gfx.sprite.addEmptyCollisionSprite(vars.boost_pads_x[i] + 45, vars.boost_pads_y[i], 8, 123)
         vars['boost_pad_' .. i]:setTag(42 + i)
     end
     vars.anim_boost_pad = pd.timer.new(500, 1, 4.99)

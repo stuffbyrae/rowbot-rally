@@ -23,7 +23,7 @@ function tutorial:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
@@ -36,12 +36,13 @@ function tutorial:init(...)
         end)
         setpauseimage(200) -- TODO: Set this X offset
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
         image_water_bg = gfx.image.new('stages/tutorial/water_bg'),
         water = gfx.imagetable.new('stages/tutorial/water'),
         caustics = gfx.imagetable.new('stages/tutorial/caustics'),
+        caustics_overlay = gfx.image.new('stages/tutorial/caustics_overlay'),
         image_meter_r = gfx.imagetable.new('images/race/meter/meter_r'),
         image_meter_p = gfx.imagetable.new('images/race/meter/meter_p'),
         image_popup_banner = gfx.image.new('images/ui/popup_banner'),
@@ -71,7 +72,7 @@ function tutorial:init(...)
     assets.sfx_ui:setVolume(save.vol_sfx/5)
     assets.sfx_clickon:setVolume(save.vol_sfx/5)
     assets.sfx_clickoff:setVolume(save.vol_sfx/5)
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         current_step = 1,
         progressable = false,
@@ -107,7 +108,7 @@ function tutorial:init(...)
         end
     }
     pd.inputHandlers.push(vars.tutorialHandlers)
-    
+
     vars.water.repeats = true
     vars.edges.repeats = true
     vars.up.repeats = true

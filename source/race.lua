@@ -177,8 +177,18 @@ function race:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         assets.image_water_bg:draw(0, 0)
-        assets.caustics[floor(vars.water.value)]:draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
-         assets.water[floor(vars.water.value)]:draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
+        if assets.caustics ~= nil then
+            assets.caustics[floor(vars.water.value)]:drawScaled((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240, 2) -- Move the water sprite to keep it in frame
+        end
+        if assets.caustics_overlay ~= nil then
+            assets.caustics_overlay:draw(0, 0)
+        end
+        if assets.water ~= nil then
+            assets.water[floor(vars.water.value)]:drawScaled(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240, 2) -- Move the water sprite to keep it in frame
+        end
+        if assets.popeyes ~= nil then
+            assets.popeyes:draw(0, 0)
+        end
     end)
 
     class('race_below').extends(gfx.sprite)
@@ -187,7 +197,7 @@ function race:init(...)
         self:setZIndex(-1)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
-        if assets.whirlpool ~= nil or assets.boost_pad ~= nil then
+        if assets.whirlpool ~= nil or assets.boost_pad ~= nil or assets.leap_pad ~= nil then
             self:add()
         end
     end
@@ -222,6 +232,19 @@ function race:init(...)
                 boost_pads_flip = vars.boost_pads_flip[i]
                 if (boost_pads_x < -x + 498 and boost_pads_x > -x - 98) and (boost_pads_y < -y + 363 and boost_pads_y > -y - 123) then
                     boost_pad:drawImage(math.floor(vars.anim_boost_pad.value), boost_pads_x, boost_pads_y, boost_pads_flip)
+                end
+            end
+        end
+
+        if assets.leap_pad ~= nil then
+            local leap_pads_x
+            local leap_pads_y
+            local leap_pad = assets.leap_pad
+            for i = 1, #vars.leap_pads_x do
+                leap_pads_x = vars.leap_pads_x[i]
+                leap_pads_y = vars.leap_pads_y[i]
+                if (leap_pads_x < -x + 498 and leap_pads_x > -x - 98) and (leap_pads_y < -y + 363 and leap_pads_y > -y - 123) then
+                    leap_pad:drawImage(math.floor(vars.anim_leap_pad.value), leap_pads_x, leap_pads_y)
                 end
             end
         end
@@ -497,16 +520,34 @@ function race:boost(rocketarms)
 end
 
 -- The function what makes the boat leap up high in the air
-function race:leap()
+function race:leap(cpu)
     -- If you're not already leaping,
-    if vars.in_progress and not self.boat.leaping then
-        self.boat:leap() -- The boat.lua code handles most of this.
-        self.stage:setZIndex(-2) -- Put the stage under the boat
-        pd.timer.performAfterDelay(1450, function()
-            if vars.in_progress then -- If the race hasn't ended (e.g. if you haven't been beached,)
-                self.stage:setZIndex(1) -- Put the stage back over the boat
-            end
-        end)
+    if cpu then
+        if not self.cpu.leaping then
+            self.cpu:leap() -- The boat.lua code handles most of this.
+            self.stage:setZIndex(-2) -- Put the stage under the boat
+            pd.timer.performAfterDelay(1450, function()
+                if not self.boat.leaping then -- If the race hasn't ended (e.g. if you haven't been beached,)
+                    self.stage:setZIndex(1) -- Put the stage back over the boat
+                end
+            end)
+        end
+    else
+        if vars.in_progress and not self.boat.leaping then
+            self.boat:leap() -- The boat.lua code handles most of this.
+            self.stage:setZIndex(-2) -- Put the stage under the boat
+            pd.timer.performAfterDelay(1450, function()
+                if vars.in_progress then -- If the race hasn't ended (e.g. if you haven't been beached,)
+                    if self.cpu ~= nil then
+                        if not self.cpu.leaping then
+                            self.stage:setZIndex(1) -- Put the stage back over the boat
+                        end
+                    else
+                        self.stage:setZIndex(1) -- Put the stage back over the boat
+                    end
+                end
+            end)
+        end
     end
 end
 
@@ -604,10 +645,16 @@ function race:checkpointcheck(cpu)
                         self.boat:moveBy(-sin(angle) * (1.9 * player_scale), cos(angle) * (1.9 * player_scale))
                     end
                 end
-            elseif vars.whirlpools_x ~= nil then
+            elseif vars.whirlpools_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a whirlpool.
                 local angle = atan(self.cpu.y - (vars.whirlpools_y[tag - 42] + 34), self.cpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
                 self.cpu:moveBy(sin(angle) * 2.5, -cos(angle) * 2.5)
+            elseif vars.boost_pads_x ~= nil and tag ~= 255 then
+                -- CPU is colliding with a boost pad.
+                self.cpu:boost()
+            elseif vars.leap_pads_x ~= nil and tag ~= 255 then
+                -- CPU is colliding with a leap pad.
+                self:leap(true)
             end
         end
     else
@@ -661,6 +708,9 @@ function race:checkpointcheck(cpu)
             elseif vars.boost_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a boost pad.
                 self:boost(false)
+            elseif vars.leap_pads_x ~= nil and tag ~= 255 then
+                -- Boat is colliding with a leap pad.
+                self:leap(false)
             end
         end
     end
@@ -711,7 +761,7 @@ function race:update()
             end
             self:checkpointcheck(false)
         end
-        if self.boat.crashable then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
+        if self.boat.crashable and not self.boat.beached then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
         if self.cpu ~= nil then
             self:checkpointcheck(true)
             if self.cpu.crashable then

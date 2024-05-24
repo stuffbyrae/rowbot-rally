@@ -290,7 +290,7 @@ function options:newselection(dir)
     -- If this is true, then that means we've reached an end and nothing has changed.
     if vars.old_selection == vars.selection then
         assets.sfx_bonk:play()
-        shakies()
+        shakies_y()
     else
         assets.sfx_menu:play()
         gfx.sprite.redrawBackground()

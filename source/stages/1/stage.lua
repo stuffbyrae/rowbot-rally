@@ -11,6 +11,7 @@ function race:stage_init()
     assets.image_water_bg = gfx.image.new('stages/1/water_bg')
     assets.water = gfx.imagetable.new('stages/1/water')
     assets.caustics = gfx.imagetable.new('stages/1/caustics')
+    assets.caustics_overlay = gfx.image.new('stages/1/caustics_overlay')
     assets.trees = gfx.imagetable.new('stages/1/tree')
     assets.trunks = gfx.imagetable.new('stages/1/trunk')
     assets.treetops = gfx.imagetable.new('stages/1/treetop')
@@ -264,14 +265,14 @@ function race:bake_parallax()
                     bushes_x = vars.bushes_x[i]
                     bushes_y = vars.bushes_y[i]
                     bushes_rand = vars.bushes_rand[i]
-                        bushes:drawImage(
-                            bushes_rand,
-                            (bushes_x - 41),
-                            (bushes_y - 39))
-                        bushtops:drawImage(
-                            bushes_rand,
-                            (bushes_x - 41),
-                            (bushes_y - 39))
+                    bushes:drawImage(
+                        bushes_rand,
+                        (bushes_x - 41),
+                        (bushes_y - 39))
+                    bushtops:drawImage(
+                        bushes_rand,
+                        (bushes_x - 41),
+                        (bushes_y - 39))
                 end
 
                 gfx.setLineWidth(5)

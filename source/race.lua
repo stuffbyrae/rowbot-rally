@@ -63,6 +63,7 @@ function race:init(...)
         sfx_finish = smp.new('audio/sfx/finish'),
         sfx_ref = smp.new('audio/sfx/ref'),
         sfx_final = smp.new('audio/sfx/final'),
+        sfx_cymbal = smp.new('audio/sfx/cymbal'),
         image_meter_r = gfx.imagetable.new('images/race/meter/meter_r'),
         image_meter_p = gfx.imagetable.new('images/race/meter/meter_p'),
     }
@@ -71,6 +72,7 @@ function race:init(...)
     assets.sfx_finish:setVolume(save.vol_sfx/5)
     assets.sfx_ref:setVolume(save.vol_sfx/5)
     assets.sfx_final:setVolume(save.vol_sfx/5)
+    assets.sfx_cymbal:setVolume(save.vol_sfx/5)
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
@@ -90,6 +92,7 @@ function race:init(...)
         audience_1 = pd.timer.new(5000, 10, -10),
         audience_2 = pd.timer.new(15000, 10, -10),
         audience_3 = pd.timer.new(25000, 10, -10),
+        reverse_cooldown = true,
     }
 
     vars.water.repeats = true
@@ -155,8 +158,6 @@ function race:init(...)
 
     self:stage_init()
 
-    self:bake_parallax()
-
     if vars.laps > 1 then -- Set the timer graphic
         assets.image_timer = gfx.image.new('images/race/timer_1')
         assets.image_timer_2 = gfx.image.new('images/race/timer_2')
@@ -177,18 +178,18 @@ function race:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         assets.image_water_bg:draw(0, 0)
-        if assets.caustics ~= nil then
-            assets.caustics[floor(vars.water.value)]:drawScaled((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240, 2) -- Move the water sprite to keep it in frame
-        end
-        if assets.caustics_overlay ~= nil then
-            assets.caustics_overlay:draw(0, 0)
-        end
-        if assets.water ~= nil then
-            assets.water[floor(vars.water.value)]:drawScaled(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240, 2) -- Move the water sprite to keep it in frame
-        end
-        if assets.popeyes ~= nil then
-            assets.popeyes:draw(0, 0)
-        end
+        -- if assets.caustics ~= nil then
+        --     assets.caustics[floor(vars.water.value)]:drawScaled((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240, 2) -- Move the water sprite to keep it in frame
+        -- end
+        -- if assets.caustics_overlay ~= nil then
+        --     assets.caustics_overlay:draw(0, 0)
+        -- end
+        -- if assets.water ~= nil then
+        --     assets.water[floor(vars.water.value)]:drawScaled(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240, 2) -- Move the water sprite to keep it in frame
+        -- end
+        -- if assets.popeyes ~= nil then
+        --     assets.popeyes:draw(0, 0)
+        -- end
     end)
 
     class('race_below').extends(gfx.sprite)
@@ -197,11 +198,11 @@ function race:init(...)
         self:setZIndex(-1)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
-        if assets.whirlpool ~= nil or assets.boost_pad ~= nil or assets.leap_pad ~= nil then
+        if assets.whirlpool ~= nil or assets.boost_pad ~= nil or assets.leap_pad ~= nil or assets.lantern ~= nil or assets.reverse_pad ~= nil then
             self:add()
         end
     end
-    function race_below:draw()
+    function race_below:draw(x, y, width, height)
         local x = vars.x
         local y = vars.y
         local time = save.total_playtime
@@ -248,6 +249,19 @@ function race:init(...)
                 end
             end
         end
+
+        if assets.reverse_pad ~= nil then
+            local reverse_pads_x
+            local reverse_pads_y
+            local reverse_pad = assets.reverse_pad
+            for i = 1, #vars.reverse_pads_x do
+                reverse_pads_x = vars.reverse_pads_x[i]
+                reverse_pads_y = vars.reverse_pads_y[i]
+                if (reverse_pads_x < -x + 498 and reverse_pads_x > -x - 98) and (reverse_pads_y < -y + 363 and reverse_pads_y > -y - 123) then
+                    reverse_pad:drawImage(math.floor(vars.anim_reverse_pad.value), reverse_pads_x, reverse_pads_y)
+                end
+            end
+        end
     end
 
     class('race_stage').extends(gfx.sprite)
@@ -280,7 +294,6 @@ function race:init(...)
             if time % 3 == 0 then
                 race:fill_polygons()
                 race:both_polygons()
-                race:draw_polygons()
             end
 
             if vars.audience_x ~= nil then
@@ -296,7 +309,7 @@ function race:init(...)
                     if (audience_x > -x-10 and audience_x < -x+410) and (audience_y > -y-10 and audience_y < -y+250) then
                         audience_image = assets['audience' .. audience_rand]
                         if audience_image[1] ~= nil then
-                            audience_angle = (deg(race:fastatan(-y + 120 - audience_y, -x + 200 - audience_x))) % 360
+                            audience_angle = (deg(race:fastatan(-y + 120 - audience_y, -x + 200 - audience_x)) + 90) % 360
                             audience_image[(floor(audience_angle / 8)) + 1]:draw(
                                 (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
                                 (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
@@ -313,21 +326,24 @@ function race:init(...)
 
             gfx.setLineWidth(5)
 
-            local draw_polygons
-            local draw_bounds
-            local draw_lowest_point_x
-            local draw_highest_point_x
-            local draw_lowest_point_y
-            local draw_highest_point_y
-            for i = 1, #vars.draw_polygons do
-                draw_polygons = vars.draw_polygons[i]
-                draw_bounds = vars.draw_bounds[i]
-                draw_lowest_point_x = draw_bounds[1]
-                draw_lowest_point_y = draw_bounds[2]
-                draw_highest_point_x = draw_bounds[3]
-                draw_highest_point_y = draw_bounds[4]
-                if (draw_lowest_point_x < -x + 400 and draw_highest_point_x > -x) and (draw_lowest_point_y < -y + 240 and draw_highest_point_y > -y) then
-                    gfx.drawPolygon(draw_polygons)
+            if vars.draw_polygons ~= nil then
+                if time % 3 == 0 then race:draw_polygons() end
+                local draw_polygons
+                local draw_bounds
+                local draw_lowest_point_x
+                local draw_highest_point_x
+                local draw_lowest_point_y
+                local draw_highest_point_y
+                for i = 1, #vars.draw_polygons do
+                    draw_polygons = vars.draw_polygons[i]
+                    draw_bounds = vars.draw_bounds[i]
+                    draw_lowest_point_x = draw_bounds[1]
+                    draw_lowest_point_y = draw_bounds[2]
+                    draw_highest_point_x = draw_bounds[3]
+                    draw_highest_point_y = draw_bounds[4]
+                    if (draw_lowest_point_x < -x + 400 and draw_highest_point_x > -x) and (draw_lowest_point_y < -y + 240 and draw_highest_point_y > -y) then
+                        gfx.drawPolygon(draw_polygons)
+                    end
                 end
             end
 
@@ -414,6 +430,8 @@ function race:init(...)
             -- If there's some kind of stage overlay anim going on, play it.
             if vars.anim_stage_overlay ~= nil then
                 assets.stage_overlay:drawImage(floor(vars.anim_stage_overlay.value), 0, 0)
+            elseif assets.stage_overlay ~= nil then
+                assets.stage_overlay:draw(0, 0)
             end
             -- If there's some kind of gameplay overlay anim going on, play it.
             if vars.anim_overlay ~= nil then
@@ -492,7 +510,7 @@ function race:boost(rocketarms)
             vars.overlay = "boost"
             vars.anim_overlay:resetnew(1000, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
             vars.anim_overlay.repeats = true
-            pd.timer.performAfterDelay(2500, function() -- and taking it away after a while.
+            pd.timer.performAfterDelay(2000, function() -- and taking it away after a while.
                 vars.anim_overlay:resetnew(0, 0, 0)
             end)
             if vars.shades then
@@ -711,6 +729,31 @@ function race:checkpointcheck(cpu)
             elseif vars.leap_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a leap pad.
                 self:leap(false)
+            elseif vars.reverse_pads_x ~= nil and tag ~= 255 then
+                -- Boat is colliding with a reverse pad.
+                if vars.reverse_pads_setting[tag - 42] == true then
+                    if self.boat.reversed == 1 then
+                        assets.sfx_cymbal:play()
+                        shakies()
+                        shakies_y()
+                        if not pd.getReduceFlashing() then
+                            vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
+                            vars.overlay = "fade"
+                        end
+                        self.boat.reversed = -1
+                    end
+                else
+                    if self.boat.reversed == -1 then
+                        assets.sfx_cymbal:play()
+                        shakies()
+                        shakies_y()
+                        if not pd.getReduceFlashing() then
+                            vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
+                            vars.overlay = "fade"
+                        end
+                        self.boat.reversed = 1
+                    end
+                end
             end
         end
     end
@@ -725,16 +768,32 @@ function race:update()
     if vars.mode == "debug" then -- If debug mode is enabled,
         -- These have to be in the update loop because there's no way to just check if a button's held on every frame using an input handler. Weird.
         if pd.buttonIsPressed('up') then
-            self.debug:moveBy(0, -5)
+            if pd.buttonIsPressed('b') then
+                self.debug:moveBy(0, -50)
+            else
+                self.debug:moveBy(0, -5)
+            end
         end
         if pd.buttonIsPressed('down') then
-            self.debug:moveBy(0, 5)
+            if pd.buttonIsPressed('b') then
+                self.debug:moveBy(0, 50)
+            else
+                self.debug:moveBy(0, 5)
+            end
         end
         if pd.buttonIsPressed('left') then
-            self.debug:moveBy(-5, 0)
+            if pd.buttonIsPressed('b') then
+                self.debug:moveBy(-50, 0)
+            else
+                self.debug:moveBy(-5, 0)
+            end
         end
         if pd.buttonIsPressed('right') then
-            self.debug:moveBy(5, 0)
+            if pd.buttonIsPressed('b') then
+                self.debug:moveBy(50, 0)
+            else
+                self.debug:moveBy(5, 0)
+            end
         end
         if pd.buttonJustPressed('a') then -- If A is pressed, print out the coords that the debug dot is sitting on.
             print(floor(self.debug.x) .. ', ' .. floor(self.debug.y) .. ', ')

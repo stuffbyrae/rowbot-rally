@@ -5,21 +5,13 @@ local geo <const> = pd.geometry
 local random <const> = math.random
 
 function race:stage_init()
-    assets.image_stage = gfx.imagetable.new('stages/7/stage')
+    assets.image_stage = gfx.image.new('stages/7/stage')
     assets.image_stagec = gfx.image.new('stages/7/stagec')
     assets.image_water_bg = gfx.image.new('stages/7/water_bg')
     assets.water = gfx.imagetable.new('stages/7/water')
     assets.caustics = gfx.imagetable.new('stages/7/caustics')
-    assets.trees = gfx.imagetable.new('stages/7/tree')
-    assets.trunks = gfx.imagetable.new('stages/7/trunk')
-    assets.treetops = gfx.imagetable.new('stages/7/treetop')
-    assets.bushes = gfx.imagetable.new('stages/7/bush')
-    assets.bushtops = gfx.imagetable.new('stages/7/bushtop')
 
-    vars.tiles_x, vars.tiles_y = assets.image_stage:getSize()
-    vars.tile_x, vars.tile_y = assets.image_stage[1]:getSize()
-    vars.stage_x = vars.tile_x * vars.tiles_x
-    vars.stage_y = vars.tile_y * vars.tiles_y
+    vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 
     if vars.mode == "tt" then
         vars.boat_x = 375
@@ -51,31 +43,17 @@ function race:stage_init()
     vars.stage_progress_medium_y = 0
     vars.stage_progress_long_x = 0
     vars.stage_progress_long_y = 0
-    vars.stage_progress_tippy_x = 0
-    vars.stage_progress_tippy_y = 0
-    vars.parallax_short_amount = 1.05
-    vars.parallax_medium_amount = 1.1
-    vars.parallax_long_amount = 1.175
-    vars.parallax_tippy_amount = 1.25
+    if perf then
+        vars.parallax_short_amount = 1
+        vars.parallax_medium_amount = 1
+        vars.parallax_long_amount = 1
+    else
+        vars.parallax_short_amount = 1.05
+        vars.parallax_medium_amount = 1.1
+        vars.parallax_long_amount = 1.175
+    end
     -- Poles
-    vars.poles_short_x = {}
-    vars.poles_short_y = {}
-    vars.poles_medium_x = {}
-    vars.poles_medium_y = {}
-    -- Trees
-    vars.trees_x = {}
-    vars.trees_y = {}
-    vars.trees_rand = {}
-    for i = 1, #vars.trees_x do
-        table.insert(vars.trees_rand, #assets.trees)
-    end
-    -- Bushes
-    vars.bushes_x = {}
-    vars.bushes_y = {}
-    vars.bushes_rand = {}
-    for i = 1, #vars.bushes_x do
-        table.insert(vars.bushes_rand, random(1, #assets.bushes))
-    end
+    -- add checkpoint stuff
     -- Audience members
     assets.audience1 = gfx.image.new('images/race/audience/audience_basic')
     assets.audience2 = gfx.image.new('images/race/audience/audience_fisher')
@@ -91,20 +69,12 @@ function race:stage_init()
         geo.polygon.new(),
     }
     -- Bounds for the calc'd polygons
+    vars.fill_bounds = {}
     self:fill_polygons()
-    vars.fill_bounds = {
-        {},
-    }
+    vars.both_bounds = {}
     self:both_polygons()
-    vars.both_bounds = {
-        {},
-    }
-    self:draw_polygons()
-    vars.draw_bounds = {
-        {},
-    }
 
-    newmusic('audio/music/stage7', true) -- Adding new music
+    newmusic('audio/music/stage5', true) -- Adding new music
     music:pause()
 end
 
@@ -115,9 +85,8 @@ function race:fill_polygons()
     local parallax_medium_amount = vars.parallax_medium_amount
     local stage_progress_short_x = vars.stage_progress_short_x
     local stage_progress_short_y = vars.stage_progress_short_y
-    vars.fill_polygons = {
-        geo.polygon.new(),
-    }
+    vars.fill_polygons = {}
+    -- add checkpoint stuff
 end
 
 function race:both_polygons()
@@ -127,19 +96,6 @@ function race:both_polygons()
     local parallax_medium_amount = vars.parallax_medium_amount
     local stage_progress_short_x = vars.stage_progress_short_x
     local stage_progress_short_y = vars.stage_progress_short_y
-    vars.both_polygons = {
-        geo.polygon.new(),
-    }
-end
-
-function race:draw_polygons()
-    local stage_x = vars.stage_x
-    local stage_y = vars.stage_y
-    local parallax_short_amount = vars.parallax_short_amount
-    local parallax_medium_amount = vars.parallax_medium_amount
-    local stage_progress_short_x = vars.stage_progress_short_x
-    local stage_progress_short_y = vars.stage_progress_short_y
-    vars.draw_polygons = {
-        geo.polygon.new(),
-    }
+    vars.both_polygons = {}
+    -- add checkpoint stuff
 end

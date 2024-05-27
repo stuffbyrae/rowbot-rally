@@ -82,6 +82,15 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self.turn = 7 -- The RowBot's default turning rate.
     self.random = random()
 
+    if not perf then
+        self.scale = pd.timer.new(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1) -- Idle scaling anim
+        self.scale.reverses = true -- Make the idle reverse after
+        self.scale.repeats = true -- Make the idle loop
+    else
+        self.scale = pd.timer.new(100, self.scale_factor, self.scale_factor)
+    end
+    self.scale.discardOnCompletion = false
+
     if self.mode == "cpu" then
         self.stage = stage
 
@@ -98,7 +107,11 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         end
         self.point_x, self.point_y = self.follow_polygon:getPointAt(self.follow_next):unpack()
     else
-        self.speed = 5 -- Forward movement speed of the boat.
+        if stage == 4 then
+            self.speed = 3
+        else
+            self.speed = 5 -- Forward movement speed of the boat.
+        end
 
         self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
         self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
@@ -158,14 +171,6 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.dentable = enabled_cheats_dents -- Hidden dent mode for the boat's body.
         self.crankage = 0
         self.crashes = 0
-    end
-
-    if not perf then
-        self.scale = pd.timer.new(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1) -- Idle scaling anim
-        self.scale.reverses = true -- Make the idle reverse after
-        self.scale.repeats = true -- Make the idle loop
-    else
-        self.scale = pd.timer.new(1, self.scale_factor, self.scale_factor)
     end
 
     self.move_speedo = pd.timer.new(0, 0, 0)
@@ -324,14 +329,14 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
                         if self.movable then
                             self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
                             self.wobble_speedo:resetnew(self.crash_time / 2, 1, -1.5, pd.easingFunctions.outBack)
-                            self.move_speedo.reverses = true
-                            self.wobble_speedo.reverses = true
-                            self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
-                            pd.timer.performAfterDelay(self.crash_time, function()
-                                if self.movable then
+                            if self.movable then
+                                self.move_speedo.reverses = true
+                                self.wobble_speedo.reverses = true
+                                self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
+                                pd.timer.performAfterDelay(self.crash_time, function()
                                     self.crashed = false
-                                end
-                            end)
+                                end)
+                            end
                         end
                         if self.mode ~= "cpu" then
                             self.show_crash_image = true
@@ -436,7 +441,9 @@ function boat:leap()
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
-                if not perf then
+                if perf then
+                    self.scale:resetnew(100, self.scale_factor, self.scale_factor)
+                else
                     self.scale:resetnew(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1)
                 end
             end)

@@ -27,7 +27,8 @@ gfx.setLineWidth(2)
 -- Game variables
 show_crank = false -- do you show the crankindicator in this scene?
 corner_active = false -- Is the corner UI active?
-if string.find(pd.metadata.bundleID, "demo") then demo = true else demo = false end -- DEMO check.
+demo = true
+if not string.find(pd.metadata.bundleID, "demo") then demo = false end -- DEMO check.
 
 -- Cheats checks
 enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
@@ -438,7 +439,7 @@ if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
     -- scenemanager:switchscene(title)
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(race, 3, "tt")
 end
 
 function pd.update()

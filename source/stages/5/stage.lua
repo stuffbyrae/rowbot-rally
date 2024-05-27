@@ -5,15 +5,19 @@ local geo <const> = pd.geometry
 local random <const> = math.random
 
 function race:stage_init()
-    assets.image_stage = gfx.image.new('stages/5/stage')
+    if perf then
+        assets.image_stage = gfx.image.new('stages/5/stage_flat')
+    else
+        assets.image_stage = gfx.image.new('stages/5/stage')
+        assets.parallax_short_bake = gfx.image.new('stages/5/parallax_short_bake')
+        assets.parallax_medium_bake = gfx.image.new('stages/5/parallax_medium_bake')
+        assets.parallax_long_bake = gfx.image.new('stages/5/parallax_long_bake')
+    end
     assets.image_stagec = gfx.image.new('stages/5/stagec')
     assets.image_stagec_cpu = assets.image_stagec
     assets.bug_1 = gfx.imagetable.new('stages/5/bug_1')
     assets.bug_2 = gfx.imagetable.new('stages/5/bug_2')
     assets.bug_3 = gfx.imagetable.new('stages/5/bug_3')
-    assets.parallax_short_bake = gfx.image.new('stages/5/parallax_short_bake')
-    assets.parallax_medium_bake = gfx.image.new('stages/5/parallax_medium_bake')
-    assets.parallax_long_bake = gfx.image.new('stages/5/parallax_long_bake')
     assets.image_water_bg = gfx.image.new('stages/5/water_bg')
     assets.water = gfx.imagetable.new('stages/5/water')
     assets.caustics = gfx.imagetable.new('stages/5/caustics')
@@ -97,18 +101,10 @@ function race:stage_init()
         geo.polygon.new(1200, 1585, 1200, 1855, 1295, 1850, 1295, 1585, 1200, 1585)
     }
     -- Bounds for the calc'd polygons
-    vars.fill_bounds = {
-        {0, 0, 1, 1},
-    }
+    vars.fill_bounds = {}
     self:fill_polygons()
-    vars.both_bounds = {
-        {0, 0, 1, 1},
-    }
+    vars.both_bounds = {}
     self:both_polygons()
-    vars.draw_bounds = {
-        {0, 0, 1, 1},
-    }
-    self:draw_polygons()
 
     newmusic('audio/music/stage5', true) -- Adding new music
     music:pause()
@@ -121,9 +117,7 @@ function race:fill_polygons()
     local parallax_medium_amount = vars.parallax_medium_amount
     local stage_progress_short_x = vars.stage_progress_short_x
     local stage_progress_short_y = vars.stage_progress_short_y
-    vars.fill_polygons = {
-        geo.polygon.new(0, 0, 0, 1, 1, 1, 1, 0, 0, 0),
-    }
+    vars.fill_polygons = {}
     table.insert(vars.fill_polygons, geo.polygon.new(
         ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
         ((vars.checkpoint_x - 12) * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), ((vars.checkpoint_y + 6) * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
@@ -147,9 +141,7 @@ function race:both_polygons()
     local parallax_medium_amount = vars.parallax_medium_amount
     local stage_progress_short_x = vars.stage_progress_short_x
     local stage_progress_short_y = vars.stage_progress_short_y
-    vars.both_polygons = {
-        geo.polygon.new(0, 0, 0, 1, 1, 1, 1, 0, 0, 0),
-    }
+    vars.both_polygons = {}
     table.insert(vars.both_polygons, geo.polygon.new(
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 14) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
@@ -157,91 +149,4 @@ function race:both_polygons()
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 4) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
     table.insert(vars.both_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
-end
-
-function race:draw_polygons()
-    local stage_x = vars.stage_x
-    local stage_y = vars.stage_y
-    local parallax_short_amount = vars.parallax_short_amount
-    local parallax_medium_amount = vars.parallax_medium_amount
-    local stage_progress_short_x = vars.stage_progress_short_x
-    local stage_progress_short_y = vars.stage_progress_short_y
-    vars.draw_polygons = {
-        geo.polygon.new(0, 0, 0, 1, 1, 1, 1, 0, 0, 0),
-    }
-end
-
-function race:bake_parallax()
-    if perf then
-        gfx.pushContext(assets.image_stage)
-            local bushes_x
-            local bushes_y
-            local bushes_rand
-            local bushes = assets.bushes
-            local bushtops = assets.bushtops
-            for i = 1, #vars.bushes_x do
-                bushes_x = vars.bushes_x[i]
-                bushes_y = vars.bushes_y[i]
-                bushes_rand = vars.bushes_rand[i]
-                bushes:drawImage(
-                    bushes_rand,
-                    (bushes_x - 41),
-                    (bushes_y - 39))
-                bushtops:drawImage(
-                    bushes_rand,
-                    (bushes_x - 41),
-                    (bushes_y - 39))
-            end
-
-            local checkpoint_x = vars.checkpoint_x
-            local checkpoint_y = vars.checkpoint_y
-            local checkpoint_width = vars.checkpoint_width
-            local image_pole = assets.image_pole
-            local image_pole_cap = assets.image_pole_cap
-
-            image_pole:draw(
-                (checkpoint_x - 8),
-                (checkpoint_y - 8))
-            image_pole_cap:draw(
-                (checkpoint_x - 6),
-                (checkpoint_y - 6))
-
-            image_pole:draw(
-                (checkpoint_x + checkpoint_width - 8),
-                (checkpoint_y - 8))
-            image_pole_cap:draw(
-                (checkpoint_x + checkpoint_width - 6),
-                (checkpoint_y - 6))
-
-            gfx.setColor(gfx.kColorWhite)
-            gfx.fillPolygon(geo.polygon.new(
-            (checkpoint_x - 12), (checkpoint_y + 6),
-            (checkpoint_x - 12), (checkpoint_y + 14),
-            (checkpoint_x + checkpoint_width + 11), (checkpoint_y + 12),
-            (checkpoint_x + checkpoint_width + 11), (checkpoint_y + 4),
-            (checkpoint_x - 12), (checkpoint_y + 6)))
-            gfx.setColor(gfx.kColorBlack)
-            gfx.drawPolygon(geo.polygon.new(
-            (checkpoint_x - 12), (checkpoint_y + 6),
-            (checkpoint_x - 12), (checkpoint_y + 14),
-            (checkpoint_x + checkpoint_width + 11), (checkpoint_y + 12),
-            (checkpoint_x + checkpoint_width + 11), (checkpoint_y + 4),
-            (checkpoint_x - 12), (checkpoint_y + 6)))
-
-            local trees_x
-            local trees_y
-            local trees_rand
-            local trees = assets.trees
-            local treetops = assets.treetops
-            for i = 1, #vars.trees_x do
-                trees_x = vars.trees_x[i]
-                trees_y = vars.trees_y[i]
-                trees_rand = vars.trees_rand[i]
-                trees:drawImage(
-                        trees_rand,
-                        (trees_x - 66),
-                        (trees_y - 66))
-            end
-        gfx.popContext()
-    end
 end

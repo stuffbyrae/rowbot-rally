@@ -5,13 +5,21 @@ local geo <const> = pd.geometry
 local random <const> = math.random
 
 function race:stage_init()
-    assets.image_stage = gfx.image.new('stages/6/stage')
+    if perf then
+        assets.image_stage = gfx.image.new('stages/6/stage_flat')
+    else
+        assets.image_stage = gfx.image.new('stages/6/stage')
+        assets.parallax_long_bake = gfx.image.new('stages/6/parallax_long_bake')
+    end
     assets.image_stagec = gfx.image.new('stages/6/stagec')
     assets.image_stagec_cpu = assets.image_stagec
     assets.image_water_bg = gfx.image.new('stages/6/water_bg')
     assets.water = gfx.imagetable.new('stages/6/water')
     assets.popeyes = gfx.image.new('stages/6/popeyes')
-    -- assets.stage_overlay = gfx.image.new('stages/6/lantern')
+    assets.stage_overlay = gfx.imagetable.new('stages/6/stage_overlay')
+
+    vars.anim_stage_overlay = pd.timer.new(500, 1, 4.99)
+    vars.anim_stage_overlay.repeats = true
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 
@@ -73,7 +81,7 @@ function race:stage_init()
     vars.both_bounds = {}
     self:both_polygons()
 
-    newmusic('audio/music/stage5', true) -- Adding new music
+    newmusic('audio/music/stage6', true) -- Adding new music
     music:pause()
 end
 
@@ -116,12 +124,4 @@ function race:both_polygons()
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 4) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
     table.insert(vars.both_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
-end
-
-function race:bake_parallax()
-    if perf then
-        gfx.pushContext(assets.image_stage)
-        gfx.popContext()
-    else
-    end
 end

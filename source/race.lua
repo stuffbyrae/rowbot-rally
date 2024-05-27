@@ -198,7 +198,7 @@ function race:init(...)
         self:setZIndex(-1)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
-        if assets.whirlpool ~= nil or assets.boost_pad ~= nil or assets.leap_pad ~= nil or assets.lantern ~= nil or assets.reverse_pad ~= nil then
+        if assets.whirlpool ~= nil or assets.boost_pad ~= nil or assets.leap_pad ~= nil or assets.reverse_pad ~= nil then
             self:add()
         end
     end
@@ -419,9 +419,10 @@ function race:init(...)
                 end
             end
 
-            if assets.wave ~= nil then
-                assets.wave[floor(vars.anim_wave.value)]:draw(stage_x - 388, 0)
-            end
+        end
+
+        if assets.wave ~= nil then
+            assets.wave[floor(vars.anim_wave.value)]:draw(vars.stage_x - 388, 0)
         end
 
         if vars.mode ~= "debug" then

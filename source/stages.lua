@@ -13,13 +13,13 @@ function stages:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(200) -- TODO: Set this X offset
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         kapel = gfx.font.new('fonts/kapel'),
@@ -33,11 +33,11 @@ function stages:init(...)
         image_top = gfx.image.new(480, 300),
         image_ok = makebutton(gfx.getLocalizedText('ok'), 'big'),
         image_back = makebutton(gfx.getLocalizedText('back'), 'small'),
-        image_leaderboards = makebutton(gfx.getLocalizedText('up_leaderboards'), 'small2'),
+        image_leaderboards = makebutton(gfx.getLocalizedText('up_leaderboards'), 'small'),
         image_medal_unobtained = gfx.image.new('images/stages/medal_unobtained'),
         image_medal_flawless = gfx.image.new('images/stages/medal_flawless'),
         image_medal_speedy = gfx.image.new('images/stages/medal_speedy'),
-        image_buttons = gfx.image.new(156, 68),
+        image_buttons = gfx.image.new(156, 240),
         sfx_whoosh = smp.new('audio/sfx/whoosh'),
         sfx_bonk = smp.new('audio/sfx/bonk'),
         sfx_leaderboard_in = smp.new('audio/sfx/leaderboard_in'),
@@ -58,8 +58,8 @@ function stages:init(...)
     gfx.popContext()
 
     gfx.pushContext(assets.image_buttons)
-        assets.image_ok:drawAnchored(83, 0, 0.5, 0)
-        assets.image_leaderboards:drawAnchored(78, 45, 0.5, 0)
+        assets.image_ok:drawAnchored(99, 10, 0.5, 0)
+        assets.image_leaderboards:drawAnchored(78, 217, 0.5, 0)
     gfx.popContext()
 
     -- Writing to the image along the top; wrapped in a function so that I can update it later.
@@ -115,7 +115,7 @@ function stages:init(...)
 
     -- Now call it at stage 1 to start.
     update_image_top(1, true)
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         selection = 1,
         leaderboards_open = false,

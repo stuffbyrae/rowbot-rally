@@ -433,14 +433,14 @@ function shakies_y(time, int)
 end
 
 import 'race'
-import 'options'
+import 'stages'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
     -- scenemanager:switchscene(title)
     perf = false
-    scenemanager:switchscene(race, 1, "story")
+    scenemanager:switchscene(stages)
 end
 
 function pd.update()

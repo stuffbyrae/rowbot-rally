@@ -33,36 +33,33 @@ function wake:init(boat)
     self.wake:setSpeed(50 * self.scale_factor)
     self.wake:setColor(gfx.kColorWhite)
 
-    self.boat_x = self.boat.x
-    self.boat_y = self.boat.y
-    self.rotation = self.boat.rotation
-
-    self.size_x = 200 * self.scale_factor
-    self.size_y = 200 * self.scale_factor
+    self.size_x = 100 * self.scale_factor
+    self.size_y = 100 * self.scale_factor
     self:setSize(self.size_x, self.size_y)
     self:setZIndex(-1)
-    self:setCollideRect(0, 0, self.size_x, self.size_y)
-    self:setCollisionsEnabled(false)
     self:setUpdatesEnabled(false)
-    self:add()
+    if not perf then
+        self:add()
+    end
 end
 
 function wake:update()
-    self.boat_x = self.boat.x
-    self.boat_y = self.boat.y
-    self.rotation = self.boat.rotation
-    self.leaping = self.boat.leaping
-    self:moveTo(self.boat_x, self.boat_y)
-    self.wake:moveTo((self.boat_x - (sin[self.rotation] * 20)) + (self.size_x / 2), (self.boat_y + (cos[self.rotation] * 20)) + (self.size_y / 2))
-    self.wake:setSpread(self.rotation)
-    if not self.leaping then
-        self.wake:add(1)
-    end
+    local x = self.boat.x
+    local y = self.boat.y
+    local rot = self.boat.rotation
+    self.movetox = x - (sin[rot] * 50)
+    self.movetoy = y + (cos[rot] * 50)
+    self:moveTo(self.movetox, self.movetoy)
+    self.wake:moveTo((x - (sin[rot] * 20)) + (self.size_x / 2), (y + (cos[rot] * 20)) + (self.size_y / 2))
+    self.wake:setSpread(rot)
 end
 
 function wake:draw()
     local cam_x, cam_y = gfx.getDrawOffset()
-    gfx.setDrawOffset(cam_x - self.boat_x, cam_y - self.boat_y)
+    gfx.setDrawOffset(cam_x - self.movetox, cam_y - self.movetoy)
+    if not self.boat.leaping then
+        self.wake:add(1)
+    end
     self.wake:update()
     gfx.setDrawOffset(cam_x, cam_y)
 end
@@ -565,7 +562,7 @@ function boat:update()
     -- Make sure rotation winds up as integer 1 through 360
     self.rotation = floor(self.rotation) % 360
     if self.rotation == 0 then self.rotation = 360 end
-    if not perf and save.total_playtime % 2 == 0 then self.wake:update() end
+    if not perf and save.total_playtime % 3 == 0 then self.wake:update() end
     -- Transform ALL the polygons!!!!1!
     self.transform:scale((self.scale.value * self.boost_x.value) * self.reversed, self.scale.value * self.boost_y.value)
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
@@ -595,7 +592,6 @@ function boat:draw(x, y, width, height)
             gfx.fillPolygon(self.transform_polygon)
             self.transform_polygon:translate(-7 * self.scale_factor, -7 * self.scale_factor)
         end
-
         gfx.setColor(gfx.kColorWhite)
         gfx.fillPolygon(self.transform_polygon)
         gfx.setColor(gfx.kColorBlack)
@@ -603,19 +599,12 @@ function boat:draw(x, y, width, height)
         gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
         gfx.fillPolygon(self.transform_inside)
         gfx.setColor(gfx.kColorBlack)
-
-        local rot = self.rotation
-        local cosrot = cos[rot]
-        local sinrot = sin[rot]
-        local center = (self.boat_size / 2)
-
         if self.stage == 1 then
-
             local r01_head = self.boat_size / 2
-            local r01_arm_1_x = -20 * -cosrot + center
-            local r01_arm_1_y = -20 * -sinrot + center
-            local r01_arm_2_x = 20 * -cosrot + center
-            local r01_arm_2_y = 20 * -sinrot + center
+            local r01_arm_1_x = -20 * -cos[self.rotation] + (self.boat_size / 2)
+            local r01_arm_1_y = -20 * -sin[self.rotation] + (self.boat_size / 2)
+            local r01_arm_2_x = 20 * -cos[self.rotation] + (self.boat_size / 2)
+            local r01_arm_2_y = 20 * -sin[self.rotation] + (self.boat_size / 2)
             gfx.setLineWidth(10)
             gfx.drawLine(r01_arm_1_x, r01_arm_1_y, r01_arm_2_x, r01_arm_2_y)
             gfx.setLineWidth(2)
@@ -626,10 +615,10 @@ function boat:draw(x, y, width, height)
             gfx.drawCircleAtPoint(r01_head, r01_head, 10)
         elseif self.stage == 2 then
             local robuzz_head = self.boat_size / 2
-            local robuzz_body_x = -10 * sinrot + center
-            local robuzz_body_y = -10 * -cosrot + center
-            local robuzz_tail_x = -12 * -sinrot + center
-            local robuzz_tail_y = -12 * cosrot + center
+            local robuzz_body_x = -10 * sin[self.rotation] + (self.boat_size / 2)
+            local robuzz_body_y = -10 * -cos[self.rotation] + (self.boat_size / 2)
+            local robuzz_tail_x = -12 * -sin[self.rotation] + (self.boat_size / 2)
+            local robuzz_tail_y = -12 * cos[self.rotation] + (self.boat_size / 2)
             gfx.fillCircleAtPoint(robuzz_tail_x, robuzz_tail_y, 8)
             gfx.fillCircleAtPoint(robuzz_body_x, robuzz_body_y, 10)
             gfx.setColor(gfx.kColorWhite)
@@ -703,7 +692,7 @@ function boat:draw(x, y, width, height)
         --this is getting exessive but still should help
         local rev8 = rev*8
         local rev11 = rev*11
-        local rev12 = rev*8
+        local rev12 = rev*12
         local rev6 = rev*6
         local rev19 = rev*19
         local rev14 = rev*14

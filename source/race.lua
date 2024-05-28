@@ -692,7 +692,6 @@ function race:checkpointcheck(cpu)
                     vars.current_checkpoint = tag
                 end
                 vars.last_checkpoint = tag
-                print(tag)
             elseif tag == 0 then
                 if vars.current_checkpoint == 3 and vars.last_checkpoint == 3 then
                     vars.current_checkpoint = 0

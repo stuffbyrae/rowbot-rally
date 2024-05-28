@@ -692,6 +692,7 @@ function race:checkpointcheck(cpu)
                     vars.current_checkpoint = tag
                 end
                 vars.last_checkpoint = tag
+                print(tag)
             elseif tag == 0 then
                 if vars.current_checkpoint == 3 and vars.last_checkpoint == 3 then
                     vars.current_checkpoint = 0
@@ -758,6 +759,14 @@ function race:checkpointcheck(cpu)
             end
         end
     end
+end
+
+-- Activate performance mode on the fly
+-- TODO: finish
+function race:bail()
+    perf = true
+    self.boat.wake:remove()
+    if self.cpu ~= nil then self.cpu.wake:remove() end
 end
 
 -- Scene update loop

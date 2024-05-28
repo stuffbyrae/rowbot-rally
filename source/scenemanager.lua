@@ -16,69 +16,69 @@ end
 function scenemanager:findstory()
     if save["slot" .. save.current_story_slot .. '_progress'] == nil then
         if save.first_launch then -- If this variable is true, then nobody's started a story yet and the Opening scene will play on launch until they do.
-            self.newscene = cutscene
+            newscene = cutscene
             self.sceneargs = {1}
             save.first_launch = false
         else
-            self.newscene = opening
+            newscene = opening
         end
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene1" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {1}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "tutorial" then
-        self.newscene = tutorial
+        newscene = tutorial
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene2" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {2}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "race1" then
-        self.newscene = intro
+        newscene = intro
         self.sceneargs = {1}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene3" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {3}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "race2" then
-        self.newscene = intro
+        newscene = intro
         self.sceneargs = {2}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene4" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {4}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "race3" then
-        self.newscene = intro
+        newscene = intro
         self.sceneargs = {3}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene5" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {5}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "race4" then
-        self.newscene = intro
+        newscene = intro
         self.sceneargs = {4}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene6" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {6}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "chase" then
-        self.newscene = chase
+        newscene = chase
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene7" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {7}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "race5" then
-        self.newscene = intro
+        newscene = intro
         self.sceneargs = {5}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene8" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {8}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "race6" then
-        self.newscene = intro
+        newscene = intro
         self.sceneargs = {6}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene9" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {9}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "race7" then
-        self.newscene = intro
+        newscene = intro
         self.sceneargs = {7}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene10" then
-        self.newscene = cutscene
+        newscene = cutscene
         self.sceneargs = {10}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "finish" then
-        self.newscene = credits
+        newscene = credits
     end
 end
 
@@ -278,14 +278,14 @@ end
 
 function scenemanager:loadnewscene(scene)
     self:cleanupscene()
-    self.newscene = scene
-    self.newscene(table.unpack(self.sceneargs))
+    newscene = scene
+    newscene(table.unpack(self.sceneargs))
 end
 
 function scenemanager:loadnewstory()
     self:cleanupscene()
     self:findstory()
-    self.newscene(table.unpack(self.sceneargs))
+    newscene(table.unpack(self.sceneargs))
 end
 
 function scenemanager:cleanupscene()
@@ -302,8 +302,8 @@ function scenemanager:cleanupscene()
         end
     end
     vars = nil -- and nil all the variables.
-    if self.newscene ~= nil then
-        self.newscene = nil
+    if newscene ~= nil then
+        newscene = nil
     end
     gfx.sprite.performOnAllSprites(function(sprite)
         sprite:remove()

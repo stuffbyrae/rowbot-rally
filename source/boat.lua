@@ -41,6 +41,8 @@ function wake:init(boat)
     self.size_y = 200 * self.scale_factor
     self:setSize(self.size_x, self.size_y)
     self:setZIndex(-1)
+    self:setCollideRect(0, 0, self.size_x, self.size_y)
+    self:setCollisionsEnabled(false)
     self:setUpdatesEnabled(false)
     self:add()
 end
@@ -580,23 +582,25 @@ function boat:draw(x, y, width, height)
             gfx.setColor(gfx.kColorWhite)
             gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
             gfx.setLineWidth(self.ripple_opacity.value * 4)
-            gfx.drawPolygon(self.ripple:transformedPolygon(self.poly_body))
+            gfx.drawPolygon(self.poly_body * self.ripple)
             gfx.setLineWidth(2)
             gfx.setColor(gfx.kColorBlack)
         end
         self.transform:translate(self.boat_size / 2, self.boat_size / 2)
+        self.transform_polygon = self.poly_body * self.transform
+        self.transform_inside = self.poly_inside * self.transform
         if not perf then
-            self.transform:translate(7 * self.scale_factor, 7 * self.scale_factor)
+            self.transform_polygon:translate(7 * self.scale_factor, 7 * self.scale_factor)
             gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-            gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
-            self.transform:translate(-7 * self.scale_factor, -7 * self.scale_factor)
+            gfx.fillPolygon(self.transform_polygon)
+            self.transform_polygon:translate(-7 * self.scale_factor, -7 * self.scale_factor)
         end
         gfx.setColor(gfx.kColorWhite)
-        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.fillPolygon(self.transform_polygon)
         gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.drawPolygon(self.transform_polygon)
         gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
-        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
+        gfx.fillPolygon(self.transform_inside)
         gfx.setColor(gfx.kColorBlack)
         if self.stage == 1 then
             local r01_head = self.boat_size / 2
@@ -637,27 +641,29 @@ function boat:draw(x, y, width, height)
             gfx.setColor(gfx.kColorWhite)
             gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
             gfx.setLineWidth(self.ripple_opacity.value * 4)
-            gfx.drawPolygon(self.ripple:transformedPolygon(self.poly_body))
+            gfx.drawPolygon(self.poly_body * self.ripple)
             gfx.setLineWidth(2)
             gfx.setColor(gfx.kColorBlack)
         end
         self.transform:translate(self.boat_size / 2, self.boat_size / 2)
+        self.transform_polygon = self.poly_body * self.transform
+        self.transform_inside = self.poly_inside * self.transform
         if self.show_crash_image and not enabled_cheats then
-            local crash_x, crash_y = self.transform:transformedPolygon(self.poly_body):getPointAt(self.crash_point):unpack()
+            local crash_x, crash_y = self.transform_polygon:getPointAt(self.crash_point):unpack()
             self.image_crash:draw(crash_x - 20, crash_y - 20)
         end
         if not perf then
-            self.transform:translate(7 * self.scale_factor, 7 * self.scale_factor)
+            self.transform_polygon:translate(7 * self.scale_factor, 7 * self.scale_factor)
             gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-            gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
-            self.transform:translate(-7 * self.scale_factor, -7 * self.scale_factor)
+            gfx.fillPolygon(self.transform_polygon)
+            self.transform_polygon:translate(-7 * self.scale_factor, -7 * self.scale_factor)
         end
         gfx.setColor(gfx.kColorWhite)
-        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.fillPolygon(self.transform_polygon)
         gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(self.transform:transformedPolygon(self.poly_body))
+        gfx.drawPolygon(self.transform_polygon)
         gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
-        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_inside))
+        gfx.fillPolygon(self.transform_inside)
         gfx.setColor(gfx.kColorBlack)
         -- Offset params for passengers
         local bunny_body_x
@@ -713,10 +719,10 @@ function boat:draw(x, y, width, height)
         -- Drawing fills for heads
         gfx.setColor(gfx.kColorWhite)
         gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * self.scale.value)
-        gfx.fillPolygon(self.transform:transformedPolygon(self.poly_rowbot_fill))
+        gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
         -- Drawing hats, and ears/antennae
         gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(self.transform:transformedPolygon(self.poly_rowbot))
+        gfx.drawPolygon(self.poly_rowbot * self.transform)
         gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * self.scale.value)
         gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * self.scale.value)
         gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * self.scale.value)

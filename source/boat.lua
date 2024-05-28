@@ -55,14 +55,14 @@ function wake:update()
     self:moveTo(self.boat_x, self.boat_y)
     self.wake:moveTo((self.boat_x - (sin[self.rotation] * 20)) + (self.size_x / 2), (self.boat_y + (cos[self.rotation] * 20)) + (self.size_y / 2))
     self.wake:setSpread(self.rotation)
-    if not self.leaping then
-        self.wake:add(1)
-    end
 end
 
 function wake:draw()
     local cam_x, cam_y = gfx.getDrawOffset()
     gfx.setDrawOffset(cam_x - self.boat_x, cam_y - self.boat_y)
+    if not self.leaping then
+        self.wake:add(1)
+    end
     self.wake:update()
     gfx.setDrawOffset(cam_x, cam_y)
 end
@@ -575,25 +575,42 @@ end
 
 function boat:draw(x, y, width, height)
     if self.mode == "cpu" then
-        if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not perf then
-            self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
-            self.ripple:rotate(self.rotation)
-            self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
+        --this should help alot
+        local rev = self.reversed
+        local scale = self.scale.value
+        local scalefactor = self.scale_factor
+        local shadowoffset = 7 * scalefactor
+        local rot = self.rotation
+        local boatsize = self.boat_size
+        local boostx = self.boost_x.value
+        local boosty = self.boost_y.value
+        local center = boatsize/2
+        local cosrot = cos[rot]
+        local sinrot = sin[rot]
+        if not perf then
+            local ripple = self.ripple_scale.value
+            local rippleend = self.ripple_scale.endValue
+            local rippleopacity = self.ripple_opacity.value
+        end
+        if self.ripple_scale ~= nil and ripple ~= rippleend and not perf then
+            self.ripple:scale((scale * boostx) * ripple, (scale * boosty) * ripple)
+            self.ripple:rotate(rot)
+            self.ripple:translate(center, center)
             gfx.setColor(gfx.kColorWhite)
-            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
-            gfx.setLineWidth(self.ripple_opacity.value * 4)
+            gfx.setDitherPattern(rippleopacity, gfx.image.kDitherTypeBayer4x4)
+            gfx.setLineWidth(rippleopacity * 4)
             gfx.drawPolygon(self.poly_body * self.ripple)
             gfx.setLineWidth(2)
             gfx.setColor(gfx.kColorBlack)
         end
-        self.transform:translate(self.boat_size / 2, self.boat_size / 2)
+        self.transform:translate(center, center)
         self.transform_polygon = self.poly_body * self.transform
         self.transform_inside = self.poly_inside * self.transform
         if not perf then
-            self.transform_polygon:translate(7 * self.scale_factor, 7 * self.scale_factor)
+            self.transform_polygon:translate(shadowoffset, shadowoffset)
             gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
             gfx.fillPolygon(self.transform_polygon)
-            self.transform_polygon:translate(-7 * self.scale_factor, -7 * self.scale_factor)
+            self.transform_polygon:translate(-shadowoffset, -shadowoffset)
         end
         gfx.setColor(gfx.kColorWhite)
         gfx.fillPolygon(self.transform_polygon)
@@ -603,11 +620,11 @@ function boat:draw(x, y, width, height)
         gfx.fillPolygon(self.transform_inside)
         gfx.setColor(gfx.kColorBlack)
         if self.stage == 1 then
-            local r01_head = self.boat_size / 2
-            local r01_arm_1_x = -20 * -cos[self.rotation] + (self.boat_size / 2)
-            local r01_arm_1_y = -20 * -sin[self.rotation] + (self.boat_size / 2)
-            local r01_arm_2_x = 20 * -cos[self.rotation] + (self.boat_size / 2)
-            local r01_arm_2_y = 20 * -sin[self.rotation] + (self.boat_size / 2)
+            local r01_head = boatsize / 2
+            local r01_arm_1_x = -20 * -cosrot + (center)
+            local r01_arm_1_y = -20 * -sinrot + (center)
+            local r01_arm_2_x = 20 * -cosrot + (center)
+            local r01_arm_2_y = 20 * -sinrot + (center)
             gfx.setLineWidth(10)
             gfx.drawLine(r01_arm_1_x, r01_arm_1_y, r01_arm_2_x, r01_arm_2_y)
             gfx.setLineWidth(2)
@@ -618,10 +635,10 @@ function boat:draw(x, y, width, height)
             gfx.drawCircleAtPoint(r01_head, r01_head, 10)
         elseif self.stage == 2 then
             local robuzz_head = self.boat_size / 2
-            local robuzz_body_x = -10 * sin[self.rotation] + (self.boat_size / 2)
-            local robuzz_body_y = -10 * -cos[self.rotation] + (self.boat_size / 2)
-            local robuzz_tail_x = -12 * -sin[self.rotation] + (self.boat_size / 2)
-            local robuzz_tail_y = -12 * cos[self.rotation] + (self.boat_size / 2)
+            local robuzz_body_x = -10 * sinrot + (center)
+            local robuzz_body_y = -10 * -cosrot + (center)
+            local robuzz_tail_x = -12 * -sinrot + (center)
+            local robuzz_tail_y = -12 * cosrot + (center)
             gfx.fillCircleAtPoint(robuzz_tail_x, robuzz_tail_y, 8)
             gfx.fillCircleAtPoint(robuzz_body_x, robuzz_body_y, 10)
             gfx.setColor(gfx.kColorWhite)
@@ -631,21 +648,37 @@ function boat:draw(x, y, width, height)
             gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 12)
             gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 8)
         end
-
     else
-
-        if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
-            self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
-            self.ripple:rotate(self.rotation)
-            self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
+        --this should help alot
+        local rev = self.reversed
+        local scale = self.scale.value
+        local scalefactor = self.scale_factor
+        local shadowoffset = 7 * scalefactor
+        local rot = self.rotation
+        local boatsize = self.boat_size
+        local boostx = self.boost_x.value
+        local boosty = self.boost_y.value
+        local wobble = self.wobble_speedo.value
+        local center = boatsize/2
+        local cosrot = cos[rot]
+        local sinrot = sin[rot]
+        if not perf then
+            local ripple = self.ripple_scale.value
+            local rippleend = self.ripple_scale.endValue
+            local rippleopacity = self.ripple_opacity.value
+        end
+        if self.ripple_scale ~= nil and ripple ~= rippleend and not self.beached and not perf then
+            self.ripple:scale((scale * boostx) * ripple, (scale * boosty) * ripple)
+            self.ripple:rotate(rot)
+            self.ripple:translate(center, center)
             gfx.setColor(gfx.kColorWhite)
-            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
-            gfx.setLineWidth(self.ripple_opacity.value * 4)
+            gfx.setDitherPattern(rippleopacity, gfx.image.kDitherTypeBayer4x4)
+            gfx.setLineWidth(rippleopacity * 4)
             gfx.drawPolygon(self.poly_body * self.ripple)
             gfx.setLineWidth(2)
             gfx.setColor(gfx.kColorBlack)
         end
-        self.transform:translate(self.boat_size / 2, self.boat_size / 2)
+        self.transform:translate(center, center)
         self.transform_polygon = self.poly_body * self.transform
         self.transform_inside = self.poly_inside * self.transform
         if self.show_crash_image and not enabled_cheats then
@@ -653,10 +686,10 @@ function boat:draw(x, y, width, height)
             self.image_crash:draw(crash_x - 20, crash_y - 20)
         end
         if not perf then
-            self.transform_polygon:translate(7 * self.scale_factor, 7 * self.scale_factor)
+            self.transform_polygon:translate(shadowoffset, shadowoffset)
             gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
             gfx.fillPolygon(self.transform_polygon)
-            self.transform_polygon:translate(-7 * self.scale_factor, -7 * self.scale_factor)
+            self.transform_polygon:translate(-shadowoffset, -shadowoffset)
         end
         gfx.setColor(gfx.kColorWhite)
         gfx.fillPolygon(self.transform_polygon)
@@ -681,21 +714,10 @@ function boat:draw(x, y, width, height)
         local rowbot_antennae_x
         local rowbot_antennae_y
 
-        --this should help alot
-        local rev = self.reversed
-        local scale = self.scale.value
-        local rot = self.rotation
-        local boatsize = self.boat_size
-        local camy = self.cam_y.value
-        local wobble = self.wobble_speedo.value
-        local center = boatsize/2
-        local cosrot = cos[rot]
-        local sinrot = sin[rot]
-
         --this is getting exessive but still should help
         local rev8 = rev*8
         local rev11 = rev*11
-        local rev12 = rev*8
+        local rev12 = rev*12
         local rev6 = rev*6
         local rev19 = rev*19
         local rev14 = rev*14
@@ -716,6 +738,7 @@ function boat:draw(x, y, width, height)
             rowbot_antennae_x = (((-rev14)) * scale) * -cosrot + center
             rowbot_antennae_y = (((-rev14)) * scale) * -sinrot + center
         else
+            local camy = self.cam_y.value
             local camyscaled005 = camy * 0.05
             local camyscaled01 = camy * 0.1
             bunny_body_x = (((rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center

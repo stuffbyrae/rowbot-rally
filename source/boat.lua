@@ -595,6 +595,7 @@ function boat:draw(x, y, width, height)
             gfx.fillPolygon(self.transform_polygon)
             self.transform_polygon:translate(-7 * self.scale_factor, -7 * self.scale_factor)
         end
+
         gfx.setColor(gfx.kColorWhite)
         gfx.fillPolygon(self.transform_polygon)
         gfx.setColor(gfx.kColorBlack)
@@ -602,12 +603,19 @@ function boat:draw(x, y, width, height)
         gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
         gfx.fillPolygon(self.transform_inside)
         gfx.setColor(gfx.kColorBlack)
+
+        local rot = self.rotation
+        local cosrot = cos[rot]
+        local sinrot = sin[rot]
+        local center = (self.boat_size / 2)
+
         if self.stage == 1 then
+
             local r01_head = self.boat_size / 2
-            local r01_arm_1_x = -20 * -cos[self.rotation] + (self.boat_size / 2)
-            local r01_arm_1_y = -20 * -sin[self.rotation] + (self.boat_size / 2)
-            local r01_arm_2_x = 20 * -cos[self.rotation] + (self.boat_size / 2)
-            local r01_arm_2_y = 20 * -sin[self.rotation] + (self.boat_size / 2)
+            local r01_arm_1_x = -20 * -cosrot + center
+            local r01_arm_1_y = -20 * -sinrot + center
+            local r01_arm_2_x = 20 * -cosrot + center
+            local r01_arm_2_y = 20 * -sinrot + center
             gfx.setLineWidth(10)
             gfx.drawLine(r01_arm_1_x, r01_arm_1_y, r01_arm_2_x, r01_arm_2_y)
             gfx.setLineWidth(2)
@@ -618,10 +626,10 @@ function boat:draw(x, y, width, height)
             gfx.drawCircleAtPoint(r01_head, r01_head, 10)
         elseif self.stage == 2 then
             local robuzz_head = self.boat_size / 2
-            local robuzz_body_x = -10 * sin[self.rotation] + (self.boat_size / 2)
-            local robuzz_body_y = -10 * -cos[self.rotation] + (self.boat_size / 2)
-            local robuzz_tail_x = -12 * -sin[self.rotation] + (self.boat_size / 2)
-            local robuzz_tail_y = -12 * cos[self.rotation] + (self.boat_size / 2)
+            local robuzz_body_x = -10 * sinrot + center
+            local robuzz_body_y = -10 * -cosrot + center
+            local robuzz_tail_x = -12 * -sinrot + center
+            local robuzz_tail_y = -12 * cosrot + center
             gfx.fillCircleAtPoint(robuzz_tail_x, robuzz_tail_y, 8)
             gfx.fillCircleAtPoint(robuzz_body_x, robuzz_body_y, 10)
             gfx.setColor(gfx.kColorWhite)

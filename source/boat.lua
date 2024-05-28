@@ -680,54 +680,77 @@ function boat:draw(x, y, width, height)
         local bunny_ear_2_y
         local rowbot_antennae_x
         local rowbot_antennae_y
+
+        --this should help alot
+        local rev = self.reversed
+        local scale = self.scale.value
+        local rot = self.rotation
+        local boatsize = self.boat_size
+        local camy = self.cam_y.value
+        local wobble = self.wobble_speedo.value
+        local center = boatsize/2
+        local cosrot = cos[rot]
+        local sinrot = sin[rot]
+
+        --this is getting exessive but still should help
+        local rev8 = rev*8
+        local rev11 = rev*11
+        local rev12 = rev*8
+        local rev6 = rev*6
+        local rev19 = rev*19
+        local rev14 = rev*14
+
         if perf then
-            bunny_body_x = (((8 * self.reversed) * self.scale.value) * -cos[self.rotation] - -10 * sin[self.rotation]) + (self.boat_size / 2)
-            bunny_body_y = (((8 * self.reversed) * self.scale.value) * -sin[self.rotation] + -10 * cos[self.rotation]) + (self.boat_size / 2)
-            bunny_tuft_x = ((((11 * self.reversed)) * self.scale.value) * -cos[self.rotation] - 10 * sin[self.rotation]) + (self.boat_size / 2)
-            bunny_tuft_y = ((((11 * self.reversed)) * self.scale.value) * -sin[self.rotation] + 10 * cos[self.rotation]) + (self.boat_size / 2)
-            rowbot_body_x = (((-8 * self.reversed) * self.scale.value) * -cos[self.rotation] - -10 * sin[self.rotation]) + (self.boat_size / 2)
-            rowbot_body_y = (((-8 * self.reversed) * self.scale.value) * -sin[self.rotation] + -10 * cos[self.rotation]) + (self.boat_size / 2)
-            bunny_head_x = (((12 * self.reversed)) * self.scale.value) * -cos[self.rotation] + (self.boat_size / 2)
-            bunny_head_y = (((12 * self.reversed)) * self.scale.value) * -sin[self.rotation] + (self.boat_size / 2)
-            bunny_ear_1_x = (((6 * self.reversed)) * self.scale.value) * -cos[self.rotation] + 5 * sin[self.rotation] + (self.boat_size / 2)
-            bunny_ear_1_y = (((6 * self.reversed)) * self.scale.value) * -sin[self.rotation] - 5 * cos[self.rotation] + (self.boat_size / 2)
-            bunny_ear_2_x = (((19 * self.reversed)) * self.scale.value) * -cos[self.rotation] - 4 * sin[self.rotation] + (self.boat_size / 2)
-            bunny_ear_2_y = (((19 * self.reversed)) * self.scale.value) * -sin[self.rotation] + 4 * cos[self.rotation] + (self.boat_size / 2)
-            rowbot_antennae_x = (((-14 * self.reversed)) * self.scale.value) * -cos[self.rotation] + (self.boat_size / 2)
-            rowbot_antennae_y = (((-14 * self.reversed)) * self.scale.value) * -sin[self.rotation] + (self.boat_size / 2)
+            bunny_body_x = (((rev8) * scale) * -cosrot - -10 * sinrot) + center
+            bunny_body_y = (((rev8) * scale) * -sinrot + -10 * cosrot) + center
+            bunny_tuft_x = ((((rev11)) * scale) * -cosrot - 10 * sinrot) + center
+            bunny_tuft_y = ((((rev11)) * scale) * -sinrot + 10 * cosrot) + center
+            rowbot_body_x = (((-rev8) * scale) * -cosrot - -10 * sinrot) + center
+            rowbot_body_y = (((-rev8) * scale) * -sinrot + -10 * cosrot) + center
+            bunny_head_x = (((rev12)) * scale) * -cosrot + center
+            bunny_head_y = (((rev12)) * scale) * -sinrot + center
+            bunny_ear_1_x = (((rev6)) * scale) * -cosrot + 5 * sinrot + center
+            bunny_ear_1_y = (((rev6)) * scale) * -sinrot - 5 * cosrot + center
+            bunny_ear_2_x = (((rev19)) * scale) * -cosrot - 4 * sinrot + center
+            bunny_ear_2_y = (((rev19)) * scale) * -sinrot + 4 * cosrot + center
+            rowbot_antennae_x = (((-rev14)) * scale) * -cosrot + center
+            rowbot_antennae_y = (((-rev14)) * scale) * -sinrot + center
         else
-            bunny_body_x = (((8 * self.reversed) * self.scale.value) * -cos[self.rotation] - (-10 + (self.cam_y.value * 0.05)) * sin[self.rotation]) + (self.boat_size / 2)
-            bunny_body_y = (((8 * self.reversed) * self.scale.value) * -sin[self.rotation] + (-10 + (self.cam_y.value * 0.05)) * cos[self.rotation]) + (self.boat_size / 2)
-            bunny_tuft_x = ((((11 * self.reversed)) * self.scale.value) * -cos[self.rotation] - (10 + (self.cam_y.value * 0.05)) * sin[self.rotation]) + (self.boat_size / 2)
-            bunny_tuft_y = ((((11 * self.reversed)) * self.scale.value) * -sin[self.rotation] + (10 + (self.cam_y.value * 0.05)) * cos[self.rotation]) + (self.boat_size / 2)
-            rowbot_body_x = (((-8 * self.reversed) * self.scale.value) * -cos[self.rotation] - (-10 + (self.cam_y.value * 0.05)) * sin[self.rotation]) + (self.boat_size / 2)
-            rowbot_body_y = (((-8 * self.reversed) * self.scale.value) * -sin[self.rotation] + (-10 + (self.cam_y.value * 0.05)) * cos[self.rotation]) + (self.boat_size / 2)
-            bunny_head_x = ((((12 * self.reversed)) * self.scale.value) * -cos[self.rotation] - (self.cam_y.value * 0.05) * sin[self.rotation]) + (self.boat_size / 2)
-            bunny_head_y = ((((12 * self.reversed)) * self.scale.value) * -sin[self.rotation] + (self.cam_y.value * 0.05) * cos[self.rotation]) + (self.boat_size / 2)
-            bunny_ear_1_x = ((((6 * self.reversed)) * self.scale.value) * -cos[self.rotation] - (-5 + self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * sin[self.rotation]) + (self.boat_size / 2)
-            bunny_ear_1_y = ((((6 * self.reversed)) * self.scale.value) * -sin[self.rotation] + (-5 + self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * cos[self.rotation]) + (self.boat_size / 2)
-            bunny_ear_2_x = ((((19 * self.reversed)) * self.scale.value) * -cos[self.rotation] - (4 + self.wobble_speedo.value * self.scale.value + (self.cam_y.value * 0.1)) * sin[self.rotation]) + (self.boat_size / 2)
-            bunny_ear_2_y = ((((19 * self.reversed)) * self.scale.value) * -sin[self.rotation] + (4 + self.wobble_speedo.value * self.scale.value + (self.cam_y.value * 0.1)) * cos[self.rotation]) + (self.boat_size / 2)
-            rowbot_antennae_x = ((((-14 * self.reversed)) * self.scale.value) * -cos[self.rotation] - (self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * sin[self.rotation]) + (self.boat_size / 2)
-            rowbot_antennae_y = ((((-14 * self.reversed)) * self.scale.value) * -sin[self.rotation] + (self.wobble_speedo.value * (2 * self.scale.value) + (self.cam_y.value * 0.1)) * cos[self.rotation]) + (self.boat_size / 2)
-        self.transform:translate(-sin[self.rotation] * (self.cam_y.value * 0.05), cos[self.rotation] * (self.cam_y.value * 0.05))
+            local camyscaled005 = camy * 0.05
+            local camyscaled01 = camy * 0.1
+            bunny_body_x = (((rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
+            bunny_body_y = (((rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
+            bunny_tuft_x = ((((rev11)) * scale) * -cosrot - (10 + (camyscaled005)) * sinrot) + center
+            bunny_tuft_y = ((((rev11)) * scale) * -sinrot + (10 + (camyscaled005)) * cosrot) + center
+            rowbot_body_x = (((-rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
+            rowbot_body_y = (((-rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
+            bunny_head_x = ((((rev12)) * scale) * -cosrot - (camyscaled005) * sinrot) + center
+            bunny_head_y = ((((rev12)) * scale) * -sinrot + (camyscaled005) * cosrot) + center
+            bunny_ear_1_x = ((((rev6)) * scale) * -cosrot - (-5 + wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
+            bunny_ear_1_y = ((((rev6)) * scale) * -sinrot + (-5 + wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
+            bunny_ear_2_x = ((((rev19)) * scale) * -cosrot - (4 + wobble * scale + (camyscaled01)) * sinrot) + center
+            bunny_ear_2_y = ((((rev19)) * scale) * -sinrot + (4 + wobble * scale + (camyscaled01)) * cosrot) + center
+            rowbot_antennae_x = ((((-rev14)) * scale) * -cosrot - (wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
+            rowbot_antennae_y = ((((-rev14)) * scale) * -sinrot + (wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
+        self.transform:translate(-sinrot * (camyscaled005), cosrot * (camyscaled005))
         end
         -- Drawing passenger bodies, and bunny's hair tuft
-        gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * self.scale.value)
-        gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * self.scale.value)
-        gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * self.scale.value)
+        gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * scale)
+        gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * scale)
+        gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * scale)
         -- Drawing fills for heads
         gfx.setColor(gfx.kColorWhite)
-        gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * self.scale.value)
+
+        gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
         gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
         -- Drawing hats, and ears/antennae
         gfx.setColor(gfx.kColorBlack)
         gfx.drawPolygon(self.poly_rowbot * self.transform)
-        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * self.scale.value)
-        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * self.scale.value)
-        gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * self.scale.value)
-        gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * self.scale.value)
-        gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * self.scale.value)
+        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
+        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * scale)
+        gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * scale)
+        gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * scale)
+        gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * scale)
 
     end
     gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!

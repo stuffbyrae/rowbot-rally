@@ -576,7 +576,6 @@ end
 function boat:draw(x, y, width, height)
     if self.mode == "cpu" then
         --this should help alot
-        local rev = self.reversed
         local scale = self.scale.value
         local scalefactor = self.scale_factor
         local shadowoffset = 7 * scalefactor
@@ -587,11 +586,13 @@ function boat:draw(x, y, width, height)
         local center = boatsize/2
         local cosrot = cos[rot]
         local sinrot = sin[rot]
-        if not perf then
-            local ripple = self.ripple_scale.value
-            local rippleend = self.ripple_scale.endValue
-            local rippleopacity = self.ripple_opacity.value
-        end
+        --if not perf then
+        --these locals cant be acessed outside of scope?
+        local ripple = self.ripple_scale.value
+        local rippleend = self.ripple_scale.endValue
+        local rippleopacity = self.ripple_opacity.value
+        --end
+
         if self.ripple_scale ~= nil and ripple ~= rippleend and not perf then
             self.ripple:scale((scale * boostx) * ripple, (scale * boosty) * ripple)
             self.ripple:rotate(rot)
@@ -621,12 +622,12 @@ function boat:draw(x, y, width, height)
         gfx.setColor(gfx.kColorBlack)
         if self.stage == 1 then
             local r01_head = boatsize / 2
-            local r01_arm_1_x = -20 * -cosrot + (center)
-            local r01_arm_1_y = -20 * -sinrot + (center)
+            -- local r01_arm_1_x = -20 * -cosrot + (center)
+            -- local r01_arm_1_y = -20 * -sinrot + (center)
             local r01_arm_2_x = 20 * -cosrot + (center)
             local r01_arm_2_y = 20 * -sinrot + (center)
             gfx.setLineWidth(10)
-            gfx.drawLine(r01_arm_1_x, r01_arm_1_y, r01_arm_2_x, r01_arm_2_y)
+            gfx.drawLine(-r01_arm_2_x, -r01_arm_2_y, r01_arm_2_x, r01_arm_2_y)
             gfx.setLineWidth(2)
             gfx.setColor(gfx.kColorWhite)
             gfx.fillCircleAtPoint(r01_head, r01_head, 15)
@@ -635,12 +636,12 @@ function boat:draw(x, y, width, height)
             gfx.drawCircleAtPoint(r01_head, r01_head, 10)
         elseif self.stage == 2 then
             local robuzz_head = self.boat_size / 2
-            local robuzz_body_x = -10 * sinrot + (center)
-            local robuzz_body_y = -10 * -cosrot + (center)
-            local robuzz_tail_x = -12 * -sinrot + (center)
-            local robuzz_tail_y = -12 * cosrot + (center)
-            gfx.fillCircleAtPoint(robuzz_tail_x, robuzz_tail_y, 8)
-            gfx.fillCircleAtPoint(robuzz_body_x, robuzz_body_y, 10)
+            -- local robuzz_body_x = -10 * sinrot + (center)
+            -- local robuzz_body_y = -10 * -cosrot + (center)
+            -- local robuzz_tail_x = -12 * -sinrot + (center)
+            -- local robuzz_tail_y = -12 * cosrot + (center)
+            gfx.fillCircleAtPoint(-12 * -sinrot + (center), -12 * cosrot + (center), 8)
+            gfx.fillCircleAtPoint(-10 * sinrot + (center), -10 * -cosrot + (center), 10)
             gfx.setColor(gfx.kColorWhite)
             gfx.fillCircleAtPoint(robuzz_head, robuzz_head, 12)
             gfx.setColor(gfx.kColorBlack)
@@ -662,11 +663,12 @@ function boat:draw(x, y, width, height)
         local center = boatsize/2
         local cosrot = cos[rot]
         local sinrot = sin[rot]
-        if not perf then
-            local ripple = self.ripple_scale.value
-            local rippleend = self.ripple_scale.endValue
-            local rippleopacity = self.ripple_opacity.value
-        end
+        --if not perf then
+        --these locals cant be acessed outside of scope?
+        local ripple = self.ripple_scale.value
+        local rippleend = self.ripple_scale.endValue
+        local rippleopacity = self.ripple_opacity.value
+        --end
         if self.ripple_scale ~= nil and ripple ~= rippleend and not self.beached and not perf then
             self.ripple:scale((scale * boostx) * ripple, (scale * boosty) * ripple)
             self.ripple:rotate(rot)
@@ -699,20 +701,20 @@ function boat:draw(x, y, width, height)
         gfx.fillPolygon(self.transform_inside)
         gfx.setColor(gfx.kColorBlack)
         -- Offset params for passengers
-        local bunny_body_x
-        local bunny_body_y
-        local bunny_tuft_x
-        local bunny_tuft_y
-        local rowbot_body_x
-        local rowbot_body_y
+        -- local bunny_body_x
+        -- local bunny_body_y
+        -- local bunny_tuft_x
+        -- local bunny_tuft_y
+        -- local rowbot_body_x
+        -- local rowbot_body_y
         local bunny_head_x
         local bunny_head_y
-        local bunny_ear_1_x
-        local bunny_ear_1_y
-        local bunny_ear_2_x
-        local bunny_ear_2_y
-        local rowbot_antennae_x
-        local rowbot_antennae_y
+        -- local bunny_ear_1_x
+        -- local bunny_ear_1_y
+        -- local bunny_ear_2_x
+        -- local bunny_ear_2_y
+        -- local rowbot_antennae_x
+        -- local rowbot_antennae_y
 
         --this is getting exessive but still should help
         local rev8 = rev*8
@@ -723,57 +725,77 @@ function boat:draw(x, y, width, height)
         local rev14 = rev*14
 
         if perf then
-            bunny_body_x = (((rev8) * scale) * -cosrot - -10 * sinrot) + center
-            bunny_body_y = (((rev8) * scale) * -sinrot + -10 * cosrot) + center
-            bunny_tuft_x = ((((rev11)) * scale) * -cosrot - 10 * sinrot) + center
-            bunny_tuft_y = ((((rev11)) * scale) * -sinrot + 10 * cosrot) + center
-            rowbot_body_x = (((-rev8) * scale) * -cosrot - -10 * sinrot) + center
-            rowbot_body_y = (((-rev8) * scale) * -sinrot + -10 * cosrot) + center
+            -- bunny_body_x = (((rev8) * scale) * -cosrot - -10 * sinrot) + center
+            -- bunny_body_y = (((rev8) * scale) * -sinrot + -10 * cosrot) + center
+            -- bunny_tuft_x = ((((rev11)) * scale) * -cosrot - 10 * sinrot) + center
+            -- bunny_tuft_y = ((((rev11)) * scale) * -sinrot + 10 * cosrot) + center
+            -- rowbot_body_x = (((-rev8) * scale) * -cosrot - -10 * sinrot) + center
+            -- rowbot_body_y = (((-rev8) * scale) * -sinrot + -10 * cosrot) + center
             bunny_head_x = (((rev12)) * scale) * -cosrot + center
             bunny_head_y = (((rev12)) * scale) * -sinrot + center
-            bunny_ear_1_x = (((rev6)) * scale) * -cosrot + 5 * sinrot + center
-            bunny_ear_1_y = (((rev6)) * scale) * -sinrot - 5 * cosrot + center
-            bunny_ear_2_x = (((rev19)) * scale) * -cosrot - 4 * sinrot + center
-            bunny_ear_2_y = (((rev19)) * scale) * -sinrot + 4 * cosrot + center
-            rowbot_antennae_x = (((-rev14)) * scale) * -cosrot + center
-            rowbot_antennae_y = (((-rev14)) * scale) * -sinrot + center
+            -- bunny_ear_1_x = (((rev6)) * scale) * -cosrot + 5 * sinrot + center
+            -- bunny_ear_1_y = (((rev6)) * scale) * -sinrot - 5 * cosrot + center
+            -- bunny_ear_2_x = (((rev19)) * scale) * -cosrot - 4 * sinrot + center
+            -- bunny_ear_2_y = (((rev19)) * scale) * -sinrot + 4 * cosrot + center
+            -- rowbot_antennae_x = (((-rev14)) * scale) * -cosrot + center
+            -- rowbot_antennae_y = (((-rev14)) * scale) * -sinrot + center
+
+            -- Drawing passenger bodies, and bunny's hair tuft
+            gfx.fillCircleAtPoint((((rev8) * scale) * -cosrot - -10 * sinrot) + center, (((rev8) * scale) * -sinrot + -10 * cosrot) + center, 6 * scale)
+            gfx.fillCircleAtPoint(((((rev11)) * scale) * -cosrot - 10 * sinrot) + center, ((((rev11)) * scale) * -sinrot + 10 * cosrot) + center, 11 * scale)
+            gfx.fillCircleAtPoint((((-rev8) * scale) * -cosrot - -10 * sinrot) + center, (((-rev8) * scale) * -sinrot + -10 * cosrot) + center, 6 * scale)
+            -- Drawing fills for heads
+            gfx.setColor(gfx.kColorWhite)
+
+            gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
+            gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
+            -- Drawing hats, and ears/antennae
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawPolygon(self.poly_rowbot * self.transform)
+            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
+            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * scale)
+            gfx.fillCircleAtPoint((((rev6)) * scale) * -cosrot + 5 * sinrot + center, (((rev6)) * scale) * -sinrot - 5 * cosrot + center, 6 * scale)
+            gfx.fillCircleAtPoint((((rev19)) * scale) * -cosrot - 4 * sinrot + center, (((rev19)) * scale) * -sinrot + 4 * cosrot + center, 6 * scale)
+            gfx.fillCircleAtPoint((((-rev14)) * scale) * -cosrot + center, (((-rev14)) * scale) * -sinrot + center, 3 * scale)
         else
             local camy = self.cam_y.value
             local camyscaled005 = camy * 0.05
             local camyscaled01 = camy * 0.1
-            bunny_body_x = (((rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
-            bunny_body_y = (((rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
-            bunny_tuft_x = ((((rev11)) * scale) * -cosrot - (10 + (camyscaled005)) * sinrot) + center
-            bunny_tuft_y = ((((rev11)) * scale) * -sinrot + (10 + (camyscaled005)) * cosrot) + center
-            rowbot_body_x = (((-rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
-            rowbot_body_y = (((-rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
+            -- bunny_body_x = (((rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
+            -- bunny_body_y = (((rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
+            -- bunny_tuft_x = ((((rev11)) * scale) * -cosrot - (10 + (camyscaled005)) * sinrot) + center
+            -- bunny_tuft_y = ((((rev11)) * scale) * -sinrot + (10 + (camyscaled005)) * cosrot) + center
+            -- rowbot_body_x = (((-rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
+            -- rowbot_body_y = (((-rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
             bunny_head_x = ((((rev12)) * scale) * -cosrot - (camyscaled005) * sinrot) + center
             bunny_head_y = ((((rev12)) * scale) * -sinrot + (camyscaled005) * cosrot) + center
-            bunny_ear_1_x = ((((rev6)) * scale) * -cosrot - (-5 + wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
-            bunny_ear_1_y = ((((rev6)) * scale) * -sinrot + (-5 + wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
-            bunny_ear_2_x = ((((rev19)) * scale) * -cosrot - (4 + wobble * scale + (camyscaled01)) * sinrot) + center
-            bunny_ear_2_y = ((((rev19)) * scale) * -sinrot + (4 + wobble * scale + (camyscaled01)) * cosrot) + center
-            rowbot_antennae_x = ((((-rev14)) * scale) * -cosrot - (wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
-            rowbot_antennae_y = ((((-rev14)) * scale) * -sinrot + (wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
-        self.transform:translate(-sinrot * (camyscaled005), cosrot * (camyscaled005))
-        end
-        -- Drawing passenger bodies, and bunny's hair tuft
-        gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * scale)
-        gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * scale)
-        gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * scale)
-        -- Drawing fills for heads
-        gfx.setColor(gfx.kColorWhite)
+            -- bunny_ear_1_x = ((((rev6)) * scale) * -cosrot - (-5 + wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
+            -- bunny_ear_1_y = ((((rev6)) * scale) * -sinrot + (-5 + wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
+            -- bunny_ear_2_x = ((((rev19)) * scale) * -cosrot - (4 + wobble * scale + (camyscaled01)) * sinrot) + center
+            -- bunny_ear_2_y = ((((rev19)) * scale) * -sinrot + (4 + wobble * scale + (camyscaled01)) * cosrot) + center
+            -- rowbot_antennae_x = ((((-rev14)) * scale) * -cosrot - (wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
+            -- rowbot_antennae_y = ((((-rev14)) * scale) * -sinrot + (wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
+            self.transform:translate(-sinrot * (camyscaled005), cosrot * (camyscaled005))
 
-        gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
-        gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
-        -- Drawing hats, and ears/antennae
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(self.poly_rowbot * self.transform)
-        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
-        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * scale)
-        gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * scale)
-        gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * scale)
-        gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * scale)
+            -- Drawing passenger bodies, and bunny's hair tuft
+            gfx.fillCircleAtPoint((((rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center, (((rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center, 6 * scale)
+            gfx.fillCircleAtPoint(((((rev11)) * scale) * -cosrot - (10 + (camyscaled005)) * sinrot) + center, ((((rev11)) * scale) * -sinrot + (10 + (camyscaled005)) * cosrot) + center, 11 * scale)
+            gfx.fillCircleAtPoint((((-rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center, (((-rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center, 6 * scale)
+            -- Drawing fills for heads
+            gfx.setColor(gfx.kColorWhite)
+
+            gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
+            gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
+            -- Drawing hats, and ears/antennae
+            gfx.setColor(gfx.kColorBlack)
+            gfx.drawPolygon(self.poly_rowbot * self.transform)
+            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
+            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * scale)
+            gfx.fillCircleAtPoint(((((rev6)) * scale) * -cosrot - (-5 + wobble * (2 * scale) + (camyscaled01)) * sinrot) + center, ((((rev6)) * scale) * -sinrot + (-5 + wobble * (2 * scale) + (camyscaled01)) * cosrot) + center, 6 * scale)
+            gfx.fillCircleAtPoint(((((rev19)) * scale) * -cosrot - (4 + wobble * scale + (camyscaled01)) * sinrot) + center, ((((rev19)) * scale) * -sinrot + (4 + wobble * scale + (camyscaled01)) * cosrot) + center, 6 * scale)
+            gfx.fillCircleAtPoint(((((-rev14)) * scale) * -cosrot - (wobble * (2 * scale) + (camyscaled01)) * sinrot) + center, ((((-rev14)) * scale) * -sinrot + (wobble * (2 * scale) + (camyscaled01)) * cosrot) + center, 3 * scale)
+        end
+
 
     end
     gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!

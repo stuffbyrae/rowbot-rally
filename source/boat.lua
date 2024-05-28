@@ -74,6 +74,16 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self.poly_inside = geo.polygon.new(12,-20, 0,-23, -12,-20, -16,-7, 16,-7, 16,5, -16,5, -14,20, 14,20, 16,5, 16,-7, 12,-20)
     self.poly_body_crash = geo.polygon.new(0,-38, 17,-19, 20,6, 12,33, -12,33, -20,6, -17,-19, 0,-38)
 
+    local transform
+    for i = 1, 360 do
+        transform = geo.affineTransform.new()
+        transform:rotate(i)
+        self['poly_body_' .. i] = transform:transformedPolygon(self.poly_body:copy())
+        self['poly_inside_' .. i] = transform:transformedPolygon(self.poly_inside:copy())
+        self['poly_body_crash_' .. i] = transform:transformedPolygon(self.poly_body_crash:copy())
+    end
+    transform = nil
+
     self.transform = geo.affineTransform.new()
     self.crash_transform = geo.affineTransform.new()
 
@@ -114,6 +124,15 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
         self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
         self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
+
+        local transform
+        for i = 1, 360 do
+            transform = geo.affineTransform.new()
+            transform:rotate(i)
+            self['poly_rowbot_' .. i] = transform:transformedPolygon(self.poly_rowbot:copy())
+            self['poly_rowbot_fill_' .. i] = transform:transformedPolygon(self.poly_rowbot_fill:copy())
+        end
+        transform = nil
 
         self.image_crash = gfx.image.new('images/race/crash')
         self.sfx_crash = smp.new('audio/sfx/crash')
@@ -307,12 +326,12 @@ function boat:finish(duration, peelout)
 end
 
 function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
-    self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
+    self.crash_body_scale = self.transform:transformedPolygon(self['poly_body_crash_' .. self.rotation])
     self.crash_body_scale:translate(self.x, self.y)
     for i = 1, #polygons do
         if self.crash_body_scale:intersects(polygons[i]) then
             local points_collided = {}
-            self.crash_body = self.crash_transform:transformedPolygon(self.poly_body)
+            self.crash_body = self.crash_transform:transformedPolygon(self['poly_body_' .. self.rotation])
             for i = 1, self.poly_body:count() do
                 local transformed_point = self.crash_body:getPointAt(i)
                 local point_x, point_y = transformed_point:unpack()
@@ -566,26 +585,23 @@ function boat:update()
     -- Transform ALL the polygons!!!!1!
     self.transform:scale((self.scale.value * self.boost_x.value) * self.reversed, self.scale.value * self.boost_y.value)
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
-    self.transform:rotate(self.rotation)
-    self.crash_transform:rotate(self.rotation)
 end
 
 function boat:draw(x, y, width, height)
     if self.mode == "cpu" then
         if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not perf then
             self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
-            self.ripple:rotate(self.rotation)
             self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
             gfx.setColor(gfx.kColorWhite)
             gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
             gfx.setLineWidth(self.ripple_opacity.value * 4)
-            gfx.drawPolygon(self.poly_body * self.ripple)
+            gfx.drawPolygon(self['poly_body_' .. self.rotation] * self.ripple)
             gfx.setLineWidth(2)
             gfx.setColor(gfx.kColorBlack)
         end
         self.transform:translate(self.boat_size / 2, self.boat_size / 2)
-        self.transform_polygon = self.poly_body * self.transform
-        self.transform_inside = self.poly_inside * self.transform
+        self.transform_polygon = self['poly_body_' .. self.rotation] * self.transform
+        self.transform_inside = self['poly_inside_' .. self.rotation] * self.transform
         if not perf then
             self.transform_polygon:translate(7 * self.scale_factor, 7 * self.scale_factor)
             gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
@@ -633,18 +649,17 @@ function boat:draw(x, y, width, height)
 
         if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
             self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
-            self.ripple:rotate(self.rotation)
             self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
             gfx.setColor(gfx.kColorWhite)
             gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
             gfx.setLineWidth(self.ripple_opacity.value * 4)
-            gfx.drawPolygon(self.poly_body * self.ripple)
+            gfx.drawPolygon(self['poly_body_' .. self.rotation] * self.ripple)
             gfx.setLineWidth(2)
             gfx.setColor(gfx.kColorBlack)
         end
         self.transform:translate(self.boat_size / 2, self.boat_size / 2)
-        self.transform_polygon = self.poly_body * self.transform
-        self.transform_inside = self.poly_inside * self.transform
+        self.transform_polygon = self['poly_body_' .. self.rotation] * self.transform
+        self.transform_inside = self['poly_inside_' .. self.rotation] * self.transform
         if self.show_crash_image and not enabled_cheats then
             local crash_x, crash_y = self.transform_polygon:getPointAt(self.crash_point):unpack()
             self.image_crash:draw(crash_x - 20, crash_y - 20)
@@ -739,10 +754,10 @@ function boat:draw(x, y, width, height)
         gfx.setColor(gfx.kColorWhite)
 
         gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
-        gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
+        gfx.fillPolygon(self['poly_rowbot_fill_' .. self.rotation] * self.transform)
         -- Drawing hats, and ears/antennae
         gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(self.poly_rowbot * self.transform)
+        gfx.drawPolygon(self['poly_rowbot_' .. self.rotation] * self.transform)
         gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
         gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * scale)
         gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * scale)

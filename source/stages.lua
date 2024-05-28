@@ -354,8 +354,8 @@ function stages:leaderboardsin()
                 gfx.pushContext(assets.image_lb_text)
                 for _, v in ipairs(result.scores) do
                     mins, secs, mils = timecalc(v.value)
-                    assets.kapel:drawText(v.player, 12, (26 * v.rank) - 22)
-                    assets.kapel:drawTextAligned(ordinal(v.rank), 185, (26 * v.rank) - 22, kTextAlignment.right)
+                    assets.kapel:drawTextAligned(v.player, 185, (26 * v.rank) - 22, kTextAlignment.right)
+                    assets.kapel:drawText(ordinal(v.rank), 12, (26 * v.rank) - 22)
                     assets.pedallica:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 185, (26 * v.rank) - 12, kTextAlignment.right)
                     mins = nil
                     secs = nil

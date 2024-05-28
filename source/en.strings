@@ -199,8 +199,11 @@
 
 -- Leaderboards
 "leaderboards_grab" = "Grabbing leaderboards,\nplease wait..."
-"leaderboards_fail" = "Couldn't grab the\nleaderboards! Try\nagain later?"
-"leaderboards_empty" = "This leaderboard's\nempty. You'd better\nstart racing!"
+"leaderboards_fail" = "Couldn't grab the\nleaderboards. Try\nagain later?"
+"leaderboards_empty" = "This leaderboard's\nempty! You'd better\nstart racing!"
+"leaderboards_grab_short" = "Grabbing scores..."
+"leaderboards_fail_short" = "Can't grab scores."
+"leaderboards_empty_short" = "This board's empty!"
 "default_username_text" = "✨ Change your username at\n🌐 play.date/account"
 "yourank" = "You Rank..."
 "up_leaderboards" = "⬆ Leaderboards"
@@ -231,6 +234,7 @@
 "km" = "km"
 "appendix" = ": "
 "percent_complete" = "% complete"
+"global" = "Global"
 
 -- Options titles
 "music_name" = "Music"
@@ -278,7 +282,7 @@
 "a" = "Ⓐ"
 "back" = "Ⓑ Back"
 "corner_saving" = "Saving..."
-"corner_sendscore" = "Sending score..."
+"corner_sendscore" = "Updating on-line stats..."
 "lap1" = "Lap 1!"
 "lap2" = "Lap 2!"
 "lap3" = "Final Lap!"
@@ -315,3 +319,5 @@
 "metric" = "metric"
 "quitfornow" = "quit for now"
 "chillmode" = "chill mode"
+"onlinestats" = "on-line stats"
+"localstats" = "local stats"

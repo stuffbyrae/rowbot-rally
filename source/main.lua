@@ -434,13 +434,14 @@ end
 
 import 'race'
 import 'stages'
+import 'stats'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
     -- scenemanager:switchscene(title)
     perf = false
-    scenemanager:switchscene(stages)
+    scenemanager:switchscene(stats)
 end
 
 function pd.update()

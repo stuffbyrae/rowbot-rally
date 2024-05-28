@@ -56,6 +56,7 @@ function results:init(...)
         stage6_speedy = 1500,
         stage7_speedy = 100,
         speedy = false,
+        poststagetime = false,
     }
     vars.resultsHandlers = {
         AButtonDown = function()
@@ -89,12 +90,7 @@ function results:init(...)
             end
         elseif vars.mode == "tt" then
             if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
-                corner('sendscore')
-                pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
-                    if status.code == "ERROR" then
-                        makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
-                    end
-                end)
+                vars.poststagetime = true
             end
             if vars.time < vars['stage' .. vars.stage .. '_speedy'] and not enabled_cheats then
                 save['stage' .. vars.stage .. '_speedy'] = true
@@ -108,6 +104,8 @@ function results:init(...)
     else
         newmusic('audio/sfx/lose')
     end
+
+    self:sendscores()
 
     gfx.pushContext(assets.image_plate)
         local mins, secs, mils = timecalc(vars.time)
@@ -250,5 +248,40 @@ function results:back()
         end
     elseif vars.mode == "tt" then
         scenemanager:transitionsceneback(stages)
+    end
+end
+
+function results:sendscores()
+    corner('sendscore')
+    if perf and vars.poststagetime then
+        pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
+            if status.code ~= "OK" then
+                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+            end
+        end)
+    else
+        if vars.poststagetime then
+            pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
+                if status.code ~= "OK" then
+                    makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                end
+                pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
+                    pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
+                        pd.scoreboards.addScore('degreescranked', save.total_degrees_cranked, function(status)
+                        end)
+                    end)
+                end)
+            end)
+        else
+            pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
+                if status.code ~= "OK" then
+                    makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                end
+                pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
+                    pd.scoreboards.addScore('degreescranked', save.total_degrees_cranked, function(status)
+                    end)
+                end)
+            end)
+        end
     end
 end

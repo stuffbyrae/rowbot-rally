@@ -18,8 +18,9 @@ local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
+local text <const> = gfx.getLocalizedText
 
-pd.display.setRefreshRate(30)
+pd.display.setRefreshRate(50)
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
 gfx.setLineWidth(2)
@@ -35,7 +36,6 @@ enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!
 enabled_cheats_big = false
 enabled_cheats_small = false
 enabled_cheats_tiny = false
-enabled_cheats_dents = false
 enabled_cheats_retro = false
 enabled_cheats_scream = false
 
@@ -62,7 +62,6 @@ function savecheck()
     if save.unlocked_cheats_big == nil then save.unlocked_cheats_big = false end
     if save.unlocked_cheats_small == nil then save.unlocked_cheats_small = false end
     if save.unlocked_cheats_tiny == nil then save.unlocked_cheats_tiny = false end
-    if save.unlocked_cheats_dents == nil then save.unlocked_cheats_dents = false end
     if save.unlocked_cheats_retro == nil then save.unlocked_cheats_retro = false end
     if save.unlocked_cheats_scream == nil then save.unlocked_cheats_scream = false end
     -- Last saved slot, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
@@ -215,8 +214,8 @@ end
 
 -- Generates buttons for use in buttonery. Type can either be "small", "small2", or "big". The default if no arg is passed, is Big. string can be a string (lol)
 function makebutton(button_string, button_type)
-    button_image = button_image_big
-    button_font = kapel_doubleup -- Kapel double-big font for big button
+    local button_image = button_image_big
+    local button_font = kapel_doubleup -- Kapel double-big font for big button
     if button_type == "small" then -- But if those buttons are small...
         button_font = kapel -- Use the smaller font,
         button_image = button_image_small -- and the appropriate image.
@@ -225,13 +224,13 @@ function makebutton(button_string, button_type)
         button_font = kapel -- Use the smaller font,
         button_image = button_image_small2 -- and the appropriate image.
     end
-    button_text_width = button_font:getTextWidth(button_string) -- Get the width of the string
-    button_text_height = button_font:getHeight() -- Get the height of the text
-    button_img = gfx.image.new(button_text_width + 46, button_text_height + 21) -- Make that image pretty big
+    local button_text_width = button_font:getTextWidth(button_string) -- Get the width of the string
+    local button_text_height = button_font:getHeight() -- Get the height of the text
+    local button_img = gfx.image.new(button_text_width + 46, button_text_height + 21) -- Make that image pretty big
     if button_type == "small" or button_type == "small2" then -- But if the button's small...
         button_img = gfx.image.new(button_text_width + 52, button_text_height + 11) -- ...make it pretty small instead.
     end
-    button_img_width, button_img_height = button_img:getSize() -- Get the image's size.
+    local button_img_width, button_img_height = button_img:getSize() -- Get the image's size.
     gfx.pushContext(button_img) -- Now, we draw to that image.
         button_image:drawInRect(0, 0, button_img_width, button_img_height) -- Draw the button's image within the space
         if button_type == "small" or button_type == "small2" then -- If the buttons are small, then...
@@ -240,10 +239,6 @@ function makebutton(button_string, button_type)
             button_font:drawTextAligned(button_string, button_img_width / 2, button_img_height / 6.5, kTextAlignment.center) -- Draw it a bit higher, to account for the button's margin.
         end
     gfx.popContext()
-    button_image = nil -- Nilling stuff...
-    button_font = nil
-    button_text_width = nil
-    button_text_height = nil
     return button_img -- Now gimme that image, please!
 end
 
@@ -252,11 +247,11 @@ end
 function corner(type)
     if not corner_active then -- If there's nothing in that corner already ...
         corner_active = true -- then let's take that for ourselves
-        img_corner = gfx.image.new(kapel:getTextWidth(gfx.getLocalizedText('corner_' .. type)) + 12, kapel:getHeight() + 6) -- Make a new image with abouts the width of the text
+        img_corner = gfx.image.new(kapel:getTextWidth(text('corner_' .. type)) + 12, kapel:getHeight() + 6) -- Make a new image with abouts the width of the text
         gfx.pushContext(img_corner) -- Now let's draw into it...
-            gfx.fillPolygon(0, 0, kapel:getTextWidth(gfx.getLocalizedText('corner_' .. type)) + 12, 0, kapel:getTextWidth(gfx.getLocalizedText('corner_' .. type)) + 6, kapel:getHeight() + 6, 0, kapel:getHeight() + 6) -- Draw a funny polygon that's the length of the text
+            gfx.fillPolygon(0, 0, kapel:getTextWidth(text('corner_' .. type)) + 12, 0, kapel:getTextWidth(text('corner_' .. type)) + 6, kapel:getHeight() + 6, 0, kapel:getHeight() + 6) -- Draw a funny polygon that's the length of the text
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Set the color to white...
-            kapel:drawText(gfx.getLocalizedText('corner_' .. type), 3, 3) -- and draw the text!
+            kapel:drawText(text('corner_' .. type), 3, 3) -- and draw the text!
             gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back,
         gfx.popContext() -- and leave the image context.
         anim_corner = pd.timer.new(501, -25, 0, pd.easingFunctions.outSine) -- Intro animation
@@ -277,12 +272,12 @@ function makepopup(head_text, body_text, button_text, b_close, callback)
     if popup == nil then -- If there isn't already a popup in existence...
         popup_in:setVolume(save.vol_sfx/5) -- Set the volume for the pop-up in sound,
         popup_in:play() -- and play it right away why not?
-        img_popup = gfx.image.new(400, 240) -- New blank image,,,
+        local img_popup = gfx.image.new(400, 240) -- New blank image,,,
         gfx.pushContext(img_popup) -- Now, let's build this thing.
             image_popup:draw(0, 0)
             makebutton(button_text):drawAnchored(200, 185, 0.5, 0.5) -- Now, the button.
             if b_close then -- If the B button can close this,
-                makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1) -- let's make that.
+                makebutton(text('back'), 'small'):drawAnchored(395, 235, 1, 1) -- let's make that.
             end
             kapel_doubleup:drawTextAligned(head_text, 200, 30, kTextAlignment.center) -- Add the header text,
             pedallica:drawTextAligned(body_text, 200, 60, kTextAlignment.center) -- and the body as well.
@@ -365,17 +360,17 @@ function setpauseimage(xoffset)
         gfx.setColor(gfx.kColorWhite)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
         gfx.drawRoundRect(10 + xoffset, 100, 180, 130, 10)
-        kapel_doubleup:drawText(gfx.getLocalizedText('paused'), 10 + xoffset, 5)
-        pedallica:drawText(gfx.getLocalizedText('rowtip' .. rowtip_oracle), 19 + xoffset, 111)
+        kapel_doubleup:drawText(text('paused'), 10 + xoffset, 5)
+        pedallica:drawText(text('rowtip' .. rowtip_oracle), 19 + xoffset, 111)
     gfx.popContext()
     pd.setMenuImage(pauseimage, xoffset)
 end
 
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
 function timecalc(num)
-    mins = math.floor((num/30) / 60)
-    secs = math.floor((num/30) - mins * 60)
-    mils = math.floor((num/30)*99 - mins * 5940 - secs * 99)
+    local mins = math.floor((num/30) / 60)
+    local secs = math.floor((num/30) - mins * 60)
+    local mils = math.floor((num/30)*99 - mins * 5940 - secs * 99)
     if secs < 10 then secs = '0' .. secs end
     if mils < 10 then mils = '0' .. mils end
     return mins, secs, mils
@@ -386,13 +381,13 @@ function ordinal(num)
     local m10 = num % 10 -- This is the number, modulo'd by 10.
     local m100 = num % 100 -- This is the number, modulo'd by 100.
     if m10 == 1 and m100 ~= 11 then -- If the number ends in 1 but NOT 11...
-        return tostring(num) .. gfx.getLocalizedText("st") -- add "st" on.
+        return tostring(num) .. text("st") -- add "st" on.
     elseif m10 == 2 and m100 ~= 12 then -- If the number ends in 2 but NOT 12...
-        return tostring(num) .. gfx.getLocalizedText("nd") -- add "nd" on,
+        return tostring(num) .. text("nd") -- add "nd" on,
     elseif m10 == 3 and m100 ~= 13 then -- and if the number ends in 3 but NOT 13...
-        return tostring(num) .. gfx.getLocalizedText("rd") -- add "rd" on.
+        return tostring(num) .. text("rd") -- add "rd" on.
     else -- If all those checks passed us by,
-        return tostring(num) .. gfx.getLocalizedText("th") -- then it ends in "th".
+        return tostring(num) .. text("th") -- then it ends in "th".
     end
 end
 
@@ -433,28 +428,30 @@ function shakies_y(time, int)
 end
 
 import 'race'
-import 'stages'
-import 'stats'
+import 'chill'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
     -- scenemanager:switchscene(title)
     perf = false
-    scenemanager:switchscene(stats)
+    scenemanager:switchscene(chill)
 end
+
+local offsetx
+local offsety
 
 function pd.update()
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup.value) -- Move it there!
     end
-    local offsetx, offsety = pd.display.getOffset()
+    offsetx, offsety = pd.display.getOffset()
     -- Screen shake update logic
     if anim_shakies ~= nil then
         pd.display.setOffset(anim_shakies.value, offsety)
     end
-    local offsetx, offsety = pd.display.getOffset()
+    offsetx, offsety = pd.display.getOffset()
     if anim_shakies_y ~= nil then
         pd.display.setOffset(offsetx, anim_shakies_y.value)
     end
@@ -463,7 +460,7 @@ function pd.update()
     gfx.sprite.update()
     pd.timer.updateTimers()
     if pd.isCrankDocked() and show_crank then -- If the crank's docked, and the variable allows for it...
-        pd.ui.crankIndicator:update() -- Show the Use the Crank! indicator.
+        pd.ui.crankIndicator:draw(-3, -17) -- Show the Use the Crank! indicator.
     end
     -- Corner update logic
     if anim_corner ~= nil and img_corner ~= nil then -- If the intro anim exists...

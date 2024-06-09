@@ -11,6 +11,7 @@ local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
+local text <const> = gfx.getLocalizedText
 
 class('results').extends(gfx.sprite) -- Create the scene's class
 function results:init(...)
@@ -57,6 +58,7 @@ function results:init(...)
         stage7_speedy = 100,
         speedy = false,
         poststagetime = false,
+        showtimetrials = false,
     }
     vars.resultsHandlers = {
         AButtonDown = function()
@@ -72,6 +74,7 @@ function results:init(...)
     if vars.win then
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
+            if vars.stage == 1 and save.stages_unlocked == 0 then vars.showtimetrials = true end
             save.stages_unlocked = vars.stage
             if vars.stage == 1 then
                 save['slot' .. save.current_story_slot .. '_progress'] = "cutscene3"
@@ -105,50 +108,50 @@ function results:init(...)
         newmusic('audio/sfx/lose')
     end
 
-    self:sendscores()
+    -- self:sendscores()
 
     gfx.pushContext(assets.image_plate)
         local mins, secs, mils = timecalc(vars.time)
         gfx.setFont(assets.kapel_doubleup)
         if vars.win then
             if vars.mode == "story" then
-                gfx.imageWithText(gfx.getLocalizedText('youwin'), 200, 120):drawScaled(40, 20, 2)
-                makebutton(gfx.getLocalizedText('onwards')):drawAnchored(355, 185, 1, 0.5)
-                makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
-                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 85, kTextAlignment.right)
+                gfx.imageWithText(text('youwin'), 200, 120):drawScaled(40, 20, 2)
+                makebutton(text('onwards')):drawAnchored(355, 185, 1, 0.5)
+                makebutton(text('back'), 'small'):drawAnchored(395, 235, 1, 1)
+                assets.kapel_doubleup:drawTextAligned(text('yourtime'), 355, 85, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
             elseif vars.mode == "tt" then
-                makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
-                makebutton(gfx.getLocalizedText('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
-                assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 65, kTextAlignment.right)
+                makebutton(text('retry')):drawAnchored(355, 185, 1, 0.5)
+                makebutton(text('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
+                assets.kapel_doubleup:drawTextAligned(text('yourtime'), 355, 65, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 90, kTextAlignment.right)
                 if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
-                    assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('newbest'), 355, 125, kTextAlignment.right)
+                    assets.kapel_doubleup:drawTextAligned(text('newbest'), 355, 125, kTextAlignment.right)
                     save['stage' .. vars.stage .. '_best'] = vars.time
                 else
                     local bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best'])
-                    assets.kapel:drawTextAligned(gfx.getLocalizedText('besttime'), 355, 125, kTextAlignment.right)
+                    assets.kapel:drawTextAligned(text('besttime'), 355, 125, kTextAlignment.right)
                     assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                 end
                 if vars.crashes == 0 and vars.speedy then
-                    gfx.imageWithText(gfx.getLocalizedText('perfect'), 200, 120):drawScaled(40, 20, 2)
+                    gfx.imageWithText(text('perfect'), 200, 120):drawScaled(40, 20, 2)
                 elseif vars.crashes == 0 then
-                    gfx.imageWithText(gfx.getLocalizedText('flawless'), 200, 120):drawScaled(40, 20, 2)
+                    gfx.imageWithText(text('flawless'), 200, 120):drawScaled(40, 20, 2)
                 elseif vars.speedy then
-                    gfx.imageWithText(gfx.getLocalizedText('speedy'), 200, 120):drawScaled(40, 20, 2)
+                    gfx.imageWithText(text('speedy'), 200, 120):drawScaled(40, 20, 2)
                 else
-                    gfx.imageWithText(gfx.getLocalizedText('finish'), 200, 120):drawScaled(40, 20, 2)
+                    gfx.imageWithText(text('finish'), 200, 120):drawScaled(40, 20, 2)
                 end
             end
         else
-            gfx.imageWithText(gfx.getLocalizedText('youlost'), 200, 120):drawScaled(40, 20, 2)
-            makebutton(gfx.getLocalizedText('retry')):drawAnchored(355, 185, 1, 0.5)
+            gfx.imageWithText(text('youlost'), 200, 120):drawScaled(40, 20, 2)
+            makebutton(text('retry')):drawAnchored(355, 185, 1, 0.5)
             if vars.mode == "story" then
-                makebutton(gfx.getLocalizedText('back'), 'small'):drawAnchored(395, 235, 1, 1)
+                makebutton(text('back'), 'small'):drawAnchored(395, 235, 1, 1)
             elseif vars.mode == "tt" then
-                makebutton(gfx.getLocalizedText('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
+                makebutton(text('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
             end
-            assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('yourtime'), 355, 85, kTextAlignment.right)
+            assets.kapel_doubleup:drawTextAligned(text('yourtime'), 355, 85, kTextAlignment.right)
             assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 110, kTextAlignment.right)
         end
     gfx.popContext()
@@ -222,10 +225,10 @@ function results:proceed()
     if vars.mode == "story" then
         if vars.win then
             if demo then
-                scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('demo_complete'), gfx.getLocalizedText('popup_demo'), gfx.getLocalizedText('title_screen'), false, function() scenemanager:switchscene(title) end)
+                scenemanager:transitionsceneoneway(notif, text('demo_complete'), text('popup_demo'), text('title_screen'), false, function() scenemanager:switchscene(title) end)
             else
-                if save.stages_unlocked == 1 and vars.stage == 1 then
-                    scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('time_trials_unlocked'), gfx.getLocalizedText('popup_time_trials_unlocked'), gfx.getLocalizedText('ok'), false, function() scenemanager:switchstory() end)
+                if vars.showtimetrials then
+                    scenemanager:transitionsceneoneway(notif, text('time_trials_unlocked'), text('popup_time_trials_unlocked'), text('ok'), false, function() scenemanager:switchstory() end)
                 else
                     scenemanager:transitionstoryoneway()
                 end
@@ -242,7 +245,7 @@ function results:back()
     fademusic()
     if vars.mode == "story" then
         if vars.win and save.stages_unlocked == 1 and vars.stage == 1 then
-            scenemanager:transitionsceneoneway(notif, gfx.getLocalizedText('time_trials_unlocked'), gfx.getLocalizedText('popup_time_trials_unlocked'), gfx.getLocalizedText('ok'), false, function() scenemanager:switchscene(title) end)
+            scenemanager:transitionsceneoneway(notif, text('time_trials_unlocked'), text('popup_time_trials_unlocked'), text('ok'), false, function() scenemanager:switchscene(title) end)
         else
             scenemanager:transitionsceneonewayback(title)
         end
@@ -255,30 +258,38 @@ function results:sendscores()
     corner('sendscore')
     if perf and vars.poststagetime then
         pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
+            printTable(status)
             if status.code ~= "OK" then
-                makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
             end
         end)
     else
         if vars.poststagetime then
             pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
+                printTable(status)
                 if status.code ~= "OK" then
-                    makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                    makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
                 end
                 pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
+                    printTable(status)
                     pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
-                        pd.scoreboards.addScore('degreescranked', save.total_degrees_cranked, function(status)
+                        printTable(status)
+                        pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
+                            printTable(status)
                         end)
                     end)
                 end)
             end)
         else
             pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
+                printTable(status)
                 if status.code ~= "OK" then
-                    makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+                    makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
                 end
                 pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
-                    pd.scoreboards.addScore('degreescranked', save.total_degrees_cranked, function(status)
+                    printTable(status)
+                    pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
+                        printTable(status)
                     end)
                 end)
             end)

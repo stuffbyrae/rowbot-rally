@@ -75,12 +75,12 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self.poly_body_crash = geo.polygon.new(0,-38, 17,-19, 20,6, 12,33, -12,33, -20,6, -17,-19, 0,-38)
 
     local transform
-    for i = 1, 360 do
+    for i = 1, 180 do
         transform = geo.affineTransform.new()
-        transform:rotate(i)
-        self['poly_body_' .. i] = transform:transformedPolygon(self.poly_body:copy())
-        self['poly_inside_' .. i] = transform:transformedPolygon(self.poly_inside:copy())
-        self['poly_body_crash_' .. i] = transform:transformedPolygon(self.poly_body_crash:copy())
+        transform:rotate(i * 2)
+        self['poly_body_' .. i * 2] = transform:transformedPolygon(self.poly_body:copy())
+        self['poly_inside_' .. i * 2] = transform:transformedPolygon(self.poly_inside:copy())
+        self['poly_body_crash_' .. i * 2] = transform:transformedPolygon(self.poly_body_crash:copy())
     end
     transform = nil
 
@@ -126,15 +126,14 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
 
         local transform
-        for i = 1, 360 do
+        for i = 1, 180 do
             transform = geo.affineTransform.new()
-            transform:rotate(i)
-            self['poly_rowbot_' .. i] = transform:transformedPolygon(self.poly_rowbot:copy())
-            self['poly_rowbot_fill_' .. i] = transform:transformedPolygon(self.poly_rowbot_fill:copy())
+            transform:rotate(i * 2)
+            self['poly_rowbot_' .. i * 2] = transform:transformedPolygon(self.poly_rowbot:copy())
+            self['poly_rowbot_fill_' .. i * 2] = transform:transformedPolygon(self.poly_rowbot_fill:copy())
         end
         transform = nil
 
-        self.image_crash = gfx.image.new('images/race/crash')
         self.sfx_crash = smp.new('audio/sfx/crash')
         self.sfx_rowboton = smp.new('audio/sfx/rowboton')
         self.sfx_row = smp.new('audio/sfx/row')
@@ -186,7 +185,6 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.boosting = false -- Boosting?
         self.straight = false -- For button controls. If this is enabled, the boat will move straight.
         self.right = false -- For button controls. If this is enabled, the boat will move right.
-        self.dentable = enabled_cheats_dents -- Hidden dent mode for the boat's body.
         self.crankage = 0
         self.crashes = 0
     end
@@ -215,7 +213,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
     if not perf then
         self.ripple = geo.affineTransform.new()
-        self.ripple_scale = pd.timer.new(2000 + (1000 * self.random), 0.95, 1.3)
+        self.ripple_scale = pd.timer.new(2000 + (1000 * self.random), 0.95, 1.2)
         self.ripple_scale.discardOnCompletion = false
         self.ripple_opacity = pd.timer.new(2000 + (1000 * self.random), 0, 1)
         self.ripple_opacity.discardOnCompletion = false
@@ -233,7 +231,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
     self:setTag(255)
     self:moveTo(start_x, start_y)
-    self:setnewsize(125)
+    self:setnewsize(120)
     self:setZIndex(0)
     self:add()
 end
@@ -331,8 +329,8 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
     for i = 1, #polygons do
         if self.crash_body_scale:intersects(polygons[i]) then
             local points_collided = {}
-            self.crash_body = self.crash_transform:transformedPolygon(self['poly_body_' .. self.rotation])
-            for i = 1, self.poly_body:count() do
+            self.crash_body = self.crash_transform:transformedPolygon(self['poly_body_crash_' .. self.rotation])
+            for i = 1, self.poly_body_crash:count() do
                 local transformed_point = self.crash_body:getPointAt(i)
                 local point_x, point_y = transformed_point:unpack()
                 local moved_x = ((point_x + self.x) - crash_stage_x)
@@ -357,12 +355,6 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
                             end
                         end
                         if self.mode ~= "cpu" then
-                            self.show_crash_image = true
-                            self:setnewsize(120)
-                            pd.timer.performAfterDelay(200, function()
-                                self.show_crash_image = false
-                                self:setnewsize(90)
-                            end)
                             self.sfx_crash:stop()
                             self.sfx_crash:setRate(1 + (random() - 0.5))
                             self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))
@@ -375,13 +367,6 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
                                 end
                             end
                         end
-                    end
-                    self.crash_point = i
-                    if self.dentable then
-                        angle = deg(self:fastatan(point_y, point_x))
-                        new_point = self.poly_body:getPointAt(i)
-                        new_point_x, new_point_y = new_point:unpack()
-                        self.poly_body:setPointAt(i, 0 + (new_point_x * 0.9), 0 + (new_point_y * 0.9))
                     end
                     table.insert(points_collided, i)
                 end
@@ -579,7 +564,7 @@ function boat:update()
         end
     end
     -- Make sure rotation winds up as integer 1 through 360
-    self.rotation = floor(self.rotation) % 360
+    self.rotation = ((floor(self.rotation / 2) * 2)) % 360
     if self.rotation == 0 then self.rotation = 360 end
     if not perf and save.total_playtime % 3 == 0 then self.wake:update() end
     -- Transform ALL the polygons!!!!1!
@@ -660,10 +645,6 @@ function boat:draw(x, y, width, height)
         self.transform:translate(self.boat_size / 2, self.boat_size / 2)
         self.transform_polygon = self['poly_body_' .. self.rotation] * self.transform
         self.transform_inside = self['poly_inside_' .. self.rotation] * self.transform
-        if self.show_crash_image and not enabled_cheats then
-            local crash_x, crash_y = self.transform_polygon:getPointAt(self.crash_point):unpack()
-            self.image_crash:draw(crash_x - 20, crash_y - 20)
-        end
         if not perf then
             self.transform_polygon:translate(7 * self.scale_factor, 7 * self.scale_factor)
             gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)

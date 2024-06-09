@@ -5,6 +5,7 @@ import 'title'
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
+local text <const> = gfx.getLocalizedText
 
 class('opening').extends(gfx.sprite) -- Create the scene's class
 function opening:init(...)
@@ -12,17 +13,17 @@ function opening:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         local pauseimage = gfx.image.new(400, 240)
         pd.setMenuImage(pauseimage, 100)
-        menu:addMenuItem(gfx.getLocalizedText('skipscene'), function()
+        menu:addMenuItem(text('skipscene'), function()
             self:leave()
         end)
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         image_opening = gfx.imagetable.new('images/story/opening'),
@@ -33,7 +34,7 @@ function opening:init(...)
     }
     assets.sfx_clickon:setVolume(save.vol_sfx/5)
     assets.sfx_clickoff:setVolume(save.vol_sfx/5)
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         title = args[1],
         leaving = false,
@@ -45,7 +46,7 @@ function opening:init(...)
             self.a:moveTo(395, 240)
             assets.sfx_clickon:play()
         end,
-        
+
         AButtonUp = function()
             self:progress()
             self.a:moveTo(395, 235)
@@ -116,9 +117,9 @@ function opening:newcontent(progress) -- Progress the scene when the user presse
         end
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Draw this text in white.
         if progress < 7 then -- If it has an associated image displaying alongside it...
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('opening_' .. progress), 200, 145, kTextAlignment.center) -- Shift it down a bit.
+            assets.pedallica:drawTextAligned(text('opening_' .. progress), 200, 145, kTextAlignment.center) -- Shift it down a bit.
         else -- Otherwise,
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('opening_' .. progress), 200, 120, kTextAlignment.center) -- show it right in the middle.
+            assets.pedallica:drawTextAligned(text('opening_' .. progress), 200, 120, kTextAlignment.center) -- show it right in the middle.
         end
         gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Let me just put this spork over here.
     gfx.popContext() -- We're done here.

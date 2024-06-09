@@ -3,6 +3,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 local geo <const> = pd.geometry
 local random <const> = math.random
+local text <const> = gfx.getLocalizedText
 
 function race:stage_init()
     if perf then
@@ -62,9 +63,9 @@ function race:stage_init()
             225, 685)
     end
     vars.laps = 3 -- How many laps...
-    vars.lap_string = gfx.getLocalizedText('lap1')
-    vars.lap_string_2 = gfx.getLocalizedText('lap2')
-    vars.lap_string_3 = gfx.getLocalizedText('lap3')
+    vars.lap_string = text('lap1')
+    vars.lap_string_2 = text('lap2')
+    vars.lap_string_3 = text('lap3')
     vars.anim_lap_string = pd.timer.new(0, -30, -30)
     vars.anim_lap_string.discardOnCompletion = false
     -- The checkpointzzzzz™

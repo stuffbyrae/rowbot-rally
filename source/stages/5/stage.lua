@@ -3,6 +3,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 local geo <const> = pd.geometry
 local random <const> = math.random
+local text <const> = gfx.getLocalizedText
 
 function race:stage_init()
     if perf then
@@ -48,9 +49,9 @@ function race:stage_init()
         vars.follow_polygon = pd.geometry.polygon.new(2175, 1095, 2200, 945, 2260, 805, 2400, 675, 2520, 575, 2540, 475, 2485, 360, 2370, 300, 2225, 305, 2080, 400, 1985, 490, 1910, 520, 1855, 525, 1580, 525, 1500, 490, 1385, 380, 1295, 245, 1210, 195, 1130, 195, 1075, 240, 1020, 265, 720, 265, 625, 240, 540, 225, 390, 265, 295, 365, 270, 525, 295, 745, 385, 860, 510, 910, 755, 935, 915, 1000, 990, 1130, 985, 1275, 920, 1520, 940, 1650, 985, 1690, 1055, 1725, 1370, 1725, 1515, 1695, 1675, 1670, 1850, 1705, 2010, 1730, 2140, 1695, 2240, 1600, 2190, 1440)
     end
     vars.laps = 3 -- How many laps...
-    vars.lap_string = gfx.getLocalizedText('lap1')
-    vars.lap_string_2 = gfx.getLocalizedText('lap2')
-    vars.lap_string_3 = gfx.getLocalizedText('lap3')
+    vars.lap_string = text('lap1')
+    vars.lap_string_2 = text('lap2')
+    vars.lap_string_3 = text('lap3')
     vars.anim_lap_string = pd.timer.new(0, -30, -30)
     vars.anim_lap_string.discardOnCompletion = false
     -- The checkpointzzzzz™

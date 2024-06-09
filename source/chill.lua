@@ -8,6 +8,7 @@ local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
 local min <const> = math.min
 local max <const> = math.max
+local text <const> = gfx.getLocalizedText
 
 class('chill').extends(gfx.sprite) -- Create the scene's class
 function chill:init(...)
@@ -16,11 +17,29 @@ function chill:init(...)
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
     pd.setAutoLockDisabled(true)
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function()
+        menu:addCheckmarkMenuItem(text('music'), vars.music, function(new)
+            vars.music = new
+            if new then
+                save.vol_music = 5
+                newmusic('audio/music/chill', true) -- Adding new music
+            else
+                fademusic(1)
+                save.vol_music = 0
+            end
+        end)
+        menu:addCheckmarkMenuItem(text('autolock'), vars.lock, function(new)
+            vars.lock = new
+            if new then
+                pd.setAutoLockDisabled(true)
+            else
+                pd.setAutoLockDisabled(false)
+            end
+        end)
+        menu:addMenuItem(text('backtotitle'), function()
             self:leave()
         end)
         setpauseimage(0) -- TODO: Set this X offset
@@ -33,26 +52,30 @@ function chill:init(...)
     function pd.deviceDidUnlock()
         self:checktime()
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         bg = gfx.imagetable.new('images/story/chill-bg'),
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         image_boat = gfx.image.new('images/stages/boat'),
         image_wave = gfx.image.new('images/ui/wave'),
+        sfx_sea = smp.new('audio/sfx/sea'),
         image_wave_composite = gfx.image.new(464, 280),
     }
+    assets.sfx_sea:setVolume(save.vol_sfx/5)
+    assets.sfx_sea:play(0)
 
     -- Writing in the image for the wave banner along the bottom
     gfx.pushContext(assets.image_wave_composite)
         assets.image_wave:drawTiled(0, 0, 464, 280)
     gfx.popContext()
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_boat_y = pd.timer.new(2500, 175, 180, pd.easingFunctions.inOutCubic),
         bg_image = 1,
         leaving = false,
         anim_fade = pd.timer.new(1000, 1, 34, pd.easingFunctions.outCubic),
+        lock = false,
     }
     vars.chillHandlers = {
         BButtonDown = function()
@@ -65,7 +88,7 @@ function chill:init(...)
     vars.anim_boat_y.repeats = true
     vars.anim_boat_y.reverses = true
     vars.anim_fade.discardOnCompletion = false
-    
+
     vars.update_timer = pd.timer.new(300000, function()
         self:checktime()
         gfx.sprite.redrawBackground()
@@ -124,7 +147,12 @@ function chill:init(...)
 
     self:checktime()
 
-    newmusic('audio/sfx/sea', true) -- Adding new music
+    if save.vol_music ~= 0 then
+        vars.music = true
+        newmusic('audio/music/chill', true) -- Adding new music
+    else
+        vars.music = false
+    end
 end
 
 function chill:checktime()
@@ -154,6 +182,7 @@ function chill:leave()
         vars.leaving = true
         vars.anim_fade:resetnew(1000, math.floor(vars.anim_fade.value), 1)
         fademusic(999)
+        assets.sfx_sea:stop()
         vars.anim_fade.timerEndedCallback = function()
             pd.setAutoLockDisabled(false)
             scenemanager:switchscene(title)

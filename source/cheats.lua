@@ -6,6 +6,7 @@ local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
+local text <const> = gfx.getLocalizedText
 
 class('cheats').extends(gfx.sprite) -- Create the scene's class
 function cheats:init(...)
@@ -18,16 +19,16 @@ function cheats:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(50)
-        menu:addMenuItem(gfx.getLocalizedText('disableall'), function()
+        menu:addMenuItem(text('disableall'), function()
             enabled_cheats = false
             enabled_cheats_big = false
             enabled_cheats_small = false
             enabled_cheats_tiny = false
-            enabled_cheats_dents = false
             enabled_cheats_retro = false
+            enabled_cheats_scream = false
             gfx.sprite.redrawBackground()
         end)
-        menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function()
+        menu:addMenuItem(text('backtotitle'), function()
             if not vars.transitioning then
                 self:leave()
             end
@@ -41,7 +42,7 @@ function cheats:init(...)
         image_ticker = gfx.image.new(500, 20, gfx.kColorBlack),
         image_wave = gfx.image.new('images/ui/wave'),
         image_wave_composite = gfx.image.new(464, 280),
-        image_back = makebutton(gfx.getLocalizedText('back'), "small2"),
+        image_back = makebutton(text('back'), "small2"),
         image_popup_small = gfx.image.new('images/ui/popup_small'),
         sfx_bonk = smp.new('audio/sfx/bonk'),
         sfx_menu = smp.new('audio/sfx/menu'),
@@ -56,12 +57,12 @@ function cheats:init(...)
     -- Writing in the image for the "Cheats" header ticker
     gfx.pushContext(assets.image_ticker)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('cheats'), 6, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('cheats'), 106, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('cheats'), 206, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('cheats'), 306, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('cheats'), 406, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('cheats'), 506, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), 6, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), 106, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), 206, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), 306, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), 406, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), 506, -3)
     gfx.popContext()
 
     -- Writing in the image for the wave banner along the bottom
@@ -74,7 +75,7 @@ function cheats:init(...)
         anim_ticker = pd.timer.new(2000, 0, -100),
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
-        item_list = {'big', 'small', 'tiny', 'dents', 'retro', 'scream'},
+        item_list = {'big', 'small', 'tiny', 'retro', 'scream'},
         selection = 1,
         offset = 1,
     }
@@ -110,15 +111,7 @@ function cheats:init(...)
                     enabled_cheats_small = false
                     assets.sfx_clickon:play()
                 end
-            elseif vars.selection == 4 and save.unlocked_cheats_dents then -- Dents
-                if enabled_cheats_dents then
-                    enabled_cheats_dents = false
-                    assets.sfx_clickoff:play()
-                else
-                    enabled_cheats_dents = true
-                    assets.sfx_clickon:play()
-                end
-            elseif vars.selection == 5 and save.unlocked_cheats_retro then -- Retro
+            elseif vars.selection == 4 and save.unlocked_cheats_retro then -- Retro
                 if enabled_cheats_retro then
                     enabled_cheats_retro = false
                     assets.sfx_clickoff:play()
@@ -126,7 +119,7 @@ function cheats:init(...)
                     enabled_cheats_retro = true
                     assets.sfx_clickon:play()
                 end
-            elseif vars.selection == 6 and save.unlocked_cheats_scream then -- Scream
+            elseif vars.selection == 5 and save.unlocked_cheats_scream then -- Scream
                 if enabled_cheats_scream then
                     enabled_cheats_scream = false
                     assets.sfx_clickoff:play()
@@ -176,81 +169,70 @@ function cheats:init(...)
         enabled_cheats = false
 
         if save.unlocked_cheats_big then
-            assets.pedallica:drawText(gfx.getLocalizedText('big_name'), 10, 30)
+            assets.pedallica:drawText(text('big_name'), 10, 30)
         else
-            assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 30)
+            assets.pedallica:drawText(text('???'), 10, 30)
         end
         if save.unlocked_cheats_small then
-            assets.pedallica:drawText(gfx.getLocalizedText('small_name'), 10, 45)
+            assets.pedallica:drawText(text('small_name'), 10, 45)
         else
-            assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 45)
+            assets.pedallica:drawText(text('???'), 10, 45)
         end
         if save.unlocked_cheats_tiny then
-            assets.pedallica:drawText(gfx.getLocalizedText('tiny_name'), 10, 60)
+            assets.pedallica:drawText(text('tiny_name'), 10, 60)
         else
-            assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 60)
+            assets.pedallica:drawText(text('???'), 10, 60)
         end
 
-        if save.unlocked_cheats_dents then
-            assets.pedallica:drawText(gfx.getLocalizedText('dents_name'), 10, 85)
-        else
-            assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 85)
-        end
         if save.unlocked_cheats_retro then
-            assets.pedallica:drawText(gfx.getLocalizedText('retro_name'), 10, 100)
+            assets.pedallica:drawText(text('retro_name'), 10, 85)
         else
-            assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 100)
+            assets.pedallica:drawText(text('???'), 10, 85)
         end
         if save.unlocked_cheats_scream then
-            assets.pedallica:drawText(gfx.getLocalizedText('scream_name'), 10, 115)
+            assets.pedallica:drawText(text('scream_name'), 10, 100)
         else
-            assets.pedallica:drawText(gfx.getLocalizedText('???'), 10, 100)
+            assets.pedallica:drawText(text('???'), 10, 100)
         end
 
         if enabled_cheats_big then
             enabled_cheats = true
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 30, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 30, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 30, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 30, kTextAlignment.right)
         end
         if enabled_cheats_small then
             enabled_cheats = true
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 45, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 45, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 45, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 45, kTextAlignment.right)
         end
 
         if enabled_cheats_tiny then
             enabled_cheats = true
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 60, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 60, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 60, kTextAlignment.right)
-        end
-        if enabled_cheats_dents then
-            enabled_cheats = true
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 85, kTextAlignment.right)
-        else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 85, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 60, kTextAlignment.right)
         end
         if enabled_cheats_retro then
             enabled_cheats = true
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 100, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 85, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 100, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 85, kTextAlignment.right)
         end
         if enabled_cheats_scream then
             enabled_cheats = true
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 115, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 100, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 115, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 100, kTextAlignment.right)
         end
 
         if enabled_cheats then
-            assets.pedallica:drawText(gfx.getLocalizedText('cheats_warning'), 10, 150)
+            assets.pedallica:drawText(text('cheats_warning'), 10, 150)
         end
 
         if save['unlocked_cheats_' .. vars.item_list[vars.selection]] then
-            assets.pedallica:drawText(gfx.getLocalizedText(vars.item_list[vars.selection] .. '_desc'), 213, 48)
+            assets.pedallica:drawText(text(vars.item_list[vars.selection] .. '_desc'), 213, 48)
         end
     end)
 

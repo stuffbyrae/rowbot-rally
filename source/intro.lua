@@ -4,6 +4,7 @@ import 'race'
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
+local text <const> = gfx.getLocalizedText
 
 class('intro').extends(gfx.sprite) -- Create the scene's class
 function intro:init(...)
@@ -11,17 +12,17 @@ function intro:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(200)
-        menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
+        menu:addMenuItem(text('quitfornow'), function()
             fademusic()
             scenemanager:transitionsceneoneway(title)
         end)
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         kapel = gfx.font.new('fonts/kapel'),
@@ -35,7 +36,7 @@ function intro:init(...)
         sfx_whoosh = smp.new('audio/sfx/whoosh'),
     }
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1],
         leaving = false,
@@ -59,13 +60,13 @@ function intro:init(...)
     vars.anim_fade.discardOnCompletion = false
 
     save['slot' .. save.current_story_slot .. '_progress'] = "race" .. vars.stage
-    
+
     assets.image_preview = gfx.image.new('images/stages/preview' .. vars.stage) -- Preview image table
     gfx.pushContext(assets.img_left) -- All the text that pops in from the left
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel:drawText(gfx.getLocalizedText('stage') .. vars.stage .. " - " .. gfx.getLocalizedText('vs') .. gfx.getLocalizedText('stage_' .. vars.stage .. '_vs'), 10, 10)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stage_' .. vars.stage .. '_name'), 10, 22)
-        assets.pedallica:drawText(gfx.getLocalizedText('stage_' .. vars.stage .. '_desc'), 10, 65)
+        assets.kapel:drawText(text('stage') .. vars.stage .. " - " .. text('vs') .. text('stage_' .. vars.stage .. '_vs'), 10, 10)
+        assets.kapel_doubleup:drawText(text('stage_' .. vars.stage .. '_name'), 10, 22)
+        assets.pedallica:drawText(text('stage_' .. vars.stage .. '_desc'), 10, 65)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
     gfx.popContext()
 
@@ -73,8 +74,8 @@ function intro:init(...)
         assets.image_a:drawAnchored(395, 73, 1, 1)
         assets.image_gimmick_container:drawAnchored(5, 73, 0, 1)
         assets.image_gimmick_icons:drawImage(vars.stage, 18, 7)
-        assets.kapel_doubleup:drawTextAligned(gfx.getLocalizedText('gimmick_' .. vars.stage .. '_name'), 160, 7, kTextAlignment.center)
-        assets.pedallica:drawText(gfx.getLocalizedText('gimmick_' .. vars.stage .. '_desc'), 85, 32)
+        assets.kapel_doubleup:drawTextAligned(text('gimmick_' .. vars.stage .. '_name'), 160, 7, kTextAlignment.center)
+        assets.pedallica:drawText(text('gimmick_' .. vars.stage .. '_desc'), 85, 32)
     gfx.popContext()
 
     class('intro_fade').extends(gfx.sprite)

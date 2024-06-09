@@ -4,6 +4,7 @@ import 'title'
 -- Setting up consts
 local pd <const> = playdate
 local gfx <const> = pd.graphics
+local text <const> = gfx.getLocalizedText
 
 class('stats').extends(gfx.sprite) -- Create the scene's class
 function stats:init(...)
@@ -16,21 +17,21 @@ function stats:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(130) -- TODO: Set this X offset
-        menu:addCheckmarkMenuItem(gfx.getLocalizedText('metric'), save.metric, function(new)
+        menu:addCheckmarkMenuItem(text('metric'), save.metric, function(new)
             save.metric = new
             gfx.sprite.redrawBackground()
         end)
         if vars.show_leaderboards then
-            menu:addMenuItem(gfx.getLocalizedText('localstats'), function()
+            menu:addMenuItem(text('localstats'), function()
                 vars.show_leaderboards = false
                 gfx.sprite.redrawBackground()
             end)
         else
-            menu:addMenuItem(gfx.getLocalizedText('onlinestats'), function()
+            menu:addMenuItem(text('onlinestats'), function()
                 self:refreshonlinestats()
             end)
         end
-        menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function()
+        menu:addMenuItem(text('backtotitle'), function()
             if not vars.transitioning then
                 self:leave()
             end
@@ -45,19 +46,19 @@ function stats:init(...)
         image_ticker = gfx.image.new(481, 20, gfx.kColorBlack),
         image_wave = gfx.image.new('images/ui/wave'),
         image_wave_composite = gfx.image.new(464, 280),
-        image_back = makebutton(gfx.getLocalizedText('back'), "small2")
+        image_back = makebutton(text('back'), "small2")
     }
 
     -- Writing in the image for the "Stats" header ticker
     gfx.pushContext(assets.image_ticker)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stats'), 6, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stats'), 87, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stats'), 168, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stats'), 249, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stats'), 330, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stats'), 411, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('stats'), 492, -3)
+        assets.kapel_doubleup:drawText(text('stats'), 6, -3)
+        assets.kapel_doubleup:drawText(text('stats'), 87, -3)
+        assets.kapel_doubleup:drawText(text('stats'), 168, -3)
+        assets.kapel_doubleup:drawText(text('stats'), 249, -3)
+        assets.kapel_doubleup:drawText(text('stats'), 330, -3)
+        assets.kapel_doubleup:drawText(text('stats'), 411, -3)
+        assets.kapel_doubleup:drawText(text('stats'), 492, -3)
     gfx.popContext()
 
     -- Writing in the image for the wave banner along the bottom
@@ -116,11 +117,11 @@ function stats:init(...)
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
         if vars.show_leaderboards then
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_timespentracing'), 10, 30)
+            assets.pedallica:drawText(text('stats_timespentracing'), 10, 30)
             if vars.lb_racetime_result == "fail" then
-                assets.pedallica:drawText(gfx.getLocalizedText('leaderboards_fail_short'), 10, 45)
+                assets.pedallica:drawText(text('leaderboards_fail_short'), 10, 45)
             elseif vars.lb_racetime_result.scores == nil then
-                assets.pedallica:drawText(gfx.getLocalizedText('leaderboards_grab_short'), 10, 45)
+                assets.pedallica:drawText(text('leaderboards_grab_short'), 10, 45)
             else
                 for _, v in ipairs(vars.lb_racetime_result.scores) do
                     if v.rank > 5 then
@@ -135,15 +136,15 @@ function stats:init(...)
                     end
                 end
                 if vars.lb_racetime_result.scores[1] == nil then
-                    assets.pedallica:drawText(gfx.getLocalizedText('leaderboards_empty_short'), 10, 45)
+                    assets.pedallica:drawText(text('leaderboards_empty_short'), 10, 45)
                 end
             end
 
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('stats_total') .. gfx.getLocalizedText('stats_crashes'), 200, 30, kTextAlignment.center)
+            assets.pedallica:drawTextAligned(text('stats_total') .. text('stats_crashes'), 200, 30, kTextAlignment.center)
             if vars.lb_crashes_result == "fail" then
-                assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_fail_short'), 200, 45, kTextAlignment.center)
+                assets.pedallica:drawTextAligned(text('leaderboards_fail_short'), 200, 45, kTextAlignment.center)
             elseif vars.lb_crashes_result.scores == nil then
-                assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_grab_short'), 200, 45, kTextAlignment.center)
+                assets.pedallica:drawTextAligned(text('leaderboards_grab_short'), 200, 45, kTextAlignment.center)
             else
                 for _, v in ipairs(vars.lb_crashes_result.scores) do
                     if v.rank > 5 then
@@ -154,15 +155,15 @@ function stats:init(...)
                     end
                 end
                 if vars.lb_crashes_result.scores[1] == nil then
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_empty_short'), 200, 45, kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(text('leaderboards_empty_short'), 200, 45, kTextAlignment.center)
                 end
             end
 
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('stats_distancecranked'), 390, 30, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('stats_distancecranked'), 390, 30, kTextAlignment.right)
             if vars.lb_degreescranked_result == "fail" then
-                assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_fail_short'), 390, 45, kTextAlignment.right)
+                assets.pedallica:drawTextAligned(text('leaderboards_fail_short'), 390, 45, kTextAlignment.right)
             elseif vars.lb_degreescranked_result.scores == nil then
-                assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_grab_short'), 390, 45, kTextAlignment.right)
+                assets.pedallica:drawTextAligned(text('leaderboards_grab_short'), 390, 45, kTextAlignment.right)
             else
                 for _, v in ipairs(vars.lb_degreescranked_result.scores) do
                     if v.rank > 5 then
@@ -173,18 +174,18 @@ function stats:init(...)
                     end
                 end
                 if vars.lb_degreescranked_result.scores[1] == nil then
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_empty_short'), 390, 45, kTextAlignment.right)
+                    assets.pedallica:drawTextAligned(text('leaderboards_empty_short'), 390, 45, kTextAlignment.right)
                 end
             end
         else
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_total') .. gfx.getLocalizedText('stats_playtime'), 10, 30)
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_timespentracing'), 10, 45)
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_total') .. gfx.getLocalizedText('stats_crashes'), 10, 70)
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_racescompleted'), 10, 85)
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_storiescompleted'), 10, 100)
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_distancecranked'), 10, 115)
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_favoritestage_' .. tostring(save.metric)), 10, 140)
-            assets.pedallica:drawText(gfx.getLocalizedText('stats_leastfavoritestage_' .. tostring(save.metric)), 10, 155)
+            assets.pedallica:drawText(text('stats_total') .. text('stats_playtime'), 10, 30)
+            assets.pedallica:drawText(text('stats_timespentracing'), 10, 45)
+            assets.pedallica:drawText(text('stats_total') .. text('stats_crashes'), 10, 70)
+            assets.pedallica:drawText(text('stats_racescompleted'), 10, 85)
+            assets.pedallica:drawText(text('stats_storiescompleted'), 10, 100)
+            assets.pedallica:drawText(text('stats_distancecranked'), 10, 115)
+            assets.pedallica:drawText(text('stats_favoritestage_' .. tostring(save.metric)), 10, 140)
+            assets.pedallica:drawText(text('stats_leastfavoritestage_' .. tostring(save.metric)), 10, 155)
             if save.total_playtime > 108000 then -- Only display hours slot if there are hours to be slotted
                 assets.pedallica:drawTextAligned(self:gethms(save.total_playtime, true), 390, 30, kTextAlignment.right)
             else
@@ -200,12 +201,12 @@ function stats:init(...)
             assets.pedallica:drawTextAligned(save.stories_completed, 390, 100, kTextAlignment.right)
             assets.pedallica:drawTextAligned(self:getdistancecranked(save.total_degrees_cranked), 390, 115, kTextAlignment.right)
             if vars.mps > 10 then -- If there's no plays on any stage, the highest it will go is "07" — in that event, don't bother picking a "Favorite stage" since all of them are 0 plays.
-                assets.pedallica:drawTextAligned(gfx.getLocalizedText('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. math.floor(vars.mps / 10) .. ' plays)', 390, 140, kTextAlignment.right)
+                assets.pedallica:drawTextAligned(text('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. math.floor(vars.mps / 10) .. ' plays)', 390, 140, kTextAlignment.right)
             else
                 assets.pedallica:drawTextAligned('N/A', 390, 140, kTextAlignment.right)
             end
             if vars.lps > 10 then -- Only start counting "Least favorite stage"" after every stage has had at least one play, to ensure fairness.
-                assets.pedallica:drawTextAligned(gfx.getLocalizedText('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. math.floor(vars.lps / 10) .. ' plays)', 390, 155, kTextAlignment.right)
+                assets.pedallica:drawTextAligned(text('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. math.floor(vars.lps / 10) .. ' plays)', 390, 155, kTextAlignment.right)
             else
                 assets.pedallica:drawTextAligned('N/A', 390, 155, kTextAlignment.right)
             end
@@ -274,20 +275,20 @@ function stats:getdistancecranked(num)
     if save.metric then
         crank_distance = (num / 360) * 125.66
         if crank_distance > 1000000 then
-            crank_distance_string = string.format("%.2f", crank_distance / 1000000) .. gfx.getLocalizedText('km')
+            crank_distance_string = string.format("%.2f", crank_distance / 1000000) .. text('km')
         elseif crank_distance > 1000 then
-            crank_distance_string = string.format("%.2f", crank_distance / 1000) .. gfx.getLocalizedText('m')
+            crank_distance_string = string.format("%.2f", crank_distance / 1000) .. text('m')
         else
-            crank_distance_string = string.format("%.2f", crank_distance) .. gfx.getLocalizedText('mm')
+            crank_distance_string = string.format("%.2f", crank_distance) .. text('mm')
         end
     else
         crank_distance = (num / 360) * 4.95
         if crank_distance > 63360 then
-            crank_distance_string = string.format("%.2f", crank_distance / 63360) .. gfx.getLocalizedText('mi')
+            crank_distance_string = string.format("%.2f", crank_distance / 63360) .. text('mi')
         elseif crank_distance > 12 then
-            crank_distance_string = string.format("%.2f", crank_distance / 12) .. gfx.getLocalizedText('ft')
+            crank_distance_string = string.format("%.2f", crank_distance / 12) .. text('ft')
         else
-            crank_distance_string = string.format("%.2f", crank_distance) .. gfx.getLocalizedText('in')
+            crank_distance_string = string.format("%.2f", crank_distance) .. text('in')
         end
     end
     return crank_distance_string
@@ -316,7 +317,7 @@ function stats:sendonlinestatsscores()
     corner('sendscore')
     pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
         if status.code ~= "OK" then
-            makepopup(gfx.getLocalizedText('whoops'), gfx.getLocalizedText('popup_leaderboard_failed'), gfx.getLocalizedText('ok'), false)
+            makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
             vars.lb_racetime_result = "fail"
             vars.lb_crashes_result = "fail"
             vars.lb_degreescranked_result = "fail"

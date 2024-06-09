@@ -18,6 +18,7 @@ local sqrt <const> = math.sqrt
 local abs <const> = math.abs
 local sin <const> = math.sin
 local cos <const> = math.cos
+local text <const> = gfx.getLocalizedText
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -31,10 +32,10 @@ function race:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         if vars.in_progress then
-            menu:addMenuItem(gfx.getLocalizedText('disqualify'), function() self:finish(true) end)
+            menu:addMenuItem(text('disqualify'), function() self:finish(true) end)
         end
         if not vars.finished then
-            menu:addCheckmarkMenuItem(gfx.getLocalizedText('proui'), save.pro_ui, function(new)
+            menu:addCheckmarkMenuItem(text('proui'), save.pro_ui, function(new)
                 save.pro_ui = new
                 if not vars.finished then
                     if new then
@@ -55,9 +56,9 @@ function race:init(...)
         image_pole = gfx.image.new('images/race/pole'),
         times_new_rally = gfx.font.new('fonts/times_new_rally'),
         kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
-        overlay_boost = gfx.imagetable.new('images/race/boost'),
         overlay_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
+        overlay_boost = gfx.imagetable.new('images/race/boost'),
         sfx_countdown = smp.new('audio/sfx/countdown'),
         sfx_start = smp.new('audio/sfx/start'),
         sfx_finish = smp.new('audio/sfx/finish'),
@@ -125,7 +126,7 @@ function race:init(...)
         pd.inputHandlers.push(vars.raceHandlers)
     end
 
-    vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
+    vars.anim_overlay = pd.timer.new(1000, 1, assets.overlay_fade:getLength())
     vars.anim_overlay.discardOnCompletion = false
     vars.overlay = "fade"
 
@@ -177,19 +178,19 @@ function race:init(...)
     end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
-        assets.image_water_bg:draw(0, 0)
-        -- if assets.caustics ~= nil then
-        --     assets.caustics[floor(vars.water.value)]:drawScaled((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240, 2) -- Move the water sprite to keep it in frame
-        -- end
-        -- if assets.caustics_overlay ~= nil then
-        --     assets.caustics_overlay:draw(0, 0)
-        -- end
-        -- if assets.water ~= nil then
-        --     assets.water[floor(vars.water.value)]:drawScaled(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240, 2) -- Move the water sprite to keep it in frame
-        -- end
-        -- if assets.popeyes ~= nil then
-        --     assets.popeyes:draw(0, 0)
-        -- end
+        assets.image_water_bg:draw(x, y)
+        if assets.caustics ~= nil then
+            assets.caustics:getImage(floor(vars.water.value)):draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
+        end
+        if assets.caustics_overlay ~= nil then
+            assets.caustics_overlay:draw(0, 0)
+        end
+        if assets.water ~= nil then
+            assets.water:getImage(floor(vars.water.value)):draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
+        end
+        if assets.popeyes ~= nil then
+            assets.popeyes:draw(0, 0)
+        end
     end)
 
     class('race_below').extends(gfx.sprite)
@@ -198,9 +199,7 @@ function race:init(...)
         self:setZIndex(-1)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
-        if assets.whirlpool ~= nil or assets.boost_pad ~= nil or assets.leap_pad ~= nil or assets.reverse_pad ~= nil then
-            self:add()
-        end
+        self:add()
     end
     function race_below:draw(x, y, width, height)
         local x = vars.x
@@ -273,6 +272,8 @@ function race:init(...)
         self:add()
     end
     function race_stage:draw()
+        local x = vars.x
+        local y = vars.y
         assets.image_stage:draw(0, 0)
 
         if not perf then
@@ -310,7 +311,8 @@ function race:init(...)
                         audience_image = assets['audience' .. audience_rand]
                         if audience_image[1] ~= nil then
                             audience_angle = (deg(race:fastatan(-y + 120 - audience_y, -x + 200 - audience_x)) + 90) % 360
-                            audience_image[(floor(audience_angle / 8)) + 1]:draw(
+                            audience_angle = (floor(audience_angle / 8)) + 1
+                            audience_image:getImage(audience_angle):draw(
                                 (audience_x - 21) * parallax_short_amount + (stage_progress_short_x),
                                 (audience_y - 21) * parallax_short_amount + (stage_progress_short_y)
                             )
@@ -374,8 +376,8 @@ function race:init(...)
                     ((checkpoint_x + checkpoint_width) * parallax_medium_amount) + (stage_progress_medium_x),
                     (checkpoint_y * parallax_medium_amount) + (stage_progress_medium_y))
                 image_pole_cap:draw(
-                    ((checkpoint_x + checkpoint_width) - 6) * parallax_medium_amount + (stage_progress_medium_x),
-                    (checkpoint_y - 6) * parallax_medium_amount + (stage_progress_medium_y))
+                    ((checkpoint_x + checkpoint_width) - 6) * parallax_medium_amount + (stage_progress_medium_x) + x,
+                    (checkpoint_y - 6) * parallax_medium_amount + (stage_progress_medium_y) + y)
             end
 
             gfx.setLineWidth(2) -- Set the line width back
@@ -425,40 +427,44 @@ function race:init(...)
             assets.wave[floor(vars.anim_wave.value)]:draw(vars.stage_x - 388, 0)
         end
 
+        local anim_ui_offset = vars.anim_ui_offset.value
+        local anim_ui_sevenfour = anim_ui_offset / 7.4
+        local anim_hud = vars.anim_hud.value
+        local stage_overlay = assets.stage_overlay
+        local anim_stage_overlay = vars.anim_stage_overlay
+        local anim_overlay = vars.anim_overlay
         if vars.mode ~= "debug" then
             gfx.setDrawOffset(0, 0)
-
             -- If there's some kind of stage overlay anim going on, play it.
-            if vars.anim_stage_overlay ~= nil then
-                assets.stage_overlay:drawImage(floor(vars.anim_stage_overlay.value), 0, 0)
-            elseif assets.stage_overlay ~= nil then
-                assets.stage_overlay:draw(0, 0)
+            if anim_stage_overlay ~= nil then
+                stage_overlay:drawImage(floor(anim_stage_overlay.value), 0, 0)
+            elseif stage_overlay ~= nil then
+                stage_overlay:draw(0, 0)
             end
             -- If there's some kind of gameplay overlay anim going on, play it.
-            if vars.anim_overlay ~= nil then
-                assets['overlay_' .. vars.overlay]:drawImage(floor(vars.anim_overlay.value), 0, 0)
+            if anim_overlay.timeLeft ~= 0 then
+                assets['overlay_' .. vars.overlay]:getImage(floor(anim_overlay.value)):draw(0, 0)
             end
-            if vars.lap_string ~= nil then
-                assets.kapel_doubleup_outline:drawTextAligned(vars.lap_string, 200, vars.anim_lap_string.value, kTextAlignment.center)
+            if vars.lap_string ~= nil and not save.ui then
+                assets.kapel_doubleup_outline:drawText(vars.lap_string, vars.anim_lap_string.value, 12)
             end
             -- Draw the timer
-            assets.image_timer:draw(vars.anim_hud.value + vars.anim_ui_offset.value, 3 - (vars.anim_ui_offset.value / 7.4))
+            assets.image_timer:draw(anim_hud + anim_ui_offset, 3 - anim_ui_sevenfour)
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
             vars.my_cool_buffer = vars.mins .. ":" .. vars.secs .. "." .. vars.mils
-            assets.times_new_rally:drawText(vars.my_cool_buffer, 44 + vars.anim_hud.value + vars.anim_ui_offset.value, 20 - (vars.anim_ui_offset.value / 7.4))
+            assets.times_new_rally:drawText(vars.my_cool_buffer, 44 + anim_hud + anim_ui_offset, 20 - anim_ui_sevenfour)
             gfx.setImageDrawMode(gfx.kDrawModeCopy)
             -- Draw the Rocket Arms icon, when applicable
             if assets.image_item ~= nil then
-                assets.image_item:draw(313 - vars.anim_hud.value, 0)
+                assets.image_item:draw(313 - anim_hud, 0)
             end
             -- Draw the power meter
-            assets.image_meter_r:drawImage(floor((vars.rowbot * 14.5)) + 1, 0, 177 - vars.anim_hud.value)
-            assets.image_meter_p:drawImage(min(30, max(1, 30 - floor(vars.player * 14.5))), 200, 177 - vars.anim_hud.value)
+            assets.image_meter_r:getImage(floor(vars.rowbot * 14.5) + 1):draw(0, 177 - anim_hud)
+            assets.image_meter_p:getImage(min(30, max(1, 30 - floor(vars.player * 14.5)))):draw(200, 177 - anim_hud)
             if assets.shades ~= nil then
                 assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
             end
-
-            gfx.setDrawOffset(vars.x, vars.y)
+            gfx.setDrawOffset(x, y)
         end
     end
 
@@ -509,7 +515,7 @@ function race:boost(rocketarms)
             -- ... then boost! :3
             self.boat:boost() -- The boat does most of this, of course.
             vars.overlay = "boost"
-            vars.anim_overlay:resetnew(1000, 1, #assets.overlay_boost) -- Setting the WOOOOSH overlay
+            vars.anim_overlay:resetnew(1000, 1, assets.overlay_boost:getLength()) -- Setting the WOOOOSH overlay
             vars.anim_overlay.repeats = true
             pd.timer.performAfterDelay(2000, function() -- and taking it away after a while.
                 vars.anim_overlay:resetnew(0, 0, 0)
@@ -574,8 +580,8 @@ end
 function race:start()
     vars.started = true
     assets.sfx_countdown:play()
-    vars.anim_overlay:resetnew(3900, 1, #assets.overlay_countdown)
     vars.overlay = "countdown"
+    vars.anim_overlay:resetnew(3900, 2, assets.overlay_countdown:getLength())
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
         music:play(0)
@@ -609,7 +615,7 @@ function race:finish(timeout, duration)
             assets.sfx_ref:play() -- TWEEEEEEEEEEEEET!!!
         else
             self.boat:finish(duration, true)
-            vars.anim_overlay:resetnew(1000, 1, #assets.overlay_fade) -- Flash!
+            vars.anim_overlay:resetnew(1000, 1, assets.overlay_fade:getLength()) -- Flash!
             vars.overlay = "fade"
             assets.sfx_finish:play() -- Applause!
         end
@@ -699,11 +705,13 @@ function race:checkpointcheck(cpu)
                     if vars.current_lap > vars.laps then -- The race is done.
                         self:finish(false)
                     else
-                        vars.lap_string = vars['lap_string_' .. vars.current_lap]
-                        vars.anim_lap_string:resetnew(500, -30, 20, pd.easingFunctions.outBack)
-                        pd.timer.performAfterDelay(1500, function()
-                            vars.anim_lap_string:resetnew(500, 20, -30, pd.easingFunctions.inBack)
-                        end)
+                        if not save.ui then
+                            vars.lap_string = vars['lap_string_' .. vars.current_lap]
+                            vars.anim_lap_string:resetnew(500, -100, 130, pd.easingFunctions.outBack)
+                            pd.timer.performAfterDelay(1500, function()
+                                vars.anim_lap_string:resetnew(500, 130, -100, pd.easingFunctions.inBack)
+                            end)
+                        end
                         if vars.current_lap == 2 then
                             assets.sfx_start:play()
                         elseif vars.current_lap == 3 then

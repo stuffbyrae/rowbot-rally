@@ -16,6 +16,7 @@ local random <const> = math.random
 local deg <const> = math.deg
 local atan <const> = math.atan2
 local abs <const> = math.abs
+local text <const> = gfx.getLocalizedText
 
 class('tutorial').extends(gfx.sprite) -- Create the scene's class
 function tutorial:init(...)
@@ -27,10 +28,10 @@ function tutorial:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        menu:addMenuItem(gfx.getLocalizedText('skiptutorial'), function()
+        menu:addMenuItem(text('skiptutorial'), function()
             self:leave()
         end)
-        menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
+        menu:addMenuItem(text('quitfornow'), function()
             self.boat.sfx_row:stop()
             scenemanager:transitionsceneonewayback(title)
         end)
@@ -193,23 +194,23 @@ function tutorial:init(...)
             if vars.current_step == 6 then
                 if not save.button_controls and pd.isSimulator ~= 1 then
                     if pd.isCrankDocked() then
-                        assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_6c'), 200, 14, kTextAlignment.center)
+                        assets.pedallica:drawTextAligned(text('tutorial_step_6c'), 200, 14, kTextAlignment.center)
                     else
-                        assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_6a'), 200, 14, kTextAlignment.center)
+                        assets.pedallica:drawTextAligned(text('tutorial_step_6a'), 200, 14, kTextAlignment.center)
                     end
                 else
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_6b'), 200, 14, kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(text('tutorial_step_6b'), 200, 14, kTextAlignment.center)
                 end
             elseif vars.current_step == 14 then
                 assets.image_tutorial_up:draw(10, 80 + vars.up.value)
                 assets.kapel_doubleup:drawText('Up!!', 30, 103 + vars.up.value)
                 if not save.button_controls and pd.isSimulator ~= 1 then
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_14a'), 200, 14, kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(text('tutorial_step_14a'), 200, 14, kTextAlignment.center)
                 else
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_14b'), 200, 14, kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(text('tutorial_step_14b'), 200, 14, kTextAlignment.center)
                 end
             else
-                assets.pedallica:drawTextAligned(gfx.getLocalizedText('tutorial_step_' .. vars.current_step), 200, 14, kTextAlignment.center)
+                assets.pedallica:drawTextAligned(text('tutorial_step_' .. vars.current_step), 200, 14, kTextAlignment.center)
             end
             if vars.progressable then
                 if vars.down then

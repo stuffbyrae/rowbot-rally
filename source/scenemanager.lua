@@ -3,8 +3,8 @@ local gfx <const> = pd.graphics
 
 class('scenemanager').extends()
 
-img_loading = gfx.image.new('images/ui/loading')
-img_loading_oneway = gfx.image.new('images/ui/loading_oneway')
+local img_loading <const> = gfx.image.new('images/ui/loading')
+local img_loading_oneway <const> = gfx.image.new('images/ui/loading_oneway')
 
 function scenemanager:init()
     self.transitiontime = 1000
@@ -305,9 +305,7 @@ function scenemanager:cleanupscene()
     if newscene ~= nil then
         newscene = nil
     end
-    gfx.sprite.performOnAllSprites(function(sprite)
-        sprite:remove()
-    end)
+    gfx.sprite.removeAll()
     self:removealltimers() -- Remove every timer,
     collectgarbage('collect') -- and collect the garbage.
     gfx.setDrawOffset(0, 0) -- Lastly, reset the drawing offset. just in case.

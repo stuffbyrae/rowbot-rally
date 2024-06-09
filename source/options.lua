@@ -6,6 +6,7 @@ local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
+local text <const> = gfx.getLocalizedText
 
 class('options').extends(gfx.sprite) -- Create the scene's class
 function options:init(...)
@@ -18,7 +19,7 @@ function options:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(50)
-        menu:addMenuItem(gfx.getLocalizedText('setdefaults'), function()
+        menu:addMenuItem(text('setdefaults'), function()
             save.vol_music = 5
             save.vol_sfx = 5
             save.button_controls = false
@@ -29,7 +30,7 @@ function options:init(...)
             self:sfx_change()
             gfx.sprite.redrawBackground()
         end)
-        menu:addMenuItem(gfx.getLocalizedText('backtotitle'), function()
+        menu:addMenuItem(text('backtotitle'), function()
             if not vars.transitioning then
                 self:leave()
             end
@@ -43,7 +44,7 @@ function options:init(...)
         image_ticker = gfx.image.new(500, 20, gfx.kColorBlack),
         image_wave = gfx.image.new('images/ui/wave'),
         image_wave_composite = gfx.image.new(464, 280),
-        image_back = makebutton(gfx.getLocalizedText('back'), "small2"),
+        image_back = makebutton(text('back'), "small2"),
         image_popup_small = gfx.image.new('images/ui/popup_small'),
         sfx_bonk = smp.new('audio/sfx/bonk'),
         sfx_menu = smp.new('audio/sfx/menu'),
@@ -56,12 +57,12 @@ function options:init(...)
     -- Writing in the image for the "Options" header ticker
     gfx.pushContext(assets.image_ticker)
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('options'), 6, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('options'), 106, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('options'), 206, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('options'), 306, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('options'), 406, -3)
-        assets.kapel_doubleup:drawText(gfx.getLocalizedText('options'), 506, -3)
+        assets.kapel_doubleup:drawText(text('options'), 6, -3)
+        assets.kapel_doubleup:drawText(text('options'), 106, -3)
+        assets.kapel_doubleup:drawText(text('options'), 206, -3)
+        assets.kapel_doubleup:drawText(text('options'), 306, -3)
+        assets.kapel_doubleup:drawText(text('options'), 406, -3)
+        assets.kapel_doubleup:drawText(text('options'), 506, -3)
     gfx.popContext()
 
     -- Writing in the image for the wave banner along the bottom
@@ -110,10 +111,10 @@ function options:init(...)
             elseif vars.selection == 4 then -- Sensitivity
                 if save.sensitivity > 1 then
                     save.sensitivity = 1
-                    assets.sfx_clickoff:play()
+                    assets.sfx_clickon:play()
                 else
                     save.sensitivity = 3
-                    assets.sfx_clickon:play()
+                    assets.sfx_clickoff:play()
                 end
             elseif vars.selection == 5 then -- Pro UI
                 if save.pro_ui then
@@ -169,47 +170,47 @@ function options:init(...)
         if vars.selection >= 3 then vars.offset = 2 else vars.offset = 1 end
         gfx.fillRect(0, 5 + 15 * vars.selection + 10 * vars.offset, 5, 15)
 
-        assets.pedallica:drawText(gfx.getLocalizedText('music_name'), 10, 30)
-        assets.pedallica:drawText(gfx.getLocalizedText('sfx_name'), 10, 45)
+        assets.pedallica:drawText(text('music_name'), 10, 30)
+        assets.pedallica:drawText(text('sfx_name'), 10, 45)
 
-        assets.pedallica:drawText(gfx.getLocalizedText('button_controls_name'), 10, 70)
-        assets.pedallica:drawText(gfx.getLocalizedText('sensitivity_name'), 10, 85)
-        assets.pedallica:drawText(gfx.getLocalizedText('ui_name'), 10, 100)
-        assets.pedallica:drawText(gfx.getLocalizedText('perf_name'), 10, 115)
+        assets.pedallica:drawText(text('button_controls_name'), 10, 70)
+        assets.pedallica:drawText(text('sensitivity_name'), 10, 85)
+        assets.pedallica:drawText(text('ui_name'), 10, 100)
+        assets.pedallica:drawText(text('perf_name'), 10, 115)
 
         if save.vol_music > 0 then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 30, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 30, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 30, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 30, kTextAlignment.right)
         end
         if save.vol_sfx > 0 then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 45, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 45, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 45, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 45, kTextAlignment.right)
         end
 
         if save.button_controls then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 70, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 70, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 70, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 70, kTextAlignment.right)
         end
         if save.sensitivity < 3 then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 85, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 85, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 85, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 85, kTextAlignment.right)
         end
         if save.pro_ui then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 100, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 100, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 100, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 100, kTextAlignment.right)
         end
         if perf then
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('on'), 180, 115, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('on'), 180, 115, kTextAlignment.right)
         else
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('off'), 180, 115, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(text('off'), 180, 115, kTextAlignment.right)
         end
 
-        assets.pedallica:drawText(gfx.getLocalizedText(vars.item_list[vars.selection] .. '_desc'), 213, 48)
+        assets.pedallica:drawText(text(vars.item_list[vars.selection] .. '_desc'), 213, 48)
     end)
 
     class('options_ticker').extends(gfx.sprite)

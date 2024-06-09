@@ -6,6 +6,7 @@ local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
+local text <const> = gfx.getLocalizedText
 
 class('credits').extends(gfx.sprite) -- Create the scene's class
 function credits:init(...)
@@ -13,16 +14,16 @@ function credits:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(200) -- TODO: Set this X offset
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
     }
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
     }
     vars.creditsHandlers = {

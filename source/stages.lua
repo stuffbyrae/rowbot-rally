@@ -6,6 +6,7 @@ import 'race'
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
+local text <const> = gfx.getLocalizedText
 
 class('stages').extends(gfx.sprite) -- Create the scene's class
 function stages:init(...)
@@ -31,9 +32,9 @@ function stages:init(...)
         image_wave = gfx.image.new('images/ui/wave'),
         image_wave_composite = gfx.image.new(464, 280),
         image_top = gfx.image.new(480, 300),
-        image_ok = makebutton(gfx.getLocalizedText('ok'), 'big'),
-        image_back = makebutton(gfx.getLocalizedText('back'), 'small'),
-        image_leaderboards = makebutton(gfx.getLocalizedText('up_leaderboards'), 'small'),
+        image_ok = makebutton(text('ok'), 'big'),
+        image_back = makebutton(text('back'), 'small'),
+        image_leaderboards = makebutton(text('up_leaderboards'), 'small'),
         image_medal_unobtained = gfx.image.new('images/stages/medal_unobtained'),
         image_medal_flawless = gfx.image.new('images/stages/medal_flawless'),
         image_medal_speedy = gfx.image.new('images/stages/medal_speedy'),
@@ -71,14 +72,14 @@ function stages:init(...)
         gfx.pushContext(assets.image_top)
             gfx.fillRect(0, 0, 480, 50) -- Add the black rectangle
             assets.image_timer:draw(0, 40) -- Draw the timer graphic
-            assets.kapel:drawText(gfx.getLocalizedText('besttime'), 34, 80) -- the "Best Time" label
+            assets.kapel:drawText(text('besttime'), 34, 80) -- the "Best Time" label
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Fill white...
-            assets.kapel:drawText(gfx.getLocalizedText('stage') .. stage, 5, 7) -- The stage number
-            assets.kapel_doubleup:drawText(gfx.getLocalizedText('stage_' .. stage .. '_name'), 5, 16) -- The stage's name
+            assets.kapel:drawText(text('stage') .. stage, 5, 7) -- The stage number
+            assets.kapel_doubleup:drawText(text('stage_' .. stage .. '_name'), 5, 16) -- The stage's name
             assets.times_new_rally:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 75, 57, kTextAlignment.center) -- and the best time.
             gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back to normal just to be safe
             if show_desc then
-                assets.pedallica:drawText(gfx.getLocalizedText('stage_' .. stage .. '_desc'), 10, 95)
+                assets.pedallica:drawText(text('stage_' .. stage .. '_desc'), 10, 95)
                 if save['stage' .. stage .. '_flawless'] then
                     assets.image_medal_flawless:draw(135, 45)
                 else
@@ -91,7 +92,7 @@ function stages:init(...)
                 end
             end
             if ranking ~= nil then
-                assets.kapel:drawText(gfx.getLocalizedText('yourank'), 125, 52)
+                assets.kapel:drawText(text('yourank'), 125, 52)
                 assets.kapel_doubleup:drawTextAligned(ordinal(ranking) .. "!", 205, 60, kTextAlignment.right)
                 -- If the player has a default username, then let's throw a prompt up to tell them to change that. Woohoo, indoctrination!
                 if string.len(name) == 16 and tonumber(name) then
@@ -99,7 +100,7 @@ function stages:init(...)
                     gfx.setColor(gfx.kColorWhite)
                     gfx.fillRect(0, 167, 480, 36)
                     gfx.setColor(gfx.kColorBlack)
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('default_username_text'), 107, 170, kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(text('default_username_text'), 107, 170, kTextAlignment.center)
                 end
             end
         gfx.popContext()
@@ -344,7 +345,7 @@ function stages:leaderboardsin()
         end)
         assets.image_lb_text = gfx.image.new(190, 240)
         gfx.pushContext(assets.image_lb_text)
-            assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_grab'), 100, 100, kTextAlignment.center)
+            assets.pedallica:drawTextAligned(text('leaderboards_grab'), 100, 100, kTextAlignment.center)
         gfx.popContext()
         self.lb_text:setImage(assets.image_lb_text)
         self.lb_text:add()
@@ -362,7 +363,7 @@ function stages:leaderboardsin()
                     mils = nil
                 end
                 if next(result.scores) == nil then
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_empty'), 100, 100, kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(text('leaderboards_empty'), 100, 100, kTextAlignment.center)
                 end
                 gfx.popContext()
                 self.lb_text:setImage(assets.image_lb_text)
@@ -370,7 +371,7 @@ function stages:leaderboardsin()
             elseif status.code == "ERROR" and vars.leaderboards_open then
                 assets.image_lb_text = gfx.image.new(190, 240)
                 gfx.pushContext(assets.image_lb_text)
-                    assets.pedallica:drawTextAligned(gfx.getLocalizedText('leaderboards_fail'), 100, 100, kTextAlignment.center)
+                    assets.pedallica:drawTextAligned(text('leaderboards_fail'), 100, 100, kTextAlignment.center)
                 gfx.popContext()
                 self.lb_text:setImage(assets.image_lb_text)
                 self.lb_accent:setImage(assets.image_rowbot_accent[3])

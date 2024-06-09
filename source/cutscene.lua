@@ -12,7 +12,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
-local geo <const> = pd.geometry
+local text <const> = gfx.getLocalizedText
 
 class('cutscene').extends(gfx.sprite) -- Create the scene's class
 function cutscene:init(...)
@@ -20,26 +20,26 @@ function cutscene:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(100)
-        menu:addMenuItem(gfx.getLocalizedText('skipscene'), function()
+        menu:addMenuItem(text('skipscene'), function()
             assets.sfx:stop()
         end)
-        menu:addMenuItem(gfx.getLocalizedText('quitfornow'), function()
+        menu:addMenuItem(text('quitfornow'), function()
             vars.title = true
             assets.sfx:stop()
         end)
     end
-    
+
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         img_border_intro = gfx.imagetable.new('images/story/border_intro'), -- Border scene entry animation
         img_border = gfx.imagetable.new('images/story/border'), -- Border idle animation
         img_border_outro = gfx.imagetable.new('images/story/border_outro'), -- Border scene-exit animation
     }
-    
+
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         play = args[1], -- What scene do we play?
         title = false,

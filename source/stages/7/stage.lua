@@ -3,6 +3,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 local geo <const> = pd.geometry
 local random <const> = math.random
+local smp <const> = pd.sound.sampleplayer
 
 function race:stage_init()
     assets.image_stage = gfx.image.new('stages/7/stage')
@@ -10,6 +11,8 @@ function race:stage_init()
     assets.image_water_bg = gfx.image.new('stages/7/water_bg')
     assets.water = gfx.imagetable.new('stages/7/water')
     assets.caustics = gfx.imagetable.new('stages/7/caustics')
+    assets.sfx_cymbal = smp.new('audio/sfx/cymbal')
+    assets.sfx_cymbal:setVolume(save.vol_sfx/5)
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 

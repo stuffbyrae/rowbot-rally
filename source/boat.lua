@@ -35,6 +35,8 @@ function wake:init(boat)
 
     self.size_x = 100 * self.scale_factor
     self.size_y = 100 * self.scale_factor
+    self.movetox = 0
+    self.movetoy = 0
     self:setSize(self.size_x, self.size_y)
     self:setZIndex(-1)
     self:setUpdatesEnabled(false)
@@ -323,7 +325,7 @@ function boat:finish(duration, peelout)
     end
 end
 
-function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
+function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y, mode)
     self.crash_body_scale = self.transform:transformedPolygon(self['poly_body_crash_' .. self.rotation])
     self.crash_body_scale:translate(self.x, self.y)
     for i = 1, #polygons do
@@ -362,7 +364,7 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
                             if self.movable then
                                 self.crashes += 1
                                 save.total_crashes += 1
-                                if story then
+                                if mode == "story" then
                                     save['slot' .. save.current_story_slot .. '_crashes'] += 1
                                 end
                             end

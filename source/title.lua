@@ -107,7 +107,6 @@ function title:init(...)
             save.unlocked_cheats_big = true
             save.unlocked_cheats_small = true
             save.unlocked_cheats_tiny = true
-            save.unlocked_cheats_dents = true
             save.unlocked_cheats_retro = true
             save.unlocked_cheats_scream = true
             fademusic()
@@ -134,7 +133,6 @@ function title:init(...)
         sfx_start = smp.new('audio/sfx/start'),
         sfx_menu = smp.new('audio/sfx/menu'),
         sfx_whoosh = smp.new('audio/sfx/whoosh'),
-        sfx_ping = smp.new('audio/sfx/ping'),
         sfx_rowboton = smp.new('audio/sfx/rowboton'),
     }
     assets.sfx_bonk:setVolume(save.vol_sfx/5)
@@ -142,8 +140,12 @@ function title:init(...)
     assets.sfx_start:setVolume(save.vol_sfx/5)
     assets.sfx_menu:setVolume(save.vol_sfx/5)
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
-    assets.sfx_ping:setVolume(save.vol_sfx/5)
     assets.sfx_rowboton:setVolume(save.vol_sfx/5)
+
+    if not demo then
+        assets.sfx_ping = smp.new('audio/sfx/ping')
+        assets.sfx_ping:setVolume(save.vol_sfx/5)
+    end
 
     gfx.setFont(assets.kapel_doubleup)
 
@@ -161,7 +163,7 @@ function title:init(...)
         anim_slot_d = pd.timer.new(1, 0, 0),
         anim_slot_l = pd.timer.new(1, 0, 0),
         anim_slot_r = pd.timer.new(1, 0, 0),
-        anim_pulse = pd.timer.new(1015, 15, 7, pd.easingFunctions.outCubic),
+        anim_pulse = pd.timer.new(995, 15, 7, pd.easingFunctions.outCubic),
         anim_checker_x = pd.timer.new(2300, 0, -124),
         anim_checker_y = pd.timer.new(2300, 0, -32),
     }
@@ -264,7 +266,7 @@ function title:init(...)
     else
         assets.image_item = gfx.imageWithText(text('story_mode'), 200, 120)
     end
-    if save.stages_unlocked >= 1 then
+    if save.stages_unlocked >= 1 and not demo then
         table.insert(vars.item_list, 'time_trials')
     end
     if not demo then
@@ -444,7 +446,11 @@ function title:init(...)
             assets.pedallica:drawText(text('circuit') .. ' ' .. save['slot' .. save.current_story_slot .. '_circuit'], 15, 145)
             assets.pedallica:drawText(vars['slot_percent_' .. save.current_story_slot] .. text('percent_complete'), 15, 160)
             assets.pedallica:drawText(text('stats_racetime') .. ': ' .. vars.mins .. ':' .. vars.secs .. '.' .. vars.mils, 15, 175)
-            assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. text('stats_crashes'), 15, 190)
+            if save['slot' .. save.current_story_slot .. '_crashes'] == 1 then
+                assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. text('stats_crash'), 15, 190)
+            else
+                assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. text('stats_crashes'), 15, 190)
+            end
             if save['slot' .. save.current_story_slot .. '_progress'] == 'finish' and save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
             else
                 assets.image_play:drawAnchored(385, 205, 1, 1)
@@ -578,11 +584,7 @@ end
 -- Opens the detailed options for each save slot.
 function title:openslot(slot)
     assets.pedallica = gfx.font.new('fonts/pedallica')
-    if save['slot' .. slot .. '_progress'] == nil then
-        assets.image_preview = gfx.image.new('images/story/previews/empty')
-    else
-        assets.image_preview = gfx.image.new('images/story/previews/' .. save['slot' .. slot .. '_progress'])
-    end
+    assets.image_preview = gfx.image.new('images/story/previews/' .. self:checkpreview(slot))
     vars.slots_open = false
     save.current_story_slot = slot
     assets.sfx_ping:play()
@@ -644,6 +646,53 @@ function title:deleteslot(slot)
         assets.sfx_rowboton:play()
         self:closeslot(false)
     end)
+end
+
+function title:checkpreview(slot)
+    if save['slot' .. slot .. '_progress'] == nil then
+        slot_preview = 'empty'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene1' then
+        slot_preview = 'tutorial'
+    elseif save['slot' .. slot .. '_progress'] == 'tutorial' then
+        slot_preview = 'tutorial'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene2' then
+        slot_preview = 'race1'
+    elseif save['slot' .. slot .. '_progress'] == 'race1' then
+        slot_preview = 'race1'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene3' then
+        slot_preview = 'race2'
+    elseif save['slot' .. slot .. '_progress'] == 'race2' then
+        slot_preview = 'race2'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene4' then
+        slot_preview = 'race3'
+    elseif save['slot' .. slot .. '_progress'] == 'race3' then
+        slot_preview = 'race3'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene5' then
+        slot_preview = 'race4'
+    elseif save['slot' .. slot .. '_progress'] == 'race4' then
+        slot_preview = 'race4'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene6' then
+        slot_preview = 'chase'
+    elseif save['slot' .. slot .. '_progress'] == 'chase' then
+        slot_preview = 'chase'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene7' then
+        slot_preview = 'race5'
+    elseif save['slot' .. slot .. '_progress'] == 'race5' then
+        slot_preview = 'race5'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene8' then
+        slot_preview = 'race6'
+    elseif save['slot' .. slot .. '_progress'] == 'race6' then
+        slot_preview = 'race6'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene9' then
+        slot_preview = 'race7'
+    elseif save['slot' .. slot .. '_progress'] == 'race7' then
+        slot_preview = 'race7'
+    elseif save['slot' .. slot .. '_progress'] == 'cutscene10' then
+        slot_preview = 'finish'
+    elseif save['slot' .. slot .. '_progress'] == 'finish' then
+        slot_preview = 'finish'
+    end
+    return slot_preview
 end
 
 function title:checkpercent(slot)

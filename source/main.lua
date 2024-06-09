@@ -20,7 +20,7 @@ local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
 local text <const> = gfx.getLocalizedText
 
-pd.display.setRefreshRate(50)
+pd.display.setRefreshRate(30)
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
 gfx.setLineWidth(2)
@@ -427,15 +427,11 @@ function shakies_y(time, int)
     anim_shakies_y = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
-import 'race'
-import 'chill'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    -- scenemanager:switchscene(title)
-    perf = false
-    scenemanager:switchscene(chill)
+    scenemanager:switchscene(title)
 end
 
 local offsetx

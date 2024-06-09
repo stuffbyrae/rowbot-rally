@@ -218,6 +218,7 @@
 "stats_playtime" = "play time"
 "stats_timespentracing" = "Time spent racing"
 "stats_crashes" = "crashes"
+"stats_crash" = "crash"
 "stats_racescompleted" = "Races completed"
 "stats_storiescompleted" = "Stories completed"
 "stats_distancecranked" = "Distance cranked"

@@ -73,10 +73,10 @@ function tutorial:init(...)
     end
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
-        current_step = 1500,
+        current_step = 1,
         progressable = false,
         hud_open = false,
-        progress_delay = 1,
+        progress_delay = 1500,
         gameplay_progress = 0,
         up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
         water = pd.timer.new(2000, 1, 16),
@@ -120,7 +120,6 @@ function tutorial:init(...)
 
     vars.anim_overlay = pd.timer.new(1000, 1, #assets.overlay_fade)
     vars.anim_overlay.discardOnCompletion = false
-    vars.finish = gfx.sprite.addEmptyCollisionSprite(1, 1, 1, 1)
 
     -- Chillin' out, parallaxin', relaxin' all cool
     vars.stage_progress_short_x = 0
@@ -144,6 +143,7 @@ function tutorial:init(...)
         geo.polygon.new(0, 2725, 0, 3645, 1405, 3665, 1405, 2715, 1180, 2760, 1180, 3470, 230, 3470, 230, 2680, 0, 2725),
         geo.polygon.new(0, 0, 595, 0, 595, 45, 595, 110, 595, 145, 595, 175, 600, 195, 595, 205, 600, 230, 595, 275, 595, 305, 600, 345, 595, 380, 600, 435, 595, 480, 575, 520, 555, 550, 535, 570, 500, 600, 445, 640, 405, 665, 345, 710, 300, 750, 265, 790, 240, 825, 220, 865, 205, 905, 195, 955, 190, 990, 195, 1045, 210, 1105, 225, 1140, 250, 1175, 310, 1230, 370, 1270, 430, 1315, 655, 1470, 800, 1575, 860, 1625, 890, 1660, 910, 1695, 930, 1770, 925, 1815, 920, 1835, 895, 1865, 845, 1910, 790, 1950, 735, 1985, 680, 2035, 640, 2080, 615, 2130, 605, 2175, 600, 2215, 600, 2330, 600, 2430, 600, 2500, 595, 2500, 595, 2560, 585, 2610, 570, 2645, 545, 2685, 520, 2710, 480, 2740, 440, 2755, 395, 2770, 350, 2775, 305, 2770, 275, 2765, 235, 2775, 190, 2780, 135, 2775, 90, 2760, 60, 2750, 15, 2745, 0, 2745, 0, 0),
         geo.polygon.new(805, 0, 1410, 0, 1410, 2780, 1350, 2780, 1295, 2775, 1245, 2770, 1150, 2780, 1095, 2770, 1085, 2770, 1060, 2760, 1030, 2755, 955, 2750, 920, 2740, 885, 2715, 855, 2685, 830, 2650, 815, 2615, 805, 2580, 805, 2515, 805, 2380, 810, 2295, 810, 2230, 830, 2180, 855, 2145, 890, 2115, 935, 2085, 985, 2045, 1030, 2015, 1070, 1985, 1105, 1945, 1125, 1915, 1145, 1870, 1155, 1820, 1160, 1775, 1160, 1750, 1150, 1705, 1130, 1640, 1130, 1635, 1095, 1580, 1055, 1530, 1015, 1495, 910, 1415, 840, 1365, 735, 1295, 725, 1290, 650, 1230, 570, 1180, 490, 1120, 455, 1090, 435, 1065, 425, 1020, 425, 975, 445, 920, 470, 875, 510, 830, 565, 785, 635, 740, 720, 670, 760, 630, 780, 595, 795, 560, 805, 500, 810, 435, 810, 335, 805, 190, 805, 0),
+        geo.polygon.new(626, 0, 691, 0, 691, 245, 626, 245, 626, 0)
     }
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
@@ -182,7 +182,6 @@ function tutorial:init(...)
                 local stage_progress_long_y = stage_y * -vars.stage_progress_long_y
 
                 assets.parallax_short_bake:draw(stage_progress_short_x, stage_progress_short_y)
-                print(stage_progress_short_x)
                 assets.parallax_medium_bake:draw(stage_progress_medium_x, stage_progress_medium_y)
                 assets.parallax_long_bake:draw(stage_progress_long_x, stage_progress_long_y)
             end

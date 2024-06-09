@@ -58,13 +58,12 @@ function race:init(...)
         kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
         overlay_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
-        overlay_boost = gfx.imagetable.new('images/race/boost'),
+        overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
         sfx_countdown = smp.new('audio/sfx/countdown'),
         sfx_start = smp.new('audio/sfx/start'),
         sfx_finish = smp.new('audio/sfx/finish'),
         sfx_ref = smp.new('audio/sfx/ref'),
         sfx_final = smp.new('audio/sfx/final'),
-        sfx_cymbal = smp.new('audio/sfx/cymbal'),
         image_meter_r = gfx.imagetable.new('images/race/meter/meter_r'),
         image_meter_p = gfx.imagetable.new('images/race/meter/meter_p'),
     }
@@ -73,7 +72,6 @@ function race:init(...)
     assets.sfx_finish:setVolume(save.vol_sfx/5)
     assets.sfx_ref:setVolume(save.vol_sfx/5)
     assets.sfx_final:setVolume(save.vol_sfx/5)
-    assets.sfx_cymbal:setVolume(save.vol_sfx/5)
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
@@ -376,8 +374,8 @@ function race:init(...)
                     ((checkpoint_x + checkpoint_width) * parallax_medium_amount) + (stage_progress_medium_x),
                     (checkpoint_y * parallax_medium_amount) + (stage_progress_medium_y))
                 image_pole_cap:draw(
-                    ((checkpoint_x + checkpoint_width) - 6) * parallax_medium_amount + (stage_progress_medium_x) + x,
-                    (checkpoint_y - 6) * parallax_medium_amount + (stage_progress_medium_y) + y)
+                    ((checkpoint_x + checkpoint_width) - 6) * parallax_medium_amount + (stage_progress_medium_x),
+                    (checkpoint_y - 6) * parallax_medium_amount + (stage_progress_medium_y))
             end
 
             gfx.setLineWidth(2) -- Set the line width back
@@ -707,9 +705,9 @@ function race:checkpointcheck(cpu)
                     else
                         if not save.ui then
                             vars.lap_string = vars['lap_string_' .. vars.current_lap]
-                            vars.anim_lap_string:resetnew(500, -100, 130, pd.easingFunctions.outBack)
+                            vars.anim_lap_string:resetnew(500, -175, 130, pd.easingFunctions.outBack)
                             pd.timer.performAfterDelay(1500, function()
-                                vars.anim_lap_string:resetnew(500, 130, -100, pd.easingFunctions.inBack)
+                                vars.anim_lap_string:resetnew(500, 130, -175, pd.easingFunctions.inBack)
                             end)
                         end
                         if vars.current_lap == 2 then
@@ -837,11 +835,11 @@ function race:update()
             end
             self:checkpointcheck(false)
         end
-        if self.boat.crashable and not self.boat.beached then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
+        if self.boat.crashable and not self.boat.beached then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y, vars.mode) end
         if self.cpu ~= nil then
             self:checkpointcheck(true)
             if self.cpu.crashable then
-                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, self.stage.x, self.stage.y)
+                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, self.stage.x, self.stage.y, vars.mode)
             end
         end
         if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then

@@ -103,12 +103,13 @@ function results:init(...)
                 save['stage' .. vars.stage .. '_flawless'] = true
             end
         end
+        self:sendscores()
         savegame() -- Save the game! This is put last so "Sending score..." takes precedence over "Saving..." corner UI
     else
+        self:sendscores()
         newmusic('audio/sfx/lose')
     end
 
-    -- self:sendscores()
 
     gfx.pushContext(assets.image_plate)
         local mins, secs, mils = timecalc(vars.time)

@@ -39,7 +39,7 @@ function cheats:init(...)
         kapel = gfx.font.new('fonts/kapel'),
         pedallica = gfx.font.new('fonts/pedallica'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
-        image_ticker = gfx.image.new(500, 20, gfx.kColorBlack),
+        image_ticker = gfx.image.new(800, 20, gfx.kColorBlack),
         image_wave = gfx.image.new('images/ui/wave'),
         image_wave_composite = gfx.image.new(464, 280),
         image_back = makebutton(text('back'), "small2"),
@@ -54,17 +54,6 @@ function cheats:init(...)
     assets.sfx_clickon:setVolume(save.vol_sfx/5)
     assets.sfx_clickoff:setVolume(save.vol_sfx/5)
 
-    -- Writing in the image for the "Cheats" header ticker
-    gfx.pushContext(assets.image_ticker)
-        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawText(text('cheats'), 6, -3)
-        assets.kapel_doubleup:drawText(text('cheats'), 106, -3)
-        assets.kapel_doubleup:drawText(text('cheats'), 206, -3)
-        assets.kapel_doubleup:drawText(text('cheats'), 306, -3)
-        assets.kapel_doubleup:drawText(text('cheats'), 406, -3)
-        assets.kapel_doubleup:drawText(text('cheats'), 506, -3)
-    gfx.popContext()
-
     -- Writing in the image for the wave banner along the bottom
     gfx.pushContext(assets.image_wave_composite)
         assets.image_wave:drawTiled(0, 0, 464, 280)
@@ -72,7 +61,6 @@ function cheats:init(...)
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         transitioning = true,
-        anim_ticker = pd.timer.new(2000, 0, -100),
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
         item_list = {'big', 'small', 'tiny', 'retro', 'scream'},
@@ -157,6 +145,20 @@ function cheats:init(...)
         pd.inputHandlers.push(vars.cheatsHandlers) -- Wait to push the input handlers, so you can't fuck with shit before you have a chance to read it.
     end)
 
+    vars.textwidth = assets.kapel_doubleup:getTextWidth(text('cheats')) + 10
+    -- Writing in the image for the "Options" header ticker
+    gfx.pushContext(assets.image_ticker)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        assets.kapel_doubleup:drawText(text('cheats'), vars.textwidth * 1, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), vars.textwidth * 2, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), vars.textwidth * 3, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), vars.textwidth * 4, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), vars.textwidth * 5, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), vars.textwidth * 6, -3)
+        assets.kapel_doubleup:drawText(text('cheats'), vars.textwidth * 7, -3)
+    gfx.popContext()
+
+    vars.anim_ticker = pd.timer.new(2000, -vars.textwidth, (-vars.textwidth * 2) + 1)
     vars.anim_ticker.repeats = true
     vars.anim_wave_x.repeats = true
     vars.anim_wave_y.discardOnCompletion = false

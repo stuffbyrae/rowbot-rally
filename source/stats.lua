@@ -43,23 +43,11 @@ function stats:init(...)
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         kapel = gfx.font.new('fonts/kapel'),
         pedallica = gfx.font.new('fonts/pedallica'),
-        image_ticker = gfx.image.new(481, 20, gfx.kColorBlack),
+        image_ticker = gfx.image.new(800, 20, gfx.kColorBlack),
         image_wave = gfx.image.new('images/ui/wave'),
         image_wave_composite = gfx.image.new(464, 280),
         image_back = makebutton(text('back'), "small2")
     }
-
-    -- Writing in the image for the "Stats" header ticker
-    gfx.pushContext(assets.image_ticker)
-        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawText(text('stats'), 6, -3)
-        assets.kapel_doubleup:drawText(text('stats'), 87, -3)
-        assets.kapel_doubleup:drawText(text('stats'), 168, -3)
-        assets.kapel_doubleup:drawText(text('stats'), 249, -3)
-        assets.kapel_doubleup:drawText(text('stats'), 330, -3)
-        assets.kapel_doubleup:drawText(text('stats'), 411, -3)
-        assets.kapel_doubleup:drawText(text('stats'), 492, -3)
-    gfx.popContext()
 
     -- Writing in the image for the wave banner along the bottom
     gfx.pushContext(assets.image_wave_composite)
@@ -68,7 +56,6 @@ function stats:init(...)
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         transitioning = true,
-        anim_ticker = pd.timer.new(2000, 0, -81),
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
         stage_plays = { -- Each number here is the stage's total play count, with the stage's own number tacked onto the end for record-keeping.
@@ -104,6 +91,21 @@ function stats:init(...)
         vars.anim_wave_y.reverses = true -- and make it loop!
     end)
 
+
+    vars.textwidth = assets.kapel_doubleup:getTextWidth(text('stats')) + 10
+    -- Writing in the image for the "Options" header ticker
+    gfx.pushContext(assets.image_ticker)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        assets.kapel_doubleup:drawText(text('stats'), vars.textwidth * 1, -3)
+        assets.kapel_doubleup:drawText(text('stats'), vars.textwidth * 2, -3)
+        assets.kapel_doubleup:drawText(text('stats'), vars.textwidth * 3, -3)
+        assets.kapel_doubleup:drawText(text('stats'), vars.textwidth * 4, -3)
+        assets.kapel_doubleup:drawText(text('stats'), vars.textwidth * 5, -3)
+        assets.kapel_doubleup:drawText(text('stats'), vars.textwidth * 6, -3)
+        assets.kapel_doubleup:drawText(text('stats'), vars.textwidth * 7, -3)
+    gfx.popContext()
+
+    vars.anim_ticker = pd.timer.new(2000, -vars.textwidth, (-vars.textwidth * 2) + 1)
     vars.anim_wave_y.discardOnCompletion = false
     vars.anim_ticker.repeats = true
     vars.anim_wave_x.repeats = true
@@ -330,7 +332,7 @@ function stats:sendonlinestatsscores()
                 vars.lb_degreescranked_result = "fail"
                 gfx.sprite.redrawBackground()
             end
-            pd.scoreboards.addScore('degreescranked', save.total_degrees_cranked, function(status)
+            pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
                 if status.code == "OK" then
                     stats:getonlinestatsscores()
                 else

@@ -66,7 +66,7 @@ function race:stage_init()
     vars.lap_string = text('lap1')
     vars.lap_string_2 = text('lap2')
     vars.lap_string_3 = text('lap3')
-    vars.anim_lap_string = pd.timer.new(0, -30, -30)
+    vars.anim_lap_string = pd.timer.new(0, -175, -175)
     vars.anim_lap_string.discardOnCompletion = false
     -- The checkpointzzzzz™
     vars.finish = gfx.sprite.addEmptyCollisionSprite(160, 580, 200, 20)

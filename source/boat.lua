@@ -45,7 +45,7 @@ function wake:init(boat)
     end
 end
 
-function wake:update()
+function wake:update(delta)
     local x = self.boat.x
     local y = self.boat.y
     local rot = self.boat.rotation
@@ -54,6 +54,7 @@ function wake:update()
     self:moveTo(self.movetox, self.movetoy)
     self.wake:moveTo((x - (sin[rot] * 20)) + (self.size_x / 2), (y + (cos[rot] * 20)) + (self.size_y / 2))
     self.wake:setSpread(rot)
+    self.wake:update()
 end
 
 function wake:draw()
@@ -62,7 +63,6 @@ function wake:draw()
     if not self.boat.leaping then
         self.wake:add(1)
     end
-    self.wake:update()
     gfx.setDrawOffset(cam_x, cam_y)
 end
 
@@ -107,7 +107,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
         self.follow_polygon = follow_polygon
         self.lerp = 0.06 -- Rate at which the rotation towards the angle is interpolated.
-        self.speed = 4.7 -- Forward movement speed of the boat.
+        self.speed = 4.8 -- Forward movement speed of the boat.
 
         self.follow_points = {}
         self.follow_count = self.follow_polygon:count()
@@ -233,6 +233,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
     self:setTag(255)
     self:moveTo(start_x, start_y)
+    self:setUpdatesEnabled(false)
     self:setnewsize(120)
     self:setZIndex(0)
     self:add()
@@ -372,7 +373,7 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y, mod
                     end
                     table.insert(points_collided, i)
                 end
-                if self.mode ~= "cpu" and #points_collided == self.poly_body:count() then
+                if self.mode ~= "cpu" and #points_collided == self.poly_body_crash:count() then
                     self.beached = true
                 end
             end
@@ -456,15 +457,15 @@ function boat:leap()
     end
 end
 
-function boat:update()
+function boat:update(delta)
     self.transform:reset()
     self.crash_transform:reset()
     if not perf then self.ripple:reset() end
     local x, y = gfx.getDrawOffset() -- Gimme the draw offset
     if not self.crashed then -- Move the boat
-        self:moveBy(sin[self.rotation] * (self.speed * self.move_speedo.value), -cos[self.rotation] * (self.speed * self.move_speedo.value))
+        self:moveBy((sin[self.rotation] * (self.speed * self.move_speedo.value) * 30) * delta, (-cos[self.rotation] * (self.speed * self.move_speedo.value) * 30) * delta)
     else
-        self:moveBy(sin[self.crash_direction] * (self.speed * self.move_speedo.value), -cos[self.crash_direction] * (self.speed * self.move_speedo.value))
+        self:moveBy((sin[self.crash_direction] * (self.speed * self.move_speedo.value) * 30) * delta, (-cos[self.crash_direction] * (self.speed * self.move_speedo.value) * 30) * delta)
     end
     -- If there's a peelout anim, just go for that instead.
     if self.peelout ~= nil then
@@ -483,7 +484,7 @@ function boat:update()
                 self.rotation += (targetangle - self.rotation) * self.lerp
                 local dx = self.x - self.point_x
                 local dy = self.y - self.point_y
-                if sqrt(dx * dx + dy * dy) <= 70 then
+                if sqrt(dx * dx + dy * dy) <= 80 then
                     self.follow_next += 1
                     if self.follow_next > self.follow_count then
                         self.follow_next = 1
@@ -491,8 +492,9 @@ function boat:update()
                     self.point_x, self.point_y = self.follow_polygon:getPointAt(self.follow_next):unpack()
                 end
             end
+            gfx.setDrawOffset(-self.x + 200, -self.y + 120)
         else -- Player controlling
-            gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
+            -- gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
             if self.mode == "race" then
                 local x, y = gfx.getDrawOffset()
                 if x >= 0 then x = 0 elseif x - 400 <= -self.stage_x then x = -self.stage_x + 400 end
@@ -508,7 +510,7 @@ function boat:update()
                     else
                         self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
                     end
-                elseif save.button_controls or pd.isSimulator == 1 then
+                elseif save.button_controls then
                     if self.right then
                         if self.turn_speedo.value == 1 then
                             self.crankage += ((self.turn * (self.turn_speedo.value * 2)) - self.crankage) * self.lerp
@@ -568,7 +570,7 @@ function boat:update()
     -- Make sure rotation winds up as integer 1 through 360
     self.rotation = ((floor(self.rotation / 2) * 2)) % 360
     if self.rotation == 0 then self.rotation = 360 end
-    if not perf and save.total_playtime % 3 == 0 then self.wake:update() end
+    if not perf and save.total_playtime % 3 == 0 then self.wake:update(delta) end
     -- Transform ALL the polygons!!!!1!
     self.transform:scale((self.scale.value * self.boost_x.value) * self.reversed, self.scale.value * self.boost_y.value)
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))

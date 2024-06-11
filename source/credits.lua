@@ -13,7 +13,7 @@ function credits:init(...)
     credits.super.init(self)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
-    gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
+    gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
 
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
@@ -22,31 +22,38 @@ function credits:init(...)
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
+        credits = gfx.image.new('images/ui/credits'),
+        creditscover1 = gfx.image.new('images/ui/creditscover1'),
+        creditscover2 = gfx.image.new('images/ui/creditscover2'),
     }
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
+        creditsscrolly = pd.timer.new(120000, 0, -2640),
+        showcover1 = true,
+        showcover2 = true,
     }
     vars.creditsHandlers = {
         -- Input handlers go here...
     }
     pd.inputHandlers.push(vars.creditsHandlers)
 
+    pd.timer.performAfterDelay(2000, function()
+        vars.showcover1 = false
+    end)
+    pd.timer.performAfterDelay(4000, function()
+        vars.showcover2 = false
+    end)
+    vars.creditsscrolly.delay = 6000
+
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
-        -- Draw background stuff here...
+        assets.credits:draw(0, vars.creditsscrolly.value)
+        if vars.showcover2 then assets.creditscover2:draw(0, 0) end
+        if vars.showcover1 then assets.creditscover1:draw(0, 0) end
     end)
 
-    class('credits_x1').extends(gfx.sprite)
-    function credits_x1:init()
-        credits_x1.super.init(self)
-    end
-    function credits_x1:update()
-    end
-
-    -- Set the sprites
-    self.x1 = credits_x1()
     self:add()
 
-    savegame() -- Save the game!
+    savegame(true) -- Save the game!
 end
 
 -- Scene update loop

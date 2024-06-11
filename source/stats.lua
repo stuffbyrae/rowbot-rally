@@ -317,7 +317,7 @@ end
 
 function stats:sendonlinestatsscores()
     corner('sendscore')
-    pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
+    pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
         if status.code ~= "OK" then
             makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
             vars.lb_racetime_result = "fail"

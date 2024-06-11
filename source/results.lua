@@ -259,7 +259,6 @@ function results:sendscores()
     corner('sendscore')
     if perf and vars.poststagetime then
         pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
-            printTable(status)
             if status.code ~= "OK" then
                 makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
             end
@@ -267,30 +266,23 @@ function results:sendscores()
     else
         if vars.poststagetime then
             pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
-                printTable(status)
                 if status.code ~= "OK" then
                     makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
                 end
-                pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
-                    printTable(status)
+                pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
                     pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
-                        printTable(status)
                         pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
-                            printTable(status)
                         end)
                     end)
                 end)
             end)
         else
-            pd.scoreboards.addScore('racetime', save.total_racetime, function(status)
-                printTable(status)
+            pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
                 if status.code ~= "OK" then
                     makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
                 end
                 pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
-                    printTable(status)
                     pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
-                        printTable(status)
                     end)
                 end)
             end)

@@ -19,8 +19,10 @@ local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
 local text <const> = gfx.getLocalizedText
+local floor <const> = math.floor
 
-pd.display.setRefreshRate(30)
+pd.display.setRefreshRate(50)
+fps = 50
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
 gfx.setLineWidth(2)
@@ -144,12 +146,21 @@ function math.clamp(val, lower, upper)
 end
 
 -- Save the game mid-play.
-function savegame()
+function savegame(hidecorner)
     if not demo then -- Make sure you don't save in a demo, though.
+        save.total_racetime = floor(save.total_racetime)
+        save.slot1_racetime = floor(save.slot1_racetime)
+        save.slot2_racetime = floor(save.slot2_racetime)
+        save.slot3_racetime = floor(save.slot3_racetime)
+        save.total_degrees_cranked = floor(save.total_degrees_cranked)
         pd.datastore.write(save)
-        corner('saving')
+        if not hidecorner then
+            corner('saving')
+        end
     end
 end
+
+savegame(true)
 
 -- When the game closes...
 function pd.gameWillTerminate()
@@ -427,17 +438,19 @@ function shakies_y(time, int)
     anim_shakies_y = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
+import 'race'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(credits)
 end
 
 local offsetx
 local offsety
 
 function pd.update()
+    pd.display.setRefreshRate(fps)
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup.value) -- Move it there!

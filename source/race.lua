@@ -470,7 +470,11 @@ function race:init(...)
     class('race_debug').extends(gfx.sprite)
     function race_debug:init()
         race_debug.super.init(self)
-        self:moveTo(vars.boat_x, vars.boat_y)
+        if vars.cpu_x ~= nil then
+            self:moveTo(vars.cpu_x, vars.cpu_y)
+        else
+            self:moveTo(vars.boat_x, vars.boat_y)
+        end
         self:setImage(gfx.image.new(4, 4, gfx.kColorBlack))
         self:setZIndex(99)
         self:add()
@@ -618,13 +622,14 @@ function race:finish(timeout, duration)
             assets.sfx_finish:play() -- Applause!
         end
         pd.timer.performAfterDelay(2500, function()
-            scenemanager:switchscene(results, vars.stage, vars.mode, vars.current_time, vars.won, self.boat.crashes)
+            scenemanager:switchscene(results, vars.stage, vars.mode, floor(vars.current_time), vars.won, self.boat.crashes)
         end)
     end
 end
 
 -- This function takes a score number as input, and spits out the proper time in minutes, seconds, and milliseconds
 function race:timecalc(num)
+    num = floor(num)
     vars.mins = floor((num/30) / 60)
     vars.secs = floor((num/30) - vars.mins * 60)
     vars.mils = floor((num/30)*99 - vars.mins * 5940 - vars.secs * 99)
@@ -776,10 +781,20 @@ end
 
 -- Scene update loop
 function race:update()
+    local delta = pd.getElapsedTime()
+    pd.resetElapsedTime()
     vars.x, vars.y = gfx.getDrawOffset() -- Gimme the draw offset
     local x = vars.x
     local y = vars.y
-    local time = save.total_playtime
+    -- Set up the parallax!
+    if not perf then
+        vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
+        vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))
+        vars.stage_progress_medium_x = (((-x + 200) / vars.stage_x) * (vars.parallax_medium_amount - 1))
+        vars.stage_progress_medium_y = (((-y + 120) / vars.stage_y) * (vars.parallax_medium_amount - 1))
+        vars.stage_progress_long_x = (((-x + 135) / vars.stage_x) * (vars.parallax_long_amount - 1))
+        vars.stage_progress_long_y = (((-y + 60) / vars.stage_y) * (vars.parallax_long_amount - 1))
+    end
     if vars.mode == "debug" then -- If debug mode is enabled,
         -- These have to be in the update loop because there's no way to just check if a button's held on every frame using an input handler. Weird.
         if pd.buttonIsPressed('up') then
@@ -815,26 +830,31 @@ function race:update()
         end
         gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120) -- Move the camera to wherever the debug dot is.
     else
-        vars.rowbot = self.boat.turn_speedo.value
-        vars.player = self.boat.crankage_divvied
         self:timecalc(vars.current_time) -- Calc this thing out for the timer
+        self.boat:update(delta)
+        if self.cpu ~= nil then self.cpu:update(delta) end
         if vars.in_progress then -- If the race is happenin', then
-            vars.current_time += 1 -- Up that timer, babyyyyyyyyy!
-            if vars.current_time == 17970 then -- If you pass 9:59.00 in game-time,
+            if self.boat.beached then -- Oh. If it's beached, then
+                self:finish(true, 400) -- end the race. Ouch.
+            end
+            vars.current_time += 30 * delta -- Up that timer, babyyyyyyyyy!
+            if vars.current_time >= 17970 then -- If you pass 9:59.00 in game-time,
                 self:finish(true) -- YOU'RE OUT!!
             end
-            save.total_racetime += 1 -- Statz!
+            save.total_racetime += 30 * delta -- Statz!
             if vars.mode == "story" then -- If you're in the story mode...
                 if save.current_story_slot == 1 then
-                    save.slot1_racetime += 1 -- Per-slot statz!!
+                    save.slot1_racetime += 30 * delta -- Per-slot statz!!
                 elseif save.current_story_slot == 2 then
-                    save.slot2_racetime += 1 -- Per-slot statz!!
+                    save.slot2_racetime += 30 * delta -- Per-slot statz!!
                 elseif save.current_story_slot == 3 then
-                    save.slot3_racetime += 1 -- Per-slot statz!!
+                    save.slot3_racetime += 30 * delta -- Per-slot statz!!
                 end
             end
             self:checkpointcheck(false)
         end
+        vars.rowbot = self.boat.turn_speedo.value
+        vars.player = self.boat.crankage_divvied
         if self.boat.crashable and not self.boat.beached then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y, vars.mode) end
         if self.cpu ~= nil then
             self:checkpointcheck(true)
@@ -842,17 +862,5 @@ function race:update()
                 self.cpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, self.stage.x, self.stage.y, vars.mode)
             end
         end
-        if self.boat.beached and vars.in_progress then -- Oh. If it's beached, then
-            self:finish(true, 400) -- end the race. Ouch.
-        end
-    end
-    -- Set up the parallax!
-    if not perf then
-        vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
-        vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))
-        vars.stage_progress_medium_x = (((-x + 200) / vars.stage_x) * (vars.parallax_medium_amount - 1))
-        vars.stage_progress_medium_y = (((-y + 120) / vars.stage_y) * (vars.parallax_medium_amount - 1))
-        vars.stage_progress_long_x = (((-x + 135) / vars.stage_x) * (vars.parallax_long_amount - 1))
-        vars.stage_progress_long_y = (((-y + 60) / vars.stage_y) * (vars.parallax_long_amount - 1))
     end
 end

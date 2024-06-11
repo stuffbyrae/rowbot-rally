@@ -281,6 +281,7 @@
 "back" = "Ⓑ Back"
 "corner_saving" = "Saving..."
 "corner_sendscore" = "Updating on-line stats..."
+"corner_perf" = "FPS too low! Performance Mode enabled."
 "lap1" = "Lap 1!"
 "lap2" = "Lap 2!"
 "lap3" = "Final Lap!"

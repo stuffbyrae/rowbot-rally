@@ -46,6 +46,7 @@ function results:init(...)
         time = args[3], -- number. send in the time!
         win = args[4], -- boolean, true or false. Only affects anything if in story mode.
         crashes = args[5], -- number. how many times did the boat crash while the race was active?
+        mirror = args[6], -- A boolean indicating mirror mode.
         anim_fade = pd.timer.new(750, 34, 11, pd.easingFunctions.outSine),
         anim_plate = pd.timer.new(350, 240, 0, pd.easingFunctions.outBack),
         anim_react = pd.timer.new(450, 420, 240, pd.easingFunctions.outCubic, 200),
@@ -92,15 +93,28 @@ function results:init(...)
                 save['slot' .. save.current_story_slot .. '_progress'] = "cutscene10"
             end
         elseif vars.mode == "tt" then
-            if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
-                vars.poststagetime = true
-            end
-            if vars.time < vars['stage' .. vars.stage .. '_speedy'] and not enabled_cheats then
-                save['stage' .. vars.stage .. '_speedy'] = true
-                vars.speedy = true
-            end
-            if vars.crashes == 0 and not enabled_cheats then
-                save['stage' .. vars.stage .. '_flawless'] = true
+            if vars.mirror then
+                if vars.time < save['stage' .. vars.stage .. '_best_mirror'] and not enabled_cheats then
+                    vars.poststagetime = true
+                end
+                if vars.time < vars['stage' .. vars.stage .. '_speedy_mirror'] and not enabled_cheats then
+                    save['stage' .. vars.stage .. '_speedy_mirror'] = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not enabled_cheats then
+                    save['stage' .. vars.stage .. '_flawless_mirror'] = true
+                end
+            else
+                if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
+                    vars.poststagetime = true
+                end
+                if vars.time < vars['stage' .. vars.stage .. '_speedy'] and not enabled_cheats then
+                    save['stage' .. vars.stage .. '_speedy'] = true
+                    vars.speedy = true
+                end
+                if vars.crashes == 0 and not enabled_cheats then
+                    save['stage' .. vars.stage .. '_flawless'] = true
+                end
             end
         end
         self:sendscores()
@@ -130,7 +144,14 @@ function results:init(...)
                     assets.kapel_doubleup:drawTextAligned(text('newbest'), 355, 125, kTextAlignment.right)
                     save['stage' .. vars.stage .. '_best'] = vars.time
                 else
-                    local bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best'])
+                    local bestmins
+                    local bestsecs
+                    local bestmils
+                    if vars.mirror then
+                        local bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best_mirror'])
+                    else
+                        local bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best'])
+                    end
                     assets.kapel:drawTextAligned(text('besttime'), 355, 125, kTextAlignment.right)
                     assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
                 end
@@ -235,17 +256,17 @@ function results:proceed()
                 end
             end
         else
-            scenemanager:transitionsceneoneway(race, vars.stage, "story")
+            scenemanager:transitionsceneoneway(race, vars.stage, "story", vars.mirror)
         end
     elseif vars.mode == "tt" then
-        scenemanager:transitionsceneoneway(race, vars.stage, "tt")
+        scenemanager:transitionsceneoneway(race, vars.stage, "tt", vars.mirror)
     end
 end
 
 function results:back()
     fademusic()
     if vars.mode == "story" then
-        if vars.win and save.stages_unlocked == 1 and vars.stage == 1 then
+        if vars.showtimetrials then
             scenemanager:transitionsceneoneway(notif, text('time_trials_unlocked'), text('popup_time_trials_unlocked'), text('ok'), false, function() scenemanager:switchscene(title) end)
         else
             scenemanager:transitionsceneonewayback(title)
@@ -257,15 +278,21 @@ end
 
 function results:sendscores()
     corner('sendscore')
+    local board
+    if vars.mirror then
+        board = 'stage' .. vars.stage .. 'mirror'
+    else
+        board = 'stage' .. vars.stage
+    end
     if perf and vars.poststagetime then
-        pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
+        pd.scoreboards.addScore(board, vars.time, function(status, result)
             if status.code ~= "OK" then
                 makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
             end
         end)
     else
         if vars.poststagetime then
-            pd.scoreboards.addScore('stage' .. vars.stage, vars.time, function(status, result)
+            pd.scoreboards.addScore(board, vars.time, function(status, result)
                 if status.code ~= "OK" then
                     makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
                 end

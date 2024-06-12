@@ -4,6 +4,7 @@ local gfx <const> = pd.graphics
 local geo <const> = pd.geometry
 local random <const> = math.random
 local text <const> = gfx.getLocalizedText
+local abs <const> = math.abs
 
 function race:stage_init()
     if perf then
@@ -85,56 +86,6 @@ function race:stage_init()
             310, 1505)
         if save['slot' .. save.current_story_slot .. '_circuit'] == 1 then
         elseif save['slot' .. save.current_story_slot .. '_circuit'] == 2 then
-            vars.follow_polygon = pd.geometry.polygon.new(335, 1355,
-            360, 1290,
-            435, 1215,
-            415, 1155,
-            375, 1115,
-            395, 1065,
-            525, 935,
-            595, 865,
-            655, 805,
-            710, 795,
-            770, 820,
-            870, 725,
-            860, 675,
-            810, 625,
-            805, 570,
-            855, 520,
-            955, 420,
-            975, 355,
-            1040, 290,
-            1095, 235,
-            1155, 215,
-            1235, 295,
-            1285, 310,
-            1360, 235,
-            1440, 235,
-            1500, 295,
-            1650, 390,
-            1670, 495,
-            1625, 540,
-            1620, 650,
-            1610, 730,
-            1565, 775,
-            1520, 915,
-            1570, 1015,
-            1605, 1175,
-            1535, 1245,
-            1435, 1240,
-            1310, 1260,
-            1235, 1335,
-            1215, 1405,
-            1280, 1470,
-            1270, 1585,
-            1120, 1655,
-            1050, 1635,
-            925, 1760,
-            780, 1685,
-            615, 1735,
-            510, 1655,
-            460, 1580,
-            310, 1505)
         elseif save['slot' .. save.current_story_slot .. '_circuit'] == 3 then
         elseif save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
         end
@@ -199,21 +150,8 @@ function race:stage_init()
         geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 0, 0, 270, 1315, 265, 1130, 265, 1095, 270, 1040, 275, 1030, 285, 990, 290, 970, 295, 945, 305, 925, 310, 910, 325, 885, 355, 850, 405, 805, 445, 780, 480, 765, 520, 750, 585, 725, 630, 710, 670, 685, 705, 655, 715, 635, 720, 580, 730, 515, 730, 500, 735, 470, 740, 450, 745, 420, 755, 400, 765, 365, 805, 310, 825, 285, 850, 260, 870, 245, 905, 225, 920, 215, 965, 200, 1035, 180, 1095, 170, 1160, 165, 1280, 165, 1350, 170, 1390, 175, 1415, 180, 1430, 180, 1470, 190, 1525, 200, 1580, 220, 1615, 235, 1655, 250, 1690, 280, 1715, 305, 1740, 330, 1755, 360, 1770, 395, 1780, 425, 1785, 480, 1780, 530, 1770, 570, 1755, 600, 1735, 640, 1705, 685, 1685, 725, 1665, 785, 1660, 835, 1665, 925, 1670, 1020, 1675, 1060, 1675, 1140, 1670, 1190, 1660, 1220, 1630, 1270, 1590, 1315, 1550, 1340, 1515, 1355, 1475, 1360, 1440, 1370, 1405, 1375, 1375, 1395, 1365, 1420, 1360, 1460, 1360, 1545, 1355, 1580, 1345, 1610, 1330, 1640, 1315, 1660, 1280, 1695, 1240, 1725, 1195, 1745, 1115, 1770, 1010, 1790, 930, 1800, 845, 1805, 670, 1805, 585, 1805, 520, 1790, 460, 1770, 405, 1745, 370, 1720, 335, 1685, 315, 1655, 295, 1615, 285, 1570, 275, 1490, 270, 1395, 270, 1315, 0, 0),
         geo.polygon.new(470, 1305, 465, 1170, 470, 1120, 475, 1090, 475, 1060, 485, 1050, 485, 1045, 495, 1025, 525, 995, 550, 975, 595, 955, 600, 950, 665, 925, 680, 920, 690, 915, 775, 890, 785, 885, 820, 870, 860, 830, 885, 800, 895, 780, 905, 745, 925, 675, 925, 665, 935, 615, 945, 555, 950, 530, 960, 495, 965, 480, 980, 450, 1010, 415, 1030, 405, 1055, 385, 1090, 375, 1185, 365, 1225, 360, 1325, 355, 1360, 355, 1410, 365, 1435, 370, 1480, 385, 1505, 400, 1535, 435, 1545, 465, 1550, 495, 1550, 530, 1540, 565, 1515, 610, 1495, 650, 1475, 690, 1465, 740, 1465, 835, 1470, 895, 1470, 945, 1470, 975, 1475, 1055, 1460, 1105, 1435, 1135, 1395, 1155, 1315, 1175, 1245, 1190, 1210, 1205, 1165, 1240, 1150, 1275, 1145, 1300, 1145, 1370, 1145, 1460, 1140, 1495, 1120, 1530, 1085, 1555, 1030, 1575, 985, 1590, 860, 1610, 805, 1615, 710, 1620, 625, 1615, 590, 1605, 535, 1575, 500, 1535, 480, 1495, 480, 1460, 475, 1385, 470, 1330, 470, 1305)
     }
-    -- Bounds for the calc'd polygons
-    vars.fill_bounds = {
-        {249, 1458, 262, 1558},
-    }
     self:fill_polygons()
-    vars.both_bounds = {
-        {247, 1336, 260, 1436},
-        {485, 1348, 497, 1448},
-    }
     self:both_polygons()
-    vars.draw_bounds = {
-        {484, 832, 883, 1120},
-        {707, 152, 1167, 556},
-        {1127, 920, 1459, 1488},
-    }
     self:draw_polygons()
 
     newmusic('audio/music/stage1', true, 0.701) -- Adding new music
@@ -249,8 +187,6 @@ function race:fill_polygons()
         ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), ((vars.checkpoint_y + 12) * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
         ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 12) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
         ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 14) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
-    table.insert(vars.fill_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 6})
-    table.insert(vars.fill_bounds, {vars.checkpoint_x + 12, vars.checkpoint_y + 12, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
 end
 
 function race:both_polygons()
@@ -282,7 +218,6 @@ function race:both_polygons()
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 12) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 4) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
-    table.insert(vars.both_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
 end
 
 function race:draw_polygons()

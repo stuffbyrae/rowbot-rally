@@ -21,8 +21,9 @@ local geo <const> = pd.geometry
 local text <const> = gfx.getLocalizedText
 local floor <const> = math.floor
 
-pd.display.setRefreshRate(50)
-fps = 50
+pd.display.setRefreshRate(30)
+fps = 30
+pd.display.setFlipped(false, false)
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
 gfx.setLineWidth(2)
@@ -76,6 +77,14 @@ function savecheck()
     save.stage5_best = save.stage5_best or 17970
     save.stage6_best = save.stage6_best or 17970
     save.stage7_best = save.stage7_best or 17970
+    -- Local best time-trial records for all courses (mirror mode)
+    save.stage1_best_mirror = save.stage1_best_mirror or 17970
+    save.stage2_best_mirror = save.stage2_best_mirror or 17970
+    save.stage3_best_mirror = save.stage3_best_mirror or 17970
+    save.stage4_best_mirror = save.stage4_best_mirror or 17970
+    save.stage5_best_mirror = save.stage5_best_mirror or 17970
+    save.stage6_best_mirror = save.stage6_best_mirror or 17970
+    save.stage7_best_mirror = save.stage7_best_mirror or 17970
     -- How many times each stage has been played
     save.stage1_plays = save.stage1_plays or 0
     save.stage2_plays = save.stage2_plays or 0
@@ -100,6 +109,22 @@ function savecheck()
     if save.stage5_speedy == nil then save.stage5_speedy = false end
     if save.stage6_speedy == nil then save.stage6_speedy = false end
     if save.stage7_speedy == nil then save.stage7_speedy = false end
+    -- Has the stage been completed with a Flawless ranking (no crashes)? (mirror mode)
+    if save.stage1_flawless_mirror == nil then save.stage1_flawless_mirror = false end
+    if save.stage2_flawless_mirror == nil then save.stage2_flawless_mirror = false end
+    if save.stage3_flawless_mirror == nil then save.stage3_flawless_mirror = false end
+    if save.stage4_flawless_mirror == nil then save.stage4_flawless_mirror = false end
+    if save.stage5_flawless_mirror == nil then save.stage5_flawless_mirror = false end
+    if save.stage6_flawless_mirror == nil then save.stage6_flawless_mirror = false end
+    if save.stage7_flawless_mirror == nil then save.stage7_flawless_mirror = false end
+    -- Has the stage been completed with a Speedy ranking (under par time)? (mirror mode)
+    if save.stage1_speedy_mirror == nil then save.stage1_speedy_mirror = false end
+    if save.stage2_speedy_mirror == nil then save.stage2_speedy_mirror = false end
+    if save.stage3_speedy_mirror == nil then save.stage3_speedy_mirror = false end
+    if save.stage4_speedy_mirror == nil then save.stage4_speedy_mirror = false end
+    if save.stage5_speedy_mirror == nil then save.stage5_speedy_mirror = false end
+    if save.stage6_speedy_mirror == nil then save.stage6_speedy_mirror = false end
+    if save.stage7_speedy_mirror == nil then save.stage7_speedy_mirror = false end
     -- Story slot 1
     save.slot1_progress = save.slot1_progress or nil
     save.slot1_highest_progress = save.slot1_highest_progress or nil
@@ -443,7 +468,7 @@ import 'race'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(credits)
+    scenemanager:switchscene(race, 1, "story", true)
 end
 
 local offsetx

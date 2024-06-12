@@ -19,6 +19,7 @@ local abs <const> = math.abs
 local sin <const> = math.sin
 local cos <const> = math.cos
 local text <const> = gfx.getLocalizedText
+local reverse <const> = string.reverse
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -49,13 +50,28 @@ function race:init(...)
             end)
         end
         setpauseimage(200) -- TODO: Set this X offset
+        if vars.mirror then pd.display.setFlipped(false, false) end
+    end
+
+    function pd.gameWillResume()
+        pd.display.setFlipped(true, false)
+    end
+
+    function pd.deviceWillLock()
+        pd.display.setFlipped(false, false)
+    end
+
+    function pd.deviceWillSleep()
+        pd.display.setFlipped(false, false)
+    end
+
+    function pd.deviceDidUnlock()
+        pd.display.setFlipped(true, false)
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_pole_cap = gfx.image.new('images/race/pole_cap'),
         image_pole = gfx.image.new('images/race/pole'),
-        times_new_rally = gfx.font.new('fonts/times_new_rally'),
-        kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
         overlay_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
         overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
@@ -76,6 +92,7 @@ function race:init(...)
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         stage = args[1], -- A number, 1 through 7, to determine which stage to play.
         mode = args[2], -- A string, either "story" or "tt" or "debug", to determine which mode to choose.
+        mirror = args[3], -- A bool, true or false, determining whether to activate mirror mechanics.
         current_time = 0,
         mins = "0",
         secs = "00",
@@ -93,7 +110,6 @@ function race:init(...)
         audience_3 = pd.timer.new(25000, 10, -10),
         reverse_cooldown = true,
     }
-
     vars.water.repeats = true
     vars.audience_1.repeats = true
     vars.audience_1.reverses = true
@@ -122,6 +138,14 @@ function race:init(...)
     }
     if vars.mode ~= "debug" then
         pd.inputHandlers.push(vars.raceHandlers)
+    end
+
+    if vars.mirror then
+        assets.times_new_rally = gfx.font.new('fonts/yllar_wen_semit')
+        assets.kapel_doubleup_outline = gfx.font.new('fonts/kdu_reversed')
+    else
+        assets.times_new_rally = gfx.font.new('fonts/times_new_rally')
+        assets.kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline')
     end
 
     vars.anim_overlay = pd.timer.new(1000, 1, assets.overlay_fade:getLength())
@@ -329,21 +353,9 @@ function race:init(...)
             if vars.draw_polygons ~= nil then
                 if time % 3 == 0 then race:draw_polygons() end
                 local draw_polygons
-                local draw_bounds
-                local draw_lowest_point_x
-                local draw_highest_point_x
-                local draw_lowest_point_y
-                local draw_highest_point_y
                 for i = 1, #vars.draw_polygons do
                     draw_polygons = vars.draw_polygons[i]
-                    draw_bounds = vars.draw_bounds[i]
-                    draw_lowest_point_x = draw_bounds[1]
-                    draw_lowest_point_y = draw_bounds[2]
-                    draw_highest_point_x = draw_bounds[3]
-                    draw_highest_point_y = draw_bounds[4]
-                    if (draw_lowest_point_x < -x + 400 and draw_highest_point_x > -x) and (draw_lowest_point_y < -y + 240 and draw_highest_point_y > -y) then
-                        gfx.drawPolygon(draw_polygons)
-                    end
+                    gfx.drawPolygon(draw_polygons)
                 end
             end
 
@@ -381,42 +393,18 @@ function race:init(...)
             gfx.setLineWidth(2) -- Set the line width back
 
             local fill_polygons
-            local fill_bounds
-            local fill_lowest_point_x
-            local fill_highest_point_x
-            local fill_lowest_point_y
-            local fill_highest_point_y
             for i = 1, #vars.fill_polygons do
                 fill_polygons = vars.fill_polygons[i]
-                fill_bounds = vars.fill_bounds[i]
-                fill_lowest_point_x = fill_bounds[1]
-                fill_lowest_point_y = fill_bounds[2]
-                fill_highest_point_x = fill_bounds[3]
-                fill_highest_point_y = fill_bounds[4]
-                if (fill_lowest_point_x < -x + 400 and fill_highest_point_x > -x) and (fill_lowest_point_y < -y + 240 and fill_highest_point_y > -y) then
-                    gfx.fillPolygon(fill_polygons)
-                end
+                gfx.fillPolygon(fill_polygons)
             end
 
             local both_polygons
-            local both_bounds
-            local both_lowest_point_x
-            local both_highest_point_x
-            local both_lowest_point_y
-            local both_highest_point_y
             for i = 1, #vars.both_polygons do
                 both_polygons = vars.both_polygons[i]
-                both_bounds = vars.both_bounds[i]
-                both_lowest_point_x = both_bounds[1]
-                both_lowest_point_y = both_bounds[2]
-                both_highest_point_x = both_bounds[3]
-                both_highest_point_y = both_bounds[4]
-                if (both_lowest_point_x < -x + 400 and both_highest_point_x > -x) and (both_lowest_point_y < -y + 240 and both_highest_point_y > -y) then
-                    gfx.setColor(gfx.kColorWhite)
-                    gfx.fillPolygon(both_polygons)
-                    gfx.setColor(gfx.kColorBlack)
-                    gfx.drawPolygon(both_polygons)
-                end
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillPolygon(both_polygons)
+                gfx.setColor(gfx.kColorBlack)
+                gfx.drawPolygon(both_polygons)
             end
 
         end
@@ -433,34 +421,66 @@ function race:init(...)
         local anim_overlay = vars.anim_overlay
         if vars.mode ~= "debug" then
             gfx.setDrawOffset(0, 0)
-            -- If there's some kind of stage overlay anim going on, play it.
-            if anim_stage_overlay ~= nil then
-                stage_overlay:drawImage(floor(anim_stage_overlay.value), 0, 0)
-            elseif stage_overlay ~= nil then
-                stage_overlay:draw(0, 0)
-            end
-            -- If there's some kind of gameplay overlay anim going on, play it.
-            if anim_overlay.timeLeft ~= 0 then
-                assets['overlay_' .. vars.overlay]:getImage(floor(anim_overlay.value)):draw(0, 0)
-            end
-            if vars.lap_string ~= nil and not save.ui then
-                assets.kapel_doubleup_outline:drawText(vars.lap_string, vars.anim_lap_string.value, 12)
-            end
-            -- Draw the timer
-            assets.image_timer:draw(anim_hud + anim_ui_offset, 3 - anim_ui_sevenfour)
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-            vars.my_cool_buffer = vars.mins .. ":" .. vars.secs .. "." .. vars.mils
-            assets.times_new_rally:drawText(vars.my_cool_buffer, 44 + anim_hud + anim_ui_offset, 20 - anim_ui_sevenfour)
-            gfx.setImageDrawMode(gfx.kDrawModeCopy)
-            -- Draw the Rocket Arms icon, when applicable
-            if assets.image_item ~= nil then
-                assets.image_item:draw(313 - anim_hud, 0)
-            end
-            -- Draw the power meter
-            assets.image_meter_r:getImage(floor(vars.rowbot * 14.5) + 1):draw(0, 177 - anim_hud)
-            assets.image_meter_p:getImage(min(30, max(1, 30 - floor(vars.player * 14.5)))):draw(200, 177 - anim_hud)
-            if assets.shades ~= nil then
-                assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
+            if vars.mirror then
+                -- If there's some kind of stage overlay anim going on, play it.
+                if anim_stage_overlay ~= nil then
+                    stage_overlay:drawImage(floor(anim_stage_overlay.value), 0, 0, "flipX")
+                elseif stage_overlay ~= nil then
+                    stage_overlay:draw(0, 0, "flipX")
+                end
+                -- If there's some kind of gameplay overlay anim going on, play it.
+                if anim_overlay.timeLeft ~= 0 then
+                    assets['overlay_' .. vars.overlay]:getImage(floor(anim_overlay.value)):draw(0, 0, "flipX")
+                end
+                if vars.lap_string ~= nil and not save.ui then
+                    assets.kapel_doubleup_outline:drawTextAligned(reverse(vars.lap_string), 400 - vars.anim_lap_string.value, 12, kTextAlignment.right)
+                end
+                -- Draw the timer
+                assets.image_timer:draw(277 - anim_hud - anim_ui_offset, 3 - anim_ui_sevenfour, "flipX")
+                gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+                vars.my_cool_buffer = reverse(vars.mins .. ":" .. vars.secs .. "." .. vars.mils)
+                assets.times_new_rally:drawTextAligned(vars.my_cool_buffer, 356 - anim_hud - anim_ui_offset, 20 - anim_ui_sevenfour, kTextAlignment.right)
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                -- Draw the Rocket Arms icon, when applicable
+                if assets.image_item ~= nil then
+                    assets.image_item:draw(anim_hud, 0, "flipX")
+                end
+                -- Draw the power meter
+                assets.image_meter_r:getImage(floor(vars.rowbot * 14.5) + 1):draw(200, 177 - anim_hud, "flipX")
+                assets.image_meter_p:getImage(min(30, max(1, 30 - floor(vars.player * 14.5)))):draw(0, 177 - anim_hud, "flipX")
+                if assets.shades ~= nil then
+                    assets.shades:draw(311 + vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value, "flipX")
+                end
+            else
+                -- If there's some kind of stage overlay anim going on, play it.
+                if anim_stage_overlay ~= nil then
+                    stage_overlay:drawImage(floor(anim_stage_overlay.value), 0, 0)
+                elseif stage_overlay ~= nil then
+                    stage_overlay:draw(0, 0)
+                end
+                -- If there's some kind of gameplay overlay anim going on, play it.
+                if anim_overlay.timeLeft ~= 0 then
+                    assets['overlay_' .. vars.overlay]:getImage(floor(anim_overlay.value)):draw(0, 0)
+                end
+                if vars.lap_string ~= nil and not save.ui then
+                    assets.kapel_doubleup_outline:drawText(vars.lap_string, vars.anim_lap_string.value, 12)
+                end
+                -- Draw the timer
+                assets.image_timer:draw(anim_hud + anim_ui_offset, 3 - anim_ui_sevenfour)
+                gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+                vars.my_cool_buffer = vars.mins .. ":" .. vars.secs .. "." .. vars.mils
+                assets.times_new_rally:drawText(vars.my_cool_buffer, 44 + anim_hud + anim_ui_offset, 20 - anim_ui_sevenfour)
+                gfx.setImageDrawMode(gfx.kDrawModeCopy)
+                -- Draw the Rocket Arms icon, when applicable
+                if assets.image_item ~= nil then
+                    assets.image_item:draw(313 - anim_hud, 0)
+                end
+                -- Draw the power meter
+                assets.image_meter_r:getImage(floor(vars.rowbot * 14.5) + 1):draw(0, 177 - anim_hud)
+                assets.image_meter_p:getImage(min(30, max(1, 30 - floor(vars.player * 14.5)))):draw(200, 177 - anim_hud)
+                if assets.shades ~= nil then
+                    assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
+                end
             end
             gfx.setDrawOffset(x, y)
         end
@@ -489,13 +509,14 @@ function race:init(...)
         if vars.cpu_x ~= nil then
             self.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.follow_polygon)
         end
-        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y)
+        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y, nil, vars.mirror)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
         end)
     end
     self:add()
+    if vars.mirror then pd.display.setFlipped(true, false) end
 end
 
 -- fast atan2. Thanks, nnnn!
@@ -622,7 +643,7 @@ function race:finish(timeout, duration)
             assets.sfx_finish:play() -- Applause!
         end
         pd.timer.performAfterDelay(2500, function()
-            scenemanager:switchscene(results, vars.stage, vars.mode, floor(vars.current_time), vars.won, self.boat.crashes)
+            scenemanager:switchscene(results, vars.stage, vars.mode, floor(vars.current_time), vars.won, self.boat.crashes, vars.mirror)
         end)
     end
 end

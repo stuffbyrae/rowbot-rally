@@ -153,6 +153,6 @@ function intro:leave()
     vars.anim_bottom:resetnew(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
     vars.anim_fade:resetnew(250, 34, 1)
     pd.timer.performAfterDelay(300, function()
-        scenemanager:switchscene(race, vars.stage, "story")
+        scenemanager:switchscene(race, vars.stage, "story", false)
     end)
 end

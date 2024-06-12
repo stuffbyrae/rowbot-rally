@@ -35,6 +35,8 @@ function stages:init(...)
         image_ok = makebutton(text('ok'), 'big'),
         image_back = makebutton(text('back'), 'small'),
         image_leaderboards = makebutton(text('up_leaderboards'), 'small'),
+        image_mirror = makebutton(text('down_mirror'), 'small'),
+        image_regular = makebutton(text('down_regular'), 'small'),
         image_medal_unobtained = gfx.image.new('images/stages/medal_unobtained'),
         image_medal_flawless = gfx.image.new('images/stages/medal_flawless'),
         image_medal_speedy = gfx.image.new('images/stages/medal_speedy'),
@@ -58,65 +60,6 @@ function stages:init(...)
         assets.image_wave:drawTiled(0, 0, 464, 280)
     gfx.popContext()
 
-    gfx.pushContext(assets.image_buttons)
-        assets.image_ok:drawAnchored(99, 10, 0.5, 0)
-        assets.image_leaderboards:drawAnchored(78, 217, 0.5, 0)
-    gfx.popContext()
-
-    -- Writing to the image along the top; wrapped in a function so that I can update it later.
-    function update_image_top(stage, show_desc, ranking, name)
-        -- Todo: figure out if there's a better way to accomplish this bullshit
-        -- Calculate the proper time for each save, and assign it to variables
-        mins, secs, mils = timecalc(save['stage' .. stage .. '_best'])
-        assets.image_top = gfx.image.new(480, 300)
-        gfx.pushContext(assets.image_top)
-            gfx.fillRect(0, 0, 480, 50) -- Add the black rectangle
-            assets.image_timer:draw(0, 40) -- Draw the timer graphic
-            assets.kapel:drawText(text('besttime'), 34, 80) -- the "Best Time" label
-            gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Fill white...
-            assets.kapel:drawText(text('stage') .. stage, 5, 7) -- The stage number
-            assets.kapel_doubleup:drawText(text('stage_' .. stage .. '_name'), 5, 16) -- The stage's name
-            assets.times_new_rally:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 75, 57, kTextAlignment.center) -- and the best time.
-            gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back to normal just to be safe
-            if show_desc then
-                assets.pedallica:drawText(text('stage_' .. stage .. '_desc'), 10, 95)
-                if save['stage' .. stage .. '_flawless'] then
-                    assets.image_medal_flawless:draw(135, 45)
-                else
-                    assets.image_medal_unobtained:draw(135, 45)
-                end
-                if save['stage' .. stage .. '_speedy'] then
-                    assets.image_medal_speedy:draw(180, 45)
-                else
-                    assets.image_medal_unobtained:draw(180, 45)
-                end
-            end
-            if ranking ~= nil then
-                assets.kapel:drawText(text('yourank'), 125, 52)
-                assets.kapel_doubleup:drawTextAligned(ordinal(ranking) .. "!", 205, 60, kTextAlignment.right)
-                -- If the player has a default username, then let's throw a prompt up to tell them to change that. Woohoo, indoctrination!
-                if string.len(name) == 16 and tonumber(name) then
-                    gfx.fillRect(0, 165, 480, 40)
-                    gfx.setColor(gfx.kColorWhite)
-                    gfx.fillRect(0, 167, 480, 36)
-                    gfx.setColor(gfx.kColorBlack)
-                    assets.pedallica:drawTextAligned(text('default_username_text'), 107, 170, kTextAlignment.center)
-                end
-            end
-        gfx.popContext()
-        -- Nil those save variables, just in case
-        mins = nil
-        secs = nil
-        mils = nil
-        -- And set the image, but only if the sprite exists.
-        if self.top ~= nil then
-            self.top:setImage(assets.image_top)
-        end
-    end
-
-    -- Now call it at stage 1 to start.
-    update_image_top(1, true)
-
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         selection = 1,
         leaderboards_open = false,
@@ -128,6 +71,8 @@ function stages:init(...)
         anim_back_y = pd.timer.new(1, 235, 235),
         anim_top_y = pd.timer.new(1, 0, 0),
         anim_preview_x = pd.timer.new(1, 400, 400),
+        mirror = false,
+        board = '',
     }
     vars.stagesHandlers = {
         leftButtonDown = function()
@@ -141,6 +86,12 @@ function stages:init(...)
         upButtonDown = function()
             assets.sfx_leaderboard_in:play()
             self:leaderboardsin()
+        end,
+
+        downButtonDown = function()
+            if save['stage' .. vars.selection .. '_flawless'] and save['stage' .. vars.selection .. '_speedy'] then
+                self:flipmirror()
+            end
         end,
 
         BButtonDown = function()
@@ -170,6 +121,8 @@ function stages:init(...)
     vars.anim_back_y.discardOnCompletion = false
     vars.anim_top_y.discardOnCompletion = false
     vars.anim_preview_x.discardOnCompletion = false
+
+    self:update_image_top(1, true)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
@@ -291,6 +244,7 @@ function stages:init(...)
     self.top = stages_top()
     self.preview = stages_preview()
     self.buttons = stages_buttons()
+    self:update_image_buttons()
     self.lb_accent = stages_lb_accent()
     self.lb_bubble = stages_lb_bubble()
     self.lb_text = stages_lb_text()
@@ -301,6 +255,7 @@ end
 
 -- Select a new stage using the arrow keys. dir is a boolean — left is false, right is true
 function stages:newselection(dir)
+    vars.mirror = false
     vars.old_selection = vars.selection
     if dir then
         vars.selection = math.clamp(vars.selection + 1, 1, save.stages_unlocked)
@@ -313,16 +268,16 @@ function stages:newselection(dir)
         shakies()
     else
         assets.sfx_menu:play()
-        update_image_top(vars.selection, true)
-        assets.image_preview = gfx.image.new('images/stages/preview' .. vars.selection)
-        self.preview:setImage(assets.image_preview)
+        self:update_image_buttons()
+        self:update_image_top(vars.selection, true)
+        self:update_image_preview()
     end
 end
 
 -- Enter a leaderboards screen
 function stages:leaderboardsin()
     vars.leaderboards_open = true
-    update_image_top(vars.selection, false)
+    self:update_image_top(vars.selection, false)
     pd.inputHandlers.push(vars.leaderboardHandlers, true)
     assets.image_rowbot_accent = gfx.imagetable.new('images/stages/rowbot_accent')
     assets.image_leaderboard_container = gfx.imagetable.new('images/stages/leaderboard_container')
@@ -336,10 +291,15 @@ function stages:leaderboardsin()
     pd.timer.performAfterDelay(1000, function()
         vars.leaderboards_closable = true
         self.lb_accent:setImage(assets.image_rowbot_accent[1])
-        pd.scoreboards.getPersonalBest('stage' .. tostring(vars.selection), function(status, result)
+        if vars.mirror then
+            vars.board = 'stage' .. tostring(vars.selection) .. 'mirror'
+        else
+            vars.board = 'stage' .. tostring(vars.selection)
+        end
+        pd.scoreboards.getPersonalBest(vars.board, function(status, result)
             if status.code == "OK" then
                 if vars.leaderboards_open then
-                    update_image_top(vars.selection, false, result.rank, result.player)
+                    self:update_image_top(vars.selection, false, result.rank, result.player)
                 end
             end
         end)
@@ -349,7 +309,7 @@ function stages:leaderboardsin()
         gfx.popContext()
         self.lb_text:setImage(assets.image_lb_text)
         self.lb_text:add()
-        pd.scoreboards.getScores('stage' .. tostring(vars.selection), function(status, result)
+        pd.scoreboards.getScores(vars.board, function(status, result)
             if status.code == "OK" and vars.leaderboards_open then
                 assets.image_lb_text = gfx.image.new(190, 240)
                 gfx.pushContext(assets.image_lb_text)
@@ -385,7 +345,7 @@ function stages:leaderboardsout()
     assets.sfx_pop:play()
     vars.leaderboards_closable = false
     self.lb_text:remove()
-    update_image_top(vars.selection, false)
+    self:update_image_top(vars.selection, false)
     assets.image_leaderboard_container_outro = gfx.imagetable.new('images/stages/leaderboard_container_outro')
     vars.anim_lb_bubble = gfx.animation.loop.new(70, assets.image_leaderboard_container_outro, false)
     pd.timer.performAfterDelay(250, function()
@@ -402,7 +362,7 @@ function stages:leaderboardsout()
             vars.leaderboards_open = false
             self.lb_accent:remove()
             pd.inputHandlers.pop()
-            update_image_top(vars.selection, true)
+            self:update_image_top(vars.selection, true)
             vars.anim_boat_y:resetnew(2500, 195, 200, pd.easingFunctions.inOutCubic)
             vars.anim_boat_y.repeats = true
             vars.anim_boat_y.reverses = true
@@ -423,6 +383,113 @@ function stages:enterrace()
         vars.anim_wave_y:resetnew(250, self.wave.y, 245, pd.easingFunctions.inBack)
     end
     pd.timer.performAfterDelay(1200, function()
-        scenemanager:switchscene(race, vars.selection, "tt")
+        scenemanager:switchscene(race, vars.selection, "tt", vars.mirror)
     end)
+end
+
+function stages:update_image_buttons()
+    assets.image_buttons = gfx.image.new(156, 240)
+    gfx.pushContext(assets.image_buttons)
+        assets.image_ok:drawAnchored(99, 10, 0.5, 0)
+        if save['stage' .. vars.selection .. '_flawless'] and save['stage' .. vars.selection .. '_speedy'] then
+            if vars.mirror then
+                assets.image_leaderboards:drawAnchored(78, 190, 0.5, 0)
+                assets.image_regular:drawAnchored(78, 217, 0.5, 0)
+            else
+                assets.image_leaderboards:drawAnchored(78, 190, 0.5, 0)
+                assets.image_mirror:drawAnchored(78, 217, 0.5, 0)
+            end
+        else
+            assets.image_leaderboards:drawAnchored(78, 217, 0.5, 0)
+        end
+    gfx.popContext()
+    self.buttons:setImage(assets.image_buttons)
+end
+
+function stages:update_image_preview()
+    if vars.mirror then
+        assets.image_preview = gfx.image.new('images/stages/preview' .. vars.selection .. '_mirror')
+    else
+        assets.image_preview = gfx.image.new('images/stages/preview' .. vars.selection)
+    end
+    self.preview:setImage(assets.image_preview)
+end
+
+-- Writing to the image along the top; wrapped in a function so that I can update it later.
+function stages:update_image_top(stage, show_desc, ranking, name)
+    -- Todo: figure out if there's a better way to accomplish this bullshit
+    -- Calculate the proper time for each save, and assign it to variables
+    local mins
+    local secs
+    local mils
+    if vars.mirror then
+        mins, secs, mils = timecalc(save['stage' .. stage .. '_best_mirror'])
+    else
+        mins, secs, mils = timecalc(save['stage' .. stage .. '_best'])
+    end
+    assets.image_top = gfx.image.new(480, 300)
+    gfx.pushContext(assets.image_top)
+        gfx.fillRect(0, 0, 480, 50) -- Add the black rectangle
+        assets.image_timer:draw(0, 40) -- Draw the timer graphic
+        assets.kapel:drawText(text('besttime'), 34, 80) -- the "Best Time" label
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Fill white...
+        if vars.mirror then
+            assets.kapel:drawText(text('stage') .. stage .. text('mirrormode'), 5, 7) -- The stage number
+        else
+            assets.kapel:drawText(text('stage') .. stage, 5, 7) -- The stage number
+        end
+        assets.kapel_doubleup:drawText(text('stage_' .. stage .. '_name'), 5, 16) -- The stage's name
+        assets.times_new_rally:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 75, 57, kTextAlignment.center) -- and the best time.
+        gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back to normal just to be safe
+        if show_desc then
+            if vars.mirror then
+                if save['stage' .. stage .. '_flawless_mirror'] then
+                    assets.image_medal_flawless:draw(135, 45)
+                else
+                    assets.image_medal_unobtained:draw(135, 45)
+                end
+                if save['stage' .. stage .. '_speedy_mirror'] then
+                    assets.image_medal_speedy:draw(180, 45)
+                else
+                    assets.image_medal_unobtained:draw(180, 45)
+                end
+            else
+                if save['stage' .. stage .. '_flawless'] then
+                    assets.image_medal_flawless:draw(135, 45)
+                else
+                    assets.image_medal_unobtained:draw(135, 45)
+                end
+                if save['stage' .. stage .. '_speedy'] then
+                    assets.image_medal_speedy:draw(180, 45)
+                else
+                    assets.image_medal_unobtained:draw(180, 45)
+                end
+            end
+            assets.pedallica:drawText(text('stage_' .. stage .. '_desc'), 10, 95)
+        end
+        if ranking ~= nil then
+            assets.kapel:drawText(text('yourank'), 125, 52)
+            assets.kapel_doubleup:drawTextAligned(ordinal(ranking) .. "!", 205, 60, kTextAlignment.right)
+            -- If the player has a default username, then let's throw a prompt up to tell them to change that. Woohoo, indoctrination!
+            if string.len(name) == 16 and tonumber(name) then
+                gfx.fillRect(0, 165, 480, 40)
+                gfx.setColor(gfx.kColorWhite)
+                gfx.fillRect(0, 167, 480, 36)
+                gfx.setColor(gfx.kColorBlack)
+                assets.pedallica:drawTextAligned(text('default_username_text'), 107, 170, kTextAlignment.center)
+            end
+        end
+    gfx.popContext()
+    -- And set the image, but only if the sprite exists.
+    if self.top ~= nil then
+        self.top:setImage(assets.image_top)
+    end
+end
+
+-- Flip mirror mode
+function stages:flipmirror()
+    vars.mirror = not vars.mirror
+    self:update_image_top(vars.selection, true)
+    self:update_image_buttons()
+    self:update_image_preview()
 end

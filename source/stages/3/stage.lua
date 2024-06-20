@@ -107,7 +107,7 @@ function race:stage_init()
     -- Umbrella
     vars.umbrellas_x = {600, 300, 170, 100, 105, 65, 125, 70, 165, 290, 515}
     vars.umbrellas_y = {85, 125, 165, 415, 670, 805, 1025, 1215, 1275, 1490, 1505}
-    -- boost_pads
+    -- Boost pads
     vars.boost_pads_x = {685, 1060, 820}
     vars.boost_pads_y = {155, 510, 1320}
     vars.boost_pads_flip = {gfx.kImageUnflipped, gfx.kImageFlippedX, gfx.kImageFlippedX}

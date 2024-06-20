@@ -316,6 +316,7 @@ function stats:refreshonlinestats()
 end
 
 function stats:sendonlinestatsscores()
+    if playtest then return end
     corner('sendscore')
     pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
         if status.code ~= "OK" then

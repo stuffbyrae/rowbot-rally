@@ -26,7 +26,6 @@ function race:init(...)
     race.super.init(self)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
-    if enabled_cheats_retro then pd.display.setMosaic(2, 0) end
     gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
 
     function pd.gameWillPause() -- When the game's paused...
@@ -140,6 +139,8 @@ function race:init(...)
         pd.inputHandlers.push(vars.raceHandlers)
     end
 
+    if enabled_cheats_retro and vars.mode ~= "story" then pd.display.setMosaic(2, 0) end
+
     if vars.mirror then
         assets.times_new_rally = gfx.font.new('fonts/yllar_wen_semit')
         assets.kapel_doubleup_outline = gfx.font.new('fonts/kdu_reversed')
@@ -199,21 +200,8 @@ function race:init(...)
         vars.boosts_remaining = 3
     end
 
-    gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
-        assets.image_water_bg:draw(x, y)
-        if assets.caustics ~= nil then
-            assets.caustics:getImage(floor(vars.water.value)):draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
-        end
-        if assets.caustics_overlay ~= nil then
-            assets.caustics_overlay:draw(0, 0)
-        end
-        if assets.water ~= nil then
-            assets.water:getImage(floor(vars.water.value)):draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
-        end
-        if assets.popeyes ~= nil then
-            assets.popeyes:draw(0, 0)
-        end
-    end)
+    -- assets.caustics:getImage(floor(vars.water.value)):draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
+    -- assets.water:getImage(floor(vars.water.value)):draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
 
     class('race_below').extends(gfx.sprite)
     function race_below:init()
@@ -221,11 +209,25 @@ function race:init(...)
         self:setZIndex(-1)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
+    self:setOpaque(true)
         self:add()
     end
     function race_below:draw(x, y, width, height)
         local x = vars.x
         local y = vars.y
+        assets.image_water_bg:draw(-x, -y)
+        if assets.caustics ~= nil then
+            assets.caustics:getImage(floor(vars.water.value)):draw(-x, -y) -- Move the water sprite to keep it in frame
+        end
+        if assets.caustics_overlay ~= nil then
+            assets.caustics_overlay:draw(-x, -y)
+        end
+        if assets.water ~= nil then
+            assets.water:getImage(floor(vars.water.value)):draw(-x, -y) -- Move the water sprite to keep it in frame
+        end
+        if assets.popeyes ~= nil then
+            assets.popeyes:draw(-x, -y)
+        end
         local time = save.total_playtime
         local stage_x = vars.stage_x
         local stage_y = vars.stage_y
@@ -509,7 +511,7 @@ function race:init(...)
         if vars.cpu_x ~= nil then
             self.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.follow_polygon)
         end
-        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y, nil, vars.mirror)
+        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y, nil, vars.mirror, vars.mode)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
@@ -764,28 +766,15 @@ function race:checkpointcheck(cpu)
                 self:leap(false)
             elseif vars.reverse_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a reverse pad.
-                if vars.reverse_pads_setting[tag - 42] == true then
-                    if self.boat.reversed == 1 then
-                        assets.sfx_cymbal:play()
-                        shakies()
-                        shakies_y()
-                        if not pd.getReduceFlashing() then
-                            vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
-                            vars.overlay = "fade"
-                        end
-                        self.boat.reversed = -1
+                if self.boat.reversed == 1 then
+                    assets.sfx_cymbal:play()
+                    shakies()
+                    shakies_y()
+                    if not pd.getReduceFlashing() then
+                        vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
+                        vars.overlay = "fade"
                     end
-                else
-                    if self.boat.reversed == -1 then
-                        assets.sfx_cymbal:play()
-                        shakies()
-                        shakies_y()
-                        if not pd.getReduceFlashing() then
-                            vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
-                            vars.overlay = "fade"
-                        end
-                        self.boat.reversed = 1
-                    end
+                    self.boat.reversed = -1
                 end
             end
         end
@@ -804,18 +793,6 @@ end
 function race:update()
     local delta = pd.getElapsedTime()
     pd.resetElapsedTime()
-    vars.x, vars.y = gfx.getDrawOffset() -- Gimme the draw offset
-    local x = vars.x
-    local y = vars.y
-    -- Set up the parallax!
-    if not perf then
-        vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
-        vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))
-        vars.stage_progress_medium_x = (((-x + 200) / vars.stage_x) * (vars.parallax_medium_amount - 1))
-        vars.stage_progress_medium_y = (((-y + 120) / vars.stage_y) * (vars.parallax_medium_amount - 1))
-        vars.stage_progress_long_x = (((-x + 135) / vars.stage_x) * (vars.parallax_long_amount - 1))
-        vars.stage_progress_long_y = (((-y + 60) / vars.stage_y) * (vars.parallax_long_amount - 1))
-    end
     if vars.mode == "debug" then -- If debug mode is enabled,
         -- These have to be in the update loop because there's no way to just check if a button's held on every frame using an input handler. Weird.
         if pd.buttonIsPressed('up') then
@@ -876,12 +853,24 @@ function race:update()
         end
         vars.rowbot = self.boat.turn_speedo.value
         vars.player = self.boat.crankage_divvied
-        if self.boat.crashable and not self.boat.beached then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y, vars.mode) end
+        if self.boat.crashable and not self.boat.beached then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
         if self.cpu ~= nil then
             self:checkpointcheck(true)
             if self.cpu.crashable then
-                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, self.stage.x, self.stage.y, vars.mode)
+                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, self.stage.x, self.stage.y)
             end
         end
+    end
+    vars.x, vars.y = gfx.getDrawOffset() -- Gimme the draw offset
+    local x = vars.x
+    local y = vars.y
+    -- Set up the parallax!
+    if not perf then
+        vars.stage_progress_short_x = (((-x + 200) / vars.stage_x) * (vars.parallax_short_amount - 1))
+        vars.stage_progress_short_y = (((-y + 120) / vars.stage_y) * (vars.parallax_short_amount - 1))
+        vars.stage_progress_medium_x = (((-x + 200) / vars.stage_x) * (vars.parallax_medium_amount - 1))
+        vars.stage_progress_medium_y = (((-y + 120) / vars.stage_y) * (vars.parallax_medium_amount - 1))
+        vars.stage_progress_long_x = (((-x + 135) / vars.stage_x) * (vars.parallax_long_amount - 1))
+        vars.stage_progress_long_y = (((-y + 60) / vars.stage_y) * (vars.parallax_long_amount - 1))
     end
 end

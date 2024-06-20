@@ -68,9 +68,10 @@ end
 
 -- Bote!
 class('boat').extends(gfx.sprite)
-function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polygon, mirror)
+function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polygon, mirror, racemode)
     boat.super.init(self)
     self.mode = mode -- "cpu", "race", or "tutorial"
+    self.racemode = racemode
 
     self.poly_body = geo.polygon.new(0,-38, 11,-29, 17,-19, 20,-6, 20,6, 18,20, 15,30, 12,33, -12,33, -15,30, -18,20, -20,6, -20,-6, -17,-19, -11,-29, 0,-38)
     self.poly_inside = geo.polygon.new(12,-20, 0,-23, -12,-20, -16,-7, 16,-7, 16,5, -16,5, -14,20, 14,20, 16,5, 16,-7, 12,-20)
@@ -133,20 +134,22 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
             self.sfx_boost:setVolume(save.vol_sfx/5)
         end
 
-        if enabled_cheats_big then
-            self.scale_factor = 1.70
-            self.speed = 4
-            self.turn = 4
-        end
-        if enabled_cheats_small then
-            self.scale_factor = 0.5
-            self.speed = 6
-            self.turn = 7
-        end
-        if enabled_cheats_tiny then
-            self.scale_factor = 0.1
-            self.speed = 7
-            self.turn = 10
+        if self.racemode ~= "story" then
+            if enabled_cheats_big then
+                self.scale_factor = 1.70
+                self.speed = 4
+                self.turn = 4
+            end
+            if enabled_cheats_small then
+                self.scale_factor = 0.5
+                self.speed = 6
+                self.turn = 7
+            end
+            if enabled_cheats_tiny then
+                self.scale_factor = 0.1
+                self.speed = 7
+                self.turn = 10
+            end
         end
 
         self.cam_x = pd.timer.new(0, 0, 0) -- Camera X position
@@ -274,7 +277,7 @@ function boat:start(duration) -- 1000 is default
         end
         self.sfx_row:play(0)
         if not save.button_controls and pd.isSimulator ~= 1 then show_crank = true end
-        if enabled_cheats_scream then
+        if enabled_cheats_scream  and self.racemode ~= "story" then
             playdate.sound.micinput.startListening()
         end
     end
@@ -306,13 +309,13 @@ function boat:finish(duration, peelout)
                 self.peelout = pd.timer.new(duration, self.rotation, self.rotation - random(30, 75), pd.easingFunctions.outSine)
             end
         end
-        if enabled_cheats_scream then
+        if enabled_cheats_scream  and self.racemode ~= "story" then
             playdate.sound.micinput.stopListening()
         end
     end
 end
 
-function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y, mode)
+function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
     self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
     self.crash_body_scale:translate(self.x, self.y)
     for i = 1, #polygons do
@@ -334,7 +337,7 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y, mod
                             if self.movable then
                                 self.crashes += 1
                                 save.total_crashes += 1
-                                if mode == "story" then
+                                if self.racemode == "story" then
                                     save['slot' .. save.current_story_slot .. '_crashes'] += 1
                                 end
                             end
@@ -488,7 +491,7 @@ function boat:update(delta)
                 gfx.setDrawOffset(x, y)
             end
             if self.turnable then
-                if enabled_cheats_scream then
+                if enabled_cheats_scream and self.racemode ~= "story" then
                     if pd.sound.micinput.getLevel() > 0 then
                         self.crankage += ((playdate.sound.micinput.getLevel() * 30) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
                     elseif self.crankage >= 0.01 then
@@ -496,7 +499,7 @@ function boat:update(delta)
                     else
                         self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
                     end
-                elseif save.button_controls then
+                elseif save.button_controls or pd.isSimulator == 1 then
                     if self.right then
                         if self.turn_speedo.value == 1 then
                             self.crankage += ((self.turn * (self.turn_speedo.value * 2)) - self.crankage) * self.lerp

@@ -22,13 +22,15 @@ function credits:init(...)
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
+        image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         credits = gfx.image.new('images/ui/credits'),
         creditscover1 = gfx.image.new('images/ui/creditscover1'),
         creditscover2 = gfx.image.new('images/ui/creditscover2'),
     }
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
-        creditsscrolly = pd.timer.new(120000, 0, -2640),
+        creditsscrolly = pd.timer.new(145989, 0, -2640),
+        anim_fade = pd.timer.new(1, 1, 1),
         showcover1 = true,
         showcover2 = true,
     }
@@ -37,13 +39,27 @@ function credits:init(...)
     }
     pd.inputHandlers.push(vars.creditsHandlers)
 
-    pd.timer.performAfterDelay(2000, function()
+    vars.anim_fade.discardOnCompletion = false
+
+    pd.timer.performAfterDelay(5538, function()
+        vars.anim_fade:resetnew(1, 34, 34)
+    end)
+
+    pd.timer.performAfterDelay(8158, function()
         vars.showcover1 = false
     end)
-    pd.timer.performAfterDelay(4000, function()
+    pd.timer.performAfterDelay(10867, function()
         vars.showcover2 = false
     end)
-    vars.creditsscrolly.delay = 6000
+    vars.creditsscrolly.delay = 13487
+    vars.creditsscrolly.timerEndedCallback = function()
+        pd.timer.performAfterDelay(5000, function()
+            vars.anim_fade:resetnew(2000, 34, 1)
+            pd.timer.performAfterDelay(2000, function()
+                scenemanager:switchscene(title)
+            end)
+        end)
+    end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         assets.credits:draw(0, vars.creditsscrolly.value)
@@ -51,11 +67,24 @@ function credits:init(...)
         if vars.showcover1 then assets.creditscover1:draw(0, 0) end
     end)
 
+    class('credits_fade').extends(gfx.sprite)
+    function credits_fade:init()
+        credits_fade.super.init(self)
+        self:setImage(assets.image_fade[34])
+        self:setCenter(0, 0)
+        self:setIgnoresDrawOffset(true)
+        self:setZIndex(9)
+        self:add()
+    end
+    function credits_fade:update()
+        if vars.anim_fade ~= nil then
+            self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
+        end
+    end
+
+    self.fade = credits_fade()
     self:add()
 
     savegame(true) -- Save the game!
-end
-
--- Scene update loop
-function credits:update()
+    newmusic('audio/music/credits') -- Adding new music
 end

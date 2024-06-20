@@ -148,9 +148,9 @@ function tutorial:init(...)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height)
         assets.image_water_bg:draw(0, 0)
-        assets.caustics[floor(vars.water.value)]:drawScaled((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240, 2) -- Move the water sprite to keep it in frame
+        assets.caustics[floor(vars.water.value)]:draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
         assets.caustics_overlay:draw(0, 0)
-        assets.water[floor(vars.water.value)]:drawScaled(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240, 2) -- Move the water sprite to keep it in frame
+        assets.water[floor(vars.water.value)]:draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
     end)
 
     class('tutorial_stage').extends(gfx.sprite)
@@ -231,7 +231,7 @@ function tutorial:init(...)
     end
     -- Set the sprites
     self.stage = tutorial_stage()
-    self.boat = boat("tutorial", 0, 0, 0, vars.stage_x, vars.stage_y, vars.edges_polygons, assets.image_stagec)
+    self.boat = boat("tutorial", 0, 0, 0, vars.stage_x, vars.stage_y, nil, false, "story")
     self:add()
 
     pd.timer.performAfterDelay(1500, function()
@@ -277,16 +277,14 @@ function tutorial:progress()
         elseif vars.current_step == 15 then
             vars.boundsx = -vars.x - (vars.stage_x / 2) + 170
             vars.boundsy = -vars.y - (vars.stage_y) + 900
-            self.stage:moveTo(vars.boundsx, vars.boundsy)
             self.stage:setIgnoresDrawOffset(false)
+            self.stage:moveTo(vars.boundsx, vars.boundsy)
             vars.finish = gfx.sprite.addEmptyCollisionSprite(self.stage.x + 577, self.stage.y + 334, 250, 20)
             vars.finish:setTag(0)
             vars.showstage = true
             for i = 1, #vars.edges_polygons do
                 vars.edges_polygons[i]:translate(self.stage.x, self.stage.y)
             end
-            -- Add in course just above player
-            -- Drop in peach's staircase logic
         end
         if vars.current_step <= 15 then -- If there's more progression, then show the new UI.
             if vars.current_step == 3 or vars.current_step == 8 then -- If you're just turning the Rowbot on, then give it some more time.
@@ -337,11 +335,12 @@ function tutorial:leave()
 end
 
 function tutorial:update()
+    local delta = pd.getElapsedTime()
+    print(delta)
+    pd.resetElapsedTime()
     vars.x, vars.y = gfx.getDrawOffset() -- Gimme the draw offset
     local x = vars.x + vars.boundsx
     local y = vars.y + vars.boundsy
-    vars.rowbot = self.boat.turn_speedo.value
-    vars.player = self.boat.crankage_divvied
     if vars.current_step == 6 and vars.player > 0 then
         vars.gameplay_progress += 1
         if vars.gameplay_progress >= 130 then
@@ -371,4 +370,7 @@ function tutorial:update()
         vars.stage_progress_long_x = (((-x + 135) / (vars.stage_x)) * (vars.parallax_long_amount - 1))
         vars.stage_progress_long_y = (((-y + 60) / (vars.stage_y)) * (vars.parallax_long_amount - 1))
     end
+    self.boat:update(delta)
+    vars.rowbot = self.boat.turn_speedo.value
+    vars.player = self.boat.crankage_divvied
 end

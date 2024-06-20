@@ -56,7 +56,7 @@ function results:init(...)
         stage4_speedy = 1650,
         stage5_speedy = 4050,
         stage6_speedy = 1500,
-        stage7_speedy = 100,
+        stage7_speedy = 2100,
         speedy = false,
         poststagetime = false,
         showtimetrials = false,
@@ -148,9 +148,9 @@ function results:init(...)
                     local bestsecs
                     local bestmils
                     if vars.mirror then
-                        local bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best_mirror'])
+                        bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best_mirror'])
                     else
-                        local bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best'])
+                        bestmins, bestsecs, bestmils = timecalc(save['stage' .. vars.stage .. '_best'])
                     end
                     assets.kapel:drawTextAligned(text('besttime'), 355, 125, kTextAlignment.right)
                     assets.times_new_rally:drawTextAligned(bestmins .. ":" .. bestsecs .. "." .. bestmils, 355, 140, kTextAlignment.right)
@@ -277,6 +277,7 @@ function results:back()
 end
 
 function results:sendscores()
+    if playtest then return end
     corner('sendscore')
     local board
     if vars.mirror then

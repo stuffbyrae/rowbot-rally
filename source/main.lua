@@ -20,6 +20,7 @@ local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
 local text <const> = gfx.getLocalizedText
 local floor <const> = math.floor
+local datestamp <const> = pd.getTime()
 
 pd.display.setRefreshRate(30)
 fps = 30
@@ -33,6 +34,7 @@ show_crank = false -- do you show the crankindicator in this scene?
 corner_active = false -- Is the corner UI active?
 demo = true
 if not string.find(pd.metadata.bundleID, "demo") then demo = false end -- DEMO check.
+playtest = false -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
 
 -- Cheats checks
 enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
@@ -463,12 +465,23 @@ function shakies_y(time, int)
     anim_shakies_y = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
+import 'stages'
 import 'race'
+import 'credits'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "story", true)
+    scenemanager:switchscene(race, 7, "tt")
+end
+
+if playtest and datestamp.year >= 2024 and datestamp.month >= 10 then
+    playdate.stop()
+    gfx.image.new('images/ui/corner'):draw(0, 0)
+    print("The playtesting period for this game is now over. If you wanna keep playing RowBot Rally, please buy the game in Catalog!")
+    kapel_doubleup:drawTextAligned("Thank you for playtesting!", 200, 15, kTextAlignment.center)
+    pedallica:drawText("The playtesting period for this\ngame is now over. If you wanna\nkeep playing RowBot Rally, please\nbuy the game in Catalog!\n\nTo transfer your save data over to\nthe full version, make sure the\nRowBot Rally save folder in your Data\nDisk is named \"wtf.rae.rowbotrally\".\n\n🌐 play.date/games/rowbot-rally\nThanks again for your help!", 30, 45)
+    playdate.display.flush()
 end
 
 local offsetx

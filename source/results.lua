@@ -60,6 +60,7 @@ function results:init(...)
         speedy = false,
         poststagetime = false,
         showtimetrials = false,
+        showmirrorunlock = false,
     }
     vars.resultsHandlers = {
         AButtonDown = function()
@@ -109,10 +110,16 @@ function results:init(...)
                     vars.poststagetime = true
                 end
                 if vars.time < vars['stage' .. vars.stage .. '_speedy'] and not enabled_cheats then
+                    if not save['stage' .. vars.stage .. '_speedy'] and save['stage' .. vars.stage .. '_flawless'] then
+                        vars.showmirrorunlock = true
+                    end
                     save['stage' .. vars.stage .. '_speedy'] = true
                     vars.speedy = true
                 end
                 if vars.crashes == 0 and not enabled_cheats then
+                    if save['stage' .. vars.stage .. '_speedy'] and not save['stage' .. vars.stage .. '_flawless'] then
+                        vars.showmirrorunlock = true
+                    end
                     save['stage' .. vars.stage .. '_flawless'] = true
                 end
             end
@@ -163,6 +170,9 @@ function results:init(...)
                     gfx.imageWithText(text('speedy'), 200, 120):drawScaled(40, 20, 2)
                 else
                     gfx.imageWithText(text('finish'), 200, 120):drawScaled(40, 20, 2)
+                end
+                if vars.showmirrorunlock then
+                    assets.kapel:drawText(text('mirrorunlockedforthisstage'), 139, 65)
                 end
             end
         else

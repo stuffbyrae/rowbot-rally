@@ -34,7 +34,7 @@ show_crank = false -- do you show the crankindicator in this scene?
 corner_active = false -- Is the corner UI active?
 demo = true
 if not string.find(pd.metadata.bundleID, "demo") then demo = false end -- DEMO check.
-playtest = false -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
+playtest = true -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
 
 -- Cheats checks
 enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
@@ -472,7 +472,7 @@ import 'credits'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 7, "tt")
+    scenemanager:switchscene(race, 1, "tt")
 end
 
 if playtest and datestamp.year >= 2024 and datestamp.month >= 10 then

@@ -766,15 +766,28 @@ function race:checkpointcheck(cpu)
                 self:leap(false)
             elseif vars.reverse_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a reverse pad.
-                if self.boat.reversed == 1 then
-                    assets.sfx_cymbal:play()
-                    shakies()
-                    shakies_y()
-                    if not pd.getReduceFlashing() then
-                        vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
-                        vars.overlay = "fade"
+                if vars.mirror then
+                    if self.boat.reversed == -1 then
+                        assets.sfx_cymbal:play()
+                        shakies()
+                        shakies_y()
+                        if not pd.getReduceFlashing() then
+                            vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
+                            vars.overlay = "fade"
+                        end
+                        self.boat.reversed = 1
                     end
-                    self.boat.reversed = -1
+                else
+                    if self.boat.reversed == 1 then
+                        assets.sfx_cymbal:play()
+                        shakies()
+                        shakies_y()
+                        if not pd.getReduceFlashing() then
+                            vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
+                            vars.overlay = "fade"
+                        end
+                        self.boat.reversed = -1
+                    end
                 end
             end
         end

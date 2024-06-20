@@ -512,7 +512,7 @@ function boat:update(delta)
                     elseif self.straight then
                         if self.turn_speedo.value == 1 then
                             self.crankage += ((self.turn * self.turn_speedo.value) - self.crankage) * self.lerp
-                            if (self.crankage >= (self.turn * (self.turn_speedo.value)) - ((self.turn * (self.turn_speedo.value)) * 0.05)) and (self.crankage <= (self.turn * (self.turn_speedo.value)) + ((self.turn * (self.turn_speedo.value)) * 0.01)) then
+                            if (self.crankage >= (self.turn * (self.turn_speedo.value)) - ((self.turn * (self.turn_speedo.value)) * 0.15)) and (self.crankage <= (self.turn * (self.turn_speedo.value)) + ((self.turn * (self.turn_speedo.value)) * 0.01)) then
                                 self.crankage = self.turn * (self.turn_speedo.value)
                             end
                         else
@@ -565,6 +565,7 @@ function boat:update(delta)
     self.ripple:rotate(self.rotation)
     self.transform:rotate(self.rotation)
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
+    self.crash_transform:rotate(self.rotation)
 end
 
 function boat:draw(x, y, width, height)

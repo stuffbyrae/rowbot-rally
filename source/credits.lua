@@ -7,6 +7,7 @@ local smp <const> = pd.sound.sampleplayer
 local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
 local text <const> = gfx.getLocalizedText
+local random <const> = math.random
 
 class('credits').extends(gfx.sprite) -- Create the scene's class
 function credits:init(...)
@@ -26,6 +27,7 @@ function credits:init(...)
         credits = gfx.image.new('images/ui/credits'),
         creditscover1 = gfx.image.new('images/ui/creditscover1'),
         creditscover2 = gfx.image.new('images/ui/creditscover2'),
+        polaroid = gfx.imagetable.new('images/ui/polaroid'),
     }
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
@@ -33,6 +35,7 @@ function credits:init(...)
         anim_fade = pd.timer.new(1, 1, 1),
         showcover1 = true,
         showcover2 = true,
+        polaroids = {},
     }
     vars.creditsHandlers = {
         -- Input handlers go here...
@@ -40,6 +43,28 @@ function credits:init(...)
     pd.inputHandlers.push(vars.creditsHandlers)
 
     vars.anim_fade.discardOnCompletion = false
+
+    local randomnum
+    local dont
+    local i = 0
+    while #vars.polaroids < 6 do
+        i += 1
+        dont = false
+        randomnum = random(1, 12)
+        if i > 1 then
+            for n = 1, i do
+                if vars.polaroids[n] == randomnum then
+                    dont = true
+                end
+            end
+        end
+        if not dont then
+            table.insert(vars.polaroids, randomnum)
+        end
+    end
+    randomnum = nil
+    dont = nil
+    i = nil
 
     pd.timer.performAfterDelay(5538, function()
         vars.anim_fade:resetnew(1, 34, 34)
@@ -62,6 +87,12 @@ function credits:init(...)
     end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
+        assets.polaroid[vars.polaroids[1]]:draw(29, 412 + vars.creditsscrolly.value)
+        assets.polaroid[vars.polaroids[2]]:draw(213, 652 + vars.creditsscrolly.value)
+        assets.polaroid[vars.polaroids[3]]:draw(29, 892 + vars.creditsscrolly.value)
+        assets.polaroid[vars.polaroids[4]]:draw(213, 1132 + vars.creditsscrolly.value)
+        assets.polaroid[vars.polaroids[5]]:draw(29, 1372 + vars.creditsscrolly.value)
+        assets.polaroid[vars.polaroids[6]]:draw(213, 1612 + vars.creditsscrolly.value)
         assets.credits:draw(0, vars.creditsscrolly.value)
         if vars.showcover2 then assets.creditscover2:draw(0, 0) end
         if vars.showcover1 then assets.creditscover1:draw(0, 0) end

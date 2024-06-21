@@ -265,10 +265,10 @@ function options:init(...)
     end
 
     -- Set the sprites
-    self.ticker = options_ticker()
-    self.wave = options_wave()
-    self.back = options_back()
-    self.gear = options_gear()
+    sprites.ticker = options_ticker()
+    sprites.wave = options_wave()
+    sprites.back = options_back()
+    sprites.gear = options_gear()
     self:add()
 end
 
@@ -302,7 +302,7 @@ function options:leave() -- Leave and move back to the title screen
     savegame()
     pd.inputHandlers.pop() -- Pop the handlers, so you can't change anything as you're leaving.
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
-    vars.anim_wave_y:resetnew(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
+    vars.anim_wave_y:resetnew(1000, sprites.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function()
         scenemanager:switchscene(title) -- Switch back to the title!
     end)

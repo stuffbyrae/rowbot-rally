@@ -20,6 +20,10 @@ local sin <const> = math.sin
 local cos <const> = math.cos
 local text <const> = gfx.getLocalizedText
 local reverse <const> = string.reverse
+local spritescpu
+local spritesboat
+local spritesdebug
+local spritesstage
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -123,16 +127,16 @@ function race:init(...)
             end
         end,
         upButtonDown = function()
-            self.boat.straight = true
+            spritesboat.straight = true
         end,
         upButtonUp = function()
-            self.boat.straight = false
+            spritesboat.straight = false
         end,
         rightButtonDown = function()
-            self.boat.right = true
+            spritesboat.right = true
         end,
         rightButtonUp = function()
-            self.boat.right = false
+            spritesboat.right = false
         end
     }
     if vars.mode ~= "debug" then
@@ -164,21 +168,24 @@ function race:init(...)
     vars.anim_ui_offset.discardOnCompletion = false
 
     -- Load in the appropriate stuffs depending on what stage is called. EZ!
-    if vars.stage == 1 then
-        pd.file.run('stages/1/stage.pdz')
-    elseif vars.stage == 2 then
-        pd.file.run('stages/2/stage.pdz')
-    elseif vars.stage == 3 then
-        pd.file.run('stages/3/stage.pdz')
-    elseif vars.stage == 4 then
-        pd.file.run('stages/4/stage.pdz')
-    elseif vars.stage == 5 then
-        pd.file.run('stages/5/stage.pdz')
-    elseif vars.stage == 6 then
-        pd.file.run('stages/6/stage.pdz')
-    elseif vars.stage == 7 then
-        pd.file.run('stages/7/stage.pdz')
-    end
+    -- if vars.stage == 1 then
+    --     pd.file.run('stages/1/stage.pdz')
+    -- elseif vars.stage == 2 then
+    --     pd.file.run('stages/2/stage.pdz')
+    -- elseif vars.stage == 3 then
+    --     pd.file.run('stages/3/stage.pdz')
+    -- elseif vars.stage == 4 then
+    --     pd.file.run('stages/4/stage.pdz')
+    -- elseif vars.stage == 5 then
+    --     pd.file.run('stages/5/stage.pdz')
+    -- elseif vars.stage == 6 then
+    --     pd.file.run('stages/6/stage.pdz')
+    -- elseif vars.stage == 7 then
+    --     pd.file.run('stages/7/stage.pdz')
+    -- end
+
+    -- does just doing this break anything?
+    pd.file.run('stages/' .. vars.stage .. '/stage.pdz')
 
     self:stage_init()
 
@@ -500,21 +507,25 @@ function race:init(...)
     end
 
     -- Set the sprites
-    self.below = race_below()
-    self.stage = race_stage()
+    sprites.below = race_below()
+    sprites.stage = race_stage()
     if vars.mode == "debug" then -- If there's debug mode, add the dot.
-        self.debug = race_debug()
+        sprites.debug = race_debug()
     else -- If not, then add the boat.
         if vars.cpu_x ~= nil then
-            self.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.follow_polygon)
+            sprites.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.follow_polygon)
         end
-        self.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y, nil, vars.mirror, vars.mode)
+        sprites.boat = boat("race", vars.boat_x, vars.boat_y, vars.stage, vars.stage_x, vars.stage_y, nil, vars.mirror, vars.mode)
         -- After the intro animation, start the race.
         pd.timer.performAfterDelay(2000, function()
             self:start()
         end)
     end
     self:add()
+    spritescpu = sprites.cpu
+    spritesboat = sprites.boat
+    spritesdebug = sprites.debug
+    spritesstage = sprites.stage
     if vars.mirror then pd.display.setFlipped(true, false) end
 end
 
@@ -533,9 +544,9 @@ end
 -- If rocketarms (bool) is true, then the player activated this at will in a time trial.
 function race:boost(rocketarms)
     if rocketarms and vars.boosts_remaining > 0 or not rocketarms then
-        if vars.in_progress and not self.boat.boosting then
+        if vars.in_progress and not spritesboat.boosting then
             -- ... then boost! :3
-            self.boat:boost() -- The boat does most of this, of course.
+            spritesboat:boost() -- The boat does most of this, of course.
             vars.overlay = "boost"
             vars.anim_overlay:resetnew(1000, 1, assets.overlay_boost:getLength()) -- Setting the WOOOOSH overlay
             vars.anim_overlay.repeats = true
@@ -570,27 +581,27 @@ end
 function race:leap(cpu)
     -- If you're not already leaping,
     if cpu then
-        if not self.cpu.leaping then
-            self.cpu:leap() -- The boat.lua code handles most of this.
-            self.stage:setZIndex(-2) -- Put the stage under the boat
+        if not spritescpu.leaping then
+            spritescpu:leap() -- The boat.lua code handles most of this.
+            spritesstage:setZIndex(-2) -- Put the stage under the boat
             pd.timer.performAfterDelay(1450, function()
-                if not self.boat.leaping then -- If the race hasn't ended (e.g. if you haven't been beached,)
-                    self.stage:setZIndex(1) -- Put the stage back over the boat
+                if not spritesboat.leaping then -- If the race hasn't ended (e.g. if you haven't been beached,)
+                    spritesstage:setZIndex(1) -- Put the stage back over the boat
                 end
             end)
         end
     else
-        if vars.in_progress and not self.boat.leaping then
-            self.boat:leap() -- The boat.lua code handles most of this.
-            self.stage:setZIndex(-2) -- Put the stage under the boat
+        if vars.in_progress and not spritesboat.leaping then
+            spritesboat:leap() -- The boat.lua code handles most of this.
+            spritesstage:setZIndex(-2) -- Put the stage under the boat
             pd.timer.performAfterDelay(1450, function()
                 if vars.in_progress then -- If the race hasn't ended (e.g. if you haven't been beached,)
-                    if self.cpu ~= nil then
-                        if not self.cpu.leaping then
-                            self.stage:setZIndex(1) -- Put the stage back over the boat
+                    if spritescpu ~= nil then
+                        if not spritescpu.leaping then
+                            spritesstage:setZIndex(1) -- Put the stage back over the boat
                         end
                     else
-                        self.stage:setZIndex(1) -- Put the stage back over the boat
+                        spritesstage:setZIndex(1) -- Put the stage back over the boat
                     end
                 end
             end)
@@ -607,11 +618,11 @@ function race:start()
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
         music:play(0)
-        self.boat:state(true, true, true)
-        self.boat:start()
+        spritesboat:state(true, true, true)
+        spritesboat:start()
         if vars.cpu_x ~= nil then
-            self.cpu:state(true)
-            self.cpu:start()
+            spritescpu:state(true)
+            spritescpu:start()
         end
     end)
 end
@@ -629,20 +640,20 @@ function race:finish(timeout, duration)
         vars.in_progress = false
         vars.finished = true
         fademusic(1) -- I gotta see if 0 works on this thing LOL
-        self.boat:state(false, false, false)
+        spritesboat:state(false, false, false)
         if timeout then -- If you ran the timer past 09:59.00...
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
-            self.boat:finish(duration, false) -- This true/false is for the turning peel-out, btw.
+            spritesboat:finish(duration, false) -- This true/false is for the turning peel-out, btw.
             vars.anim_overlay:resetnew(0, 0, 0)
             assets.sfx_ref:play() -- TWEEEEEEEEEEEEET!!!
         else
-            self.boat:finish(duration, true)
+            spritesboat:finish(duration, true)
             vars.anim_overlay:resetnew(1000, 1, assets.overlay_fade:getLength()) -- Flash!
             vars.overlay = "fade"
             assets.sfx_finish:play() -- Applause!
         end
         pd.timer.performAfterDelay(2500, function()
-            scenemanager:switchscene(results, vars.stage, vars.mode, floor(vars.current_time), vars.won, self.boat.crashes, vars.mirror)
+            scenemanager:switchscene(results, vars.stage, vars.mode, floor(vars.current_time), vars.won, spritesboat.crashes, vars.mirror)
         end)
     end
 end
@@ -659,7 +670,7 @@ end
 
 function race:checkpointcheck(cpu)
     if cpu then
-        local x, y, cpu_collisions, cpu_count = self.cpu:checkCollisions(self.cpu.x, self.cpu.y)
+        local x, y, cpu_collisions, cpu_count = spritescpu:checkCollisions(spritescpu.x, spritescpu.y)
         for i = 1, cpu_count do
             local tag = cpu_collisions[i].other:getTag()
             if tag >= 1 and tag <= 3 then
@@ -672,7 +683,7 @@ function race:checkpointcheck(cpu)
                     vars.cpu_current_checkpoint = 0
                     vars.cpu_current_lap += 1
                     if vars.cpu_current_lap > vars.laps then
-                        self.cpu:finish(1500, true)
+                        spritescpu:finish(1500, true)
                         if not vars.finished then
                             vars.won = false
                         end
@@ -681,32 +692,32 @@ function race:checkpointcheck(cpu)
                 vars.cpu_last_checkpoint = tag
             elseif tag == 255 then
                 -- CPU is colliding with boat.
-                local cpu_body = self.cpu.transform:transformedPolygon(self.cpu.poly_body_crash)
-                cpu_body:translate(self.cpu.x, self.cpu.y)
-                local player_scale = self.boat.scale_factor
-                local player_body = self.boat.transform:transformedPolygon(self.boat.poly_body_crash)
-                player_body:translate(self.boat.x, self.boat.y)
+                local cpu_body = spritescpu.transform:transformedPolygon(spritescpu.poly_body_crash)
+                cpu_body:translate(spritescpu.x, spritescpu.y)
+                local player_scale = spritesboat.scale_factor
+                local player_body = spritesboat.transform:transformedPolygon(spritesboat.poly_body_crash)
+                player_body:translate(spritesboat.x, spritesboat.y)
                 for i = 1, player_body:count() do
                     if cpu_body:containsPoint(player_body:getPointAt(i)) then
-                        local angle = atan(self.boat.y - self.cpu.y, self.boat.x - self.cpu.x) - 1.57
-                        self.cpu:moveBy(sin(angle) * 1.9, -cos(angle) * 1.9)
-                        self.boat:moveBy(-sin(angle) * (1.9 * player_scale), cos(angle) * (1.9 * player_scale))
+                        local angle = atan(spritesboat.y - spritescpu.y, spritesboat.x - spritescpu.x) - 1.57
+                        spritescpu:moveBy(sin(angle) * 1.9, -cos(angle) * 1.9)
+                        spritesboat:moveBy(-sin(angle) * (1.9 * player_scale), cos(angle) * (1.9 * player_scale))
                     end
                 end
             elseif vars.whirlpools_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a whirlpool.
-                local angle = atan(self.cpu.y - (vars.whirlpools_y[tag - 42] + 34), self.cpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
-                self.cpu:moveBy(sin(angle) * 2.5, -cos(angle) * 2.5)
+                local angle = atan(spritescpu.y - (vars.whirlpools_y[tag - 42] + 34), spritescpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
+                spritescpu:moveBy(sin(angle) * 2.5, -cos(angle) * 2.5)
             elseif vars.boost_pads_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a boost pad.
-                self.cpu:boost()
+                spritescpu:boost()
             elseif vars.leap_pads_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a leap pad.
                 self:leap(true)
             end
         end
     else
-        local _, _, boat_collisions, boat_count = self.boat:checkCollisions(self.boat.x, self.boat.y)
+        local _, _, boat_collisions, boat_count = spritesboat:checkCollisions(spritesboat.x, spritesboat.y)
         for i = 1, boat_count do
             local tag = boat_collisions[i].other:getTag()
             if tag >= 1 and tag <= 3 then
@@ -752,9 +763,9 @@ function race:checkpointcheck(cpu)
                 vars.last_checkpoint = tag
             elseif vars.whirlpools_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a whirlpool.
-                local player_scale = self.boat.scale_factor
-                local angle = atan(self.boat.y - (vars.whirlpools_y[tag - 42] + 34), self.boat.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
-                self.boat:moveBy(sin(angle) * (2.5 * player_scale), -cos(angle) * (2.5 * player_scale))
+                local player_scale = spritesboat.scale_factor
+                local angle = atan(spritesboat.y - (vars.whirlpools_y[tag - 42] + 34), spritesboat.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
+                spritesboat:moveBy(sin(angle) * (2.5 * player_scale), -cos(angle) * (2.5 * player_scale))
             elseif vars.boost_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a boost pad.
                 self:boost(false)
@@ -764,7 +775,7 @@ function race:checkpointcheck(cpu)
             elseif vars.reverse_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a reverse pad.
                 if vars.mirror then
-                    if self.boat.reversed == -1 then
+                    if spritesboat.reversed == -1 then
                         assets.sfx_cymbal:play()
                         shakies()
                         shakies_y()
@@ -772,10 +783,10 @@ function race:checkpointcheck(cpu)
                             vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
                             vars.overlay = "fade"
                         end
-                        self.boat.reversed = 1
+                        spritesboat.reversed = 1
                     end
                 else
-                    if self.boat.reversed == 1 then
+                    if spritesboat.reversed == 1 then
                         assets.sfx_cymbal:play()
                         shakies()
                         shakies_y()
@@ -783,7 +794,7 @@ function race:checkpointcheck(cpu)
                             vars.anim_overlay:resetnew(500, 1, #assets.overlay_fade)
                             vars.overlay = "fade"
                         end
-                        self.boat.reversed = -1
+                        spritesboat.reversed = -1
                     end
                 end
             end
@@ -812,43 +823,43 @@ function race:update()
         -- These have to be in the update loop because there's no way to just check if a button's held on every frame using an input handler. Weird.
         if pd.buttonIsPressed('up') then
             if pd.buttonIsPressed('b') then
-                self.debug:moveBy(0, -50)
+                spritesdebug:moveBy(0, -50)
             else
-                self.debug:moveBy(0, -5)
+                spritesdebug:moveBy(0, -5)
             end
         end
         if pd.buttonIsPressed('down') then
             if pd.buttonIsPressed('b') then
-                self.debug:moveBy(0, 50)
+                spritesdebug:moveBy(0, 50)
             else
-                self.debug:moveBy(0, 5)
+                spritesdebug:moveBy(0, 5)
             end
         end
         if pd.buttonIsPressed('left') then
             if pd.buttonIsPressed('b') then
-                self.debug:moveBy(-50, 0)
+                spritesdebug:moveBy(-50, 0)
             else
-                self.debug:moveBy(-5, 0)
+                spritesdebug:moveBy(-5, 0)
             end
         end
         if pd.buttonIsPressed('right') then
             if pd.buttonIsPressed('b') then
-                self.debug:moveBy(50, 0)
+                spritesdebug:moveBy(50, 0)
             else
-                self.debug:moveBy(5, 0)
+                spritesdebug:moveBy(5, 0)
             end
         end
         if pd.buttonJustPressed('a') then -- If A is pressed, print out the coords that the debug dot is sitting on.
-            print(floor(self.debug.x) .. ', ' .. floor(self.debug.y) .. ', ')
+            print(floor(spritesdebug.x) .. ', ' .. floor(spritesdebug.y) .. ', ')
         end
-        gfx.setDrawOffset(-self.debug.x + 200, -self.debug.y + 120) -- Move the camera to wherever the debug dot is.
+        gfx.setDrawOffset(-spritesdebug.x + 200, -spritesdebug.y + 120) -- Move the camera to wherever the debug dot is.
     else
-        self:timecalc(vars.current_time) -- Calc this thing out for the timer
-        self.boat:update(delta)
-        if self.cpu ~= nil then self.cpu:update(delta) end
+        spritesboat:update(delta)
+        if spritescpu ~= nil then spritescpu:update(delta) end
         if vars.in_progress then -- If the race is happenin', then
+            self:timecalc(vars.current_time) -- Calc this thing out for the timer
             -- if pd.getFPS() <= 25 and not perf then self:bail() end -- Perf mode bail check.
-            if self.boat.beached then -- Oh. If the boat's beached, then
+            if spritesboat.beached then -- Oh. If the boat's beached, then
                 self:finish(true, 400) -- end the race. Ouch.
             end
             vars.current_time += 30 * delta -- Up that timer, babyyyyyyyyy!
@@ -867,13 +878,13 @@ function race:update()
             end
             self:checkpointcheck(false)
         end
-        vars.rowbot = self.boat.turn_speedo.value
-        vars.player = self.boat.crankage_divvied
-        if self.boat.crashable and not self.boat.beached then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
-        if self.cpu ~= nil then
+        vars.rowbot = spritesboat.turn_speedo.value
+        vars.player = spritesboat.crankage_divvied
+        if spritesboat.crashable and not spritesboat.beached then spritesboat:collision_check(vars.edges_polygons, assets.image_stagec, spritesstage.x, spritesstage.y) end
+        if spritescpu ~= nil then
             self:checkpointcheck(true)
-            if self.cpu.crashable then
-                self.cpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, self.stage.x, self.stage.y)
+            if spritescpu.crashable then
+                spritescpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, spritesstage.x, spritesstage.y)
             end
         end
     end

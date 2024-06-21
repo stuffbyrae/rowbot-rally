@@ -482,10 +482,10 @@ function title:init(...)
     end
 
     -- Set the sprites
-    self.checker = title_checker()
-    self.bg = title_bg()
-    self.item = title_item()
-    self.slots = title_slots()
+    sprites.checker = title_checker()
+    sprites.bg = title_bg()
+    sprites.item = title_item()
+    sprites.slots = title_slots()
     self:add()
 
     pd.timer.performAfterDelay(1000, function()
@@ -521,7 +521,7 @@ function title:newselection(dir)
                 else
                     assets.image_item = gfx.imageWithText(text(vars.item_list[vars.selection]), 200, 120)
                 end
-                self.item:setImage(assets.image_item:scaledImage(2))
+                sprites.item:setImage(assets.image_item:scaledImage(2))
                 if dir then
                     vars.anim_item:resetnew(150, 600, 200, pd.easingFunctions.outBack)
                 else
@@ -548,7 +548,7 @@ function title:openslots()
         assets.sfx_start:play()
         pd.inputHandlers.pop()
         pd.inputHandlers.push(vars.slotsHandlers, true)
-        self.slots:add()
+        sprites.slots:add()
         vars.anim_slots:resetnew(250, 400, 0, pd.easingFunctions.outCubic)
         vars.slots_open = true
     end
@@ -578,7 +578,7 @@ function title:closeslots()
     pd.inputHandlers.pop()
     pd.inputHandlers.push(vars.titleHandlers)
     pd.timer.performAfterDelay(200, function()
-        self.slots:remove()
+        sprites.slots:remove()
         vars.slots_open = false
     end)
 end

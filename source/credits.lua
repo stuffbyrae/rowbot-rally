@@ -113,7 +113,7 @@ function credits:init(...)
         end
     end
 
-    self.fade = credits_fade()
+    sprites.fade = credits_fade()
     self:add()
 
     savegame(true) -- Save the game!

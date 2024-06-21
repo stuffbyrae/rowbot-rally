@@ -244,9 +244,9 @@ function results:init(...)
     end
 
     -- Set the sprites
-    self.fade = results_fade()
-    self.plate = results_plate()
-    self.react = results_react(vars.win)
+    sprites.fade = results_fade()
+    sprites.plate = results_plate()
+    sprites.react = results_react(vars.win)
 
     self:add()
 end

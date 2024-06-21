@@ -140,9 +140,9 @@ function chill:init(...)
     end
 
     -- Set the sprites
-    self.wave = chill_wave()
-    self.boat = chill_boat()
-    self.fade = chill_fade()
+    sprites.wave = chill_wave()
+    sprites.boat = chill_boat()
+    sprites.fade = chill_fade()
     self:add()
 
     self:checktime()

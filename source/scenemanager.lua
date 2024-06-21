@@ -279,17 +279,24 @@ end
 function scenemanager:loadnewscene(scene)
     self:cleanupscene()
     newscene = scene
-    newscene(table.unpack(self.sceneargs))
+    sprites.newscene = newscene(table.unpack(self.sceneargs))
 end
 
 function scenemanager:loadnewstory()
     self:cleanupscene()
     self:findstory()
-    newscene(table.unpack(self.sceneargs))
+    sprites.newscene = newscene(table.unpack(self.sceneargs))
 end
 
 function scenemanager:cleanupscene()
     closepopup() -- Close any active popups that may be lingering.
+    gfx.sprite.removeAll()
+    if sprites ~= nil then
+        for i = 1, #sprites do
+            sprites[i] = nil
+        end
+    end
+    sprites = {}
     if assets ~= nil then
         for i = 1, #assets do
             assets[i] = nil
@@ -302,10 +309,6 @@ function scenemanager:cleanupscene()
         end
     end
     vars = nil -- and nil all the variables.
-    if newscene ~= nil then
-        newscene = nil
-    end
-    gfx.sprite.removeAll()
     self:removealltimers() -- Remove every timer,
     collectgarbage('collect') -- and collect the garbage.
     gfx.setDrawOffset(0, 0) -- Lastly, reset the drawing offset. just in case.

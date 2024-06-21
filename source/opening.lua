@@ -43,13 +43,13 @@ function opening:init(...)
     }
     vars.openingHandlers = {
         AButtonDown = function()
-            self.a:moveTo(395, 240)
+            sprites.a:moveTo(395, 240)
             assets.sfx_clickon:play()
         end,
 
         AButtonUp = function()
             self:progress()
-            self.a:moveTo(395, 235)
+            sprites.a:moveTo(395, 235)
             assets.sfx_clickoff:play()
         end
     }
@@ -88,9 +88,9 @@ function opening:init(...)
     end
 
     -- Set the sprites
-    self.content = opening_content()
-    self.a = opening_a()
-    self.fade = opening_fade()
+    sprites.content = opening_content()
+    sprites.a = opening_a()
+    sprites.fade = opening_fade()
     self:add()
 
     self:newcontent(vars.progress)
@@ -123,7 +123,7 @@ function opening:newcontent(progress) -- Progress the scene when the user presse
         end
         gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Let me just put this spork over here.
     gfx.popContext() -- We're done here.
-    self.content:setImage(assets.img_content) -- Give the sprite that image!
+    sprites.content:setImage(assets.img_content) -- Give the sprite that image!
 end
 
 function opening:leave()

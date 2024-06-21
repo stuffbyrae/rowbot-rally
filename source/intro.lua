@@ -134,10 +134,10 @@ function intro:init(...)
     end
 
     -- Set the sprites
-    self.fade = intro_fade()
-    self.left = intro_left()
-    self.right = intro_right()
-    self.bottom = intro_bottom()
+    sprites.fade = intro_fade()
+    sprites.left = intro_left()
+    sprites.right = intro_right()
+    sprites.bottom = intro_bottom()
     self:add()
 
     newmusic('audio/music/intro') -- Adding new music
@@ -148,9 +148,9 @@ function intro:leave()
     vars.leaving = true
     assets.sfx_whoosh:play()
     fademusic(250)
-    vars.anim_left:resetnew(200, self.left.x, -400, pd.easingFunctions.inCubic)
-    vars.anim_right:resetnew(200, self.right.x, 600, pd.easingFunctions.inCubic)
-    vars.anim_bottom:resetnew(200, self.bottom.y, 350, pd.easingFunctions.inCubic)
+    vars.anim_left:resetnew(200, sprites.left.x, -400, pd.easingFunctions.inCubic)
+    vars.anim_right:resetnew(200, sprites.right.x, 600, pd.easingFunctions.inCubic)
+    vars.anim_bottom:resetnew(200, sprites.bottom.y, 350, pd.easingFunctions.inCubic)
     vars.anim_fade:resetnew(250, 34, 1)
     pd.timer.performAfterDelay(300, function()
         scenemanager:switchscene(race, vars.stage, "story", false)

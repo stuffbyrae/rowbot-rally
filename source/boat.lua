@@ -340,7 +340,9 @@ function boat:boost()
             self.cam_x:resetnew(1000, self.cam_x.value, 70, pd.easingFunctions.inOutSine)
             self.cam_y:resetnew(1000, self.cam_y.value, 70, pd.easingFunctions.inOutSine)
             pd.timer.performAfterDelay(2000, function()
-                self.wobble_speedo:resetnew(2000, 3, 1, pd.easingFunctions.outBack)
+                if self.movable then
+                    self.wobble_speedo:resetnew(2000, 3, 1, pd.easingFunctions.outBack)
+                end
                 -- Throw the camera ... back
                 if self.movable then
                     self.cam_x:resetnew(1500, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
@@ -509,7 +511,7 @@ function boat:update(delta)
     if self.rotation == 0 then self.rotation = 360 end
     -- Transform ALL the polygons!!!!1!
     self.transform:scale((self.scale.value * self.boost_x.value) * self.reversed, self.scale.value * self.boost_y.value)
-    self.ripple:rotate(self.rotation)
+    if not perf then self.ripple:rotate(self.rotation) end
     self.transform:rotate(self.rotation)
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
     self.crash_transform:rotate(self.rotation)

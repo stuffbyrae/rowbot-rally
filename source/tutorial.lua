@@ -32,7 +32,7 @@ function tutorial:init(...)
             self:leave()
         end)
         menu:addMenuItem(text('quitfornow'), function()
-            self.boat.sfx_row:stop()
+            sprites.boat.sfx_row:stop()
             scenemanager:transitionsceneonewayback(title)
         end)
         setpauseimage(200) -- TODO: Set this X offset
@@ -96,16 +96,16 @@ function tutorial:init(...)
             vars.down = false
         end,
         upButtonDown = function()
-            self.boat.straight = true
+            sprites.boat.straight = true
         end,
         upButtonUp = function()
-            self.boat.straight = false
+            sprites.boat.straight = false
         end,
         rightButtonDown = function()
-            self.boat.right = true
+            sprites.boat.right = true
         end,
         rightButtonUp = function()
-            self.boat.right = false
+            sprites.boat.right = false
         end
     }
     pd.inputHandlers.push(vars.tutorialHandlers)
@@ -229,9 +229,10 @@ function tutorial:init(...)
 
         gfx.setDrawOffset(vars.x, vars.y)
     end
+
     -- Set the sprites
-    self.stage = tutorial_stage()
-    self.boat = boat("tutorial", 0, 0, 0, vars.stage_x, vars.stage_y, nil, false, "story")
+    sprites.stage = tutorial_stage()
+    sprites.boat = boat("tutorial", 0, 0, 0, vars.stage_x, vars.stage_y, nil, false, "story")
     self:add()
 
     pd.timer.performAfterDelay(1500, function()
@@ -244,17 +245,6 @@ function tutorial:init(...)
     newmusic('audio/sfx/sea', true)
 end
 
--- fast atan2. Thanks, nnnn!
-function tutorial:fastatan(y, x)
-    local a = min(abs(x), abs(y)) / max(abs(x), abs(y))
-    local s = a * a
-    local r = ((-0.0464964749 * s + 0.15931422) * s - 0.327622764) * s * a + a
-    if abs(y) > abs(x) then r = 1.57079637 - r end
-    if x < 0 then r = 3.14159274 - r end
-    if y < 0 then r = -r end
-    return r
-end
-
 function tutorial:progress()
     if vars.progressable then
         assets.sfx_clickon:play()
@@ -262,28 +252,27 @@ function tutorial:progress()
         vars.current_step += 1
         vars.progressable = false
         if vars.current_step == 3 then
-            self.boat:state(true, true, false)
-            self.boat:start()
+            sprites.boat:state(true, true, false)
+            sprites.boat:start()
         elseif vars.current_step == 6 then
-            self.boat:state(true, true, true)
+            sprites.boat:state(true, true, true)
         elseif vars.current_step == 7 then
-            self.boat:state(true, true, false)
+            sprites.boat:state(true, true, false)
         elseif vars.current_step == 8 then
             vars.anim_hud:resetnew(750, -130, 0, pd.easingFunctions.outSine)
             assets.sfx_ui:play()
         elseif vars.current_step == 14 then
-            -- Turn player turning back on, check for straight line
-            self.boat:state(true, true, true)
+            sprites.boat:state(true, true, true)
         elseif vars.current_step == 15 then
             vars.boundsx = -vars.x - (vars.stage_x / 2) + 170
             vars.boundsy = -vars.y - (vars.stage_y) + 900
-            self.stage:setIgnoresDrawOffset(false)
-            self.stage:moveTo(vars.boundsx, vars.boundsy)
-            vars.finish = gfx.sprite.addEmptyCollisionSprite(self.stage.x + 577, self.stage.y + 334, 250, 20)
+            sprites.stage:setIgnoresDrawOffset(false)
+            sprites.stage:moveTo(vars.boundsx, vars.boundsy)
+            vars.finish = gfx.sprite.addEmptyCollisionSprite(sprites.stage.x + 577, sprites.stage.y + 334, 250, 20)
             vars.finish:setTag(0)
             vars.showstage = true
             for i = 1, #vars.edges_polygons do
-                vars.edges_polygons[i]:translate(self.stage.x, self.stage.y)
+                vars.edges_polygons[i]:translate(sprites.stage.x, sprites.stage.y)
             end
         end
         if vars.current_step <= 15 then -- If there's more progression, then show the new UI.
@@ -311,7 +300,7 @@ function tutorial:progress()
 end
 
 function tutorial:checkpointcheck()
-    local _, _, boat_collisions, boat_count = self.boat:checkCollisions(self.boat.x, self.boat.y)
+    local _, _, boat_collisions, boat_count = sprites.boat:checkCollisions(sprites.boat.x, sprites.boat.y)
     for i = 1, boat_count do
         local tag = boat_collisions[i].other:getTag()
         if tag == 0 then -- Finish line hit ...
@@ -326,8 +315,8 @@ function tutorial:leave()
         save['slot' .. save.current_story_slot .. '_progress'] = "cutscene2"
         fademusic(999)
         vars.anim_overlay:resetnew(1000, math.floor(vars.anim_overlay.value), 1)
-        self.boat:state(false, false, false)
-        self.boat:finish(1500, false)
+        sprites.boat:state(false, false, false)
+        sprites.boat:finish(1500, false)
         pd.timer.performAfterDelay(1000, function()
             scenemanager:switchstory()
         end)
@@ -359,7 +348,7 @@ function tutorial:update()
     end
     if vars.current_step > 14 then
         self:checkpointcheck()
-        if self.boat.crashable then self.boat:collision_check(vars.edges_polygons, assets.image_stagec, self.stage.x, self.stage.y) end
+        if sprites.boat.crashable then sprites.boat:collision_check(vars.edges_polygons, assets.image_stagec, sprites.stage.x, sprites.stage.y) end
     end
     -- Set up the parallax!
     if not perf then
@@ -370,7 +359,7 @@ function tutorial:update()
         vars.stage_progress_long_x = (((-x + 135) / (vars.stage_x)) * (vars.parallax_long_amount - 1))
         vars.stage_progress_long_y = (((-y + 60) / (vars.stage_y)) * (vars.parallax_long_amount - 1))
     end
-    self.boat:update(delta)
-    vars.rowbot = self.boat.turn_speedo.value
-    vars.player = self.boat.crankage_divvied
+    sprites.boat:update(delta)
+    vars.rowbot = sprites.boat.turn_speedo.value
+    vars.player = sprites.boat.crankage_divvied
 end

@@ -57,7 +57,7 @@ function chase:init(...)
     end
 
     -- Set the sprites
-    self.boat = chase_boat()
+    sprites.boat = chase_boat()
     self:add()
 
     savegame() -- Save the game!
@@ -69,5 +69,5 @@ function chase:update()
     vars.boat_speed -= 0.3
     vars.boat_speed += change / 8
     vars.boat_speed = max(vars.boat_speed_min, min(vars.boat_speed_max, vars.boat_speed))
-    self.boat:moveBy(vars.boat_speed, 0)
+    sprites.boat:moveBy(vars.boat_speed, 0)
 end

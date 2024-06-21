@@ -108,7 +108,7 @@ function cutscene:init(...)
     end
 
     -- Set the sprites
-    self.border = cutscene_border()
+    sprites.border = cutscene_border()
     self:add()
 
     save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene' .. vars.play -- Story slot sanity check

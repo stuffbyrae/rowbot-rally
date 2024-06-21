@@ -277,9 +277,9 @@ function cheats:init(...)
     end
 
     -- Set the sprites
-    self.ticker = cheats_ticker()
-    self.wave = cheats_wave()
-    self.back = cheats_back()
+    sprites.ticker = cheats_ticker()
+    sprites.wave = cheats_wave()
+    sprites.back = cheats_back()
     self:add()
 end
 
@@ -305,7 +305,7 @@ function cheats:leave() -- Leave and move back to the title screen
     savegame()
     pd.inputHandlers.pop() -- Pop the handlers, so you can't change anything as you're leaving.
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
-    vars.anim_wave_y:resetnew(1000, self.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
+    vars.anim_wave_y:resetnew(1000, sprites.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function() -- After that animation's done...
         scenemanager:switchscene(title) -- Switch back to the title!
     end)

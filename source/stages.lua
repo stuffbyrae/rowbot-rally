@@ -242,16 +242,16 @@ function stages:init(...)
     end
 
     -- Set the sprites
-    self.wave = stages_wave()
-    self.boat = stages_boat()
-    self.back = stages_back()
-    self.top = stages_top()
-    self.preview = stages_preview()
-    self.buttons = stages_buttons()
+    sprites.wave = stages_wave()
+    sprites.boat = stages_boat()
+    sprites.back = stages_back()
+    sprites.top = stages_top()
+    sprites.preview = stages_preview()
+    sprites.buttons = stages_buttons()
     self:update_image_buttons()
-    self.lb_accent = stages_lb_accent()
-    self.lb_bubble = stages_lb_bubble()
-    self.lb_text = stages_lb_text()
+    sprites.lb_accent = stages_lb_accent()
+    sprites.lb_bubble = stages_lb_bubble()
+    sprites.lb_text = stages_lb_text()
     self:add()
 
     newmusic('audio/music/stages', true) -- Adding new music
@@ -286,15 +286,15 @@ function stages:leaderboardsin()
     assets.image_rowbot_accent = gfx.imagetable.new('images/stages/rowbot_accent')
     assets.image_leaderboard_container = gfx.imagetable.new('images/stages/leaderboard_container')
     assets.image_leaderboard_container_intro = gfx.imagetable.new('images/stages/leaderboard_container_intro')
-    vars.anim_boat_y:resetnew(250, self.boat.y, 300, pd.easingFunctions.inCubic)
-    vars.anim_preview_x:resetnew(250, self.preview.x, 600, pd.easingFunctions.inCubic)
+    vars.anim_boat_y:resetnew(250, sprites.boat.y, 300, pd.easingFunctions.inCubic)
+    vars.anim_preview_x:resetnew(250, sprites.preview.x, 600, pd.easingFunctions.inCubic)
     vars.anim_lb_bubble = gfx.animation.loop.new(100, assets.image_leaderboard_container_intro, false)
-    self.lb_accent:setImage(assets.image_rowbot_accent[2])
-    self.lb_accent:add()
-    self.lb_bubble:add()
+    sprites.lb_accent:setImage(assets.image_rowbot_accent[2])
+    sprites.lb_accent:add()
+    sprites.lb_bubble:add()
     pd.timer.performAfterDelay(1000, function()
         vars.leaderboards_closable = true
-        self.lb_accent:setImage(assets.image_rowbot_accent[1])
+        sprites.lb_accent:setImage(assets.image_rowbot_accent[1])
         if vars.mirror then
             vars.board = 'stage' .. tostring(vars.selection) .. 'mirror'
         else
@@ -311,8 +311,8 @@ function stages:leaderboardsin()
         gfx.pushContext(assets.image_lb_text)
             assets.pedallica:drawTextAligned(text('leaderboards_grab'), 100, 100, kTextAlignment.center)
         gfx.popContext()
-        self.lb_text:setImage(assets.image_lb_text)
-        self.lb_text:add()
+        sprites.lb_text:setImage(assets.image_lb_text)
+        sprites.lb_text:add()
         pd.scoreboards.getScores(vars.board, function(status, result)
             if status.code == "OK" and vars.leaderboards_open then
                 assets.image_lb_text = gfx.image.new(190, 240)
@@ -330,15 +330,15 @@ function stages:leaderboardsin()
                     assets.pedallica:drawTextAligned(text('leaderboards_empty'), 100, 100, kTextAlignment.center)
                 end
                 gfx.popContext()
-                self.lb_text:setImage(assets.image_lb_text)
-                self.lb_accent:setImage(assets.image_rowbot_accent[2])
+                sprites.lb_text:setImage(assets.image_lb_text)
+                sprites.lb_accent:setImage(assets.image_rowbot_accent[2])
             elseif status.code == "ERROR" and vars.leaderboards_open then
                 assets.image_lb_text = gfx.image.new(190, 240)
                 gfx.pushContext(assets.image_lb_text)
                     assets.pedallica:drawTextAligned(text('leaderboards_fail'), 100, 100, kTextAlignment.center)
                 gfx.popContext()
-                self.lb_text:setImage(assets.image_lb_text)
-                self.lb_accent:setImage(assets.image_rowbot_accent[3])
+                sprites.lb_text:setImage(assets.image_lb_text)
+                sprites.lb_accent:setImage(assets.image_rowbot_accent[3])
             end
         end)
     end)
@@ -348,23 +348,23 @@ end
 function stages:leaderboardsout()
     assets.sfx_pop:play()
     vars.leaderboards_closable = false
-    self.lb_text:remove()
+    sprites.lb_text:remove()
     self:update_image_top(vars.selection, false)
     assets.image_leaderboard_container_outro = gfx.imagetable.new('images/stages/leaderboard_container_outro')
     vars.anim_lb_bubble = gfx.animation.loop.new(70, assets.image_leaderboard_container_outro, false)
     pd.timer.performAfterDelay(250, function()
         assets.sfx_whoosh:play()
-        vars.anim_boat_y:resetnew(250, self.boat.y, 200, pd.easingFunctions.outCubic)
-        vars.anim_preview_x:resetnew(250, self.preview.x, 400, pd.easingFunctions.outCubic)
+        vars.anim_boat_y:resetnew(250, sprites.boat.y, 200, pd.easingFunctions.outCubic)
+        vars.anim_preview_x:resetnew(250, sprites.preview.x, 400, pd.easingFunctions.outCubic)
     end)
     pd.timer.performAfterDelay(300, function()
-        self.lb_bubble:remove()
+        sprites.lb_bubble:remove()
         vars.anim_lb_bubble = nil
     end)
     pd.timer.performAfterDelay(501, function()
         if vars.leaderboards_open then
             vars.leaderboards_open = false
-            self.lb_accent:remove()
+            sprites.lb_accent:remove()
             pd.inputHandlers.pop()
             self:update_image_top(vars.selection, true)
             vars.anim_boat_y:resetnew(2500, 195, 200, pd.easingFunctions.inOutCubic)
@@ -379,12 +379,12 @@ function stages:enterrace()
     pd.inputHandlers.pop()
     assets.sfx_proceed:play()
     fademusic(1000)
-    vars.anim_boat_x:resetnew(750, self.boat.x, 450, pd.easingFunctions.inCubic)
-    vars.anim_preview_x:resetnew(250, self.preview.x, 600, pd.easingFunctions.inCubic)
-    vars.anim_back_y:resetnew(250, self.back.y, 275, pd.easingFunctions.inCubic)
-    vars.anim_top_y:resetnew(250, self.top.y, -400, pd.easingFunctions.inCubic)
+    vars.anim_boat_x:resetnew(750, sprites.boat.x, 450, pd.easingFunctions.inCubic)
+    vars.anim_preview_x:resetnew(250, sprites.preview.x, 600, pd.easingFunctions.inCubic)
+    vars.anim_back_y:resetnew(250, sprites.back.y, 275, pd.easingFunctions.inCubic)
+    vars.anim_top_y:resetnew(250, sprites.top.y, -400, pd.easingFunctions.inCubic)
     vars.anim_boat_x.timerEndedCallback = function()
-        vars.anim_wave_y:resetnew(250, self.wave.y, 245, pd.easingFunctions.inBack)
+        vars.anim_wave_y:resetnew(250, sprites.wave.y, 245, pd.easingFunctions.inBack)
     end
     pd.timer.performAfterDelay(1200, function()
         scenemanager:switchscene(race, vars.selection, "tt", vars.mirror)
@@ -407,7 +407,7 @@ function stages:update_image_buttons()
             assets.image_leaderboards:drawAnchored(78, 217, 0.5, 0)
         end
     gfx.popContext()
-    self.buttons:setImage(assets.image_buttons)
+    sprites.buttons:setImage(assets.image_buttons)
 end
 
 function stages:update_image_preview()
@@ -416,7 +416,7 @@ function stages:update_image_preview()
     else
         assets.image_preview = gfx.image.new('images/stages/preview' .. vars.selection)
     end
-    self.preview:setImage(assets.image_preview)
+    sprites.preview:setImage(assets.image_preview)
 end
 
 -- Writing to the image along the top; wrapped in a function so that I can update it later.
@@ -485,8 +485,8 @@ function stages:update_image_top(stage, show_desc, ranking, name)
         end
     gfx.popContext()
     -- And set the image, but only if the sprite exists.
-    if self.top ~= nil then
-        self.top:setImage(assets.image_top)
+    if sprites.top ~= nil then
+        sprites.top:setImage(assets.image_top)
     end
 end
 

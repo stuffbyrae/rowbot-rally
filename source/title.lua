@@ -227,15 +227,17 @@ function title:init(...)
     }
     vars.slotHandlers = {
         AButtonDown = function()
-            fademusic()
-            assets.sfx_proceed:play()
             -- If they've finished the game before, then let them start a new Circuit.
             if save['slot' .. save.current_story_slot .. '_progress'] == 'finish' and save['slot' .. save.current_story_slot .. '_circuit'] < 4 then
                 save['slot' .. save.current_story_slot .. '_circuit'] += 1
                 save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
                 scenemanager:transitionstoryoneway()
+                fademusic()
+                assets.sfx_proceed:play()
             elseif save['slot' .. save.current_story_slot .. '_progress'] ~= 'finish' then
                 scenemanager:transitionstoryoneway()
+                fademusic()
+                assets.sfx_proceed:play()
             end
         end,
 

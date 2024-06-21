@@ -6,9 +6,11 @@ local random <const> = math.random
 local text <const> = gfx.getLocalizedText
 
 function race:stage_init()
+    assets.image_stage_flat_1 = gfx.image.new('stages/2/stage_flat_1')
+    assets.image_stage_flat_2 = gfx.image.new('stages/2/stage_flat_2')
     if perf then
-        assets.image_stage_1 = gfx.image.new('stages/2/stage_flat_1')
-        assets.image_stage_2 = gfx.image.new('stages/2/stage_flat_2')
+        assets.image_stage_1 = assets.image_stage_flat_1
+        assets.image_stage_2 = assets.image_stage_flat_2
     else
         assets.image_stage_1 = gfx.image.new('stages/2/stage_1')
         assets.image_stage_2 = gfx.image.new('stages/2/stage_2')

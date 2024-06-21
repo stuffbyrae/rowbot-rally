@@ -7,12 +7,13 @@ local text <const> = gfx.getLocalizedText
 local abs <const> = math.abs
 
 function race:stage_init()
+    assets.image_stage_flat = gfx.image.new('stages/1/stage_flat')
     if perf then
-        assets.image_stage = gfx.image.new('stages/1/stage_flat')
+        assets.image_stage = assets.image_stage_flat
     else
-        assets.image_stage = gfx.image.new('stages/1/stage')
         assets.parallax_short_bake = gfx.image.new('stages/1/parallax_short_bake')
         assets.parallax_long_bake = gfx.image.new('stages/1/parallax_long_bake')
+        assets.image_stage = gfx.image.new('stages/1/stage')
     end
     assets.image_stagec = gfx.image.new('stages/1/stagec')
     assets.image_stagec_cpu = assets.image_stagec

@@ -18,6 +18,10 @@ function stages:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+        menu:addMenuItem(text('backtotitle'), function()
+            fademusic()
+            scenemanager:transitionsceneonewayback(title)
+        end)
         setpauseimage(200) -- TODO: Set this X offset
     end
 

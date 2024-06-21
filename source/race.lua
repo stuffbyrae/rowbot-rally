@@ -48,24 +48,24 @@ function race:init(...)
                 end
             end)
         end
-        setpauseimage(200) -- TODO: Set this X offset
+        setpauseimage(100)
         if vars.mirror then pd.display.setFlipped(false, false) end
     end
 
     function pd.gameWillResume()
-        pd.display.setFlipped(true, false)
+        if vars.mirror then pd.display.setFlipped(true, false) end
     end
 
     function pd.deviceWillLock()
-        pd.display.setFlipped(false, false)
+        if vars.mirror then pd.display.setFlipped(false, false) end
     end
 
     function pd.deviceWillSleep()
-        pd.display.setFlipped(false, false)
+        if vars.mirror then pd.display.setFlipped(false, false) end
     end
 
     function pd.deviceDidUnlock()
-        pd.display.setFlipped(true, false)
+        if vars.mirror then pd.display.setFlipped(true, false) end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -200,16 +200,13 @@ function race:init(...)
         vars.boosts_remaining = 3
     end
 
-    -- assets.caustics:getImage(floor(vars.water.value)):draw((floor(vars.x / 4) * 2 % 400) - 400, (floor(vars.y / 4) * 2 % 240) - 240) -- Move the water sprite to keep it in frame
-    -- assets.water:getImage(floor(vars.water.value)):draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
-
     class('race_below').extends(gfx.sprite)
     function race_below:init()
         race_below.super.init(self)
-        self:setZIndex(-1)
+        self:setZIndex(-2)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
-    self:setOpaque(true)
+        self:setOpaque(true)
         self:add()
     end
     function race_below:draw(x, y, width, height)
@@ -217,13 +214,13 @@ function race:init(...)
         local y = vars.y
         assets.image_water_bg:draw(-x, -y)
         if assets.caustics ~= nil then
-            assets.caustics:getImage(floor(vars.water.value)):draw(-x, -y) -- Move the water sprite to keep it in frame
+            assets.caustics:getImage(floor(vars.water.value)):drawIgnoringOffset(((floor(x / 4) * 2) % 400) - 400, ((floor(y / 4) * 2) % 240) - 240) -- Move the water sprite to keep it in frame
         end
         if assets.caustics_overlay ~= nil then
             assets.caustics_overlay:draw(-x, -y)
         end
         if assets.water ~= nil then
-            assets.water:getImage(floor(vars.water.value)):draw(-x, -y) -- Move the water sprite to keep it in frame
+            assets.water:getImage(floor(vars.water.value)):drawIgnoringOffset(((x * 0.8) % 400) - 400, ((y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
         end
         if assets.popeyes ~= nil then
             assets.popeyes:draw(-x, -y)
@@ -798,8 +795,13 @@ end
 -- TODO: finish
 function race:bail()
     perf = true
-    self.boat.wake:remove()
-    if self.cpu ~= nil then self.cpu.wake:remove() end
+    corner("perf")
+    if vars.stage == 2 then
+        assets.image_stage_1 = assets.image_stage_flat_1
+        assets.image_stage_2 = assets.image_stage_flat_2
+    else
+        assets.image_stage = assets.image_stage_flat
+    end
 end
 
 -- Scene update loop
@@ -845,7 +847,8 @@ function race:update()
         self.boat:update(delta)
         if self.cpu ~= nil then self.cpu:update(delta) end
         if vars.in_progress then -- If the race is happenin', then
-            if self.boat.beached then -- Oh. If it's beached, then
+            -- if pd.getFPS() <= 25 and not perf then self:bail() end -- Perf mode bail check.
+            if self.boat.beached then -- Oh. If the boat's beached, then
                 self:finish(true, 400) -- end the race. Ouch.
             end
             vars.current_time += 30 * delta -- Up that timer, babyyyyyyyyy!

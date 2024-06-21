@@ -5,8 +5,9 @@ local geo <const> = pd.geometry
 local random <const> = math.random
 
 function race:stage_init()
+    assets.image_stage_flat = gfx.image.new('stages/4/stage_flat')
     if perf then
-        assets.image_stage = gfx.image.new('stages/4/stage_flat')
+        assets.image_stage = assets.image_stage_flat
     else
         assets.image_stage = gfx.image.new('stages/4/stage')
         assets.parallax_short_bake = gfx.image.new('stages/4/parallax_short_bake')

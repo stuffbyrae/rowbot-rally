@@ -23,7 +23,6 @@ local floor <const> = math.floor
 local datestamp <const> = pd.getTime()
 
 pd.display.setRefreshRate(30)
-fps = 30
 pd.display.setFlipped(false, false)
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
@@ -191,6 +190,7 @@ savegame(true)
 
 -- When the game closes...
 function pd.gameWillTerminate()
+    pd.display.setFlipped(false, false)
     savegame()
     if pd.isSimulator ~= 1 then -- Only play the exit animation if the game's not running in Simulator.
         local img = gfx.getDisplayImage()
@@ -488,7 +488,6 @@ local offsetx
 local offsety
 
 function pd.update()
-    pd.display.setRefreshRate(fps)
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup.value) -- Move it there!

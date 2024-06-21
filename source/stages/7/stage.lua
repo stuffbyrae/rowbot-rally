@@ -6,7 +6,12 @@ local random <const> = math.random
 local smp <const> = pd.sound.sampleplayer
 
 function race:stage_init()
-    assets.image_stage = gfx.image.new('stages/7/stage')
+    -- assets.image_stage_flat = gfx.image.new('stages/7/stage_flat')
+    if perf then
+        -- assets.image_stage = assets.image_stage_flat
+    else
+        assets.image_stage = gfx.image.new('stages/7/stage')
+    end
     assets.image_stagec = gfx.image.new('stages/7/stagec')
     assets.image_stagec_cpu = assets.image_stage
     assets.image_water_bg = gfx.image.new('stages/7/water_bg')
@@ -64,7 +69,7 @@ function race:stage_init()
     vars.checkpoint_width = 222
     -- Reverse pads
     vars.reverse_pads_x = {460}
-    vars.reverse_pads_y = {225}
+    vars.reverse_pads_y = {228}
     for i = 1, #vars.reverse_pads_x do
         vars['reverse_pad_' .. i] = gfx.sprite.addEmptyCollisionSprite(vars.reverse_pads_x[i] + 45, vars.reverse_pads_y[i], 8, 123)
         vars['reverse_pad_' .. i]:setTag(42 + i)

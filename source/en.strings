@@ -289,7 +289,8 @@
 "lap1" = "Lap 1!"
 "lap2" = "Lap 2!"
 "lap3" = "Final Lap!"
-"chasedir" = "Avoid the rocks!"
+"chasedir" = "Avoid the rocks! "
+"chomped" = "Chomped!! "
 
 -- Tutorial steps
 "tutorial_step_1" = "RowBot Model R-10\n- Instruction Manual -"

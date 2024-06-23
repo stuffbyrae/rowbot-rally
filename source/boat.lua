@@ -443,16 +443,16 @@ function boat:update(delta)
             if self.turnable then
                 if enabled_cheats_scream and self.racemode ~= "story" then
                     if pd.sound.micinput.getLevel() > 0 then
-                        self.crankage += ((playdate.sound.micinput.getLevel() * 30) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
+                        self.crankage += ((playdate.sound.micinput.getLevel() * 30) - self.crankage) * self.turn_speedo.value * ((self.lerp * 30) * delta) -- Lerp crankage to itself
                     elseif self.crankage >= 0.01 then
-                        self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
+                        self.crankage += (0 - self.crankage) * ((self.lerp * 30) * delta) -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
                     else
                         self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
                     end
                 elseif save.button_controls or pd.isSimulator == 1 then
                     if self.right then
                         if self.turn_speedo.value == 1 then
-                            self.crankage += ((self.turn * (self.turn_speedo.value * 2)) - self.crankage) * self.lerp
+                            self.crankage += ((self.turn * (self.turn_speedo.value * 2)) - self.crankage) * ((self.lerp * 30) * delta)
                             if self.crankage >= (self.turn * (self.turn_speedo.value * 2)) - ((self.turn * (self.turn_speedo.value * 2)) * 0.15) then
                                 self.crankage = self.turn * (self.turn_speedo.value * 2)
                             end
@@ -461,7 +461,7 @@ function boat:update(delta)
                         end
                     elseif self.straight then
                         if self.turn_speedo.value == 1 then
-                            self.crankage += ((self.turn * self.turn_speedo.value) - self.crankage) * self.lerp
+                            self.crankage += ((self.turn * self.turn_speedo.value) - self.crankage) * ((self.lerp * 30) * delta)
                             if (self.crankage >= (self.turn * (self.turn_speedo.value)) - ((self.turn * (self.turn_speedo.value)) * 0.15)) and (self.crankage <= (self.turn * (self.turn_speedo.value)) + ((self.turn * (self.turn_speedo.value)) * 0.15)) then
                                 self.crankage = self.turn * (self.turn_speedo.value)
                             end
@@ -469,37 +469,37 @@ function boat:update(delta)
                             self.crankage = self.turn * self.turn_speedo.value
                         end
                     elseif self.crankage >= 0.01 then
-                        self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
+                        self.crankage += (0 - self.crankage) * ((self.lerp * 30) * delta) -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
                     else
                         self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
                     end
                 else
                     if pd.getCrankChange() > 0 then
                         save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
-                        self.crankage += ((pd.getCrankChange() / self.sensitivity) - self.crankage) * self.turn_speedo.value * self.lerp -- Lerp crankage to itself
+                        self.crankage += ((pd.getCrankChange() / self.sensitivity) - self.crankage) * self.turn_speedo.value * ((self.lerp * 30) * delta) -- Lerp crankage to itself
                     elseif self.crankage >= 0.01 then
-                        self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
+                        self.crankage += (0 - self.crankage) * ((self.lerp * 30) * delta) -- Decrease with lerp if either the player isn't cranking, or the crankage was just turned off.
                     else
                         self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
                     end
                 end
             else
                 if self.crankage >= 0.01 then
-                    self.crankage += (0 - self.crankage) * self.lerp -- Decrease with lerp if nothing is going on
+                    self.crankage += (0 - self.crankage) * ((self.lerp * 30) * delta) -- Decrease with lerp if nothing is going on
                 else
                     self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
                 end
             end
             if not self.leaping then
                 if self.reversed == 1 then
-                    self.rotation += self.crankage -- Add crankage value on there
+                    self.rotation += ((self.crankage * 30) * delta) -- Add crankage value on there
                     if self.rowbot then -- If the RowBot needs to turn the boat,
-                        self.rotation -= self.turn * self.turn_speedo.value -- Apply RowBot turning. Duh!
+                        self.rotation -= (((self.turn * self.turn_speedo.value) * 30) * delta) -- Apply RowBot turning. Duh!
                     end
                 elseif self.reversed == -1 then -- If reverse is negative, then flip the boat.
-                    self.rotation -= self.crankage -- Add crankage value on there
+                    self.rotation -= ((self.crankage * 30) * delta) -- Add crankage value on there
                     if self.rowbot then -- If the RowBot needs to turn the boat,
-                        self.rotation += self.turn * self.turn_speedo.value -- Apply RowBot turning. Duh!
+                        self.rotation += (((self.turn * self.turn_speedo.value) * 30) * delta) -- Apply RowBot turning. Duh!
                     end
                 end
             end
@@ -510,7 +510,7 @@ function boat:update(delta)
     self.rotation = ((floor(self.rotation / 2) * 2)) % 360
     if self.rotation == 0 then self.rotation = 360 end
     -- Transform ALL the polygons!!!!1!
-    self.transform:scale((self.scale.value * self.boost_x.value) * self.reversed, self.scale.value * self.boost_y.value)
+    self.transform:scale(((self.scale.value * self.boost_x.value) * self.reversed) * self.scale_factor, (self.scale.value * self.boost_y.value) * self.scale_factor)
     if not perf then self.ripple:rotate(self.rotation) end
     self.transform:rotate(self.rotation)
     self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
@@ -626,6 +626,7 @@ function boat:draw(x, y, width, height)
         local boatsize = self.boat_size
         local camy = self.cam_y.value
         local wobble = self.wobble_speedo.value
+        local factor = self.scale_factor
         local center = boatsize/2
         local cosrot = cos[rot]
         local sinrot = sin[rot]

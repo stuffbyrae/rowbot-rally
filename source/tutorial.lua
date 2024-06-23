@@ -325,7 +325,6 @@ end
 
 function tutorial:update()
     local delta = pd.getElapsedTime()
-    print(delta)
     pd.resetElapsedTime()
     vars.x, vars.y = gfx.getDrawOffset() -- Gimme the draw offset
     local x = vars.x + vars.boundsx
@@ -338,7 +337,7 @@ function tutorial:update()
         end
     end
     if vars.current_step == 14 and vars.player > 0 then
-        if self.boat.rotation >= 340 or self.boat.rotation <= 20 then
+        if sprites.boat.rotation >= 340 or sprites.boat.rotation <= 20 then
             vars.gameplay_progress += 1
             if vars.gameplay_progress >= 260 then
                 vars.progressable = true

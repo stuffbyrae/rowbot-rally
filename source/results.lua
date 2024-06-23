@@ -288,6 +288,7 @@ end
 
 function results:sendscores()
     if playtest then return end
+    if demo then return end
     corner('sendscore')
     local board
     if vars.mirror then

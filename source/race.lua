@@ -595,7 +595,7 @@ function race:leap(cpu)
             spritesboat:leap() -- The boat.lua code handles most of this.
             spritesstage:setZIndex(-2) -- Put the stage under the boat
             pd.timer.performAfterDelay(1450, function()
-                if vars.in_progress then -- If the race hasn't ended (e.g. if you haven't been beached,)
+                if vars.in_progress and not spritesboat.beached then -- If the race hasn't ended (e.g. if you haven't been beached,)
                     if spritescpu ~= nil then
                         if not spritescpu.leaping then
                             spritesstage:setZIndex(1) -- Put the stage back over the boat

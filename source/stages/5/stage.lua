@@ -31,6 +31,7 @@ function race:stage_init()
     assets.stage_overlay = assets['bug_' .. random(1, 3)]
     vars.anim_stage_overlay = pd.timer.new(6500, 1, 91)
     vars.anim_stage_overlay.timerEndedCallback = function()
+
         assets.stage_overlay = nil
         assets.stage_overlay = assets['bug_' .. random(1, 3)]
     end

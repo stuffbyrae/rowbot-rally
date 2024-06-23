@@ -22,7 +22,8 @@ local text <const> = gfx.getLocalizedText
 local floor <const> = math.floor
 local datestamp <const> = pd.getTime()
 
-pd.display.setRefreshRate(30)
+fps = 30
+pd.display.setRefreshRate(fps)
 pd.display.setFlipped(false, false)
 gfx.setBackgroundColor(gfx.kColorBlack)
 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
@@ -369,37 +370,43 @@ end
 
 -- This function makes the pause image.
 -- 'xoffset' is a number that determines the x offset. naturally
-function setpauseimage(xoffset)
-    if demo then
-        rowtip_oracle = 'demo'
-    else
-        if save.stages_unlocked == 7 then
-            rowtip_oracle = math.random(1, 75)
-        elseif save.stages_unlocked == 6 then
-            rowtip_oracle = math.random(1, 60)
-        elseif save.stages_unlocked == 5 then
-            rowtip_oracle = math.random(1, 55)
-        elseif save.stages_unlocked == 4 then
-            rowtip_oracle = math.random(1, 50)
-        elseif save.stages_unlocked == 3 then
-            rowtip_oracle = math.random(1, 45)
-        elseif save.stages_unlocked == 2 then
-            rowtip_oracle = math.random(1, 40)
-        elseif save.stages_unlocked == 1 then
-            rowtip_oracle = math.random(1, 35)
+function setpauseimage(xoffset, hideoracle)
+    if not hideoracle then
+        if demo then
+            rowtip_oracle = 'demo'
         else
-            rowtip_oracle = math.random(1, 20)
+            if save.stages_unlocked == 7 then
+                rowtip_oracle = math.random(1, 75)
+            elseif save.stages_unlocked == 6 then
+                rowtip_oracle = math.random(1, 60)
+            elseif save.stages_unlocked == 5 then
+                rowtip_oracle = math.random(1, 55)
+            elseif save.stages_unlocked == 4 then
+                rowtip_oracle = math.random(1, 50)
+            elseif save.stages_unlocked == 3 then
+                rowtip_oracle = math.random(1, 45)
+            elseif save.stages_unlocked == 2 then
+                rowtip_oracle = math.random(1, 40)
+            elseif save.stages_unlocked == 1 then
+                rowtip_oracle = math.random(1, 35)
+            else
+                rowtip_oracle = math.random(1, 20)
+            end
         end
     end
     local pauseimage = gfx.image.new(400, 240)
     gfx.pushContext(pauseimage)
         gfx.fillRect(0, 0, 400, 40)
-        gfx.fillRoundRect(10 + xoffset, 100, 180, 130, 10)
-        gfx.setColor(gfx.kColorWhite)
+        if not hideoracle then
+            gfx.fillRoundRect(10 + xoffset, 100, 180, 130, 10)
+            gfx.setColor(gfx.kColorWhite)
+        end
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        gfx.drawRoundRect(10 + xoffset, 100, 180, 130, 10)
+        if not hideoracle then
+            gfx.drawRoundRect(10 + xoffset, 100, 180, 130, 10)
+            pedallica:drawText(text('rowtip' .. rowtip_oracle), 19 + xoffset, 111)
+        end
         kapel_doubleup:drawText(text('paused'), 10 + xoffset, 5)
-        pedallica:drawText(text('rowtip' .. rowtip_oracle), 19 + xoffset, 111)
     gfx.popContext()
     pd.setMenuImage(pauseimage, xoffset)
 end
@@ -468,11 +475,12 @@ end
 import 'stages'
 import 'race'
 import 'credits'
+import 'chase'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "tt")
+    scenemanager:switchscene(chase)
 end
 
 if playtest and datestamp.year >= 2024 and datestamp.month >= 10 then
@@ -488,6 +496,7 @@ local offsetx
 local offsety
 
 function pd.update()
+    pd.display.setRefreshRate(fps)
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup.value) -- Move it there!

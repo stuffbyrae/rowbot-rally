@@ -289,6 +289,7 @@
 "lap1" = "Lap 1!"
 "lap2" = "Lap 2!"
 "lap3" = "Final Lap!"
+"chasedir" = "Avoid the rocks!"
 
 -- Tutorial steps
 "tutorial_step_1" = "RowBot Model R-10\n- Instruction Manual -"
@@ -314,6 +315,7 @@
 "backtotitle" = "back to title"
 "skiptutorial" = "skip tutorial"
 "skipscene" = "skip scene"
+"skipchase" = "skip chase"
 "disqualify" = "disqualify"
 "proui" = "pro ui"
 "fullgame" = "🌐 full game"

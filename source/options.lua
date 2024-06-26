@@ -97,8 +97,8 @@ function options:init(...)
                     assets.sfx_clickon:play()
                 end
             elseif vars.selection == 4 then -- Sensitivity
-                if save.sensitivity > 1 then
-                    save.sensitivity = 1
+                if save.sensitivity > 2 then
+                    save.sensitivity = 2
                     assets.sfx_clickon:play()
                 else
                     save.sensitivity = 3

@@ -6,22 +6,21 @@ local random <const> = math.random
 local smp <const> = pd.sound.sampleplayer
 
 function race:stage_init()
-    -- assets.image_stage_flat = gfx.image.new('stages/7/stage_flat')
     if perf then
-        -- assets.image_stage = assets.image_stage_flat
+        assets.image_stage = gfx.image.new('stages/7/stage_flat')
+        assets.image_stagec = gfx.image.new('stages/7/stagec')
     else
         assets.image_stage = gfx.image.new('stages/7/stage')
+        assets.parallax_short_bake = gfx.image.new('stages/7/parallax_short_bake')
+        assets.parallax_medium_bake = gfx.image.new('stages/7/parallax_medium_bake')
+        assets.image_stagec = assets.image_stage
     end
-    assets.image_stagec = gfx.image.new('stages/7/stagec')
-    assets.image_stagec_cpu = assets.image_stage
     assets.image_water_bg = gfx.image.new('stages/7/water_bg')
     assets.water = gfx.imagetable.new('stages/7/water')
-    assets.caustics = gfx.imagetable.new('stages/7/caustics')
+    assets.popeyes = gfx.image.new('stages/7/popeyes')
     assets.reverse_pad = gfx.imagetable.new('stages/7/reverse_pad')
     assets.sfx_cymbal = smp.new('audio/sfx/cymbal')
     assets.sfx_cymbal:setVolume(save.vol_sfx/5)
-    assets.caustics = gfx.imagetable.new('stages/7/caustics')
-    assets.caustics_overlay = gfx.image.new('stages/7/caustics_overlay')
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 
@@ -62,13 +61,13 @@ function race:stage_init()
     else
         vars.parallax_short_amount = 1.05
         vars.parallax_medium_amount = 1.1
-        vars.parallax_long_amount = 1.175
+        vars.parallax_long_amount = 1.25
     end
     vars.checkpoint_x = 4050
     vars.checkpoint_y = 1100
     vars.checkpoint_width = 222
     -- Reverse pads
-    vars.reverse_pads_x = {460}
+    vars.reverse_pads_x = {850}
     vars.reverse_pads_y = {228}
     for i = 1, #vars.reverse_pads_x do
         vars['reverse_pad_' .. i] = gfx.sprite.addEmptyCollisionSprite(vars.reverse_pads_x[i] + 45, vars.reverse_pads_y[i], 8, 123)
@@ -77,9 +76,9 @@ function race:stage_init()
     vars.anim_reverse_pad = pd.timer.new(500, 1, 4.99)
     vars.anim_reverse_pad.repeats = true
     -- Audience members
-    assets.audience3 = gfx.imagetable.new('images/race/audience/audience_rowbot')
-    vars.audience_x = {}
-    vars.audience_y = {}
+    assets.audience1 = gfx.imagetable.new('images/race/audience/audience_rowbot')
+    vars.audience_x = {265, 270, 300, 590, 640, 680, 645, 710, 550, 200, 175, 155, 190, 330, 780, 1010, 995, 795, 1215, 1270, 1395, 1695, 1810, 2200, 2240, 2520, 2670, 2845, 3045, 3375, 3415, 3620, 3660, 3900, 4015, 3770, 3650, 3995, 3905, 3775, 3535, 3660, 3315, 1370, 1045, 1100, 1205, 1350, 1390, 1925, 1940, 2325, 2585, 3005, 3145, 3105, 3505, 3855, 4065, 4220, 4285, 4285, 4255, 1505, 1830, 2315, 2610, 3025, 3115, 3510, 3455, 3355, 3175, 2780, 2615, 2425, 1955, 1710, 1620, 1485}
+    vars.audience_y = {1610, 1520, 1495, 1755, 1680, 1665, 1550, 1545, 1435, 740, 375, 205, 180, 195, 380, 375, 195, 130, 400, 200, 380, 715, 720, 765, 755, 540, 715, 690, 655, 485, 555, 605, 710, 665, 905, 890, 1165, 1370, 1435, 1560, 1575, 1785, 1815, 1055, 1915, 2120, 2195, 2155, 2125, 1970, 2125, 2190, 1960, 2060, 2150, 2140, 2115, 1970, 1705, 1450, 1195, 875, 840, 1755, 1720, 1820, 1675, 1630, 1705, 1155, 990, 825, 905, 925, 1015, 900, 1025, 1080, 1215, 1295}
     vars.audience_rand = {}
     for i = 1, #vars.audience_x do
         table.insert(vars.audience_rand, 1)

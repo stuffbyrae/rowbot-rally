@@ -23,7 +23,11 @@ function chase:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        setpauseimage(max(0, min(200, floor(sprites.boat.x) - 100)), true) -- TODO: Set this X offset
+        if vars.lost then
+            setpauseimage(0)
+        else
+            setpauseimage(max(0, min(200, floor(sprites.boat.x) - 100)), true)
+        end
         if vars.skippable then
             menu:addMenuItem(text('skipchase'), function()
                 self:win()
@@ -32,7 +36,9 @@ function chase:init(...)
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
-        sky = gfx.image.new('images/chase/sky'),
+        sky_1 = gfx.image.new('images/chase/sky_1'),
+        sky_2 = gfx.image.new('images/chase/sky_2'),
+        sky_3 = gfx.image.new('images/chase/sky_3'),
         boat = gfx.imagetable.new('images/chase/boat'),
         bg = gfx.imagetable.new('images/chase/bg'),
         shark = gfx.image.new('images/chase/shark'),
@@ -40,6 +46,7 @@ function chase:init(...)
         chomp = gfx.imagetable.new('images/chase/chomp'),
         crash = gfx.image.new('images/chase/crash'),
         sfx_crash = smp.new('audio/sfx/crash'),
+        kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
         rock = gfx.imagetable.new('images/chase/rock'),
         warn = gfx.imagetable.new('images/chase/warn'),
@@ -53,8 +60,10 @@ function chase:init(...)
     assets.sfx_chomp:setVolume(save.vol_sfx/5)
     assets.sfx_cymbal:setVolume(save.vol_sfx/5)
     assets.sfx_rock:setVolume(save.vol_sfx/5)
-    gfx.setFont(assets.kapel_doubleup_outline)
+    gfx.setFont(assets.kapel_doubleup)
     assets.dir = gfx.imageWithText(text('chasedir'), 350, 50)
+    assets.dir = assets.dir:scaledImage(2)
+    gfx.setFont(assets.kapel_doubleup_outline)
     assets.overlay = assets.fade
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
@@ -70,8 +79,12 @@ function chase:init(...)
         boat_can_move = false,
         boat_can_crash = true,
         rocks_can_spawn = false,
+        change = 1,
         crashes = 0,
+        anim_sky = pd.timer.new(120000, -0, -50),
+        anim_bg = pd.timer.new(500, 1, 6.99),
         anim_shark_chomp = pd.timer.new(0, 0, 0),
+        anim_entrance = pd.timer.new(1000, 200, 0, pd.easingFunctions.outBack),
         anim_boat_y = pd.timer.new(500, 0, -3),
         anim_overlay = pd.timer.new(750, 1, 34),
         anim_warn = pd.timer.new(250, 1, 3.99),
@@ -106,6 +119,7 @@ function chase:init(...)
     vars.anim_overlay.discardOnCompletion = false
     vars.anim_rock.discardOnCompletion = false
     vars.anim_invinc.discardOnCompletion = false
+    vars.anim_bg.repeats = true
     vars.anim_boat_y.reverses = true
     vars.anim_boat_y.repeats = true
     vars.anim_warn.repeats = true
@@ -123,9 +137,11 @@ function chase:init(...)
     end)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
-        assets.sky:draw(0, 0)
+        assets.sky_1:draw(0, 0)
+        assets.sky_2:draw(0, vars.anim_sky.value)
+        assets.sky_3:draw(0, vars.anim_sky.value * 1.5)
         if vars.showdir then
-            assets.dir:drawAnchored(200, 40, 0.5, 0.5)
+            assets.dir:drawAnchored(200, 10, 0.5, 0)
         end
     end)
 
@@ -137,6 +153,9 @@ function chase:init(...)
         self:moveTo(200, 240)
         self:setZIndex(1)
         self:add()
+    end
+    function chase_bg:update()
+        self:setImage(assets.bg[floor(vars.anim_bg.value)])
     end
 
     class('chase_rocks').extends(gfx.sprite)
@@ -239,11 +258,21 @@ end
 
 -- Scene update loop
 function chase:update()
-    if pd.isCrankDocked() then
+    if pd.isCrankDocked() and not save.button_controls then
         show_crank = true
     end
-    local change = max(pd.getCrankChange(), 1)
-    if not vars.boat_can_move and change > 1 and vars.playing then
+    if save.button_controls then
+        vars.change = 1
+        if pd.buttonIsPressed('up') then
+            vars.change = 10.8
+        end
+        if pd.buttonIsPressed('right') then
+            vars.change = 21.6
+        end
+    else
+        vars.change = max(pd.getCrankChange(), 1)
+    end
+    if not vars.boat_can_move and vars.change > 1 and vars.playing then
         vars.boat_can_move = true
     end
     if vars.playing and vars.crashes >= 3 then
@@ -254,7 +283,7 @@ function chase:update()
     end
     if vars.boat_can_move then
         vars.boat_speed -= 1
-        vars.boat_speed += change / 10
+        vars.boat_speed += vars.change / 10
     end
     vars.boat_speed = max(vars.boat_speed_min - 5, min(vars.boat_speed_max + 5, vars.boat_speed))
     sprites.boat:moveBy(max(vars.boat_speed_min, min(vars.boat_speed_max, vars.boat_speed)), 0)
@@ -269,9 +298,9 @@ function chase:update()
     if sprites.boat.x > vars.boat_pos_max then
         sprites.boat:small_crash(true)
     end
-    sprites.boat:moveTo(sprites.boat.x, 220 + (vars.crashes * 5) + vars.anim_boat_y.value)
+    sprites.boat:moveTo(sprites.boat.x, 220 + (vars.crashes * 5) + vars.anim_boat_y.value + vars.anim_entrance.value)
     sprites.shark:moveBy((sprites.boat.x - sprites.shark.x) * 0.3, 0)
-    sprites.shark:moveTo(sprites.shark.x, 400 - (vars.crashes * 5) - vars.anim_shark_chomp.value)
+    sprites.shark:moveTo(sprites.shark.x, 400 - (vars.crashes * 5) - vars.anim_shark_chomp.value + (vars.anim_entrance.value * 2))
     gfx.setDrawOffset((-sprites.boat.x + 200) * 0.3, 0)
 end
 
@@ -300,7 +329,7 @@ function chase:spawnrock()
                 vars.anim_rock:resetnew(1250, 120, 450, pd.easingFunctions.inSine)
             end)
             pd.timer.performAfterDelay(1150, function()
-                if sprites.boat.x >= vars.rock_x - 55 and sprites.boat.x <= vars.rock_x + 55 then
+                if sprites.boat.x >= vars.rock_x - 65 and sprites.boat.x <= vars.rock_x + 65 then
                     sprites.boat:crash()
                 else
                     vars.rocks_passed += 1

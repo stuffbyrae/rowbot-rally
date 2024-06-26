@@ -296,7 +296,11 @@ function corner(type)
         anim_corner = pd.timer.new(501, -25, 0, pd.easingFunctions.outSine) -- Intro animation
         anim_corner.timerEndedCallback = function()
             anim_corner = pd.timer.new(501, 0, -25, pd.easingFunctions.inSine)
-            anim_corner.delay = 1500
+            if type == "perf" then
+                anim_corner.delay = 15000
+            else
+                anim_corner.delay = 1500
+            end
             anim_corner.timerEndedCallback = function()
                 anim_corner = nil
                 img_corner = nil
@@ -472,6 +476,10 @@ function shakies_y(time, int)
     anim_shakies_y = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
 end
 
+if pd.isSimulator == 1 then
+    save.button_controls = true
+end
+
 import 'stages'
 import 'race'
 import 'credits'
@@ -480,7 +488,7 @@ import 'chase'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(chase)
+    scenemanager:switchscene(race, 1, "tt", true)
 end
 
 if playtest and datestamp.year >= 2024 and datestamp.month >= 10 then
@@ -496,7 +504,10 @@ local offsetx
 local offsety
 
 function pd.update()
-    pd.display.setRefreshRate(fps)
+    if playtest then
+        pd.display.setRefreshRate(fps)
+        pd.drawFPS(10, 10)
+    end
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup.value) -- Move it there!
@@ -520,8 +531,5 @@ function pd.update()
     -- Corner update logic
     if anim_corner ~= nil and img_corner ~= nil then -- If the intro anim exists...
         img_corner:drawIgnoringOffset(1 * anim_corner.value, 1 * anim_corner.value) -- Move the corner piece in using it
-    end
-    if pd.isSimulator ~= 1 then
-        pd.drawFPS(10, 10)
     end
 end

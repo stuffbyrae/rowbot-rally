@@ -6,9 +6,8 @@ local random <const> = math.random
 local text <const> = gfx.getLocalizedText
 
 function race:stage_init()
-    assets.image_stage_flat = gfx.image.new('stages/5/stage_flat')
     if perf then
-        assets.image_stage = assets.image_stage_flat
+        assets.image_stage = gfx.image.new('stages/5/stage_flat')
     else
         assets.image_stage = gfx.image.new('stages/5/stage')
         assets.parallax_short_bake = gfx.image.new('stages/5/parallax_short_bake')
@@ -16,7 +15,6 @@ function race:stage_init()
         assets.parallax_long_bake = gfx.image.new('stages/5/parallax_long_bake')
     end
     assets.image_stagec = gfx.image.new('stages/5/stagec')
-    assets.image_stagec_cpu = assets.image_stagec
     assets.bug_1 = gfx.imagetable.new('stages/5/bug_1')
     assets.bug_2 = gfx.imagetable.new('stages/5/bug_2')
     assets.bug_3 = gfx.imagetable.new('stages/5/bug_3')

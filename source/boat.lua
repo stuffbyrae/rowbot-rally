@@ -224,7 +224,7 @@ function boat:start(duration) -- 1000 is default
             self.cam_y:resetnew(duration * 1.5, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
         end
         self.sfx_row:play(0)
-        if not save.button_controls and pd.isSimulator ~= 1 then show_crank = true end
+        if not save.button_controls then show_crank = true end
         if enabled_cheats_scream  and self.racemode ~= "story" then
             playdate.sound.micinput.startListening()
         end
@@ -449,7 +449,7 @@ function boat:update(delta)
                     else
                         self.crankage = 0 -- Round it down when it gets small enough, to ensure we don't enter floating point hell.
                     end
-                elseif save.button_controls or pd.isSimulator == 1 then
+                elseif save.button_controls then
                     if self.right then
                         if self.turn_speedo.value == 1 then
                             self.crankage += ((self.turn * (self.turn_speedo.value * 2)) - self.crankage) * ((self.lerp * 30) * delta)

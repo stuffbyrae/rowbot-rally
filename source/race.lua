@@ -802,19 +802,6 @@ function race:checkpointcheck(cpu)
     end
 end
 
--- Activate performance mode on the fly
--- TODO: finish
-function race:bail()
-    perf = true
-    corner("perf")
-    if vars.stage == 2 then
-        assets.image_stage_1 = assets.image_stage_flat_1
-        assets.image_stage_2 = assets.image_stage_flat_2
-    else
-        assets.image_stage = assets.image_stage_flat
-    end
-end
-
 -- Scene update loop
 function race:update()
     local delta = pd.getElapsedTime()
@@ -858,7 +845,7 @@ function race:update()
         if spritescpu ~= nil then spritescpu:update(delta) end
         if vars.in_progress then -- If the race is happenin', then
             self:timecalc(vars.current_time) -- Calc this thing out for the timer
-            -- if pd.getFPS() <= 25 and not perf then self:bail() end -- Perf mode bail check.
+            if pd.getFPS() <= 25 and not perf then corner("perf") end -- Perf mode bail check.
             if spritesboat.beached then -- Oh. If the boat's beached, then
                 self:finish(true, 400) -- end the race. Ouch.
             end
@@ -884,7 +871,7 @@ function race:update()
         if spritescpu ~= nil then
             self:checkpointcheck(true)
             if spritescpu.crashable then
-                spritescpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu, spritesstage.x, spritesstage.y)
+                spritescpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu or assets.image_stagec, spritesstage.x, spritesstage.y)
             end
         end
     end

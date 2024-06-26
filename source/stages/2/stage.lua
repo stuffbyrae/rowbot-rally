@@ -6,20 +6,20 @@ local random <const> = math.random
 local text <const> = gfx.getLocalizedText
 
 function race:stage_init()
-    assets.image_stage_flat_1 = gfx.image.new('stages/2/stage_flat_1')
-    assets.image_stage_flat_2 = gfx.image.new('stages/2/stage_flat_2')
+    assets.image_stagec_cpu = gfx.image.new('stages/2/stagec')
     if perf then
-        assets.image_stage_1 = assets.image_stage_flat_1
-        assets.image_stage_2 = assets.image_stage_flat_2
+        assets.image_stage_1 = gfx.image.new('stages/2/stage_flat_1')
+        assets.image_stage_2 = gfx.image.new('stages/2/stage_flat_2')
+        assets.image_stagec_1 = gfx.image.new('stages/2/stagec_1')
+        assets.image_stagec_2 = gfx.image.new('stages/2/stagec_2')
     else
         assets.image_stage_1 = gfx.image.new('stages/2/stage_1')
         assets.image_stage_2 = gfx.image.new('stages/2/stage_2')
         assets.parallax_short_bake = gfx.image.new('stages/2/parallax_short_bake')
         assets.parallax_long_bake = gfx.image.new('stages/2/parallax_long_bake')
+        assets.image_stagec_1 = assets.image_stage_1
+        assets.image_stagec_2 = assets.image_stage_2
     end
-    assets.image_stagec_cpu = gfx.image.new('stages/2/stagec')
-    assets.image_stagec_1 = gfx.image.new('stages/2/stagec_1')
-    assets.image_stagec_2 = gfx.image.new('stages/2/stagec_2')
     assets.bug_1 = gfx.imagetable.new('stages/2/bug_1')
     assets.bug_2 = gfx.imagetable.new('stages/2/bug_2')
     assets.bug_3 = gfx.imagetable.new('stages/2/bug_3')

@@ -203,7 +203,7 @@ function tutorial:init(...)
             elseif vars.current_step == 14 then
                 assets.image_tutorial_up:draw(10, 80 + vars.up.value)
                 assets.kapel_doubleup:drawText('Up!!', 30, 103 + vars.up.value)
-                if not save.button_controls and pd.isSimulator ~= 1 then
+                if not save.button_controls then
                     assets.pedallica:drawTextAligned(text('tutorial_step_14a'), 200, 14, kTextAlignment.center)
                 else
                     assets.pedallica:drawTextAligned(text('tutorial_step_14b'), 200, 14, kTextAlignment.center)

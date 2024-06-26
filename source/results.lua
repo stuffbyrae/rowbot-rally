@@ -58,7 +58,6 @@ function results:init(...)
         stage6_speedy = 1500,
         stage7_speedy = 2100,
         speedy = false,
-        poststagetime = false,
         showtimetrials = false,
         showmirrorunlock = false,
     }
@@ -95,10 +94,7 @@ function results:init(...)
             end
         elseif vars.mode == "tt" then
             if vars.mirror then
-                if vars.time < save['stage' .. vars.stage .. '_best_mirror'] and not enabled_cheats then
-                    vars.poststagetime = true
-                end
-                if vars.time < vars['stage' .. vars.stage .. '_speedy_mirror'] and not enabled_cheats then
+                if vars.time < vars['stage' .. vars.stage .. '_speedy'] and not enabled_cheats then
                     save['stage' .. vars.stage .. '_speedy_mirror'] = true
                     vars.speedy = true
                 end
@@ -106,9 +102,6 @@ function results:init(...)
                     save['stage' .. vars.stage .. '_flawless_mirror'] = true
                 end
             else
-                if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
-                    vars.poststagetime = true
-                end
                 if vars.time < vars['stage' .. vars.stage .. '_speedy'] and not enabled_cheats then
                     if not save['stage' .. vars.stage .. '_speedy'] and save['stage' .. vars.stage .. '_flawless'] then
                         vars.showmirrorunlock = true
@@ -147,7 +140,10 @@ function results:init(...)
                 makebutton(text('newstage'), 'small'):drawAnchored(395, 235, 1, 1)
                 assets.kapel_doubleup:drawTextAligned(text('yourtime'), 355, 65, kTextAlignment.right)
                 assets.double_time:drawTextAligned(mins .. ":" .. secs .. "." .. mils, 355, 90, kTextAlignment.right)
-                if vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
+                if vars.mirror and vars.time < save['stage' .. vars.stage .. '_best_mirror'] and not enabled_cheats then
+                    assets.kapel_doubleup:drawTextAligned(text('newbest'), 355, 125, kTextAlignment.right)
+                    save['stage' .. vars.stage .. '_best_mirror'] = vars.time
+                elseif not vars.mirror and vars.time < save['stage' .. vars.stage .. '_best'] and not enabled_cheats then
                     assets.kapel_doubleup:drawTextAligned(text('newbest'), 355, 125, kTextAlignment.right)
                     save['stage' .. vars.stage .. '_best'] = vars.time
                 else
@@ -171,7 +167,7 @@ function results:init(...)
                 else
                     gfx.imageWithText(text('finish'), 200, 120):drawScaled(40, 20, 2)
                 end
-                if vars.showmirrorunlock then
+                if vars.showmirrorunlock and not vars.mirror then
                     assets.kapel:drawText(text('mirrorunlockedforthisstage'), 139, 65)
                 end
             end
@@ -296,35 +292,23 @@ function results:sendscores()
     else
         board = 'stage' .. vars.stage
     end
-    if perf and vars.poststagetime then
+    if perf then
         pd.scoreboards.addScore(board, vars.time, function(status, result)
             if status.code ~= "OK" then
                 makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
             end
         end)
     else
-        if vars.poststagetime then
-            pd.scoreboards.addScore(board, vars.time, function(status, result)
-                if status.code ~= "OK" then
-                    makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
-                end
-                pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
-                    pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
-                        pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
-                        end)
-                    end)
-                end)
-            end)
-        else
+        pd.scoreboards.addScore(board, vars.time, function(status, result)
+            if status.code ~= "OK" then
+                makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
+            end
             pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
-                if status.code ~= "OK" then
-                    makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
-                end
                 pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
                     pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
                     end)
                 end)
             end)
-        end
+        end)
     end
 end

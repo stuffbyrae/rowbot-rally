@@ -294,6 +294,16 @@ function stages:leaderboardsin()
     sprites.lb_bubble:add()
     pd.timer.performAfterDelay(1000, function()
         vars.leaderboards_closable = true
+        assets.image_lb_text = gfx.image.new(190, 240)
+        if playtest then
+            sprites.lb_accent:setImage(assets.image_rowbot_accent[3])
+            gfx.pushContext(assets.image_lb_text)
+                assets.pedallica:drawTextAligned(text('leaderboards_playtest'), 100, 100, kTextAlignment.center)
+            gfx.popContext()
+            sprites.lb_text:setImage(assets.image_lb_text)
+            sprites.lb_text:add()
+            return
+        end
         sprites.lb_accent:setImage(assets.image_rowbot_accent[1])
         if vars.mirror then
             vars.board = 'stage' .. tostring(vars.selection) .. 'mirror'
@@ -307,7 +317,6 @@ function stages:leaderboardsin()
                 end
             end
         end)
-        assets.image_lb_text = gfx.image.new(190, 240)
         gfx.pushContext(assets.image_lb_text)
             assets.pedallica:drawTextAligned(text('leaderboards_grab'), 100, 100, kTextAlignment.center)
         gfx.popContext()

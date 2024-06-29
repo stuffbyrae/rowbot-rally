@@ -191,7 +191,7 @@ function tutorial:init(...)
         if vars.hud_open then
             assets.image_popup_banner:draw(0, 0)
             if vars.current_step == 6 then
-                if not save.button_controls and pd.isSimulator ~= 1 then
+                if not save.button_controls then
                     if pd.isCrankDocked() then
                         assets.pedallica:drawTextAligned(text('tutorial_step_6c'), 200, 14, kTextAlignment.center)
                     else

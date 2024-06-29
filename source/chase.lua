@@ -33,6 +33,16 @@ function chase:init(...)
                 self:win()
             end)
         end
+        if vars.playing then
+            menu:addMenuItem(text('quitfornow'), function()
+                vars.playing = false
+                fademusic(999)
+                vars.anim_overlay:resetnew(1000, 34, 1)
+                pd.timer.performAfterDelay(1000, function()
+                    scenemanager:switchscene(title)
+                end)
+            end)
+        end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -270,9 +280,9 @@ function chase:update()
             vars.change = 21.6
         end
     else
-        vars.change = max(pd.getCrankChange(), 1)
+        vars.change = max((pd.getCrankChange() / save.sensitivity) * 3, 1)
     end
-    if not vars.boat_can_move and vars.change > 1 and vars.playing then
+    if not vars.boat_can_move and vars.change > 7 and vars.playing then
         vars.boat_can_move = true
     end
     if vars.playing and vars.crashes >= 3 then
@@ -348,12 +358,12 @@ end
 
 function chase:win()
     if vars.playing then
-        fademusic(1000)
         save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene7'
         vars.playing = false
         vars.boat_can_move = false
         vars.boat_speed = 0
         vars.boat_can_crash = false
+        fademusic(1000)
         vars.anim_boat_y:resetnew(500, 0, -130, pd.easingFunctions.outSine)
         pd.timer.performAfterDelay(500, function()
             sprites.boat:setZIndex(-1)

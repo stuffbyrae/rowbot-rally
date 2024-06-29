@@ -488,7 +488,7 @@ import 'chase'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, "tt", true)
+    scenemanager:switchscene(chase)
 end
 
 if playtest and datestamp.year >= 2024 and datestamp.month >= 10 then

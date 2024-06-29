@@ -275,7 +275,7 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
                 local point_x, point_y = transformed_point:unpack()
                 local moved_x = ((point_x + self.x) - crash_stage_x)
                 local moved_y = ((point_y + self.y) - crash_stage_y)
-                if image:sample(moved_x, moved_y) == gfx.kColorBlack then
+                if image:sample(moved_x, moved_y) ~= gfx.kColorClear then
                     if self.crashable then
                         if self.mode ~= "cpu" and not self.crashed then
                             self.sfx_crash:stop()
@@ -341,7 +341,7 @@ function boat:boost()
             self.cam_y:resetnew(1000, self.cam_y.value, 70, pd.easingFunctions.inOutSine)
             pd.timer.performAfterDelay(2000, function()
                 if self.movable then
-                    self.wobble_speedo:resetnew(2000, 3, 1, pd.easingFunctions.outBack)
+                    self.wobble_speedo:resetnew(2000, self.wobble_speedo.value, 1, pd.easingFunctions.outBack)
                 end
                 -- Throw the camera ... back
                 if self.movable then

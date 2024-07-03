@@ -5,6 +5,7 @@ import 'title'
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 local text <const> = gfx.getLocalizedText
+local floor <const> = math.floor
 
 class('stats').extends(gfx.sprite) -- Create the scene's class
 function stats:init(...)
@@ -203,12 +204,20 @@ function stats:init(...)
             assets.pedallica:drawTextAligned(save.stories_completed, 390, 100, kTextAlignment.right)
             assets.pedallica:drawTextAligned(self:getdistancecranked(save.total_degrees_cranked), 390, 115, kTextAlignment.right)
             if vars.mps > 10 then -- If there's no plays on any stage, the highest it will go is "07" — in that event, don't bother picking a "Favorite stage" since all of them are 0 plays.
-                assets.pedallica:drawTextAligned(text('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. math.floor(vars.mps / 10) .. ' plays)', 390, 140, kTextAlignment.right)
+                if floor(vars.mps / 10) == 1 then
+                    assets.pedallica:drawTextAligned(text('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. floor(vars.mps / 10) .. ' play)', 390, 140, kTextAlignment.right)
+                else
+                    assets.pedallica:drawTextAligned(text('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. floor(vars.mps / 10) .. ' plays)', 390, 140, kTextAlignment.right)
+                end
             else
                 assets.pedallica:drawTextAligned('N/A', 390, 140, kTextAlignment.right)
             end
             if vars.lps > 10 then -- Only start counting "Least favorite stage"" after every stage has had at least one play, to ensure fairness.
-                assets.pedallica:drawTextAligned(text('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. math.floor(vars.lps / 10) .. ' plays)', 390, 155, kTextAlignment.right)
+                if floor(vars.lps / 10) == 1 then
+                    assets.pedallica:drawTextAligned(text('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. floor(vars.lps / 10) .. ' play)', 390, 155, kTextAlignment.right)
+                else
+                    assets.pedallica:drawTextAligned(text('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. floor(vars.lps / 10) .. ' plays)', 390, 155, kTextAlignment.right)
+                end
             else
                 assets.pedallica:drawTextAligned('N/A', 390, 155, kTextAlignment.right)
             end
@@ -261,9 +270,9 @@ function stats:init(...)
 end
 
 function stats:gethms(num, hoursenabled)
-    local hours = math.floor((num/30) / 3600)
-    local minutes = math.floor((num/30) / 60 - (hours * 60))
-    local seconds = math.floor((num/30) - (hours * 3600) - (minutes * 60))
+    local hours = floor((num/30) / 3600)
+    local minutes = floor((num/30) / 60 - (hours * 60))
+    local seconds = floor((num/30) - (hours * 3600) - (minutes * 60))
     if hoursenabled then
         return hours .. 'h ' .. minutes .. 'm ' .. seconds .. 's'
     else
@@ -300,7 +309,7 @@ function stats:leave() -- Leave and move back to the title screen
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
     vars.anim_wave_y:resetnew(1000, sprites.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function() -- After that animation's done...
-        scenemanager:switchscene(title) -- Switch back to the title!
+        scenemanager:switchscene(title, 'stats') -- Switch back to the title!
     end)
 end
 
@@ -318,7 +327,7 @@ end
 function stats:sendonlinestatsscores()
     if playtest then return end
     corner('sendscore')
-    pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
+    pd.scoreboards.addScore('racetime', floor(save.total_racetime), function(status)
         if status.code ~= "OK" then
             makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
             vars.lb_racetime_result = "fail"
@@ -333,7 +342,7 @@ function stats:sendonlinestatsscores()
                 vars.lb_degreescranked_result = "fail"
                 gfx.sprite.redrawBackground()
             end
-            pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
+            pd.scoreboards.addScore('degreescranked', floor(save.total_degrees_cranked), function(status)
                 if status.code == "OK" then
                     stats:getonlinestatsscores()
                 else

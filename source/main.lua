@@ -43,10 +43,13 @@ enabled_cheats_small = false
 enabled_cheats_tiny = false
 enabled_cheats_retro = false
 enabled_cheats_scream = false
+enabled_cheats_trippy = false
 
 perf = false
 
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
+local lepak <const> = gfx.font.new('fonts/lepak') -- Kapel font, reversed
+local reverse <const> = string.reverse
 local kapel_doubleup <const> = gfx.font.new('fonts/kapel_doubleup') -- Kapel double-big font
 local pedallica <const> = gfx.font.new('fonts/pedallica') -- Pedallica font
 
@@ -69,6 +72,7 @@ function savecheck()
     if save.unlocked_cheats_tiny == nil then save.unlocked_cheats_tiny = false end
     if save.unlocked_cheats_retro == nil then save.unlocked_cheats_retro = false end
     if save.unlocked_cheats_scream == nil then save.unlocked_cheats_scream = false end
+    if save.unlocked_cheats_trippy == nil then save.unlocked_cheats_trippy = false end
     -- Last saved slot, used to determine which save slot is being played right now. This changes when a new story slot is opened up.
     save.current_story_slot = save.current_story_slot or 1
     -- Local best time-trial records for all courses
@@ -162,6 +166,7 @@ function savecheck()
     save.total_degrees_cranked = save.total_degrees_cranked or 0
     if save.metric == nil then save.metric = true end
     if save.seen_chill == nil then save.seen_chill = false end
+    if save.seen_credits == nil then save.seen_credits = false end
 end
 
 -- ... now we run that!
@@ -283,19 +288,44 @@ end
 
 -- This function generates a string that shows up briefly in the top left corner of the screen
 -- 'type' is a string that takes a slug to determine what string to show. Accepted slugs are "saving", and "sendscore"
-function corner(type)
+function corner(type, flip)
+    local font
+    if flip then
+        font = lepak
+    else
+        font = kapel
+    end
+    local width = font:getTextWidth(text('corner_' .. type))
+    local height = font:getHeight()
     if not corner_active then -- If there's nothing in that corner already ...
         corner_active = true -- then let's take that for ourselves
-        img_corner = gfx.image.new(kapel:getTextWidth(text('corner_' .. type)) + 12, kapel:getHeight() + 6) -- Make a new image with abouts the width of the text
+        img_corner = gfx.image.new(width + 12, height + 6) -- Make a new image with abouts the width of the text
         gfx.pushContext(img_corner) -- Now let's draw into it...
-            gfx.fillPolygon(0, 0, kapel:getTextWidth(text('corner_' .. type)) + 12, 0, kapel:getTextWidth(text('corner_' .. type)) + 6, kapel:getHeight() + 6, 0, kapel:getHeight() + 6) -- Draw a funny polygon that's the length of the text
+            -- Draw a funny polygon that's the length of the text
+            if flip then
+                gfx.fillPolygon(0, 0, width + 12, 0, width + 12, height + 6, 6, height + 6)
+            else
+                gfx.fillPolygon(0, 0, width + 12, 0, width + 6, height + 6, 0, height + 6)
+            end
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Set the color to white...
-            kapel:drawText(text('corner_' .. type), 3, 3) -- and draw the text!
+            if flip then
+                font:drawTextAligned(reverse(text('corner_' .. type)), width + 9, 3, kTextAlignment.right) -- and draw the text!
+            else
+                font:drawText(text('corner_' .. type), 3, 3) -- and draw the text!
+            end
             gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back,
         gfx.popContext() -- and leave the image context.
-        anim_corner = pd.timer.new(501, -25, 0, pd.easingFunctions.outSine) -- Intro animation
+        if flip then
+            anim_corner = pd.timer.new(501, 400, 388 - width, pd.easingFunctions.outSine) -- Intro animation
+        else
+            anim_corner = pd.timer.new(501, -width - 12, 0, pd.easingFunctions.outSine) -- Intro animation
+        end
         anim_corner.timerEndedCallback = function()
-            anim_corner = pd.timer.new(501, 0, -25, pd.easingFunctions.inSine)
+            if flip then
+                anim_corner = pd.timer.new(501, 388 - width, 400, pd.easingFunctions.inSine)
+            else
+                anim_corner = pd.timer.new(501, 0, -width - 12, pd.easingFunctions.inSine)
+            end
             if type == "perf" then
                 anim_corner.delay = 15000
             else
@@ -484,29 +514,25 @@ import 'stages'
 import 'race'
 import 'credits'
 import 'chase'
+import 'options'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(chase)
-end
-
-if playtest and datestamp.year >= 2024 and datestamp.month >= 10 then
-    playdate.stop()
-    gfx.image.new('images/ui/corner'):draw(0, 0)
-    print("The playtesting period for this game is now over. If you wanna keep playing RowBot Rally, please buy the game in Catalog!")
-    kapel_doubleup:drawTextAligned("Thank you for playtesting!", 200, 15, kTextAlignment.center)
-    pedallica:drawText("The playtesting period for this\ngame is now over. If you wanna\nkeep playing RowBot Rally, please\nbuy the game in Catalog!\n\nTo transfer your save data over to\nthe full version, make sure the\nRowBot Rally save folder in your Data\nDisk is named \"wtf.rae.rowbotrally\".\n\n🌐 play.date/games/rowbot-rally\nThanks again for your help!", 30, 45)
-    playdate.display.flush()
+    scenemanager:switchscene(title)
 end
 
 local offsetx
 local offsety
 
 function pd.update()
-    if playtest then
-        pd.display.setRefreshRate(fps)
-        pd.drawFPS(10, 10)
+    if playtest and ((datestamp.year >= 2024 and datestamp.month >= 10) or (datestamp.year >= 2025)) then
+        playdate.stop()
+        gfx.image.new('images/ui/corner'):draw(0, 0)
+        print("The playtesting period for this game is now over. If you wanna keep playing RowBot Rally, please buy the game in Catalog!")
+        kapel_doubleup:drawTextAligned("Thank you for playtesting!", 200, 15, kTextAlignment.center)
+        pedallica:drawText("The playtesting period for this\ngame is now over. If you wanna\nkeep playing RowBot Rally, please\nbuy the game in Catalog!\n\nTo transfer your save data over to\nthe full version, make sure the\nRowBot Rally save folder in your Data\nDisk is named \"wtf.rae.rowbotrally\".\n\n🌐 play.date/games/rowbot-rally\nThanks again for your help!", 30, 45)
+        playdate.display.flush()
     end
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
@@ -530,6 +556,10 @@ function pd.update()
     end
     -- Corner update logic
     if anim_corner ~= nil and img_corner ~= nil then -- If the intro anim exists...
-        img_corner:drawIgnoringOffset(1 * anim_corner.value, 1 * anim_corner.value) -- Move the corner piece in using it
+        img_corner:drawIgnoringOffset(anim_corner.value, 0) -- Move the corner piece in using it
+    end
+    if playtest then
+        pd.display.setRefreshRate(fps)
+        pd.drawFPS(10, 10)
     end
 end

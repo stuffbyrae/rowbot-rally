@@ -169,23 +169,6 @@ function race:init(...)
     vars.anim_ui_offset.discardOnCompletion = false
 
     -- Load in the appropriate stuffs depending on what stage is called. EZ!
-    -- if vars.stage == 1 then
-    --     pd.file.run('stages/1/stage.pdz')
-    -- elseif vars.stage == 2 then
-    --     pd.file.run('stages/2/stage.pdz')
-    -- elseif vars.stage == 3 then
-    --     pd.file.run('stages/3/stage.pdz')
-    -- elseif vars.stage == 4 then
-    --     pd.file.run('stages/4/stage.pdz')
-    -- elseif vars.stage == 5 then
-    --     pd.file.run('stages/5/stage.pdz')
-    -- elseif vars.stage == 6 then
-    --     pd.file.run('stages/6/stage.pdz')
-    -- elseif vars.stage == 7 then
-    --     pd.file.run('stages/7/stage.pdz')
-    -- end
-
-    -- does just doing this break anything?
     pd.file.run('stages/' .. vars.stage .. '/stage.pdz')
 
     self:stage_init()
@@ -220,19 +203,22 @@ function race:init(...)
     function race_below:draw(x, y, width, height)
         local x = vars.x
         local y = vars.y
-        assets.image_water_bg:draw(-x, -y)
-        if assets.caustics ~= nil then
-            assets.caustics:getImage(floor(vars.water.value)):drawIgnoringOffset(((floor(x / 4) * 2) % 400) - 400, ((floor(y / 4) * 2) % 240) - 240) -- Move the water sprite to keep it in frame
+        if not (vars.mode == "tt" and enabled_cheats_trippy) then
+            assets.image_water_bg:draw(-x, -y)
+            if assets.caustics ~= nil then
+                assets.caustics:getImage(floor(vars.water.value)):drawIgnoringOffset(((floor(x / 4) * 2) % 400) - 400, ((floor(y / 4) * 2) % 240) - 240) -- Move the water sprite to keep it in frame
+            end
+            if assets.caustics_overlay ~= nil then
+                assets.caustics_overlay:draw(-x, -y)
+            end
+            if assets.water ~= nil then
+                assets.water:getImage(floor(vars.water.value)):drawIgnoringOffset(((x * 0.8) % 400) - 400, ((y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
+            end
+            if assets.popeyes ~= nil then
+                assets.popeyes:draw(-x, -y)
+            end
         end
-        if assets.caustics_overlay ~= nil then
-            assets.caustics_overlay:draw(-x, -y)
-        end
-        if assets.water ~= nil then
-            assets.water:getImage(floor(vars.water.value)):drawIgnoringOffset(((x * 0.8) % 400) - 400, ((y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
-        end
-        if assets.popeyes ~= nil then
-            assets.popeyes:draw(-x, -y)
-        end
+
         local time = save.total_playtime
         local stage_x = vars.stage_x
         local stage_y = vars.stage_y
@@ -460,7 +446,7 @@ function race:init(...)
                 end
             else
                 -- If there's some kind of stage overlay anim going on, play it.
-                if anim_stage_overlay ~= nil then
+                if anim_stage_overlay ~= nil and stage_overlay ~= nil then
                     stage_overlay:drawImage(floor(anim_stage_overlay.value), 0, 0)
                 elseif stage_overlay ~= nil then
                     stage_overlay:draw(0, 0)
@@ -578,38 +564,6 @@ function race:boost(rocketarms)
     end
 end
 
--- The function what makes the boat leap up high in the air
-function race:leap(cpu)
-    -- If you're not already leaping,
-    if cpu then
-        if not spritescpu.leaping then
-            spritescpu:leap() -- The boat.lua code handles most of this.
-            spritesstage:setZIndex(-2) -- Put the stage under the boat
-            pd.timer.performAfterDelay(1450, function()
-                if not spritesboat.leaping then -- If the race hasn't ended (e.g. if you haven't been beached,)
-                    spritesstage:setZIndex(1) -- Put the stage back over the boat
-                end
-            end)
-        end
-    else
-        if vars.in_progress and not spritesboat.leaping then
-            spritesboat:leap() -- The boat.lua code handles most of this.
-            spritesstage:setZIndex(-2) -- Put the stage under the boat
-            pd.timer.performAfterDelay(1450, function()
-                if vars.in_progress and not spritesboat.beached then -- If the race hasn't ended (e.g. if you haven't been beached,)
-                    if spritescpu ~= nil then
-                        if not spritescpu.leaping then
-                            spritesstage:setZIndex(1) -- Put the stage back over the boat
-                        end
-                    else
-                        spritesstage:setZIndex(1) -- Put the stage back over the boat
-                    end
-                end
-            end)
-        end
-    end
-end
-
 -- Start the race! (Start the countdown for the race, more specifically.)
 function race:start()
     vars.started = true
@@ -654,7 +608,7 @@ function race:finish(timeout, duration)
             assets.sfx_finish:play() -- Applause!
         end
         pd.timer.performAfterDelay(2500, function()
-            scenemanager:switchscene(results, vars.stage, vars.mode, floor(vars.current_time), vars.won, spritesboat.crashes, vars.mirror)
+            scenemanager:switchscene(results, vars.stage, vars.mode, floor(vars.current_time), vars.won, timeout, spritesboat.crashes, vars.mirror)
         end)
     end
 end
@@ -714,7 +668,7 @@ function race:checkpointcheck(cpu)
                 spritescpu:boost()
             elseif vars.leap_pads_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a leap pad.
-                self:leap(true)
+                spritescpu:leap()
             end
         end
     else
@@ -772,7 +726,7 @@ function race:checkpointcheck(cpu)
                 self:boost(false)
             elseif vars.leap_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a leap pad.
-                self:leap(false)
+                spritesboat:leap()
             elseif vars.reverse_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a reverse pad.
                 if vars.mirror then
@@ -846,8 +800,8 @@ function race:update()
         if spritescpu ~= nil then spritescpu:update(delta) end
         if vars.in_progress then -- If the race is happenin', then
             self:timecalc(vars.current_time) -- Calc this thing out for the timer
-            if pd.getFPS() <= 25 and not perf and not vars.perf_message_displayed then
-                corner("perf") -- Warning to tell the user to turn on perf mode
+            if pd.getFPS() <= 25 and pd.getFPS() > 0 and not perf and not vars.perf_message_displayed then
+                corner("perf", vars.mirror) -- Warning to tell the user to turn on perf mode
                 vars.perf_message_displayed = true
             end
             if spritesboat.beached then -- Oh. If the boat's beached, then

@@ -27,7 +27,7 @@ function race:stage_init()
     vars.boat_y = 1805
     vars.laps = 1 -- How many laps...
     -- The checkpointzzzzz™
-    vars.finish = gfx.sprite.addEmptyCollisionSprite(1830, 190, 230, 20)
+    vars.finish = gfx.sprite.addEmptyCollisionSprite(1830, 180, 230, 20)
     vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(0, 1623, 2238, 20)
     vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(0, 1053, 2238, 20)
     vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(0, 368, 2238, 20)

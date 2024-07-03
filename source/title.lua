@@ -102,6 +102,16 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
+        self.cheat_code_trippy = Tanuk_CodeSequence({pd.kButtonLeft, pd.kButtonUp, pd.kButtonRight, pd.kButtonDown, pd.kButtonLeft, pd.kButtonUp, pd.kButtonRight, pd.kButtonDown, pd.kButtonB}, function()
+            save.unlocked_cheats = true
+            save.unlocked_cheats_trippy = true
+            enabled_cheats = true
+            enabled_cheats_trippy = true
+            fademusic()
+            scenemanager:transitionsceneoneway(notif, text('cheatcode'), text('popup_cheat_trippy'), text('title_screen'), false, function()
+                scenemanager:switchscene(title)
+            end)
+        end, false)
         self.cheat_code_all = Tanuk_CodeSequence({pd.kButtonRight, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
             save.unlocked_cheats = true
             save.unlocked_cheats_big = true
@@ -150,6 +160,7 @@ function title:init(...)
     gfx.setFont(assets.kapel_doubleup)
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
+        memorize = args[1],
         selection = 1,
         list_open = false,
         slot_selection = 1,
@@ -166,6 +177,7 @@ function title:init(...)
         anim_pulse = pd.timer.new(995, 15, 7, pd.easingFunctions.outCubic),
         anim_checker_x = pd.timer.new(2300, 0, -124),
         anim_checker_y = pd.timer.new(2300, 0, -32),
+        circuit = 1,
     }
     vars.anim_pulse.repeats = true
     vars.anim_checker_x.repeats = true
@@ -263,11 +275,6 @@ function title:init(...)
     vars.anim_slot_r.discardOnCompletion = false
 
     vars.item_list = {'story_mode'} -- Add story mode — that's always there!
-    if demo then -- If there's a demo around, change the wording accordingly.
-        assets.image_item = gfx.imageWithText(text('play_demo'), 200, 120)
-    else
-        assets.image_item = gfx.imageWithText(text('story_mode'), 200, 120)
-    end
     if save.stages_unlocked >= 1 and not demo then
         table.insert(vars.item_list, 'time_trials')
     end
@@ -278,6 +285,18 @@ function title:init(...)
         table.insert(vars.item_list, 'cheats')
     end
     table.insert(vars.item_list, 'options')
+
+    for i = 1, #vars.item_list do
+        if vars.memorize == vars.item_list[i] then
+            vars.selection = i
+        end
+    end
+
+    if vars.item_list[vars.selection] == 'story_mode' and demo then -- If there's a demo around, change the wording accordingly.
+        assets.image_item = gfx.imageWithText(text('play_demo'), 200, 120)
+    else
+        assets.image_item = gfx.imageWithText(text(vars.item_list[vars.selection]), 200, 120)
+    end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         assets.image_water_bg:draw(0, 0)
@@ -445,7 +464,7 @@ function title:init(...)
             gfx.setColor(gfx.kColorBlack)
             gfx.setClipRect(assets.fillzoom)
             assets.kapel_doubleup:drawText(text('slot_' .. save.current_story_slot), 15, 28)
-            assets.pedallica:drawText(text('circuit') .. ' ' .. save['slot' .. save.current_story_slot .. '_circuit'], 15, 145)
+            assets.pedallica:drawText(text('circuit') .. ' ' .. vars.circuit, 15, 145)
             assets.pedallica:drawText(vars['slot_percent_' .. save.current_story_slot] .. text('percent_complete'), 15, 160)
             assets.pedallica:drawText(text('stats_racetime') .. ': ' .. vars.mins .. ':' .. vars.secs .. '.' .. vars.mils, 15, 175)
             if save['slot' .. save.current_story_slot .. '_crashes'] == 1 then
@@ -454,11 +473,13 @@ function title:init(...)
                 assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. text('stats_crashes'), 15, 190)
             end
             if save['slot' .. save.current_story_slot .. '_progress'] == 'finish' and save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
+                assets.image_preview:draw(150, 60)
+                gfx.drawRect(150, 60, 235, 120)
             else
                 assets.image_play:drawAnchored(385, 205, 1, 1)
+                assets.image_preview:draw(150, 30)
+                gfx.drawRect(150, 30, 235, 120)
             end
-            assets.image_preview:draw(150, 30)
-            gfx.drawRect(150, 30, 235, 120)
             if vars.anim_fade.timeLeft ~= 0 then
                 gfx.setColor(gfx.kColorWhite)
                 gfx.setDitherPattern(vars.anim_fade.value, gfx.image.kDitherTypeBayer2x2)
@@ -592,6 +613,7 @@ function title:openslot(slot)
     assets.sfx_ping:play()
     pd.inputHandlers.pop()
     assets.image_erase = makebutton(text('erase'), 'small')
+    vars.circuit = save['slot' .. save.current_story_slot .. '_circuit']
     vars.mins, vars.secs, vars.mils = timecalc(save['slot' .. save.current_story_slot .. '_racetime'])
     vars.anim_fade:resetnew(250, 0, 1)
     if save['slot' .. slot .. '_progress'] == nil then

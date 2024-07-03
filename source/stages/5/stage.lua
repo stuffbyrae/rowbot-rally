@@ -29,9 +29,16 @@ function race:stage_init()
     assets.stage_overlay = assets['bug_' .. random(1, 3)]
     vars.anim_stage_overlay = pd.timer.new(6500, 1, 91)
     vars.anim_stage_overlay.timerEndedCallback = function()
-
         assets.stage_overlay = nil
-        assets.stage_overlay = assets['bug_' .. random(1, 3)]
+        if not sprites.boat.leaping and not sprites.boat.beached then
+            if sprites.cpu ~= nil then
+                if not sprites.cpu.leaping then
+                    assets.stage_overlay = assets['bug_' .. random(1, 3)]
+                end
+            else
+                assets.stage_overlay = assets['bug_' .. random(1, 3)]
+            end
+        end
     end
     vars.anim_stage_overlay.repeats = true
 

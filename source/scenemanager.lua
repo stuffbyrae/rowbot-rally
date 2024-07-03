@@ -1,10 +1,10 @@
 local pd <const> = playdate
 local gfx <const> = pd.graphics
 
-class('scenemanager').extends()
-
 local img_loading <const> = gfx.image.new('images/ui/loading')
 local img_loading_oneway <const> = gfx.image.new('images/ui/loading_oneway')
+
+class('scenemanager').extends()
 
 function scenemanager:init()
     self.transitiontime = 1000

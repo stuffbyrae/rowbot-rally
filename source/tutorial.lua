@@ -17,6 +17,7 @@ local deg <const> = math.deg
 local atan <const> = math.atan2
 local abs <const> = math.abs
 local text <const> = gfx.getLocalizedText
+local spritesboat
 
 class('tutorial').extends(gfx.sprite) -- Create the scene's class
 function tutorial:init(...)
@@ -29,11 +30,10 @@ function tutorial:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         menu:addMenuItem(text('skiptutorial'), function()
-            self:leave()
+            self:leave(false)
         end)
         menu:addMenuItem(text('quitfornow'), function()
-            sprites.boat.sfx_row:stop()
-            scenemanager:transitionsceneonewayback(title)
+            self:leave(true)
         end)
         setpauseimage(200) -- TODO: Set this X offset
     end
@@ -76,7 +76,7 @@ function tutorial:init(...)
         current_step = 1,
         progressable = false,
         hud_open = false,
-        progress_delay = 1500,
+        progress_delay = 1,
         gameplay_progress = 0,
         up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
         water = pd.timer.new(2000, 1, 16),
@@ -96,16 +96,16 @@ function tutorial:init(...)
             vars.down = false
         end,
         upButtonDown = function()
-            sprites.boat.straight = true
+            spritesboat.straight = true
         end,
         upButtonUp = function()
-            sprites.boat.straight = false
+            spritesboat.straight = false
         end,
         rightButtonDown = function()
-            sprites.boat.right = true
+            spritesboat.right = true
         end,
         rightButtonUp = function()
-            sprites.boat.right = false
+            spritesboat.right = false
         end
     }
     pd.inputHandlers.push(vars.tutorialHandlers)
@@ -233,6 +233,7 @@ function tutorial:init(...)
     -- Set the sprites
     sprites.stage = tutorial_stage()
     sprites.boat = boat("tutorial", 0, 0, 0, vars.stage_x, vars.stage_y, nil, false, "story")
+    spritesboat = sprites.boat
     self:add()
 
     pd.timer.performAfterDelay(1500, function()
@@ -252,28 +253,28 @@ function tutorial:progress()
         vars.current_step += 1
         vars.progressable = false
         if vars.current_step == 3 then
-            sprites.boat:state(true, true, false)
-            sprites.boat:start()
+            spritesboat:state(true, true, false)
+            spritesboat:start()
         elseif vars.current_step == 6 then
-            sprites.boat:state(true, true, true)
+            spritesboat:state(true, true, true)
         elseif vars.current_step == 7 then
-            sprites.boat:state(true, true, false)
+            spritesboat:state(true, true, false)
         elseif vars.current_step == 8 then
             vars.anim_hud:resetnew(750, -130, 0, pd.easingFunctions.outSine)
             assets.sfx_ui:play()
         elseif vars.current_step == 14 then
-            sprites.boat:state(true, true, true)
+            spritesboat:state(true, true, true)
         elseif vars.current_step == 15 then
             vars.boundsx = -vars.x - (vars.stage_x / 2) + 170
             vars.boundsy = -vars.y - (vars.stage_y) + 900
-            sprites.stage:setIgnoresDrawOffset(false)
             sprites.stage:moveTo(vars.boundsx, vars.boundsy)
-            vars.finish = gfx.sprite.addEmptyCollisionSprite(sprites.stage.x + 577, sprites.stage.y + 334, 250, 20)
+            vars.finish = gfx.sprite.addEmptyCollisionSprite(vars.boundsx + 577, vars.boundsy + 334, 250, 20)
             vars.finish:setTag(0)
             vars.showstage = true
             for i = 1, #vars.edges_polygons do
-                vars.edges_polygons[i]:translate(sprites.stage.x, sprites.stage.y)
+                vars.edges_polygons[i]:translate(vars.boundsx + 43, vars.boundsy + 43)
             end
+            sprites.stage:setIgnoresDrawOffset(false)
         end
         if vars.current_step <= 15 then -- If there's more progression, then show the new UI.
             if vars.current_step == 3 or vars.current_step == 8 then -- If you're just turning the Rowbot on, then give it some more time.
@@ -300,25 +301,31 @@ function tutorial:progress()
 end
 
 function tutorial:checkpointcheck()
-    local _, _, boat_collisions, boat_count = sprites.boat:checkCollisions(sprites.boat.x, sprites.boat.y)
+    local _, _, boat_collisions, boat_count = spritesboat:checkCollisions(spritesboat.x, spritesboat.y)
     for i = 1, boat_count do
         local tag = boat_collisions[i].other:getTag()
         if tag == 0 then -- Finish line hit ...
-            self:leave()
+            self:leave(false)
         end
     end
 end
 
-function tutorial:leave()
+function tutorial:leave(totitle)
     if not vars.leaving then
         vars.leaving = true
-        save['slot' .. save.current_story_slot .. '_progress'] = "cutscene2"
+        if not totitle then
+            save['slot' .. save.current_story_slot .. '_progress'] = "cutscene2"
+        end
         fademusic(999)
         vars.anim_overlay:resetnew(1000, math.floor(vars.anim_overlay.value), 1)
-        sprites.boat:state(false, false, false)
-        sprites.boat:finish(1500, false)
+        spritesboat:state(false, false, false)
+        spritesboat:finish(1500, false)
         pd.timer.performAfterDelay(1000, function()
-            scenemanager:switchstory()
+            if totitle then
+                scenemanager:switchscene(title)
+            else
+                scenemanager:switchstory()
+            end
         end)
     end
 end
@@ -337,7 +344,7 @@ function tutorial:update()
         end
     end
     if vars.current_step == 14 and vars.player > 0 then
-        if sprites.boat.rotation >= 340 or sprites.boat.rotation <= 20 then
+        if spritesboat.rotation >= 340 or spritesboat.rotation <= 20 then
             vars.gameplay_progress += 1
             if vars.gameplay_progress >= 260 then
                 vars.progressable = true
@@ -347,7 +354,7 @@ function tutorial:update()
     end
     if vars.current_step > 14 then
         self:checkpointcheck()
-        if sprites.boat.crashable then sprites.boat:collision_check(vars.edges_polygons, assets.image_stagec, sprites.stage.x, sprites.stage.y) end
+        if spritesboat.crashable then spritesboat:collision_check(vars.edges_polygons, assets.image_stagec, vars.boundsx, vars.boundsy) end
     end
     -- Set up the parallax!
     if not perf then
@@ -358,7 +365,7 @@ function tutorial:update()
         vars.stage_progress_long_x = (((-x + 135) / (vars.stage_x)) * (vars.parallax_long_amount - 1))
         vars.stage_progress_long_y = (((-y + 60) / (vars.stage_y)) * (vars.parallax_long_amount - 1))
     end
-    sprites.boat:update(delta)
-    vars.rowbot = sprites.boat.turn_speedo.value
-    vars.player = sprites.boat.crankage_divvied
+    spritesboat:update(delta)
+    vars.rowbot = spritesboat.turn_speedo.value
+    vars.player = spritesboat.crankage_divvied
 end

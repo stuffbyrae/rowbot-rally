@@ -20,7 +20,7 @@ function stages:init(...)
         menu:removeAllMenuItems()
         menu:addMenuItem(text('backtotitle'), function()
             fademusic()
-            scenemanager:transitionsceneonewayback(title)
+            scenemanager:transitionsceneonewayback(title, 'time_trials')
         end)
         setpauseimage(200) -- TODO: Set this X offset
     end
@@ -51,6 +51,8 @@ function stages:init(...)
         sfx_proceed = smp.new('audio/sfx/proceed'),
         sfx_pop = smp.new('audio/sfx/pop'),
         sfx_menu = smp.new('audio/sfx/menu'),
+        image_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
+        sfx_cymbal = smp.new('audio/sfx/cymbal'),
     }
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
     assets.sfx_bonk:setVolume(save.vol_sfx/5)
@@ -58,6 +60,7 @@ function stages:init(...)
     assets.sfx_proceed:setVolume(save.vol_sfx/5)
     assets.sfx_pop:setVolume(save.vol_sfx/5)
     assets.sfx_menu:setVolume(save.vol_sfx/5)
+    assets.sfx_cymbal:setVolume(save.vol_sfx/5)
 
     -- Writing in the image for the wave banner along the bottom
     gfx.pushContext(assets.image_wave_composite)
@@ -74,6 +77,7 @@ function stages:init(...)
         anim_boat_y = pd.timer.new(2500, 195, 200, pd.easingFunctions.inOutCubic),
         anim_back_y = pd.timer.new(1, 235, 235),
         anim_top_y = pd.timer.new(1, 0, 0),
+        anim_fade = pd.timer.new(1, 34, 34),
         anim_preview_x = pd.timer.new(1, 400, 400),
         mirror = false,
         board = '',
@@ -100,7 +104,7 @@ function stages:init(...)
 
         BButtonDown = function()
             fademusic()
-            scenemanager:transitionsceneonewayback(title)
+            scenemanager:transitionsceneonewayback(title, 'time_trials')
         end,
 
         AButtonDown = function()
@@ -125,6 +129,7 @@ function stages:init(...)
     vars.anim_back_y.discardOnCompletion = false
     vars.anim_top_y.discardOnCompletion = false
     vars.anim_preview_x.discardOnCompletion = false
+    vars.anim_fade.discardOnCompletion = false
 
     self:update_image_top(1, true)
 
@@ -241,6 +246,21 @@ function stages:init(...)
         self:setZIndex(8)
     end
 
+    class('stages_fade').extends(gfx.sprite)
+    function stages_fade:init()
+        stages_fade.super.init(self)
+        self:setCenter(0, 0)
+        self:moveTo(0, 0)
+        self:setZIndex(999)
+        self:setIgnoresDrawOffset(true)
+        self:add()
+    end
+    function stages_fade:update()
+        if vars.anim_fade ~= nil then
+            self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
+        end
+    end
+
     -- Set the sprites
     sprites.wave = stages_wave()
     sprites.boat = stages_boat()
@@ -252,6 +272,7 @@ function stages:init(...)
     sprites.lb_accent = stages_lb_accent()
     sprites.lb_bubble = stages_lb_bubble()
     sprites.lb_text = stages_lb_text()
+    sprites.fade = stages_fade()
     self:add()
 
     newmusic('audio/music/stages', true) -- Adding new music
@@ -505,4 +526,8 @@ function stages:flipmirror()
     self:update_image_top(vars.selection, true)
     self:update_image_buttons()
     self:update_image_preview()
+    if not pd.getReduceFlashing() then
+        vars.anim_fade:resetnew(300, 1, 34)
+    end
+    assets.sfx_cymbal:play()
 end

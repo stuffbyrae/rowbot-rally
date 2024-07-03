@@ -55,6 +55,7 @@ function chase:init(...)
         fade = gfx.imagetable.new('images/ui/fade/fade'),
         chomp = gfx.imagetable.new('images/chase/chomp'),
         crash = gfx.image.new('images/chase/crash'),
+        splash = gfx.imagetable.new('images/chase/splash'),
         sfx_crash = smp.new('audio/sfx/crash'),
         kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
         kapel_doubleup_outline = gfx.font.new('fonts/kapel_doubleup_outline'),
@@ -100,6 +101,7 @@ function chase:init(...)
         anim_warn = pd.timer.new(250, 1, 3.99),
         anim_invinc = pd.timer.new(1, 1, 1),
         anim_rock = pd.timer.new(1, 0, 0),
+        anim_splash = pd.timer.new(500, 1, 4.99),
         playing = true,
         show_warn = false,
         show_rock = false,
@@ -133,6 +135,7 @@ function chase:init(...)
     vars.anim_boat_y.reverses = true
     vars.anim_boat_y.repeats = true
     vars.anim_warn.repeats = true
+    vars.anim_splash.repeats = true
 
     pd.timer.performAfterDelay(2000, function()
         vars.showdir = true
@@ -231,13 +234,25 @@ function chase:init(...)
         end
     end
 
+    class('chase_splash').extends(gfx.sprite)
+    function chase_splash:init()
+        chase_splash.super.init(self)
+        self:setCenter(0.5, 1)
+        self:moveTo(200, 220)
+        self:setZIndex(4)
+        self:add()
+    end
+    function chase_splash:update()
+        self:setImage(assets.splash[floor(vars.anim_splash.value)])
+    end
+
     class('chase_shark').extends(gfx.sprite)
     function chase_shark:init()
         chase_shark.super.init(self)
         self:setImage(assets.shark)
         self:setCenter(0.5, 1)
         self:moveTo(200, 400)
-        self:setZIndex(5)
+        self:setZIndex(6)
         self:add()
     end
 
@@ -258,6 +273,7 @@ function chase:init(...)
     sprites.bg = chase_bg()
     sprites.rocks = chase_rocks()
     sprites.boat = chase_boat()
+    sprites.splash = chase_splash()
     sprites.shark = chase_shark()
     sprites.overlay = chase_overlay()
     self:add()
@@ -281,6 +297,7 @@ function chase:update()
         end
     else
         vars.change = max((pd.getCrankChange() / save.sensitivity) * 3, 1)
+        save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
     end
     if not vars.boat_can_move and vars.change > 7 and vars.playing then
         vars.boat_can_move = true
@@ -309,6 +326,8 @@ function chase:update()
         sprites.boat:small_crash(true)
     end
     sprites.boat:moveTo(sprites.boat.x, 220 + (vars.crashes * 5) + vars.anim_boat_y.value + vars.anim_entrance.value)
+    sprites.splash:moveBy((((sprites.boat.x * 0.8) + 35) - sprites.splash.x) * 0.7, 0)
+    sprites.splash:moveTo(sprites.splash.x, 225 + (vars.crashes * 5) + vars.anim_boat_y.value + vars.anim_entrance.value)
     sprites.shark:moveBy((sprites.boat.x - sprites.shark.x) * 0.3, 0)
     sprites.shark:moveTo(sprites.shark.x, 400 - (vars.crashes * 5) - vars.anim_shark_chomp.value + (vars.anim_entrance.value * 2))
     gfx.setDrawOffset((-sprites.boat.x + 200) * 0.3, 0)
@@ -344,7 +363,7 @@ function chase:spawnrock()
                 else
                     vars.rocks_passed += 1
                 end
-                sprites.rocks:setZIndex(4)
+                sprites.rocks:setZIndex(5)
             end)
         end)
         pd.timer.performAfterDelay(4750, function()
@@ -364,6 +383,9 @@ function chase:win()
         vars.boat_speed = 0
         vars.boat_can_crash = false
         fademusic(1000)
+        pd.timer.performAfterDelay(200, function()
+            sprites.splash:remove()
+        end)
         vars.anim_boat_y:resetnew(500, 0, -130, pd.easingFunctions.outSine)
         pd.timer.performAfterDelay(500, function()
             sprites.boat:setZIndex(-1)

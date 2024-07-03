@@ -5,7 +5,7 @@
 "opening_2" = "The annual Fish Bowl was a town institution,\npitting the best rowers up against each other\nin a high-stakes racing tournament - the\nwinner bringing home a big trophy,\nand of course, infinite bragging rights."
 "opening_3" = "...But that all changed, after the nefarious\nRobo-X corporation started manufacturing\nwhat they call RowBots - mechanized\nautomata that could pilot a boat better and\nfaster than any organic being ever could."
 "opening_4" = "It didn't take long at all for the RowBots to overtake\nthe racing circuit entirely. They played so well\nthat any non-RowBot who dared to enter,\nwould have gotten knocked out of the tourney\npretty much immediately."
-"opening_5" = "Soon, the only opponents the RowBots had left\nto fight against were themselves! Their skills\nwere essentially perfected. The tournament's now\ncomprised of just a few champion\nmachines, the rest being sent off as scrap."
+"opening_5" = "Soon, the only opponents the RowBots had left\nto fight against were themselves! Their skills\nwere essentially perfected. The tournament is now\ncomprised of just a few champion\nmachines, the rest being sent off as scrap."
 "opening_6" = "Trying to compete in the Fish Bowl is seen as a\nfool's errand by many now - ask anybody,\nthey'd tell you that you're crazy if you think you\ncan beat those robots at their own game!\nNobody could possibly do it."
 "opening_7" = "Well...not on their own, at least."
 
@@ -15,6 +15,7 @@
 "time_trials_unlocked" = "You unlocked Time Trials!"
 "demo_complete" = "Demo Complete!"
 "cheatcode" = "You found a cheat code!"
+"game_complete" = "Story Mode complete!"
 "popup_overwrite_a" = "Are you really sure you wanna erase Slot "
 "popup_overwrite_b" = "?\nAny global unlocks will be saved, but your\nprogress in this save slot will be totally and\ncompletely deleted. Forever! And ever!\n\nAre you still sure?"
 "popup_time_trials_unlocked" = "Try a solo race on any stages you've beaten\nso far, and compete for a top spot on the\nglobal leaderboards! Can you make the top 10?\n\nYou can access this mode from the title screen.\nUnlock more stages by playing more of the Story!"
@@ -25,7 +26,9 @@
 "popup_cheat_tiny" = "You unlocked Super Tiny Boat Mode!\n\nYou don't know if that's your boat, or just\na random speck of dust that landed on the\nscreen. Good luck handling this one. Toggle it\nfrom the Cheats menu on the title screen."
 "popup_cheat_retro" = "You unlocked Retro Mode!\n\nThis screen filter will surely harken back\nto those glorious days of non-square pixels and\nchunky graphics. You can toggle it from any time\nin the Cheats menu, on the title screen."
 "popup_cheat_scream" = "You unlocked Scream to Row Mode!\n\nThis is exactly what it sounds like, only\nmuch louder. Use the microphone, and SCREAM to\ncontrol your player's input! Toggle this any time\nfrom the Cheats menu, and please breathe wisely."
+"popup_cheat_trippy" = "You unlocked Trippy Mode!\n\nThis is a visual cheat that disables\ndrawing of water underneath the stage, making\nraces look, like, totally psychedelic, man.\nToggle this any time from the Cheats menu."
 "popup_cheat_all" = "You unlocked...everything!\n\nWhat's up? You have the secret key!\nAs a reward, take every single cheat in the\ngame. You can toggle any of them through\nthe Cheats menu on the title screen."
+"popup_game_complete" = "Congratulations, and thank you, for beating\nthe whole Story Mode! Every track is now\nunlocked within the Time Trials mode. If you're\nin for an additional challenge, start a\nnew circuit in the same save file to play another\nround with more difficult opponents!"
 
 -- Title screen
 "story_mode" = "Story Mode"
@@ -242,7 +245,7 @@
 "music_name" = "Music"
 "sfx_name" = "SFX"
 "button_controls_name" = "Button Controls"
-"sensitivity_name" = "Easier Rowing"
+"sensitivity_name" = "Easier Cranking"
 "ui_name" = "Pro UI"
 "perf_name" = "Performance Mode"
 
@@ -250,8 +253,8 @@
 "music_desc" = "Toggles all the music\nthroughout the game;\nincluding gameplay,\nmenus, and cutscenes.\n\n\nPress A to toggle."
 "sfx_desc" = "Toggles sound effects\nthroughout the game;\nincluding gameplay,\nmenus, and cutscenes.\n\n\nPress A to toggle."
 "button_controls_desc" = "Use the D-pad to play!\nHold Up to start rowing\nstraight-on, and hold\nRight to row clockwise.\n\n\nPress A to toggle."
-"sensitivity_desc" = "Turning this on makes\nrowing require less\ncrankage. Good for if\nyou can't turn the\ncrank very quickly.\n\nPress A to toggle."
-"ui_desc" = "Toggles a simpler UI in\nraces, removing a lotta\nstuff. You can also\ntoggle this during\nraces, if you want.\n\nPress A to toggle."
+"sensitivity_desc" = "Makes matching pace\nwith your RowBot\nrequire less cranking.\n(Has no effect with\nButton Controls.)\n\nPress A to toggle."
+"ui_desc" = "Toggles a simpler UI in\nraces, removing a lot\nof stuff. You can also\ntoggle this during\nraces, if you want.\n\nPress A to toggle."
 "perf_desc" = "Knocks down a lot of\nthe visual quality, in\nexchange for a better\nFPS when using\nPlaydate Mirror.\n\nPress A to toggle."
 -- Options toggles
 "off" = "❎"
@@ -263,6 +266,7 @@
 "tiny_name" = "Super Tiny Boat Mode"
 "retro_name" = "Retro Mode"
 "scream_name" = "Scream to Row Mode"
+"trippy_name" = "Trippy Mode"
 
 -- Cheats descriptions
 "big_desc" = "Your boat's big. You\nmove slower, but you\nturn tighter. Also,\nyou're big.\n\n\nPress A to toggle."
@@ -270,6 +274,7 @@
 "tiny_desc" = "You don't know if\nthat's your boat, or\njust a random speck\nof dust that landed on\nyour screen.\n\nPress A to toggle."
 "retro_desc" = "This screen filter will\nsurely harken back to\nthe days of non-square\npixels and chunky\ngraphics.\n\nPress A to toggle."
 "scream_desc" = "Exactly what it sounds\nlike - scream into your\nmicrophone to row the\nboat! Please breathe\nresponsibly.\n\nPress A to toggle."
+"trippy_desc" = "Disables water drawing\nunderneath the stage;\nwhich makes it, like,\ntotally trippy, man.\n\n\nPress A to toggle."
 "cheats_warning" = "✨ When cheats are on, you\ncan't set new best times."
 
 -- Misc.
@@ -330,3 +335,20 @@
 "localstats" = "local stats"
 "music" = "music"
 "autolock" = "auto-lock"
+
+-- Credits
+"programming" = "Programming"
+"programming_desc" = "Rae - Lead Coder\n\nVoxy - Asst. Coder\nToad - Collisions Analyst\n\nSuperfunc - Team Optimz\nZach Snyder - Team Optimz\n\nTheMediocritist - Asst. Polys"
+"sounds" = "Sounds"
+"sounds_desc_1" = "Kevin MacLeod - Music\nOppressive Gloom, Fantasia\nFantasia, Exhilarate,\nKick Shock, Serpentine\nTrek, Trouble with\nTribals, Dubakupado,\nCrypto"
+"sounds_desc_2" = "MusMus - Music\nBGM-172, BGM-121\n\nNexus - Music\nBunny-Fied\n\nPixabay - SFX"
+"bugsmashers" = "Bugsmashers"
+"bugsmashers_desc" = "NickSr, Orkn, Toad - The OGs\n\nSuperfunc, Omikron,\nbudpikmin, JuiceBox,\nYadis, RintaDev\n,Soinksters, Zach Snyder"
+"playtesters" = "Playtesters"
+"playtesters_desc" = "TBD"
+"radstuff" = "Rad Stuff"
+"radstuff_desc" = "Neven Mrgan - Pedallica\nFont End Dev - Kapel\nToad - Asst. Font Conversion\n\nDave Hayden - PDV converter\n\nToad & Schyzo - Tanuk lib"
+"thankyouto" = "Thank you to..."
+"thankyouto_desc" = "Everyone at panic, for dealing with\nme in really every sense of the word.\nLet's meet up again sometime!\n\nEveryone in the devlog, who saw this\ngame through alongside me. Plus, the\nwhole Playdate Squad, for always\nbeing such a welcoming community.\n\nThe playtesters and bugsmashers,\nwho helped me sort out all my poor\ncode. I couldn't have done it alone.\n\nAll my friends, who hyped me up\npretty much every chance they got.\n\nSquidGod, for teaching me how to\nwrangle the SDK in the first place.\n\n\n\n...And you. Yes, you. Thanks for\nplaying, and hopefully enjoying, my\nsilly little boat game. I appreciate it!\n\nI hope it really resonated with you,\nand that you had as much fun playing\nit as I did making it (which, trust me, is\na pretty dang large amount)."
+"copyright' = "2024, made by rae\n🌐 rae.wtf"
+"thankyouforplaying" = "Thank you for playing!!"

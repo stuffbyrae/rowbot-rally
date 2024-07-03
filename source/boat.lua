@@ -362,6 +362,7 @@ function boat:leap()
         self.leaping = true
         self.crashable = false
         self:setnewsize(200)
+        self:setZIndex(2)
         -- Scale anim — this is like 90% of the work
         self.scale:resetnew(700, self.scale_factor, self.scale_factor * 2, pd.easingFunctions.outCubic)
         self.scale.reverses = true
@@ -390,6 +391,11 @@ function boat:leap()
                     self.scale:resetnew(100, self.scale_factor, self.scale_factor)
                 else
                     self.scale:resetnew(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1)
+                end
+            end)
+            pd.timer.performAfterDelay(10, function()
+                if not self.beached then
+                    self:setZIndex(0)
                 end
             end)
         end)

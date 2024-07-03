@@ -44,6 +44,12 @@ function credits:init(...)
 
     vars.anim_fade.discardOnCompletion = false
 
+    save.stories_completed += 1
+    save['slot' .. save.current_story_slot .. '_progress'] = "finish"
+    if save['slot' .. save.current_story_slot .. '_circuit'] < 4 then
+        save['slot' .. save.current_story_slot .. '_circuit'] += 1
+    end
+
     local randomnum
     local dont
     local i = 0
@@ -81,7 +87,12 @@ function credits:init(...)
         pd.timer.performAfterDelay(5000, function()
             vars.anim_fade:resetnew(2000, 34, 1)
             pd.timer.performAfterDelay(2000, function()
-                scenemanager:switchscene(title)
+                if save.seen_credits then
+                    scenemanager:switchscene(title)
+                else
+                    save.seen_credits = true
+                    scenemanager:switchscene(notif, text('game_complete'), text('popup_game_complete'), text('title_screen'), false, function() scenemanager:switchscene(title) end)
+                end
             end)
         end)
     end

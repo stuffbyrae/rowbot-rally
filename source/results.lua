@@ -45,8 +45,9 @@ function results:init(...)
         mode = args[2], -- string; "story" or "tt"
         time = args[3], -- number. send in the time!
         win = args[4], -- boolean, true or false. Only affects anything if in story mode.
-        crashes = args[5], -- number. how many times did the boat crash while the race was active?
-        mirror = args[6], -- A boolean indicating mirror mode.
+        timeout = args[5], -- boolean, true or false. did the player lose via time-out or beach?
+        crashes = args[6], -- number. how many times did the boat crash while the race was active?
+        mirror = args[7], -- A boolean indicating mirror mode.
         anim_fade = pd.timer.new(750, 34, 11, pd.easingFunctions.outSine),
         anim_plate = pd.timer.new(350, 240, 0, pd.easingFunctions.outBack),
         anim_react = pd.timer.new(450, 420, 240, pd.easingFunctions.outCubic, 200),
@@ -76,7 +77,9 @@ function results:init(...)
         newmusic('audio/sfx/win')
         if vars.mode == "story" then
             if vars.stage == 1 and save.stages_unlocked == 0 then vars.showtimetrials = true end
-            save.stages_unlocked = vars.stage
+            if save.stages_unlocked < vars.stage then
+                save.stages_unlocked = vars.stage
+            end
             if vars.stage == 1 then
                 save['slot' .. save.current_story_slot .. '_progress'] = "cutscene3"
             elseif vars.stage == 2 then
@@ -184,8 +187,10 @@ function results:init(...)
         end
     gfx.popContext()
 
-    save.total_races_completed += 1
-    save['stage' .. vars.stage .. '_plays'] += 1
+    if not vars.timeout then
+        save.total_races_completed += 1
+        save['stage' .. vars.stage .. '_plays'] += 1
+    end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         assets.image_bg:draw(0, 0)

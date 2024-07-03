@@ -63,7 +63,7 @@ function cheats:init(...)
         transitioning = true,
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
-        item_list = {'big', 'small', 'tiny', 'retro', 'scream'},
+        item_list = {'big', 'small', 'tiny', 'retro', 'scream', 'trippy'},
         selection = 1,
         offset = 1,
     }
@@ -113,6 +113,14 @@ function cheats:init(...)
                     assets.sfx_clickoff:play()
                 else
                     enabled_cheats_scream = true
+                    assets.sfx_clickon:play()
+                end
+            elseif vars.selection == 6 and save.unlocked_cheats_trippy then
+                if enabled_cheats_trippy then
+                    enabled_cheats_trippy = false
+                    assets.sfx_clickoff:play()
+                else
+                    enabled_cheats_trippy = true
                     assets.sfx_clickon:play()
                 end
             else
@@ -196,6 +204,11 @@ function cheats:init(...)
         else
             assets.pedallica:drawText(text('???'), 10, 100)
         end
+        if save.unlocked_cheats_trippy then
+            assets.pedallica:drawText(text('trippy_name'), 10, 115)
+        else
+            assets.pedallica:drawText(text('???'), 10, 115)
+        end
 
         if enabled_cheats_big then
             enabled_cheats = true
@@ -227,6 +240,12 @@ function cheats:init(...)
             assets.pedallica:drawTextAligned(text('on'), 180, 100, kTextAlignment.right)
         else
             assets.pedallica:drawTextAligned(text('off'), 180, 100, kTextAlignment.right)
+        end
+        if enabled_cheats_trippy then
+            enabled_cheats = true
+            assets.pedallica:drawTextAligned(text('on'), 180, 115, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(text('off'), 180, 115, kTextAlignment.right)
         end
 
         if enabled_cheats then
@@ -307,6 +326,6 @@ function cheats:leave() -- Leave and move back to the title screen
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
     vars.anim_wave_y:resetnew(1000, sprites.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function() -- After that animation's done...
-        scenemanager:switchscene(title) -- Switch back to the title!
+        scenemanager:switchscene(title, 'cheats') -- Switch back to the title!
     end)
 end

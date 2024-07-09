@@ -22,7 +22,7 @@ function stages:init(...)
             fademusic()
             scenemanager:transitionsceneonewayback(title, 'time_trials')
         end)
-        setpauseimage(200) -- TODO: Set this X offset
+        setpauseimage(200)
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.

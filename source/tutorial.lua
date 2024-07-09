@@ -35,7 +35,7 @@ function tutorial:init(...)
         menu:addMenuItem(text('quitfornow'), function()
             self:leave(true)
         end)
-        setpauseimage(200) -- TODO: Set this X offset
+        setpauseimage(100)
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.

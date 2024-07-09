@@ -17,7 +17,7 @@ function stats:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        setpauseimage(130) -- TODO: Set this X offset
+        setpauseimage(130)
         menu:addCheckmarkMenuItem(text('metric'), save.metric, function(new)
             save.metric = new
             gfx.sprite.redrawBackground()

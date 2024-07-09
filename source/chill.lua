@@ -42,7 +42,7 @@ function chill:init(...)
         menu:addMenuItem(text('backtotitle'), function()
             self:leave()
         end)
-        setpauseimage(0) -- TODO: Set this X offset
+        setpauseimage(0)
     end
 
     function pd.gameWillResume()

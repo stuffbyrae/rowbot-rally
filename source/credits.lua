@@ -19,15 +19,16 @@ function credits:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        setpauseimage(200) -- TODO: Set this X offset
+        local pauseimage = gfx.image.new(400, 240)
+        pd.setMenuImage(pauseimage, 100)
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
         image_fade = gfx.imagetable.new('images/ui/fade/fade'),
         credits = gfx.image.new('images/ui/credits'),
-        creditscover1 = gfx.image.new('images/ui/creditscover1'),
-        creditscover2 = gfx.image.new('images/ui/creditscover2'),
         polaroid = gfx.imagetable.new('images/ui/polaroid'),
+        pedallica = gfx.font.new('fonts/pedallica'),
+        kapel_doubleup = gfx.font.new('fonts/kapel_doubleup'),
     }
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
@@ -37,10 +38,6 @@ function credits:init(...)
         showcover2 = true,
         polaroids = {},
     }
-    vars.creditsHandlers = {
-        -- Input handlers go here...
-    }
-    pd.inputHandlers.push(vars.creditsHandlers)
 
     vars.anim_fade.discardOnCompletion = false
 
@@ -105,8 +102,31 @@ function credits:init(...)
         assets.polaroid[vars.polaroids[5]]:draw(29, 1372 + vars.creditsscrolly.value)
         assets.polaroid[vars.polaroids[6]]:draw(213, 1612 + vars.creditsscrolly.value)
         assets.credits:draw(0, vars.creditsscrolly.value)
-        if vars.showcover2 then assets.creditscover2:draw(0, 0) end
-        if vars.showcover1 then assets.creditscover1:draw(0, 0) end
+        -- Draw text
+        if not vars.showcover1 then
+            assets.pedallica:drawTextAligned(text('madebyrae'), 200, 182 + vars.creditsscrolly.value, kTextAlignment.center)
+            if not vars.showcover2 then
+                assets.pedallica:drawTextAligned(text('andsomanyotherpeople'), 200, 195 + vars.creditsscrolly.value, kTextAlignment.center)
+            end
+        end
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        assets.kapel_doubleup:drawText(text('programming'), 207, 405 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('programming_desc'), 207, 430 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('sounds'), 14, 629 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('sounds_desc_1'), 14, 654 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('sounds'), 220, 899 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('sounds_desc_2'), 220, 924 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('bugsmashers'), 14, 1120 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('bugsmashers_desc'), 14, 1145 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('playtesters'), 220, 1373 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('playtesters_desc'), 220, 1398 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('radstuff'), 14, 1601 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('radstuff_desc'), 14, 1626 + vars.creditsscrolly.value)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        assets.kapel_doubleup:drawTextAligned(text('thankyouto'), 200, 1931 + vars.creditsscrolly.value, kTextAlignment.center)
+        assets.pedallica:drawTextAligned(text('thankyouto_desc'), 200, 1964 + vars.creditsscrolly.value, kTextAlignment.center)
+        assets.pedallica:drawTextAligned(text('copyright'), 200, 2507 + vars.creditsscrolly.value, kTextAlignment.center)
+        assets.kapel_doubleup:drawTextAligned(text('thankyouforplaying'), 200, 2656 + vars.creditsscrolly.value, kTextAlignment.center)
     end)
 
     class('credits_fade').extends(gfx.sprite)

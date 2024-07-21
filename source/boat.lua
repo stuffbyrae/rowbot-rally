@@ -263,58 +263,69 @@ function boat:finish(duration, peelout)
     end
 end
 
-function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y)
+function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y, dontcheck)
+    local result = false
     self.crash_body_scale = self.transform:transformedPolygon(self.poly_body_crash)
     self.crash_body_scale:translate(self.x, self.y)
     for i = 1, #polygons do
         if self.crash_body_scale:intersects(polygons[i]) then
-            local points_collided = {}
-            self.crash_body = self.crash_transform:transformedPolygon(self.poly_body_crash)
-            for i = 1, self.poly_body_crash:count() do
-                local transformed_point = self.crash_body:getPointAt(i)
-                local point_x, point_y = transformed_point:unpack()
-                local moved_x = ((point_x + self.x) - crash_stage_x)
-                local moved_y = ((point_y + self.y) - crash_stage_y)
-                if image:sample(moved_x, moved_y) ~= gfx.kColorClear then
-                    if self.crashable then
-                        if self.mode ~= "cpu" and not self.crashed then
-                            self.sfx_crash:stop()
-                            self.sfx_crash:setRate(1 + (random() - 0.5))
-                            self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))
-                            self.sfx_crash:play()
-                            if self.movable then
-                                self.crashes += 1
-                                save.total_crashes += 1
-                                if self.racemode == "story" then
-                                    save['slot' .. save.current_story_slot .. '_crashes'] += 1
-                                end
-                            end
-                        end
-                        self.crashed = true
-                        local angle = deg(self:fastatan(point_y, point_x))
-                        self.crash_direction = floor(angle - 90 + random(-20, 20)) % 360 + 1
-                        angle = nil
-                        self.crash_time = 500 * (max(0.25, min(1, self.move_speedo.value)))
-                        if self.movable then
-                            self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
-                            self.wobble_speedo:resetnew(self.crash_time / 2, 1, -1.5, pd.easingFunctions.outBack)
-                            if self.movable then
-                                self.move_speedo.reverses = true
-                                self.wobble_speedo.reverses = true
-                                self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
-                                pd.timer.performAfterDelay(self.crash_time, function()
-                                    self.crashed = false
-                                end)
-                            end
-                        end
-                    end
-                    table.insert(points_collided, i)
-                end
-                if self.mode ~= "cpu" and #points_collided == self.poly_body_crash:count() then
-                    self.beached = true
-                end
+            result = true
+            if not dontcheck then
+                self:image_check(polygons, image, crash_stage_x, crash_stage_y)
             end
         end
+    end
+    print(result)
+    return result
+end
+
+function boat:image_check(polygons, image, crash_stage_x, crash_stage_y)
+    local points_collided = {}
+    self.crash_body = self.crash_transform:transformedPolygon(self.poly_body_crash)
+    for i = 1, self.poly_body_crash:count() do
+        local transformed_point = self.crash_body:getPointAt(i)
+        local point_x, point_y = transformed_point:unpack()
+        local moved_x = ((point_x + self.x) - crash_stage_x)
+        local moved_y = ((point_y + self.y) - crash_stage_y)
+        if image:sample(moved_x, moved_y) ~= gfx.kColorClear then
+            self:crash(point_x, point_y, polygons)
+            table.insert(points_collided, i)
+        end
+        if self.mode ~= "cpu" and #points_collided == self.poly_body_crash:count() then
+            self.beached = true
+        end
+    end
+end
+
+function boat:crash(point_x, point_y, polygons)
+    local angle = deg(self:fastatan(point_y, point_x))
+    self.crash_direction = floor(angle - 90 + random(-20, 20)) % 360 + 1
+    self.crash_time = 500 * (max(0.25, min(1, self.move_speedo.value)))
+    if self.crashable then
+        if self.mode ~= "cpu" and not self.crashed then
+            self.sfx_crash:stop()
+            self.sfx_crash:setRate(1 + (random() - 0.5))
+            self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))
+            self.sfx_crash:play()
+            if self.movable then
+                self.crashes += 1
+                save.total_crashes += 1
+                if self.racemode == "story" then
+                    save['slot' .. save.current_story_slot .. '_crashes'] += 1
+                end
+            end
+            self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
+            self.wobble_speedo:resetnew(self.crash_time / 2, 1, -1.5, pd.easingFunctions.outBack)
+            self.move_speedo.reverses = true
+            self.wobble_speedo.reverses = true
+            self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
+            if self.movable then
+                pd.timer.performAfterDelay(self.crash_time, function()
+                    self.crashed = false
+                end)
+            end
+        end
+        self.crashed = true
     end
 end
 

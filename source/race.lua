@@ -402,7 +402,7 @@ function race:init(...)
 
         end
 
-        if assets.wave ~= nil then
+        if assets.wave ~= nil and vars.anim_wave ~= nil and vars.stage_x ~= nil then
             assets.wave[floor(vars.anim_wave.value)]:draw(vars.stage_x - 388, 0)
         end
 

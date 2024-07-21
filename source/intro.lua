@@ -32,7 +32,7 @@ function intro:init(...)
         image_gimmick_icons = gfx.imagetable.new('images/stages/gimmick_icons'),
         image_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         img_left = gfx.image.new(250, 150),
-        img_bottom = gfx.image.new(400, 73),
+        img_bottom = gfx.image.new(400, 77),
         sfx_whoosh = smp.new('audio/sfx/whoosh'),
     }
     assets.sfx_whoosh:setVolume(save.vol_sfx/5)
@@ -71,11 +71,11 @@ function intro:init(...)
     gfx.popContext()
 
     gfx.pushContext(assets.img_bottom) -- All the guff that pops in from the bottom
-        assets.image_a:drawAnchored(395, 73, 1, 1)
-        assets.image_gimmick_container:drawAnchored(5, 73, 0, 1)
-        assets.image_gimmick_icons:drawImage(vars.stage, 18, 7)
-        assets.kapel_doubleup:drawTextAligned(text('gimmick_' .. vars.stage .. '_name'), 160, 7, kTextAlignment.center)
-        assets.pedallica:drawText(text('gimmick_' .. vars.stage .. '_desc'), 85, 32)
+        assets.image_a:drawAnchored(395, 75, 1, 1)
+        assets.image_gimmick_container:drawAnchored(3, 77, 0, 1)
+        assets.image_gimmick_icons:drawImage(vars.stage, 18,9)
+        assets.kapel_doubleup:drawTextAligned(text('gimmick_' .. vars.stage .. '_name'), 160, 9, kTextAlignment.center)
+        assets.pedallica:drawText(text('gimmick_' .. vars.stage .. '_desc'), 85, 34)
     gfx.popContext()
 
     class('intro_fade').extends(gfx.sprite)

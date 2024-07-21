@@ -76,7 +76,7 @@ function tutorial:init(...)
         current_step = 1,
         progressable = false,
         hud_open = false,
-        progress_delay = 1,
+        progress_delay = 1500,
         gameplay_progress = 0,
         up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
         water = pd.timer.new(2000, 1, 16),
@@ -86,6 +86,7 @@ function tutorial:init(...)
         showstage = false,
         boundsx = 0,
         boundsy = 0,
+        show_parallax = false,
     }
     vars.tutorialHandlers = {
         AButtonDown = function()
@@ -181,9 +182,11 @@ function tutorial:init(...)
                 local stage_progress_long_x = stage_x * -vars.stage_progress_long_x
                 local stage_progress_long_y = stage_y * -vars.stage_progress_long_y
 
-                assets.parallax_short_bake:draw(stage_progress_short_x, stage_progress_short_y)
-                assets.parallax_medium_bake:draw(stage_progress_medium_x, stage_progress_medium_y)
-                assets.parallax_long_bake:draw(stage_progress_long_x, stage_progress_long_y)
+                if vars.show_parallax then
+                    assets.parallax_short_bake:draw(stage_progress_short_x, stage_progress_short_y)
+                    assets.parallax_medium_bake:draw(stage_progress_medium_x, stage_progress_medium_y)
+                    assets.parallax_long_bake:draw(stage_progress_long_x, stage_progress_long_y)
+                end
             end
         end
 
@@ -268,13 +271,16 @@ function tutorial:progress()
             vars.boundsx = -vars.x - (vars.stage_x / 2) + 170
             vars.boundsy = -vars.y - (vars.stage_y) + 900
             sprites.stage:moveTo(vars.boundsx, vars.boundsy)
+            sprites.stage:setIgnoresDrawOffset(false)
             vars.finish = gfx.sprite.addEmptyCollisionSprite(vars.boundsx + 577, vars.boundsy + 334, 250, 20)
             vars.finish:setTag(0)
             vars.showstage = true
             for i = 1, #vars.edges_polygons do
                 vars.edges_polygons[i]:translate(vars.boundsx + 43, vars.boundsy + 43)
             end
-            sprites.stage:setIgnoresDrawOffset(false)
+            pd.timer.performAfterDelay(100, function()
+                vars.show_parallax = true
+            end)
         end
         if vars.current_step <= 15 then -- If there's more progression, then show the new UI.
             if vars.current_step == 3 or vars.current_step == 8 then -- If you're just turning the Rowbot on, then give it some more time.

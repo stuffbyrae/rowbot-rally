@@ -27,7 +27,7 @@ function stats:init(...)
                 vars.show_leaderboards = false
                 gfx.sprite.redrawBackground()
             end)
-        else
+        elseif not playtest then
             menu:addMenuItem(text('onlinestats'), function()
                 self:refreshonlinestats()
             end)

@@ -275,7 +275,6 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y, don
             end
         end
     end
-    print(result)
     return result
 end
 

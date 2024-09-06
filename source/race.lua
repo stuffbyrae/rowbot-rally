@@ -800,10 +800,10 @@ function race:update()
         if spritescpu ~= nil then spritescpu:update(delta) end
         if vars.in_progress then -- If the race is happenin', then
             self:timecalc(vars.current_time) -- Calc this thing out for the timer
-            if pd.getFPS() <= 25 and pd.getFPS() > 0 and not perf and not vars.perf_message_displayed then
-                corner("perf", vars.mirror) -- Warning to tell the user to turn on perf mode
-                vars.perf_message_displayed = true
-            end
+            -- if pd.getFPS() <= 25 and pd.getFPS() > 0 and not perf and not vars.perf_message_displayed then
+            --     corner("perf", vars.mirror) -- Warning to tell the user to turn on perf mode
+            --     vars.perf_message_displayed = true
+            -- end
             if spritesboat.beached then -- Oh. If the boat's beached, then
                 self:finish(true, 400) -- end the race. Ouch.
             end

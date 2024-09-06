@@ -38,9 +38,6 @@ function title:init(...)
                 scenemanager:transitionsceneoneway(chill)
             end)
         end
-        menu:addMenuItem(text('options'), function()
-            scenemanager:transitionsceneoneway(options)
-        end)
         setpauseimage(200)
     end
 

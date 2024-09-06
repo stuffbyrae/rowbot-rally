@@ -48,6 +48,7 @@ retain = [
     "/Users/rae/Developer/source/audio/sfx/ref.wav",
     "/Users/rae/Developer/source/audio/sfx/row.wav",
     "/Users/rae/Developer/source/audio/sfx/rowboton.wav",
+    "/Users/rae/Developer/source/audio/sfx/proceed.wav",
     "/Users/rae/Developer/source/audio/sfx/sea.wav",
     "/Users/rae/Developer/source/audio/sfx/start.wav",
     "/Users/rae/Developer/source/audio/sfx/ui.wav",

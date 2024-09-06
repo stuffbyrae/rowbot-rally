@@ -47,7 +47,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.stage = stage
 
         self.follow_polygon = follow_polygon
-        self.lerp = 0.06 -- Rate at which the rotation towards the angle is interpolated.
+        self.lerp = 0.05 -- Rate at which the rotation towards the angle is interpolated.
         self.speed = 4.8 -- Forward movement speed of the boat.
 
         self.follow_points = {}
@@ -257,7 +257,7 @@ function boat:finish(duration, peelout)
                 self.peelout = pd.timer.new(duration, self.rotation, self.rotation - random(30, 75), pd.easingFunctions.outSine)
             end
         end
-        if enabled_cheats_scream  and self.racemode ~= "story" then
+        if enabled_cheats_scream and self.racemode ~= "story" then
             playdate.sound.micinput.stopListening()
         end
     end
@@ -301,24 +301,26 @@ function boat:crash(point_x, point_y, polygons)
     self.crash_direction = floor(angle - 90 + random(-20, 20)) % 360 + 1
     self.crash_time = 500 * (max(0.25, min(1, self.move_speedo.value)))
     if self.crashable then
-        if self.mode ~= "cpu" and not self.crashed then
-            self.sfx_crash:stop()
-            self.sfx_crash:setRate(1 + (random() - 0.5))
-            self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))
-            self.sfx_crash:play()
-            if self.movable then
-                self.crashes += 1
-                save.total_crashes += 1
-                if self.racemode == "story" then
-                    save['slot' .. save.current_story_slot .. '_crashes'] += 1
+        if not self.crashed then
+            if self.mode ~= "cpu" then
+                self.sfx_crash:stop()
+                self.sfx_crash:setRate(1 + (random() - 0.5))
+                self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))
+                self.sfx_crash:play()
+                if self.movable then
+                    self.crashes += 1
+                    save.total_crashes += 1
+                    if self.racemode == "story" then
+                        save['slot' .. save.current_story_slot .. '_crashes'] += 1
+                    end
                 end
             end
             self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
             self.wobble_speedo:resetnew(self.crash_time / 2, 1, -1.5, pd.easingFunctions.outBack)
-            self.move_speedo.reverses = true
-            self.wobble_speedo.reverses = true
-            self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
             if self.movable then
+                self.move_speedo.reverses = true
+                self.wobble_speedo.reverses = true
+                self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
                 pd.timer.performAfterDelay(self.crash_time, function()
                     self.crashed = false
                 end)

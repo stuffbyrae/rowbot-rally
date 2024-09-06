@@ -402,6 +402,19 @@ function closepopup(callback)
     end
 end
 
+-- This function turns a polygon into a list of coordinates. Thanks, TheMediocritist!
+function listpoly(polygon)
+    local polyString = tostring(polygon)
+    local coordList = {}
+    local i = 1
+    for number in polyString:gmatch("[-%d%.]+") do
+        coordList[i] = tonumber(number)
+        i += 1
+    end
+
+    return coordList
+end
+
 -- This function makes the pause image.
 -- 'xoffset' is a number that determines the x offset. naturally
 function setpauseimage(xoffset, hideoracle)
@@ -526,7 +539,7 @@ local offsetx
 local offsety
 
 function pd.update()
-    if playtest and ((datestamp.year >= 2024 and datestamp.month >= 10) or (datestamp.year >= 2025)) then
+    if playtest and ((datestamp.year >= 2024 and datestamp.month >= 12) or (datestamp.year >= 2025)) then
         playdate.stop()
         gfx.image.new('images/ui/corner'):draw(0, 0)
         print("The playtesting period for this game is now over. If you wanna keep playing RowBot Rally, please buy the game in Catalog!")

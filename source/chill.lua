@@ -185,7 +185,7 @@ function chill:leave()
         assets.sfx_sea:stop()
         vars.anim_fade.timerEndedCallback = function()
             pd.setAutoLockDisabled(false)
-            scenemanager:switchscene(title)
+            scenemanager:switchscene(title, title_memorize)
         end
     end
 end

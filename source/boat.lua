@@ -34,13 +34,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self.turn = 7 -- The RowBot's default turning rate.
     self.random = random()
 
-    if not perf then
-        self.scale = pd.timer.new(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1) -- Idle scaling anim
-        self.scale.reverses = true -- Make the idle reverse after
-        self.scale.repeats = true -- Make the idle loop
-    else
-        self.scale = pd.timer.new(100, self.scale_factor, self.scale_factor)
-    end
+    self.scale = pd.timer.new(100, self.scale_factor, self.scale_factor)
     self.scale.discardOnCompletion = false
 
     if self.mode == "cpu" then
@@ -71,9 +65,11 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.sfx_crash = smp.new('audio/sfx/crash')
         self.sfx_rowboton = smp.new('audio/sfx/rowboton')
         self.sfx_row = smp.new('audio/sfx/row')
+        self.sfx_beach = smp.new('audio/sfx/beach')
         self.sfx_crash:setVolume(save.vol_sfx/5)
         self.sfx_rowboton:setVolume(save.vol_sfx/5)
         self.sfx_row:setVolume(save.vol_sfx/5)
+        self.sfx_beach:setVolume(save.vol_sfx/5)
 
         if not demo then
             self.sfx_air = smp.new('audio/sfx/air')
@@ -86,20 +82,30 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
         if self.racemode ~= "story" then
             if enabled_cheats_big then
+                self.bakedboat = gfx.imagetable.new('images/race/boat_big')
+                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_big_reverse')
                 self.scale_factor = 1.70
                 self.speed = 4
                 self.turn = 4
-            end
-            if enabled_cheats_small then
+            elseif enabled_cheats_small then
+                self.bakedboat = gfx.imagetable.new('images/race/boat_small')
+                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_small_reverse')
                 self.scale_factor = 0.5
                 self.speed = 6
                 self.turn = 7
-            end
-            if enabled_cheats_tiny then
+            elseif enabled_cheats_tiny then
+                self.bakedboat = gfx.imagetable.new('images/race/boat_tiny')
+                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_tiny_reverse')
                 self.scale_factor = 0.1
                 self.speed = 7
                 self.turn = 10
+            else
+                self.bakedboat = gfx.imagetable.new('images/race/boat')
+                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_reverse')
             end
+        else
+            self.bakedboat = gfx.imagetable.new('images/race/boat')
+            self.bakedboatreverse = gfx.imagetable.new('images/race/boat_reverse')
         end
 
         self.cam_x = pd.timer.new(0, 0, 0) -- Camera X position
@@ -128,8 +134,6 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
 
     self.move_speedo = pd.timer.new(0, 0, 0)
     self.move_speedo.discardOnCompletion = false
-    self.wobble_speedo = pd.timer.new(0, 0, 0)
-    self.wobble_speedo.discardOnCompletion = false
     self.turn_speedo = pd.timer.new(0, 0, 0) -- Current movement speed
     self.turn_speedo.discardOnCompletion = false
 
@@ -151,6 +155,10 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self.boost_y = pd.timer.new(0, 1, 1) -- Boost animation on the Y axis
     self.boost_x.discardOnCompletion = false
     self.boost_y.discardOnCompletion = false
+
+    self.safety_x = 0
+    self.safety_y = 0
+    self.safety_rotation = 0
 
     if not perf then
         self.ripple = geo.affineTransform.new()
@@ -174,6 +182,77 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     self:setnewsize(120)
     self:setZIndex(0)
     self:add()
+end
+
+function boat:bake(rotation, scale)
+    local img = gfx.image.new(140, 140)
+    gfx.pushContext(img)
+    self.transform:rotate(rotation)
+    self.transform:scale(scale, scale)
+    self.transform:translate(self.boat_size / 2, self.boat_size / 2)
+    self.transform_polygon = self.poly_body * self.transform
+    self.transform_inside = self.poly_inside * self.transform
+    gfx.setColor(gfx.kColorWhite)
+    gfx.fillPolygon(self.transform_polygon)
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawPolygon(self.transform_polygon)
+    gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+    gfx.fillPolygon(self.transform_inside)
+    gfx.setColor(gfx.kColorBlack)
+    --this should help alot
+    local rev = self.reversed
+    local scale = scale or 1
+    local rot = rotation
+    local boatsize = self.boat_size
+    local factor = self.scale_factor
+    local center = boatsize/2
+    local cosrot = cos[rot]
+    local sinrot = sin[rot]
+
+    --this is getting exessive but still should help
+    local rev8 = rev*8
+    local rev11 = rev*11
+    local rev12 = rev*12
+    local rev6 = rev*6
+    local rev19 = rev*19
+    local rev14 = rev*14
+
+    local bunny_body_x = (((rev8) * scale) * -cosrot - -10 * sinrot) + center
+    local bunny_body_y = (((rev8) * scale) * -sinrot + -10 * cosrot) + center
+    local bunny_tuft_x = ((((rev11)) * scale) * -cosrot - 10 * sinrot) + center
+    local bunny_tuft_y = ((((rev11)) * scale) * -sinrot + 10 * cosrot) + center
+    local rowbot_body_x = (((-rev8) * scale) * -cosrot - -10 * sinrot) + center
+    local rowbot_body_y = (((-rev8) * scale) * -sinrot + -10 * cosrot) + center
+    local bunny_head_x = (((rev12)) * scale) * -cosrot + center
+    local bunny_head_y = (((rev12)) * scale) * -sinrot + center
+    local bunny_ear_1_x = (((rev6)) * scale) * -cosrot + 5 * sinrot + center
+    local bunny_ear_1_y = (((rev6)) * scale) * -sinrot - 5 * cosrot + center
+    local bunny_ear_2_x = (((rev19)) * scale) * -cosrot - 4 * sinrot + center
+    local bunny_ear_2_y = (((rev19)) * scale) * -sinrot + 4 * cosrot + center
+    local rowbot_antennae_x = (((-rev14)) * scale) * -cosrot + center
+    local rowbot_antennae_y = (((-rev14)) * scale) * -sinrot + center
+
+    -- Drawing passenger bodies, and bunny's hair tuft
+    gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * scale)
+    gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * scale)
+    gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * scale)
+    -- Drawing fills for heads
+    gfx.setColor(gfx.kColorWhite)
+
+    gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
+    gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
+    -- Drawing hats, and ears/antennae
+    gfx.setColor(gfx.kColorBlack)
+    gfx.drawPolygon(self.poly_rowbot * self.transform)
+    gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
+    gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * scale)
+    gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * scale)
+    gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * scale)
+    gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * scale)
+    gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
+    self.transform:reset()
+    gfx.popContext()
+    pd.simulator.writeToFile(img, '~/boat_' .. rotation .. '.png')
 end
 
 function boat:setnewsize(size)
@@ -211,7 +290,6 @@ end
 function boat:start(duration) -- 1000 is default
     duration = duration or 1000
     self.move_speedo:resetnew(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
-    self.wobble_speedo:resetnew(duration, self.move_speedo.value, 1, pd.easingFunctions.inOutSine)
     self:setnewsize(90)
     if self.mode == "cpu" then
         self.movable = true
@@ -235,7 +313,6 @@ end
 function boat:finish(duration, peelout)
     duration = duration or 1500
     self.move_speedo:resetnew(duration, self.move_speedo.value, 0, pd.easingFunctions.inOutSine)
-    self.wobble_speedo:resetnew(duration, self.wobble_speedo.value, 0, pd.easingFunctions.outBack)
     if not perf then
         self.ripple_scale:reset()
         self.ripple_opacity:reset()
@@ -291,7 +368,11 @@ function boat:image_check(polygons, image, crash_stage_x, crash_stage_y)
             table.insert(points_collided, i)
         end
         if self.mode ~= "cpu" and #points_collided == self.poly_body_crash:count() then
+            self.sfx_beach:play()
             self.beached = true
+            if self.leaping then
+                self:beach_recovery()
+            end
         end
     end
 end
@@ -316,11 +397,8 @@ function boat:crash(point_x, point_y, polygons)
                 end
             end
             self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
-            self.wobble_speedo:resetnew(self.crash_time / 2, 1, -1.5, pd.easingFunctions.outBack)
             if self.movable then
                 self.move_speedo.reverses = true
-                self.wobble_speedo.reverses = true
-                self.wobble_speedo.reverseEasingFunction = pd.easingFunctions.inSine
                 pd.timer.performAfterDelay(self.crash_time, function()
                     self.crashed = false
                 end)
@@ -336,7 +414,6 @@ function boat:boost()
         -- Stretch the boat
         self.boost_x:resetnew(700, 0.9, 1)
         self.boost_y:resetnew(700, 1.1, 1)
-        self.wobble_speedo:resetnew(500, 1, 3, pd.easingFunctions.outBack)
         self.speed = self.speed * 2 -- Make the boat go faster (duh)
         self.lerp = 0.1 -- Make it turn a little less quickly, though!
         pd.timer.performAfterDelay(2000, function()
@@ -352,9 +429,6 @@ function boat:boost()
             self.cam_x:resetnew(1000, self.cam_x.value, 70, pd.easingFunctions.inOutSine)
             self.cam_y:resetnew(1000, self.cam_y.value, 70, pd.easingFunctions.inOutSine)
             pd.timer.performAfterDelay(2000, function()
-                if self.movable then
-                    self.wobble_speedo:resetnew(2000, self.wobble_speedo.value, 1, pd.easingFunctions.outBack)
-                end
                 -- Throw the camera ... back
                 if self.movable then
                     self.cam_x:resetnew(1500, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
@@ -375,6 +449,8 @@ function boat:leap()
         self.crashable = false
         self:setnewsize(200)
         self:setZIndex(2)
+        self.cam_x:resetnew(1000, self.cam_x.value, 0, pd.easingFunctions.inOutSine)
+        self.cam_y:resetnew(1000, self.cam_y.value, 0, pd.easingFunctions.inOutSine)
         -- Scale anim — this is like 90% of the work
         self.scale:resetnew(700, self.scale_factor, self.scale_factor * 2, pd.easingFunctions.outCubic)
         self.scale.reverses = true
@@ -395,23 +471,45 @@ function boat:leap()
             self.scale:resetnew(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
             -- Re-set boat size
             self:setnewsize(90)
-            self.leaping = false
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
-                if perf then
-                    self.scale:resetnew(100, self.scale_factor, self.scale_factor)
-                else
-                    self.scale:resetnew(2000 + (1000 * self.random), self.scale_factor, self.scale_factor * 1.1)
-                end
+                self.scale:resetnew(100, self.scale_factor, self.scale_factor)
             end)
-            pd.timer.performAfterDelay(10, function()
-                if not self.beached then
-                    self:setZIndex(0)
+            self:setZIndex(0)
+            pd.timer.performAfterDelay(1, function()
+                if self.beached then
+                    vars.anim_overlay:resetnew(500, 1, assets.overlay_beach:getLength())
+                    vars.overlay = "beach"
+                else
+                    self.leaping = false
+                    self.cam_x:resetnew(750, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
+                    self.cam_y:resetnew(750, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
                 end
             end)
         end)
     end
+end
+
+function boat:beach_recovery()
+    self:state(false, false, false)
+    self:finish(50, false)
+    pd.timer.performAfterDelay(500, function()
+        vars.anim_overlay:resetnew(500, assets.overlay_fade:getLength(), 1)
+        vars.overlay = "fade"
+    end)
+    pd.timer.performAfterDelay(1000, function()
+        self.beached = false
+        self:moveTo(self.safety_x, self.safety_y)
+        self.rotation = self.safety_rot
+        self.leaping = false
+        vars.anim_overlay:resetnew(500, 1, assets.overlay_fade:getLength())
+        vars.overlay = "fade"
+    end)
+    pd.timer.performAfterDelay(1500, function()
+        self:state(true, true, true)
+        self:start()
+    end)
 end
 
 function boat:update(delta)
@@ -531,7 +629,7 @@ function boat:update(delta)
     self.transform:scale(((self.scale.value * self.boost_x.value) * self.reversed) * self.scale_factor, (self.scale.value * self.boost_y.value) * self.scale_factor)
     if not perf then self.ripple:rotate(self.rotation) end
     self.transform:rotate(self.rotation)
-    self.crash_transform:scale(max(1, min(self.scale.value, self.scale.value)))
+    self.crash_transform:scale(max(self.scale_factor, 1))
     self.crash_transform:rotate(self.rotation)
 end
 
@@ -594,121 +692,109 @@ function boat:draw(x, y, width, height)
         end
 
     else
-
-        if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
-            self.ripple:scale((self.scale.value * self.boost_x.value) * self.ripple_scale.value, (self.scale.value * self.boost_y.value) * self.ripple_scale.value)
-            self.ripple:translate(self.boat_size / 2, self.boat_size / 2)
-            gfx.setColor(gfx.kColorWhite)
-            gfx.setDitherPattern(self.ripple_opacity.value, gfx.image.kDitherTypeBayer4x4)
-            gfx.setLineWidth(self.ripple_opacity.value * 4)
-            gfx.drawPolygon(self.poly_body * self.ripple)
-            gfx.setLineWidth(2)
-            gfx.setColor(gfx.kColorBlack)
-        end
-        self.transform:translate(self.boat_size / 2, self.boat_size / 2)
-        self.transform_polygon = self.poly_body * self.transform
-        self.transform_inside = self.poly_inside * self.transform
-        if not perf then
-            self.transform_polygon:translate(7 * self.scale_factor, 7 * self.scale_factor)
-            gfx.setDitherPattern(0.25, gfx.image.kDitherTypeBayer2x2)
-            gfx.fillPolygon(self.transform_polygon)
-            self.transform_polygon:translate(-7 * self.scale_factor, -7 * self.scale_factor)
-        end
-        gfx.setColor(gfx.kColorWhite)
-        gfx.fillPolygon(self.transform_polygon)
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(self.transform_polygon)
-        gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
-        gfx.fillPolygon(self.transform_inside)
-        gfx.setColor(gfx.kColorBlack)
-        -- Offset params for passengers
-        local bunny_body_x
-        local bunny_body_y
-        local bunny_tuft_x
-        local bunny_tuft_y
-        local rowbot_body_x
-        local rowbot_body_y
-        local bunny_head_x
-        local bunny_head_y
-        local bunny_ear_1_x
-        local bunny_ear_1_y
-        local bunny_ear_2_x
-        local bunny_ear_2_y
-        local rowbot_antennae_x
-        local rowbot_antennae_y
-
         --this should help alot
         local rev = self.reversed
         local scale = self.scale.value
         local rot = self.rotation
         local boatsize = self.boat_size
-        local camy = self.cam_y.value
-        local wobble = self.wobble_speedo.value
         local factor = self.scale_factor
         local center = boatsize/2
         local cosrot = cos[rot]
         local sinrot = sin[rot]
+        local black = gfx.kColorBlack
+        local white = gfx.kColorWhite
+        local bayer = gfx.image.kDitherTypeBayer4x4
 
-        --this is getting exessive but still should help
-        local rev8 = rev*8
-        local rev11 = rev*11
-        local rev12 = rev*12
-        local rev6 = rev*6
-        local rev19 = rev*19
-        local rev14 = rev*14
-
-        if perf then
-            bunny_body_x = (((rev8) * scale) * -cosrot - -10 * sinrot) + center
-            bunny_body_y = (((rev8) * scale) * -sinrot + -10 * cosrot) + center
-            bunny_tuft_x = ((((rev11)) * scale) * -cosrot - 10 * sinrot) + center
-            bunny_tuft_y = ((((rev11)) * scale) * -sinrot + 10 * cosrot) + center
-            rowbot_body_x = (((-rev8) * scale) * -cosrot - -10 * sinrot) + center
-            rowbot_body_y = (((-rev8) * scale) * -sinrot + -10 * cosrot) + center
-            bunny_head_x = (((rev12)) * scale) * -cosrot + center
-            bunny_head_y = (((rev12)) * scale) * -sinrot + center
-            bunny_ear_1_x = (((rev6)) * scale) * -cosrot + 5 * sinrot + center
-            bunny_ear_1_y = (((rev6)) * scale) * -sinrot - 5 * cosrot + center
-            bunny_ear_2_x = (((rev19)) * scale) * -cosrot - 4 * sinrot + center
-            bunny_ear_2_y = (((rev19)) * scale) * -sinrot + 4 * cosrot + center
-            rowbot_antennae_x = (((-rev14)) * scale) * -cosrot + center
-            rowbot_antennae_y = (((-rev14)) * scale) * -sinrot + center
-        else
-            local camyscaled005 = camy * 0.05
-            local camyscaled01 = camy * 0.1
-            bunny_body_x = (((rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
-            bunny_body_y = (((rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
-            bunny_tuft_x = ((((rev11)) * scale) * -cosrot - (10 + (camyscaled005)) * sinrot) + center
-            bunny_tuft_y = ((((rev11)) * scale) * -sinrot + (10 + (camyscaled005)) * cosrot) + center
-            rowbot_body_x = (((-rev8) * scale) * -cosrot - (-10 + (camyscaled005)) * sinrot) + center
-            rowbot_body_y = (((-rev8) * scale) * -sinrot + (-10 + (camyscaled005)) * cosrot) + center
-            bunny_head_x = ((((rev12)) * scale) * -cosrot - (camyscaled005) * sinrot) + center
-            bunny_head_y = ((((rev12)) * scale) * -sinrot + (camyscaled005) * cosrot) + center
-            bunny_ear_1_x = ((((rev6)) * scale) * -cosrot - (-5 + wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
-            bunny_ear_1_y = ((((rev6)) * scale) * -sinrot + (-5 + wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
-            bunny_ear_2_x = ((((rev19)) * scale) * -cosrot - (4 + wobble * scale + (camyscaled01)) * sinrot) + center
-            bunny_ear_2_y = ((((rev19)) * scale) * -sinrot + (4 + wobble * scale + (camyscaled01)) * cosrot) + center
-            rowbot_antennae_x = ((((-rev14)) * scale) * -cosrot - (wobble * (2 * scale) + (camyscaled01)) * sinrot) + center
-            rowbot_antennae_y = ((((-rev14)) * scale) * -sinrot + (wobble * (2 * scale) + (camyscaled01)) * cosrot) + center
-        self.transform:translate(-sinrot * (camyscaled005), cosrot * (camyscaled005))
+        if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
+            self.ripple:scale(((scale * self.boost_x.value) * self.ripple_scale.value) * factor, ((scale * self.boost_y.value) * self.ripple_scale.value) * factor)
+            self.ripple:translate(center, center)
+            gfx.setColor(white)
+            gfx.setDitherPattern(self.ripple_opacity.value, bayer)
+            gfx.setLineWidth((self.ripple_opacity.value * 4) * factor)
+            gfx.drawPolygon(self.poly_body * self.ripple)
+            gfx.setLineWidth(2)
+            gfx.setColor(black)
         end
-        -- Drawing passenger bodies, and bunny's hair tuft
-        gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * scale)
-        gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * scale)
-        gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * scale)
-        -- Drawing fills for heads
-        gfx.setColor(gfx.kColorWhite)
+        self.transform:translate(center, center)
+        self.transform_polygon = self.poly_body * self.transform
+        self.transform_inside = self.poly_inside * self.transform
+        if not perf then
+            self.transform_polygon:translate(7 * factor, 7 * factor)
+            gfx.setDitherPattern(0.25, bayer)
+            gfx.fillPolygon(self.transform_polygon)
+            self.transform_polygon:translate(-7 * factor, -7 * factor)
+        end
+        if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 then
+            if rev == -1 then
+                self.bakedboatreverse[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
+            else
+                self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
+            end
+        else
+            gfx.setColor(white)
+            gfx.fillPolygon(self.transform_polygon)
+            gfx.setColor(black)
+            gfx.drawPolygon(self.transform_polygon)
+            gfx.setDitherPattern(0.5, bayer)
+            gfx.fillPolygon(self.transform_inside)
+            gfx.setColor(black)
 
-        gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
-        gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
-        -- Drawing hats, and ears/antennae
-        gfx.setColor(gfx.kColorBlack)
-        gfx.drawPolygon(self.poly_rowbot * self.transform)
-        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * scale)
-        gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * scale)
-        gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * scale)
-        gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * scale)
-        gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * scale)
+            -- Offset params for passengers
+            local bunny_body_x
+            local bunny_body_y
+            local bunny_tuft_x
+            local bunny_tuft_y
+            local rowbot_body_x
+            local rowbot_body_y
+            local bunny_head_x
+            local bunny_head_y
+            local bunny_ear_1_x
+            local bunny_ear_1_y
+            local bunny_ear_2_x
+            local bunny_ear_2_y
+            local rowbot_antennae_x
+            local rowbot_antennae_y
 
+            --this is getting exessive but still should help
+            local rev8 = rev*8
+            local rev11 = rev*11
+            local rev12 = rev*12
+            local rev6 = rev*6
+            local rev19 = rev*19
+            local rev14 = rev*14
+
+            bunny_body_x = (((rev8) * (scale * factor)) * -cosrot - -10 * sinrot) + center
+            bunny_body_y = (((rev8) * (scale * factor)) * -sinrot + -10 * cosrot) + center
+            bunny_tuft_x = ((((rev11)) * (scale * factor)) * -cosrot - 10 * sinrot) + center
+            bunny_tuft_y = ((((rev11)) * (scale * factor)) * -sinrot + 10 * cosrot) + center
+            rowbot_body_x = (((-rev8) * (scale * factor)) * -cosrot - -10 * sinrot) + center
+            rowbot_body_y = (((-rev8) * (scale * factor)) * -sinrot + -10 * cosrot) + center
+            bunny_head_x = (((rev12)) * (scale * factor)) * -cosrot + center
+            bunny_head_y = (((rev12)) * (scale * factor)) * -sinrot + center
+            bunny_ear_1_x = (((rev6)) * (scale * factor)) * -cosrot + 5 * sinrot + center
+            bunny_ear_1_y = (((rev6)) * (scale * factor)) * -sinrot - 5 * cosrot + center
+            bunny_ear_2_x = (((rev19)) * (scale * factor)) * -cosrot - 4 * sinrot + center
+            bunny_ear_2_y = (((rev19)) * (scale * factor)) * -sinrot + 4 * cosrot + center
+            rowbot_antennae_x = (((-rev14)) * (scale * factor)) * -cosrot + center
+            rowbot_antennae_y = (((-rev14)) * (scale * factor)) * -sinrot + center
+            -- Drawing passenger bodies, and bunny's hair tuft
+            gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * (scale * factor))
+            gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * (scale * factor))
+            gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * (scale * factor))
+            -- Drawing fills for heads
+            gfx.setColor(white)
+
+            gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * (scale * factor))
+            gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
+            -- Drawing hats, and ears/antennae
+            gfx.setColor(black)
+            gfx.drawPolygon(self.poly_rowbot * self.transform)
+            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * (scale * factor))
+            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * (scale * factor))
+            gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * (scale * factor))
+            gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * (scale * factor))
+            gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * (scale * factor))
+        end
     end
     gfx.setColor(gfx.kColorBlack) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
 end

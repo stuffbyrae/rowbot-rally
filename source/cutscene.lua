@@ -62,7 +62,8 @@ function cutscene:init(...)
         vars.anim_border = gfx.animation.loop.new(70, assets.img_border_outro, false)
         pd.timer.performAfterDelay(550, function()
             if vars.title then -- If this arg is true, move back to the title screen please.
-                scenemanager:switchscene(title)
+                title_memorize = 'story_mode'
+                scenemanager:switchscene(title, title_memorize)
             else -- Progress the story.
                 if vars.play == 1 then
                     save['slot' .. save.current_story_slot .. '_progress'] = 'tutorial'

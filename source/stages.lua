@@ -20,7 +20,8 @@ function stages:init(...)
         menu:removeAllMenuItems()
         menu:addMenuItem(text('backtotitle'), function()
             fademusic()
-            scenemanager:transitionsceneonewayback(title, 'time_trials')
+            title_memorize = 'time_trials'
+            scenemanager:transitionsceneonewayback(title, title_memorize)
         end)
         setpauseimage(200)
     end
@@ -104,7 +105,8 @@ function stages:init(...)
 
         BButtonDown = function()
             fademusic()
-            scenemanager:transitionsceneonewayback(title, 'time_trials')
+            title_memorize = 'time_trials'
+            scenemanager:transitionsceneonewayback(title, title_memorize)
         end,
 
         AButtonDown = function()

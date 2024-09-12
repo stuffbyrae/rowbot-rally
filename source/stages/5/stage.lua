@@ -55,9 +55,9 @@ function race:stage_init()
     vars.anim_lap_string.discardOnCompletion = false
     -- The checkpointzzzzz™
     vars.finish = gfx.sprite.addEmptyCollisionSprite(2096, 1130, 200, 20)
-    vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(1500, 355, 20, 350)
+    vars.checkpoint_1 = gfx.sprite.addEmptyCollisionSprite(1500, 0, 20, 700)
     vars.checkpoint_2 = gfx.sprite.addEmptyCollisionSprite(895, 1120, 200, 20)
-    vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(1305, 1640, 20, 200)
+    vars.checkpoint_3 = gfx.sprite.addEmptyCollisionSprite(1105, 1500, 20, 400)
     vars.finish:setTag(0)
     vars.checkpoint_1:setTag(1)
     vars.checkpoint_2:setTag(2)
@@ -101,9 +101,7 @@ function race:stage_init()
         geo.polygon.new(0, 0, vars.stage_x, 0, vars.stage_x, vars.stage_y, 0, vars.stage_x, 0, 0, 280, 305, 410, 190, 510, 150, 620, 145, 650, 145, 720, 130, 785, 155, 850, 190, 885, 205, 985, 205, 1075, 165, 1135, 135, 1220, 135, 1270, 160, 1345, 230, 1420, 325, 1485, 360, 1570, 410, 1645, 435, 1740, 450, 1840, 450, 1925, 430, 2015, 380, 2120, 300, 2205, 260, 2280, 250, 2365, 255, 2470, 300, 2535, 365, 2570, 455, 2570, 530, 2525, 655, 2465, 720, 2375, 815, 2310, 905, 2290, 960, 2270, 1050, 2270, 1400, 2280, 1480, 2290, 1550, 2270, 1640, 2220, 1700, 2140, 1755, 2020, 1785, 1910, 1785, 1780, 1750, 1685, 1725, 1560, 1735, 1430, 1775, 1320, 1795, 1100, 1795, 1000, 1765, 900, 1695, 855, 1595, 845, 1500, 895, 1340, 925, 1240, 930, 1220, 930, 1170, 905, 1105, 830, 1025, 755, 980, 690, 965, 530, 970, 455, 955, 365, 910, 275, 825, 230, 740, 195, 615, 200, 510, 235, 375, 200, 305, 0, 0)
     }
     -- Bounds for the calc'd polygons
-    vars.fill_bounds = {}
     self:fill_polygons()
-    vars.both_bounds = {}
     self:both_polygons()
 
     newmusic('audio/music/stage5', true) -- Adding new music
@@ -130,8 +128,6 @@ function race:fill_polygons()
         ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), ((vars.checkpoint_y + 12) * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
         ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 12) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
         ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 14) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
-    table.insert(vars.fill_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 6})
-    table.insert(vars.fill_bounds, {vars.checkpoint_x + 12, vars.checkpoint_y + 12, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
 end
 
 function race:both_polygons()
@@ -148,5 +144,4 @@ function race:both_polygons()
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 12) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 4) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
-    table.insert(vars.both_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
 end

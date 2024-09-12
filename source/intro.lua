@@ -19,7 +19,8 @@ function intro:init(...)
         setpauseimage(200)
         menu:addMenuItem(text('quitfornow'), function()
             fademusic()
-            scenemanager:transitionsceneoneway(title)
+            title_memorize = 'story_mode'
+            scenemanager:transitionsceneoneway(title, title_memorize)
         end)
     end
 

@@ -133,7 +133,8 @@ function opening:leave()
         vars.anim_fade:resetnew(1000, math.floor(vars.anim_fade.value), 1)
         vars.anim_fade.timerEndedCallback = function()
             if vars.title then
-                scenemanager:switchscene(title)
+                title_memorize = 'story_mode'
+                scenemanager:switchscene(title, title_memorize)
             else
                 save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
                 scenemanager:switchstory()

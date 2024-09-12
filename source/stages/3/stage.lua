@@ -141,9 +141,7 @@ function race:stage_init()
         geo.polygon.new(340, 590, 350, 530, 370, 475, 420, 415, 470, 360, 535, 320, 610, 295, 670, 290, 1200, 290, 1240, 295, 1300, 330, 1335, 360, 1340, 400, 1330, 435, 1300, 470, 1260, 490, 1215, 500, 1165, 505, 645, 505, 615, 515, 580, 535, 540, 570, 505, 625, 495, 665, 490, 730, 490, 850, 495, 925, 505, 965, 535, 1015, 575, 1055, 620, 1080, 670, 1090, 1200, 1090, 1255, 1100, 1300, 1125, 1330, 1150, 1335, 1175, 1340, 1210, 1320, 1245, 1290, 1270, 1245, 1295, 1195, 1305, 650, 1305, 590, 1290, 515, 1260, 455, 1220, 410, 1175, 375, 1115, 355, 1075, 340, 1025, 335, 960, 340, 590),
     }
     -- Bounds for the calc'd polygons
-    vars.fill_bounds = {}
     self:fill_polygons()
-    vars.both_bounds = {}
     self:both_polygons()
 
     vars.shades = true
@@ -177,8 +175,6 @@ function race:fill_polygons()
         ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_short_amount) + (vars.stage_x * -vars.stage_progress_short_x), ((vars.checkpoint_y + 12) * vars.parallax_short_amount) + (vars.stage_y * -vars.stage_progress_short_y),
         ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 12) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
         ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 14) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
-    table.insert(vars.fill_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 6})
-    table.insert(vars.fill_bounds, {vars.checkpoint_x + 12, vars.checkpoint_y + 12, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
 end
 
 function race:both_polygons()
@@ -195,5 +191,4 @@ function race:both_polygons()
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 12) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 4) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
-    table.insert(vars.both_bounds, {vars.checkpoint_x - 12, vars.checkpoint_y + 4, vars.checkpoint_x + vars.checkpoint_width + 11, vars.checkpoint_y + 14})
 end

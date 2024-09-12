@@ -78,6 +78,7 @@ function race:init(...)
         overlay_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
         overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
+        overlay_beach = gfx.imagetable.new('images/ui/beach'),
         sfx_countdown = smp.new('audio/sfx/countdown'),
         sfx_start = smp.new('audio/sfx/start'),
         sfx_finish = smp.new('audio/sfx/finish'),
@@ -341,17 +342,6 @@ function race:init(...)
                 end
             end
 
-            gfx.setLineWidth(5)
-
-            if vars.draw_polygons ~= nil then
-                if time % 3 == 0 then race:draw_polygons() end
-                local draw_polygons
-                for i = 1, #vars.draw_polygons do
-                    draw_polygons = vars.draw_polygons[i]
-                    gfx.drawPolygon(draw_polygons)
-                end
-            end
-
             if assets.parallax_short_bake ~= nil then assets.parallax_short_bake:draw(stage_progress_short_x, stage_progress_short_y) end
             if assets.parallax_medium_bake ~= nil then assets.parallax_medium_bake:draw(stage_progress_medium_x, stage_progress_medium_y) end
             if assets.parallax_long_bake ~= nil then assets.parallax_long_bake:draw(stage_progress_long_x, stage_progress_long_y) end
@@ -531,14 +521,16 @@ end
 -- If rocketarms (bool) is true, then the player activated this at will in a time trial.
 function race:boost(rocketarms)
     if rocketarms and vars.boosts_remaining > 0 or not rocketarms then
-        if vars.in_progress and not spritesboat.boosting then
+        if spritesboat.movable and not spritesboat.boosting then
             -- ... then boost! :3
             spritesboat:boost() -- The boat does most of this, of course.
             vars.overlay = "boost"
             vars.anim_overlay:resetnew(1000, 1, assets.overlay_boost:getLength()) -- Setting the WOOOOSH overlay
             vars.anim_overlay.repeats = true
             pd.timer.performAfterDelay(2000, function() -- and taking it away after a while.
-                vars.anim_overlay:resetnew(0, 0, 0)
+                if vars.overlay == "boost" then
+                    vars.anim_overlay:resetnew(0, 0, 0)
+                end
             end)
             if vars.shades then
                 vars.shades = false
@@ -727,6 +719,20 @@ function race:checkpointcheck(cpu)
             elseif vars.leap_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a leap pad.
                 spritesboat:leap()
+                -- I hate how hard-baked this is, but whatever.
+                if tag == 43 then
+                    spritesboat.safety_x = 1525
+                    spritesboat.safety_y = 490
+                    spritesboat.safety_rot = 270
+                elseif tag == 44 then
+                    spritesboat.safety_x = 650
+                    spritesboat.safety_y = 235
+                    spritesboat.safety_rot = 270
+                elseif tag == 45 then
+                    spritesboat.safety_x = 1390
+                    spritesboat.safety_y = 1710
+                    spritesboat.safety_rot = 90
+                end
             elseif vars.reverse_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a reverse pad.
                 if vars.mirror then
@@ -804,7 +810,7 @@ function race:update()
             --     corner("perf", vars.mirror) -- Warning to tell the user to turn on perf mode
             --     vars.perf_message_displayed = true
             -- end
-            if spritesboat.beached then -- Oh. If the boat's beached, then
+            if spritesboat.beached and not spritesboat.leaping then -- Oh. If the boat's beached, then
                 self:finish(true, 400) -- end the race. Ouch.
             end
             vars.current_time += 30 * delta -- Up that timer, babyyyyyyyyy!

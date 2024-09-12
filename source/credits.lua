@@ -84,11 +84,12 @@ function credits:init(...)
         pd.timer.performAfterDelay(5000, function()
             vars.anim_fade:resetnew(2000, 34, 1)
             pd.timer.performAfterDelay(2000, function()
+                title_memorize = 'story_mode'
                 if save.seen_credits then
-                    scenemanager:switchscene(title)
+                    scenemanager:switchscene(title, title_memorize)
                 else
                     save.seen_credits = true
-                    scenemanager:switchscene(notif, text('game_complete'), text('popup_game_complete'), text('title_screen'), false, function() scenemanager:switchscene(title) end)
+                    scenemanager:switchscene(notif, text('game_complete'), text('popup_game_complete'), text('title_screen'), false, function() scenemanager:switchscene(title, title_memorize) end)
                 end
             end)
         end)

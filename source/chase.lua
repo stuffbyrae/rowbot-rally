@@ -39,7 +39,8 @@ function chase:init(...)
                 fademusic(999)
                 vars.anim_overlay:resetnew(1000, 34, 1)
                 pd.timer.performAfterDelay(1000, function()
-                    scenemanager:switchscene(title)
+                    title_memorize = 'story_mode'
+                    scenemanager:switchscene(title, title_memorize)
                 end)
             end)
         end

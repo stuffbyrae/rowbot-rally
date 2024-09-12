@@ -60,6 +60,7 @@ function options:init(...)
     gfx.popContext()
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
+        slide = args[1], -- bool
         transitioning = true,
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
@@ -304,6 +305,9 @@ function options:leave() -- Leave and move back to the title screen
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
     vars.anim_wave_y:resetnew(1000, sprites.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function()
-        scenemanager:switchscene(title, 'options') -- Switch back to the title!
+        if not vars.slide then
+            title_memorize = 'options'
+        end
+        scenemanager:switchscene(title, title_memorize) -- Switch back to the title!
     end)
 end

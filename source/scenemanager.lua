@@ -21,12 +21,14 @@ function scenemanager:findstory()
             save.first_launch = false
         else
             newscene = opening
+            self.sceneargs = {false}
         end
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene1" then
         newscene = cutscene
         self.sceneargs = {1}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "tutorial" then
         newscene = tutorial
+        self.sceneargs = {}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene2" then
         newscene = cutscene
         self.sceneargs = {2}
@@ -56,6 +58,7 @@ function scenemanager:findstory()
         self.sceneargs = {6}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "chase" then
         newscene = chase
+        self.sceneargs = {false}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "cutscene7" then
         newscene = cutscene
         self.sceneargs = {7}
@@ -79,6 +82,7 @@ function scenemanager:findstory()
         self.sceneargs = {10}
     elseif save["slot" .. save.current_story_slot .. '_progress'] == "finish" then
         newscene = credits
+        self.sceneargs = {}
     end
 end
 

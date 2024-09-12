@@ -116,6 +116,7 @@ function title:init(...)
             save.unlocked_cheats_tiny = true
             save.unlocked_cheats_retro = true
             save.unlocked_cheats_scream = true
+            save.unlocked_cheats_trippy = true
             fademusic()
             scenemanager:transitionsceneoneway(notif, text('cheatcode'), text('popup_cheat_all'), text('title_screen'), false, function()
                 scenemanager:switchscene(title)
@@ -196,6 +197,7 @@ function title:init(...)
                         save.slot1_progress = nil
                         assets.sfx_proceed:play()
                         fademusic()
+                        title_memorize = 'story_mode'
                         scenemanager:transitionstoryoneway()
                     else -- Otherwise, open the slot picker.
                         self:openslots()
@@ -241,11 +243,13 @@ function title:init(...)
                 save['slot' .. save.current_story_slot .. '_circuit'] += 1
                 save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene1'
                 scenemanager:transitionstoryoneway()
+                title_memorize = 'story_mode'
                 fademusic()
                 assets.sfx_proceed:play()
             elseif save['slot' .. save.current_story_slot .. '_progress'] ~= 'finish' then
                 scenemanager:transitionstoryoneway()
                 fademusic()
+                title_memorize = 'story_mode'
                 assets.sfx_proceed:play()
             end
         end,

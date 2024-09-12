@@ -309,7 +309,8 @@ function stats:leave() -- Leave and move back to the title screen
     vars.transitioning = true -- Make sure you don't accept any more button presses at this time
     vars.anim_wave_y:resetnew(1000, sprites.wave.y, -40, pd.easingFunctions.inBack) -- Send the wave back up to transition smoothly
     pd.timer.performAfterDelay(1200, function() -- After that animation's done...
-        scenemanager:switchscene(title, 'stats') -- Switch back to the title!
+        title_memorize = 'stats'
+        scenemanager:switchscene(title, title_memorize) -- Switch back to the title!
     end)
 end
 

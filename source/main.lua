@@ -47,6 +47,8 @@ enabled_cheats_trippy = false
 
 perf = false
 
+title_memorize = 'story_mode'
+
 local kapel <const> = gfx.font.new('fonts/kapel') -- Kapel font
 local lepak <const> = gfx.font.new('fonts/lepak') -- Kapel font, reversed
 local reverse <const> = string.reverse
@@ -532,7 +534,7 @@ import 'options'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(race, 5, 'tt')
 end
 
 local offsetx

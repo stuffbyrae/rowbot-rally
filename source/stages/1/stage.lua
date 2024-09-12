@@ -152,7 +152,6 @@ function race:stage_init()
     }
     self:fill_polygons()
     self:both_polygons()
-    self:draw_polygons()
 
     newmusic('audio/music/stage1', true, 0.701) -- Adding new music
     music:pause()
@@ -168,12 +167,6 @@ function race:fill_polygons()
     local stage_progress_medium_x = vars.stage_progress_medium_x
     local stage_progress_medium_y = vars.stage_progress_medium_y
     vars.fill_polygons = {
-        geo.polygon.new(
-        259, 1458,
-        262, 1558,
-        (252 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1558 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (249 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1458 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        259, 1458),
     }
     table.insert(vars.fill_polygons, geo.polygon.new(
         ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
@@ -199,18 +192,6 @@ function race:both_polygons()
     local stage_progress_medium_x = vars.stage_progress_medium_x
     local stage_progress_medium_y = vars.stage_progress_medium_y
     vars.both_polygons = {
-        geo.polygon.new(
-        257, 1336,
-        260, 1436,
-        (250 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1436 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (247 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1336 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        257, 1336),
-        geo.polygon.new(
-        485, 1348,
-        487, 1448,
-        (497 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1448 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (495 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1348 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        485, 1348),
     }
     table.insert(vars.both_polygons, geo.polygon.new(
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
@@ -218,56 +199,4 @@ function race:both_polygons()
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 12) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x + vars.checkpoint_width + 11) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 4) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y),
     ((vars.checkpoint_x - 12) * vars.parallax_medium_amount) + (vars.stage_x * -vars.stage_progress_medium_x), ((vars.checkpoint_y + 6) * vars.parallax_medium_amount) + (vars.stage_y * -vars.stage_progress_medium_y)))
-end
-
-function race:draw_polygons()
-    local stage_x = vars.stage_x
-    local stage_y = vars.stage_y
-    local parallax_short_amount = vars.parallax_short_amount
-    local parallax_medium_amount = vars.parallax_medium_amount
-    local stage_progress_short_x = vars.stage_progress_short_x
-    local stage_progress_short_y = vars.stage_progress_short_y
-    vars.draw_polygons = {
-        geo.polygon.new(
-        (484 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1120 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (495 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1064 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (527 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1012 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (575 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (984 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (631 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (956 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (679 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (940 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (739 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (920 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (795 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (900 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (843 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (874 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (883 * parallax_short_amount) + (stage_x * -stage_progress_short_x),  (832 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
-        geo.polygon.new(
-        (707 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (556 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (715 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (500 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (727 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (444 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (743 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (388 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (767 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (340 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (803 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (288 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (847 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (248 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (891 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (216 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (943 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (192 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (995 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (172 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1055 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (156 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1111 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (160 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1167 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (152 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
-        geo.polygon.new(
-        (1455 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (920 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1455 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (972 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1459 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1024 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1451 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1076 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1423 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1116 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1375 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1144 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1315 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1160 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1259 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1172 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1207 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1192 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1163 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1220 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1135 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1272 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1324 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1380 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1135 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1436 * parallax_short_amount) + (stage_y * -stage_progress_short_y),
-        (1127 * parallax_short_amount) + (stage_x * -stage_progress_short_x), (1488 * parallax_short_amount) + (stage_y * -stage_progress_short_y)),
-    }
 end

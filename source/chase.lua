@@ -66,6 +66,7 @@ function chase:init(...)
         sfx_chomp = smp.new('audio/sfx/chomp'),
         sfx_cymbal = smp.new('audio/sfx/cymbal'),
         sfx_rock = smp.new('audio/sfx/rock'),
+        oar = gfx.imagetable.new('images/chase/oar'),
     }
     assets.sfx_crash:setVolume(save.vol_sfx/5)
     assets.sfx_blips:setVolume(save.vol_sfx/5)
@@ -86,8 +87,8 @@ function chase:init(...)
         boat_speed = 0,
         boat_speed_min = -10,
         boat_speed_max = 10,
-        boat_pos_min = 30,
-        boat_pos_max = 370,
+        boat_pos_min = 50,
+        boat_pos_max = 350,
         boat_can_move = false,
         boat_can_crash = true,
         rocks_can_spawn = false,
@@ -103,6 +104,8 @@ function chase:init(...)
         anim_invinc = pd.timer.new(1, 1, 1),
         anim_rock = pd.timer.new(1, 0, 0),
         anim_splash = pd.timer.new(500, 1, 4.99),
+        anim_oar_1 = pd.timer.new(500, 1, 8.99),
+        anim_oar_2 = pd.timer.new(500, 1, 8.99),
         playing = true,
         show_warn = false,
         show_rock = false,
@@ -110,6 +113,8 @@ function chase:init(...)
         rocks_passed = 0,
         lost = false,
         showdir = false,
+        crashed_left = false,
+        crashed_right = false,
     }
     vars.chaseHandlers = {
         -- Input handlers go here...
@@ -137,6 +142,13 @@ function chase:init(...)
     vars.anim_boat_y.repeats = true
     vars.anim_warn.repeats = true
     vars.anim_splash.repeats = true
+    vars.anim_oar_1.repeats = true
+    vars.anim_oar_1.discardOnCompletion = false
+    vars.anim_oar_2.discardOnCompletion = false
+
+    vars.anim_oar_2.timerEndedCallback = function()
+        vars.anim_oar_2:resetnew(500 + (vars.boat_speed * 50), 1, 8.99)
+    end
 
     pd.timer.performAfterDelay(2000, function()
         vars.showdir = true
@@ -190,6 +202,20 @@ function chase:init(...)
         end
     end
 
+    class('chase_oars').extends(gfx.sprite)
+    function chase_oars:init()
+        chase_oars.super.init(self)
+        self:setSize(230, 100)
+        self:setCenter(0.5, 1)
+        self:moveTo(200, 220)
+        self:setZIndex(3)
+        self:add()
+    end
+    function chase_oars:draw()
+        assets.oar[floor(vars.anim_oar_1.value)]:draw(0, 0)
+        assets.oar[floor(vars.anim_oar_2.value)]:draw(100, 0, "flipX")
+    end
+
     class('chase_boat').extends(gfx.sprite)
     function chase_boat:init()
         chase_boat.super.init(self)
@@ -229,9 +255,17 @@ function chase:init(...)
         if dir then
             vars.boat_speed = -10
             sprites.boat:moveTo(vars.boat_pos_max, sprites.boat.y)
+            vars.crashed_right = true
+            pd.timer.performAfterDelay(250, function()
+                vars.crashed_right = false
+            end)
         else
             vars.boat_speed = 10
             sprites.boat:moveTo(vars.boat_pos_min, sprites.boat.y)
+            vars.crashed_left = true
+            pd.timer.performAfterDelay(250, function()
+                vars.crashed_left = false
+            end)
         end
     end
 
@@ -273,6 +307,7 @@ function chase:init(...)
     -- Set the sprites
     sprites.bg = chase_bg()
     sprites.rocks = chase_rocks()
+    sprites.oars = chase_oars()
     sprites.boat = chase_boat()
     sprites.splash = chase_splash()
     sprites.shark = chase_shark()
@@ -297,7 +332,7 @@ function chase:update()
             vars.change = 21.6
         end
     else
-        vars.change = max((pd.getCrankChange() / save.sensitivity) * 3, 1)
+        vars.change = max((pd.getCrankChange() / save.sensitivity) * 1.5, 1)
         save.total_degrees_cranked += pd.getCrankChange() -- Save degrees cranked stat
     end
     if not vars.boat_can_move and vars.change > 7 and vars.playing then
@@ -310,8 +345,12 @@ function chase:update()
         self:win()
     end
     if vars.boat_can_move then
-        vars.boat_speed -= 1
-        vars.boat_speed += vars.change / 10
+        if not vars.crashed_left then
+            vars.boat_speed += vars.change / 6
+        end
+        if not vars.crashed_right then
+            vars.boat_speed -= 1
+        end
     end
     vars.boat_speed = max(vars.boat_speed_min - 5, min(vars.boat_speed_max + 5, vars.boat_speed))
     sprites.boat:moveBy(max(vars.boat_speed_min, min(vars.boat_speed_max, vars.boat_speed)), 0)
@@ -327,6 +366,7 @@ function chase:update()
         sprites.boat:small_crash(true)
     end
     sprites.boat:moveTo(sprites.boat.x, 220 + (vars.crashes * 5) + vars.anim_boat_y.value + vars.anim_entrance.value)
+    sprites.oars:moveTo(sprites.boat.x, sprites.boat.y)
     sprites.splash:moveBy((((sprites.boat.x * 0.8) + 35) - sprites.splash.x) * 0.7, 0)
     sprites.splash:moveTo(sprites.splash.x, 225 + (vars.crashes * 5) + vars.anim_boat_y.value + vars.anim_entrance.value)
     sprites.shark:moveBy((sprites.boat.x - sprites.shark.x) * 0.3, 0)
@@ -390,6 +430,7 @@ function chase:win()
         vars.anim_boat_y:resetnew(500, 0, -130, pd.easingFunctions.outSine)
         pd.timer.performAfterDelay(500, function()
             sprites.boat:setZIndex(-1)
+            sprites.oars:setZIndex(-2)
             vars.anim_boat_y:resetnew(750, -130, 400, pd.easingFunctions.inSine)
         end)
         pd.timer.performAfterDelay(1250, function()

@@ -104,9 +104,11 @@ function stages:init(...)
         end,
 
         BButtonDown = function()
-            fademusic()
-            title_memorize = 'time_trials'
-            scenemanager:transitionsceneonewayback(title, title_memorize)
+            if not scenemanager.transitioning then
+                fademusic()
+                title_memorize = 'time_trials'
+                scenemanager:transitionsceneonewayback(title, title_memorize)
+            end
         end,
 
         AButtonDown = function()

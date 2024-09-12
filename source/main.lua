@@ -534,7 +534,7 @@ import 'options'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 5, 'tt')
+    scenemanager:switchscene(title)
 end
 
 local offsetx

@@ -397,12 +397,12 @@ function boat:crash(point_x, point_y, polygons)
                 end
             end
             self.move_speedo:resetnew(self.crash_time, 1, 0, pd.easingFunctions.outSine)
-            if self.movable then
-                self.move_speedo.reverses = true
-                pd.timer.performAfterDelay(self.crash_time, function()
+            pd.timer.performAfterDelay(self.crash_time, function()
+                if self.movable then
                     self.crashed = false
-                end)
-            end
+                    self.move_speedo:resetnew(self.crash_time, 0, 1, pd.easingFunctions.inSine)
+                end
+            end)
         end
         self.crashed = true
     end
@@ -444,13 +444,13 @@ function boat:leap()
         if self.mode ~= "cpu" then
             self.sfx_air:play()
             self.sfx_boost:play()
+            self.cam_x:resetnew(1000, self.cam_x.value, 0, pd.easingFunctions.inOutSine)
+            self.cam_y:resetnew(1000, self.cam_y.value, 0, pd.easingFunctions.inOutSine)
         end
         self.leaping = true
         self.crashable = false
         self:setnewsize(200)
         self:setZIndex(2)
-        self.cam_x:resetnew(1000, self.cam_x.value, 0, pd.easingFunctions.inOutSine)
-        self.cam_y:resetnew(1000, self.cam_y.value, 0, pd.easingFunctions.inOutSine)
         -- Scale anim — this is like 90% of the work
         self.scale:resetnew(700, self.scale_factor, self.scale_factor * 2, pd.easingFunctions.outCubic)
         self.scale.reverses = true
@@ -477,16 +477,20 @@ function boat:leap()
                 self.scale:resetnew(100, self.scale_factor, self.scale_factor)
             end)
             self:setZIndex(0)
-            pd.timer.performAfterDelay(1, function()
-                if self.beached then
-                    vars.anim_overlay:resetnew(500, 1, assets.overlay_beach:getLength())
-                    vars.overlay = "beach"
-                else
-                    self.leaping = false
-                    self.cam_x:resetnew(750, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
-                    self.cam_y:resetnew(750, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
-                end
-            end)
+            if self.mode ~= "cpu" then
+                pd.timer.performAfterDelay(1, function()
+                    if self.beached then
+                        vars.anim_overlay:resetnew(700, 1, assets.overlay_beach:getLength())
+                        vars.overlay = "beach"
+                    else
+                        self.leaping = false
+                        self.cam_x:resetnew(750, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
+                        self.cam_y:resetnew(750, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
+                    end
+                end)
+            else
+                self.leaping = false
+            end
         end)
     end
 end
@@ -494,19 +498,19 @@ end
 function boat:beach_recovery()
     self:state(false, false, false)
     self:finish(50, false)
-    pd.timer.performAfterDelay(500, function()
+    pd.timer.performAfterDelay(1500, function()
         vars.anim_overlay:resetnew(500, assets.overlay_fade:getLength(), 1)
         vars.overlay = "fade"
     end)
-    pd.timer.performAfterDelay(1000, function()
+    pd.timer.performAfterDelay(2000, function()
         self.beached = false
         self:moveTo(self.safety_x, self.safety_y)
         self.rotation = self.safety_rot
         self.leaping = false
-        vars.anim_overlay:resetnew(500, 1, assets.overlay_fade:getLength())
+        vars.anim_overlay:resetnew(350, 1, assets.overlay_fade:getLength())
         vars.overlay = "fade"
     end)
-    pd.timer.performAfterDelay(1500, function()
+    pd.timer.performAfterDelay(2500, function()
         self:state(true, true, true)
         self:start()
     end)

@@ -35,6 +35,11 @@ function race:stage_init()
         vars.cpu_current_checkpoint = 0
         vars.cpu_last_checkpoint = 0
         vars.follow_polygon = pd.geometry.polygon.new(4485, 1505, 4505, 1245, 4680, 1110, 4635, 845, 4565, 625, 4180, 540, 3860, 475, 3770, 590, 3705, 720, 3550, 935, 3430, 1055, 3255, 1015, 3150, 1055, 3170, 1180, 3230, 1350, 3230, 1595, 3145, 1640, 2815, 1620, 2630, 1580, 2350, 1605, 1965, 1610, 1790, 1690, 1420, 1665, 1310, 1510, 1205, 1270, 985, 1130, 925, 1180, 880, 1430, 755, 1500, 620, 1385, 435, 1235, 355, 1045, 465, 915, 645, 780, 645, 5)
+        if save['slot' .. save.current_story_slot .. '_circuit'] == 1 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 2 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 3 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
+        end
     end
     vars.laps = 1 -- How many laps...
     -- The checkpointzzzzz™
@@ -80,7 +85,7 @@ function race:stage_init()
     self:both_polygons()
 
     newmusic('audio/music/stage6', true) -- Adding new music
-    music:pause()
+    if music ~= nil then music:pause() end
 end
 
 function race:fill_polygons()

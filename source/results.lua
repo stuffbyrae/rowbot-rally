@@ -171,7 +171,7 @@ function results:init(...)
                     gfx.imageWithText(text('finish'), 200, 120):drawScaled(40, 20, 2)
                 end
                 if vars.showmirrorunlock and not vars.mirror then
-                    assets.kapel:drawText(text('mirrorunlockedforthisstage'), 139, 65)
+                    assets.kapel:drawText(text('mirrorunlockedforthisstage'), 100, 16)
                 end
             end
         else

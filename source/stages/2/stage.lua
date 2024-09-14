@@ -97,6 +97,11 @@ function race:stage_init()
             645, 2070,
             515, 2005,
             400, 1925)
+        if save['slot' .. save.current_story_slot .. '_circuit'] == 1 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 2 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 3 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
+        end
     end
     vars.laps = 3 -- How many laps...
     vars.lap_string = text('lap1')
@@ -172,7 +177,7 @@ function race:stage_init()
     self:both_polygons()
 
     newmusic('audio/music/stage2', true) -- Adding new music
-    music:pause()
+    if music ~= nil then music:pause() end
 end
 
 function race:fill_polygons()

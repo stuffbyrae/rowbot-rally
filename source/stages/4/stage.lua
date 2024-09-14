@@ -70,7 +70,7 @@ function race:stage_init()
     self:both_polygons()
 
     newmusic('audio/music/stage4', true) -- Adding new music
-    music:pause()
+    if music ~= nil then music:pause() end
 end
 
 function race:fill_polygons()

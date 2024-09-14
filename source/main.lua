@@ -534,21 +534,13 @@ import 'options'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(title)
+    scenemanager:switchscene(race, 1, 'story')
 end
 
 local offsetx
 local offsety
 
 function pd.update()
-    if playtest and ((datestamp.year >= 2024 and datestamp.month >= 12) or (datestamp.year >= 2025)) then
-        playdate.stop()
-        gfx.image.new('images/ui/corner'):draw(0, 0)
-        print("The playtesting period for this game is now over. If you wanna keep playing RowBot Rally, please buy the game in Catalog!")
-        kapel_doubleup:drawTextAligned("Thank you for playtesting!", 200, 15, kTextAlignment.center)
-        pedallica:drawText("The playtesting period for this\ngame is now over. If you wanna\nkeep playing RowBot Rally, please\nbuy the game in Catalog!\n\nTo transfer your save data over to\nthe full version, make sure the\nRowBot Rally save folder in your Data\nDisk is named \"wtf.rae.rowbotrally\".\n\n🌐 play.date/games/rowbot-rally\nThanks again for your help!", 30, 45)
-        playdate.display.flush()
-    end
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
         popup:moveTo(0, anim_popup.value) -- Move it there!
@@ -573,8 +565,16 @@ function pd.update()
     if anim_corner ~= nil and img_corner ~= nil then -- If the intro anim exists...
         img_corner:drawIgnoringOffset(anim_corner.value, 0) -- Move the corner piece in using it
     end
-    if playtest then
-        pd.display.setRefreshRate(fps)
-        pd.drawFPS(10, 10)
+    if playtest then -- Playtesting logic
+        pd.display.setRefreshRate(fps) -- Allow the player to change the target FPS via console
+        pd.drawFPS(10, 10) -- Show the FPS in the corner
+        if ((datestamp.year >= 2024 and datestamp.month >= 12) or (datestamp.year >= 2025)) then -- Postdate lockout
+            playdate.stop()
+            gfx.image.new('images/ui/corner'):draw(0, 0)
+            print("The playtesting period for this game is now over. If you wanna keep playing RowBot Rally, please buy the game in Catalog!")
+            kapel_doubleup:drawTextAligned("Thank you for playtesting!", 200, 15, kTextAlignment.center)
+            pedallica:drawText("The playtesting period for this\ngame is now over. If you wanna\nkeep playing RowBot Rally, please\nbuy the game in Catalog!\n\nTo transfer your save data over to\nthe full version, make sure the\nRowBot Rally save folder in your Data\nDisk is named \"wtf.rae.rowbotrally\".\n\n🌐 play.date/games/rowbot-rally\nThanks again for your help!", 30, 45)
+            playdate.display.flush()
+        end
     end
 end

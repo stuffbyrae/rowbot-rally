@@ -38,7 +38,7 @@ function race:stage_init()
         vars.boat_x = 2200
         vars.boat_y = 1250
     else
-        vars.boat_x = 2235
+        vars.boat_x = 2230
         vars.boat_y = 1250
         vars.cpu_x = 2165
         vars.cpu_y = 1250
@@ -46,6 +46,11 @@ function race:stage_init()
         vars.cpu_current_checkpoint = 0
         vars.cpu_last_checkpoint = 0
         vars.follow_polygon = pd.geometry.polygon.new(2175, 1095, 2200, 945, 2260, 805, 2400, 675, 2520, 575, 2540, 475, 2485, 360, 2370, 300, 2225, 305, 2080, 400, 1985, 490, 1910, 520, 1855, 525, 1580, 525, 1500, 490, 1385, 380, 1295, 245, 1210, 195, 1130, 195, 1075, 240, 1020, 265, 720, 265, 625, 240, 540, 225, 390, 265, 295, 365, 270, 525, 295, 745, 385, 860, 510, 910, 755, 935, 915, 1000, 990, 1130, 985, 1275, 920, 1520, 940, 1650, 985, 1690, 1055, 1725, 1370, 1725, 1515, 1695, 1675, 1670, 1850, 1705, 2010, 1730, 2140, 1695, 2240, 1600, 2190, 1440)
+        if save['slot' .. save.current_story_slot .. '_circuit'] == 1 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 2 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 3 then
+        elseif save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
+        end
     end
     vars.laps = 3 -- How many laps...
     vars.lap_string = text('lap1')
@@ -105,7 +110,7 @@ function race:stage_init()
     self:both_polygons()
 
     newmusic('audio/music/stage5', true) -- Adding new music
-    music:pause()
+    if music ~= nil then music:pause() end
 end
 
 function race:fill_polygons()

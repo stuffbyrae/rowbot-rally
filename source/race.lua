@@ -13,7 +13,6 @@ local ceil <const> = math.ceil
 local floor <const> = math.floor
 local random <const> = math.random
 local deg <const> = math.deg
-local atan <const> = math.atan2
 local sqrt <const> = math.sqrt
 local abs <const> = math.abs
 local sin <const> = math.sin
@@ -24,6 +23,8 @@ local spritescpu
 local spritesboat
 local spritesdebug
 local spritesstage
+local cpu_body
+local player_body
 
 class('race').extends(gfx.sprite) -- Create the scene's class
 function race:init(...)
@@ -232,7 +233,7 @@ function race:init(...)
                 whirlpools_x = vars.whirlpools_x[i]
                 whirlpools_y = vars.whirlpools_y[i]
                 if (whirlpools_x < -x + 468 and whirlpools_x > -x - 68) and (whirlpools_y < -y + 308 and whirlpools_y > -y - 68) then
-                    whirlpool:drawImage(math.floor(vars.anim_whirlpool.value), whirlpools_x, whirlpools_y)
+                    whirlpool:drawImage(floor(vars.anim_whirlpool.value), whirlpools_x, whirlpools_y)
                 end
             end
         end
@@ -247,7 +248,7 @@ function race:init(...)
                 boost_pads_y = vars.boost_pads_y[i]
                 boost_pads_flip = vars.boost_pads_flip[i]
                 if (boost_pads_x < -x + 498 and boost_pads_x > -x - 98) and (boost_pads_y < -y + 363 and boost_pads_y > -y - 123) then
-                    boost_pad:drawImage(math.floor(vars.anim_boost_pad.value), boost_pads_x, boost_pads_y, boost_pads_flip)
+                    boost_pad:drawImage(floor(vars.anim_boost_pad.value), boost_pads_x, boost_pads_y, boost_pads_flip)
                 end
             end
         end
@@ -260,7 +261,7 @@ function race:init(...)
                 leap_pads_x = vars.leap_pads_x[i]
                 leap_pads_y = vars.leap_pads_y[i]
                 if (leap_pads_x < -x + 498 and leap_pads_x > -x - 98) and (leap_pads_y < -y + 363 and leap_pads_y > -y - 123) then
-                    leap_pad:drawImage(math.floor(vars.anim_leap_pad.value), leap_pads_x, leap_pads_y)
+                    leap_pad:drawImage(floor(vars.anim_leap_pad.value), leap_pads_x, leap_pads_y)
                 end
             end
         end
@@ -273,7 +274,7 @@ function race:init(...)
                 reverse_pads_x = vars.reverse_pads_x[i]
                 reverse_pads_y = vars.reverse_pads_y[i]
                 if (reverse_pads_x < -x + 498 and reverse_pads_x > -x - 98) and (reverse_pads_y < -y + 363 and reverse_pads_y > -y - 123) then
-                    reverse_pad:drawImage(math.floor(vars.anim_reverse_pad.value), reverse_pads_x, reverse_pads_y)
+                    reverse_pad:drawImage(floor(vars.anim_reverse_pad.value), reverse_pads_x, reverse_pads_y)
                 end
             end
         end
@@ -521,7 +522,7 @@ end
 -- If rocketarms (bool) is true, then the player activated this at will in a time trial.
 function race:boost(rocketarms)
     if rocketarms and vars.boosts_remaining > 0 or not rocketarms then
-        if spritesboat.movable and not spritesboat.boosting then
+        if spritesboat.movable and not spritesboat.boosting and not spritesboat.leaping then
             -- ... then boost! :3
             spritesboat:boost() -- The boat does most of this, of course.
             vars.overlay = "boost"
@@ -564,7 +565,7 @@ function race:start()
     vars.anim_overlay:resetnew(3900, 2, assets.overlay_countdown:getLength())
     pd.timer.performAfterDelay(3000, function()
         vars.in_progress = true
-        music:play(0)
+        if music ~= nil then music:play(0) end
         spritesboat:state(true, true, true)
         spritesboat:start()
         if vars.cpu_x ~= nil then
@@ -586,7 +587,7 @@ function race:finish(timeout, duration)
         end
         vars.in_progress = false
         vars.finished = true
-        fademusic(1) -- I gotta see if 0 works on this thing LOL
+        fademusic(0)
         spritesboat:state(false, false, false)
         if timeout then -- If you ran the timer past 09:59.00...
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
@@ -639,21 +640,29 @@ function race:checkpointcheck(cpu)
                 vars.cpu_last_checkpoint = tag
             elseif tag == 255 then
                 -- CPU is colliding with boat.
-                local cpu_body = spritescpu.transform:transformedPolygon(spritescpu.poly_body_crash)
+                cpu_body = spritescpu.transform:transformedPolygon(spritescpu.poly_body_crash)
                 cpu_body:translate(spritescpu.x, spritescpu.y)
-                local player_scale = spritesboat.scale_factor
-                local player_body = spritesboat.transform:transformedPolygon(spritesboat.poly_body_crash)
+                player_body = spritesboat.transform:transformedPolygon(spritesboat.poly_body_crash)
                 player_body:translate(spritesboat.x, spritesboat.y)
-                for i = 1, player_body:count() do
-                    if cpu_body:containsPoint(player_body:getPointAt(i)) then
-                        local angle = atan(spritesboat.y - spritescpu.y, spritesboat.x - spritescpu.x) - 1.57
-                        spritescpu:moveBy(sin(angle) * 1.9, -cos(angle) * 1.9)
-                        spritesboat:moveBy(-sin(angle) * (1.9 * player_scale), cos(angle) * (1.9 * player_scale))
-                    end
+
+                while cpu_body:intersects(player_body) do
+                    local angle = self:fastatan(spritesboat.y - spritescpu.y, spritesboat.x - spritescpu.x) - 1.57
+                    local cpu_old_x = spritescpu.x
+                    local cpu_old_y = spritescpu.y
+                    local boat_old_x = spritesboat.x
+                    local boat_old_y = spritesboat.y
+                    spritescpu:moveBy(sin(angle) * 1, -cos(angle) * 1)
+                    spritesboat:moveBy(-sin(angle) * 1, cos(angle) * 1)
+                    local cpu_new_x = spritescpu.x - cpu_old_x
+                    local cpu_new_y = spritescpu.y - cpu_old_y
+                    local boat_new_x = spritesboat.x - boat_old_x
+                    local boat_new_y = spritesboat.y - boat_old_y
+                    cpu_body:translate(cpu_new_x, cpu_new_y)
+                    player_body:translate(boat_new_x, boat_new_y)
                 end
             elseif vars.whirlpools_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a whirlpool.
-                local angle = atan(spritescpu.y - (vars.whirlpools_y[tag - 42] + 34), spritescpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
+                local angle = race:fastatan(spritescpu.y - (vars.whirlpools_y[tag - 42] + 34), spritescpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
                 spritescpu:moveBy(sin(angle) * 2.5, -cos(angle) * 2.5)
             elseif vars.boost_pads_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a boost pad.
@@ -697,12 +706,14 @@ function race:checkpointcheck(cpu)
                             assets.sfx_start:play()
                         elseif vars.current_lap == 3 then
                             assets.sfx_final:play()
-                            music:pause()
-                            music:setOffset(0)
-                            music:setRate(1.1)
-                            pd.timer.performAfterDelay(1750, function()
-                                music:play()
-                            end)
+                            if music ~= nil then
+                                music:pause()
+                                music:setOffset(0)
+                                music:setRate(1.1)
+                                pd.timer.performAfterDelay(1750, function()
+                                    music:play()
+                                end)
+                            end
                         end
                         assets.image_timer = assets['image_timer_' .. vars.current_lap]
                     end
@@ -711,7 +722,7 @@ function race:checkpointcheck(cpu)
             elseif vars.whirlpools_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a whirlpool.
                 local player_scale = spritesboat.scale_factor
-                local angle = atan(spritesboat.y - (vars.whirlpools_y[tag - 42] + 34), spritesboat.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
+                local angle = race:fastatan(spritesboat.y - (vars.whirlpools_y[tag - 42] + 34), spritesboat.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
                 spritesboat:moveBy(sin(angle) * (2.5 * player_scale), -cos(angle) * (2.5 * player_scale))
             elseif vars.boost_pads_x ~= nil and tag ~= 255 then
                 -- Boat is colliding with a boost pad.
@@ -834,7 +845,7 @@ function race:update()
         if spritesboat.crashable and not spritesboat.beached then spritesboat:collision_check(vars.edges_polygons, assets.image_stagec, spritesstage.x, spritesstage.y) end
         if spritescpu ~= nil then
             self:checkpointcheck(true)
-            if spritescpu.crashable then
+            if spritescpu.crashable and vars.stage ~= 7 then
                 spritescpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu or assets.image_stagec, spritesstage.x, spritesstage.y)
             end
         end

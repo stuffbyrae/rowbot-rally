@@ -67,6 +67,7 @@ function chase:init(...)
         sfx_cymbal = smp.new('audio/sfx/cymbal'),
         sfx_rock = smp.new('audio/sfx/rock'),
         oar = gfx.imagetable.new('images/chase/oar'),
+        oar_ground = gfx.imagetable.new('images/chase/oar_ground'),
     }
     assets.sfx_crash:setVolume(save.vol_sfx/5)
     assets.sfx_blips:setVolume(save.vol_sfx/5)
@@ -212,8 +213,16 @@ function chase:init(...)
         self:add()
     end
     function chase_oars:draw()
-        assets.oar[floor(vars.anim_oar_1.value)]:draw(0, 0)
-        assets.oar[floor(vars.anim_oar_2.value)]:draw(100, 0, "flipX")
+        if self.x < 100 then
+            assets.oar_ground[floor(vars.anim_oar_1.value)]:draw(0, 0)
+        else
+            assets.oar[floor(vars.anim_oar_1.value)]:draw(0, 0)
+        end
+        if self.x > 300 then
+            assets.oar_ground[floor(vars.anim_oar_2.value)]:draw(100, 0, "flipX")
+        else
+            assets.oar[floor(vars.anim_oar_2.value)]:draw(100, 0, "flipX")
+        end
     end
 
     class('chase_boat').extends(gfx.sprite)

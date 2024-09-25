@@ -647,7 +647,7 @@ function boat:draw(x, y, width, height)
             gfx.fillPolygon(self.transform_polygon)
             self.transform_polygon:translate(-7, -7)
         end
-        if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 then
+        if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 and self.stage == 1 then
             self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
         else
             gfx.setColor(white)
@@ -701,6 +701,9 @@ function boat:draw(x, y, width, height)
             else
                 self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
             end
+            gfx.fillCircleAtPoint(-cosrot - -18 * sinrot + center, -sinrot + -18 * cosrot + center, 14)
+            gfx.fillCircleAtPoint(-cosrot - -2 * sinrot + center, -sinrot + -2 * cosrot + center, 20)
+            gfx.fillCircleAtPoint(-cosrot - 15 * sinrot + center, -sinrot + 15 * cosrot + center, 19)
         else
             gfx.setColor(white)
             gfx.fillPolygon(self.transform_polygon)

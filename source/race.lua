@@ -391,10 +391,9 @@ function race:init(...)
                 gfx.drawPolygon(both_polygons)
             end
 
-        end
-
-        if assets.wave ~= nil and vars.anim_wave ~= nil and vars.stage_x ~= nil then
-            assets.wave[floor(vars.anim_wave.value)]:draw(vars.stage_x - 388, 0)
+            if assets.wave ~= nil and vars.anim_wave ~= nil then
+                assets.wave[floor(vars.anim_wave.value)]:draw(((stage_x - 400) * parallax_long_amount) + stage_progress_long_x, 0)
+            end
         end
 
         local anim_ui_offset = vars.anim_ui_offset.value
@@ -641,9 +640,19 @@ function race:checkpointcheck(cpu)
             elseif tag == 255 then
                 -- CPU is colliding with boat.
                 cpu_body = spritescpu.transform:transformedPolygon(spritescpu.poly_body_crash)
-                cpu_body:translate(spritescpu.x, spritescpu.y)
+                cpu_x = spritescpu.x
+                cpu_y = spritescpu.y
+                cpu_rot = spritescpu.rotation
+                cpu_body:translate(cpu_x, cpu_y)
                 player_body = spritesboat.transform:transformedPolygon(spritesboat.poly_body_crash)
-                player_body:translate(spritesboat.x, spritesboat.y)
+                player_x = spritesboat.x
+                player_y = spritesboat.y
+                player_rot = spritesboat.rotation
+                player_body:translate(player_x, player_y)
+
+                circle1dia = 28
+                circle2dia = 40
+                circle3dia = 38
 
                 while cpu_body:intersects(player_body) do
                     local angle = self:fastatan(spritesboat.y - spritescpu.y, spritesboat.x - spritescpu.x) - 1.57

@@ -21,7 +21,7 @@ function race:stage_init()
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 
-    vars.anim_wave = pd.timer.new(700, 1, 3.99)
+    vars.anim_wave = pd.timer.new(1400, 1, 8.99)
     vars.anim_wave.repeats = true
 
     if vars.mode == "tt" then

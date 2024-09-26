@@ -701,9 +701,6 @@ function boat:draw(x, y, width, height)
             else
                 self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
             end
-            gfx.fillCircleAtPoint(-cosrot - -18 * sinrot + center, -sinrot + -18 * cosrot + center, 14)
-            gfx.fillCircleAtPoint(-cosrot - -2 * sinrot + center, -sinrot + -2 * cosrot + center, 20)
-            gfx.fillCircleAtPoint(-cosrot - 15 * sinrot + center, -sinrot + 15 * cosrot + center, 19)
         else
             gfx.setColor(white)
             gfx.fillPolygon(self.transform_polygon)

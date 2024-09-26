@@ -13,6 +13,7 @@ local ceil <const> = math.ceil
 local floor <const> = math.floor
 local random <const> = math.random
 local deg <const> = math.deg
+local rad <const> = math.rad
 local sqrt <const> = math.sqrt
 local abs <const> = math.abs
 local sin <const> = math.sin
@@ -115,6 +116,9 @@ function race:init(...)
         audience_3 = pd.timer.new(25000, 10, -10),
         reverse_cooldown = true,
         perf_message_displayed = false,
+        circle1radius = 14,
+        circle2radius = 20,
+        circle3radius = 19,
     }
     vars.water.repeats = true
     vars.audience_1.repeats = true
@@ -639,36 +643,14 @@ function race:checkpointcheck(cpu)
                 vars.cpu_last_checkpoint = tag
             elseif tag == 255 then
                 -- CPU is colliding with boat.
-                cpu_body = spritescpu.transform:transformedPolygon(spritescpu.poly_body_crash)
-                cpu_x = spritescpu.x
-                cpu_y = spritescpu.y
-                cpu_rot = spritescpu.rotation
-                cpu_body:translate(cpu_x, cpu_y)
-                player_body = spritesboat.transform:transformedPolygon(spritesboat.poly_body_crash)
-                player_x = spritesboat.x
-                player_y = spritesboat.y
-                player_rot = spritesboat.rotation
-                player_body:translate(player_x, player_y)
-
-                circle1dia = 28
-                circle2dia = 40
-                circle3dia = 38
-
-                while cpu_body:intersects(player_body) do
+                local collision = self:cpucollisioncheck()
+                while collision == true do
                     local angle = self:fastatan(spritesboat.y - spritescpu.y, spritesboat.x - spritescpu.x) - 1.57
-                    local cpu_old_x = spritescpu.x
-                    local cpu_old_y = spritescpu.y
-                    local boat_old_x = spritesboat.x
-                    local boat_old_y = spritesboat.y
                     spritescpu:moveBy(sin(angle) * 1, -cos(angle) * 1)
                     spritesboat:moveBy(-sin(angle) * 1, cos(angle) * 1)
-                    local cpu_new_x = spritescpu.x - cpu_old_x
-                    local cpu_new_y = spritescpu.y - cpu_old_y
-                    local boat_new_x = spritesboat.x - boat_old_x
-                    local boat_new_y = spritesboat.y - boat_old_y
-                    cpu_body:translate(cpu_new_x, cpu_new_y)
-                    player_body:translate(boat_new_x, boat_new_y)
+                    collision = self:cpucollisioncheck()
                 end
+
             elseif vars.whirlpools_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a whirlpool.
                 local angle = race:fastatan(spritescpu.y - (vars.whirlpools_y[tag - 42] + 34), spritescpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57
@@ -781,6 +763,50 @@ function race:checkpointcheck(cpu)
             end
         end
     end
+end
+
+function race:circleinit()
+    local cpu_x = spritescpu.x
+    local cpu_y = spritescpu.y
+    local cpu_rot = spritescpu.rotation
+
+    local player_x = spritesboat.x
+    local player_y = spritesboat.y
+    local player_rot = spritesboat.rotation
+
+    local coscpu = cos(rad(cpu_rot))
+    local sincpu = sin(rad(cpu_rot))
+    local cosplayer = cos(rad(player_rot))
+    local sinplayer = sin(rad(player_rot))
+
+    vars.cpu_circle1 = geo.vector2D.new((-coscpu + 18 * sincpu) + cpu_x, (-sincpu - 18 * coscpu) + cpu_y)
+    vars.cpu_circle2 = geo.vector2D.new(cpu_x, cpu_y)
+    vars.cpu_circle3 = geo.vector2D.new((-coscpu - 15 * sincpu) + cpu_x, (-sincpu + 15 * coscpu) + cpu_y)
+
+    vars.player_circle1 = geo.vector2D.new((-cosplayer + 18 * sinplayer) + player_x, (-sinplayer - 18 * cosplayer) + player_y)
+    vars.player_circle2 = geo.vector2D.new(player_x, player_y)
+    vars.player_circle3 = geo.vector2D.new((-cosplayer - 15 * sinplayer) + player_x, (-sinplayer + 15 * cosplayer) + player_y)
+end
+
+function race:circlecheck(cpucircle, cpucircleradius, playercircle, playercircleradius)
+    local circtocirc = cpucircle - playercircle
+    local distance = circtocirc:magnitude()
+    if distance < cpucircleradius + playercircleradius then
+        return true
+    end
+end
+
+function race:cpucollisioncheck()
+    self:circleinit()
+    if self:circlecheck(vars.cpu_circle1, vars.circle1radius, vars.player_circle1, vars.circle1radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle2, vars.circle2radius, vars.player_circle1, vars.circle1radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle3, vars.circle3radius, vars.player_circle1, vars.circle1radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle1, vars.circle1radius, vars.player_circle2, vars.circle2radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle2, vars.circle2radius, vars.player_circle2, vars.circle2radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle3, vars.circle3radius, vars.player_circle2, vars.circle2radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle1, vars.circle1radius, vars.player_circle3, vars.circle3radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle2, vars.circle2radius, vars.player_circle3, vars.circle3radius) == true then return true end
+    if self:circlecheck(vars.cpu_circle3, vars.circle3radius, vars.player_circle3, vars.circle3radius) == true then return true end
 end
 
 -- Scene update loop

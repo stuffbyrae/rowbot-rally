@@ -6,6 +6,7 @@ local pd <const> = playdate
 local gfx <const> = pd.graphics
 local text <const> = gfx.getLocalizedText
 local floor <const> = math.floor
+local format <const> = string.format
 
 class('stats').extends(gfx.sprite) -- Create the scene's class
 function stats:init(...)
@@ -154,7 +155,7 @@ function stats:init(...)
                         return
                     else
                         assets.kapel:drawTextAligned(v.rank .. '. ' .. v.player, 200, 45 + (25 * (v.rank - 1)), kTextAlignment.center)
-                        assets.pedallica:drawTextAligned(v.value, 200, 55 + (25 * (v.rank - 1)), kTextAlignment.center)
+                        assets.pedallica:drawTextAligned(commalize(v.value), 200, 55 + (25 * (v.rank - 1)), kTextAlignment.center)
                     end
                 end
                 if vars.lb_crashes_result.scores[1] == nil then
@@ -199,15 +200,15 @@ function stats:init(...)
             else
                 assets.pedallica:drawTextAligned(self:gethms(save.total_racetime, false), 390, 45, kTextAlignment.right)
             end
-            assets.pedallica:drawTextAligned(save.total_crashes, 390, 70, kTextAlignment.right)
-            assets.pedallica:drawTextAligned(save.total_races_completed, 390, 85, kTextAlignment.right)
-            assets.pedallica:drawTextAligned(save.stories_completed, 390, 100, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(commalize(save.total_crashes), 390, 70, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(commalize(save.total_races_completed), 390, 85, kTextAlignment.right)
+            assets.pedallica:drawTextAligned(commalize(save.stories_completed), 390, 100, kTextAlignment.right)
             assets.pedallica:drawTextAligned(self:getdistancecranked(save.total_degrees_cranked), 390, 115, kTextAlignment.right)
             if vars.mps > 10 then -- If there's no plays on any stage, the highest it will go is "07" — in that event, don't bother picking a "Favorite stage" since all of them are 0 plays.
                 if floor(vars.mps / 10) == 1 then
                     assets.pedallica:drawTextAligned(text('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. floor(vars.mps / 10) .. ' play)', 390, 140, kTextAlignment.right)
                 else
-                    assets.pedallica:drawTextAligned(text('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. floor(vars.mps / 10) .. ' plays)', 390, 140, kTextAlignment.right)
+                    assets.pedallica:drawTextAligned(text('stage_' .. vars.mps % 10 .. '_name') .. ' (' .. commalize(floor(vars.mps / 10)) .. ' plays)', 390, 140, kTextAlignment.right)
                 end
             else
                 assets.pedallica:drawTextAligned('N/A', 390, 140, kTextAlignment.right)
@@ -216,7 +217,7 @@ function stats:init(...)
                 if floor(vars.lps / 10) == 1 then
                     assets.pedallica:drawTextAligned(text('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. floor(vars.lps / 10) .. ' play)', 390, 155, kTextAlignment.right)
                 else
-                    assets.pedallica:drawTextAligned(text('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. floor(vars.lps / 10) .. ' plays)', 390, 155, kTextAlignment.right)
+                    assets.pedallica:drawTextAligned(text('stage_' .. vars.lps % 10 .. '_name') .. ' (' .. commalize(floor(vars.lps / 10)) .. ' plays)', 390, 155, kTextAlignment.right)
                 end
             else
                 assets.pedallica:drawTextAligned('N/A', 390, 155, kTextAlignment.right)
@@ -286,20 +287,20 @@ function stats:getdistancecranked(num)
     if save.metric then
         crank_distance = (num / 360) * 125.66
         if crank_distance > 1000000 then
-            crank_distance_string = string.format("%.2f", crank_distance / 1000000) .. text('km')
+            crank_distance_string = commalize(format("%.2f", crank_distance / 1000000)) .. text('km')
         elseif crank_distance > 1000 then
-            crank_distance_string = string.format("%.2f", crank_distance / 1000) .. text('m')
+            crank_distance_string = commalize(format("%.2f", crank_distance / 1000)) .. text('m')
         else
-            crank_distance_string = string.format("%.2f", crank_distance) .. text('mm')
+            crank_distance_string = commalize(format("%.2f", crank_distance)) .. text('mm')
         end
     else
         crank_distance = (num / 360) * 4.95
         if crank_distance > 63360 then
-            crank_distance_string = string.format("%.2f", crank_distance / 63360) .. text('mi')
+            crank_distance_string = commalize(format("%.2f", crank_distance / 63360)) .. text('mi')
         elseif crank_distance > 12 then
-            crank_distance_string = string.format("%.2f", crank_distance / 12) .. text('ft')
+            crank_distance_string = commalize(format("%.2f", crank_distance / 12)) .. text('ft')
         else
-            crank_distance_string = string.format("%.2f", crank_distance) .. text('in')
+            crank_distance_string = commalize(format("%.2f", crank_distance)) .. text('in')
         end
     end
     return crank_distance_string

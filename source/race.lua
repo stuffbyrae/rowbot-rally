@@ -80,7 +80,6 @@ function race:init(...)
         overlay_fade = gfx.imagetable.new('images/ui/fade_white/fade'),
         overlay_countdown = gfx.imagetable.new('images/race/countdown'),
         overlay_boost = gfx.imagetable.new('images/race/boost/boost'),
-        overlay_beach = gfx.imagetable.new('images/ui/beach'),
         sfx_countdown = smp.new('audio/sfx/countdown'),
         sfx_start = smp.new('audio/sfx/start'),
         sfx_finish = smp.new('audio/sfx/finish'),

@@ -34,7 +34,7 @@ show_crank = false -- do you show the crankindicator in this scene?
 corner_active = false -- Is the corner UI active?
 demo = true
 if not string.find(pd.metadata.bundleID, "demo") then demo = false end -- DEMO check.
-playtest = true -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
+playtest = false -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
 
 -- Cheats checks
 enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
@@ -485,6 +485,18 @@ function ordinal(num)
     end
 end
 
+-- http://lua-users.org/wiki/FormattingNumbers
+function commalize(amount)
+  local formatted = amount
+  while true do
+    formatted, k = string.gsub(formatted, "^(-?%d+)(%d%d%d)", '%1,%2')
+    if (k==0) then
+      break
+    end
+  end
+  return formatted
+end
+
 function pd.timer:resetnew(duration, startValue, endValue, easingFunction)
 	self.duration = duration
 	self._startValue = startValue
@@ -525,16 +537,13 @@ if pd.isSimulator == 1 then
     save.button_controls = true
 end
 
-import 'stages'
+import 'stats'
 import 'race'
-import 'credits'
-import 'chase'
-import 'options'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 1, 'story')
+    scenemanager:switchscene(race, 5, 'tt')
 end
 
 local offsetx

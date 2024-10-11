@@ -507,7 +507,7 @@ function stages:update_image_top(stage, show_desc, ranking, name)
         end
         if ranking ~= nil then
             assets.kapel:drawText(text('yourank'), 125, 52)
-            assets.kapel_doubleup:drawTextAligned(ordinal(ranking) .. "!", 205, 60, kTextAlignment.right)
+            assets.kapel_doubleup:drawTextAligned(commalize(ordinal(ranking)) .. "!", 205, 60, kTextAlignment.right)
             -- If the player has a default username, then let's throw a prompt up to tell them to change that. Woohoo, indoctrination!
             if string.len(name) == 16 and tonumber(name) then
                 gfx.fillRect(0, 165, 480, 40)

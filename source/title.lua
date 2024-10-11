@@ -471,7 +471,7 @@ function title:init(...)
             if save['slot' .. save.current_story_slot .. '_crashes'] == 1 then
                 assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. text('stats_crash'), 15, 190)
             else
-                assets.pedallica:drawText(save['slot' .. save.current_story_slot .. '_crashes'] .. ' ' .. text('stats_crashes'), 15, 190)
+                assets.pedallica:drawText(commalize(save['slot' .. save.current_story_slot .. '_crashes']) .. ' ' .. text('stats_crashes'), 15, 190)
             end
             if save['slot' .. save.current_story_slot .. '_progress'] == 'finish' and save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
                 assets.image_preview:draw(150, 60)

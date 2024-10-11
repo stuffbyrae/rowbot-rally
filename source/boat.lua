@@ -60,6 +60,12 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
             self.speed = 5 -- Forward movement speed of the boat.
         end
 
+        if stage == 5 then
+            self.overlay_beach = gfx.imagetable.new('images/race/beach')
+            self.anim_overlay = pd.timer.new(0, 0, 0)
+            self.anim_overlay.discardOnCompletion = false
+        end
+
         self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
         self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
 
@@ -446,23 +452,22 @@ function boat:leap()
             end
             -- Bounce-back animation
             self.scale:resetnew(500, self.scale_factor * 0.8, self.scale_factor, pd.easingFunctions.outBack)
-            -- Re-set boat size
-            self:setnewsize(90)
             self.crashable = true
             -- Set the idle scaling anim back
             pd.timer.performAfterDelay(500, function()
                 self.scale:resetnew(100, self.scale_factor, self.scale_factor)
             end)
-            self:setZIndex(0)
             if self.mode ~= "cpu" then
                 pd.timer.performAfterDelay(1, function()
                     if self.beached then
-                        vars.anim_overlay:resetnew(700, 1, assets.overlay_beach:getLength())
-                        vars.overlay = "beach"
+                        self.anim_overlay:resetnew(700, 1, self.overlay_beach:getLength())
+                        self:setnewsize(142)
                     else
                         self.leaping = false
                         self.cam_x:resetnew(750, self.cam_x.value, 40, pd.easingFunctions.inOutSine)
                         self.cam_y:resetnew(750, self.cam_y.value, 40, pd.easingFunctions.inOutSine)
+                        self:setZIndex(0)
+                        self:setnewsize(90)
                     end
                 end)
             else
@@ -480,6 +485,8 @@ function boat:beach_recovery()
         vars.overlay = "fade"
     end)
     pd.timer.performAfterDelay(2000, function()
+        self:setZIndex(0)
+        self:setnewsize(90)
         self:moveTo(self.safety_x, self.safety_y)
         self.rotation = self.safety_rot
         self.beached = false
@@ -676,95 +683,100 @@ function boat:draw(x, y, width, height)
             end
         end
     else
-        if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
-            self.ripple:scale(((scale * self.boost_x.value) * self.ripple_scale.value) * factor, ((scale * self.boost_y.value) * self.ripple_scale.value) * factor)
-            self.ripple:translate(center, center)
-            gfx.setColor(white)
-            gfx.setDitherPattern(self.ripple_opacity.value, bayer)
-            gfx.setLineWidth((self.ripple_opacity.value * 4) * factor)
-            gfx.drawPolygon(self.poly_body * self.ripple)
-            gfx.setLineWidth(2)
-            gfx.setColor(black)
-        end
-        self.transform:translate(center, center)
-        self.transform_polygon = self.poly_body * self.transform
-        self.transform_inside = self.poly_inside * self.transform
-        if not perf then
-            self.transform_polygon:translate(7 * factor, 7 * factor)
-            gfx.setDitherPattern(0.25, bayer)
-            gfx.fillPolygon(self.transform_polygon)
-            self.transform_polygon:translate(-7 * factor, -7 * factor)
-        end
-        if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 then
-            if rev == -1 then
-                self.bakedboatreverse[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
-            else
-                self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
+        if not (self.beached and self.leaping) then
+            if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not self.beached then
+                self.ripple:scale(((scale * self.boost_x.value) * self.ripple_scale.value) * factor, ((scale * self.boost_y.value) * self.ripple_scale.value) * factor)
+                self.ripple:translate(center, center)
+                gfx.setColor(white)
+                gfx.setDitherPattern(self.ripple_opacity.value, bayer)
+                gfx.setLineWidth((self.ripple_opacity.value * 4) * factor)
+                gfx.drawPolygon(self.poly_body * self.ripple)
+                gfx.setLineWidth(2)
+                gfx.setColor(black)
             end
-        else
-            gfx.setColor(white)
-            gfx.fillPolygon(self.transform_polygon)
-            gfx.setColor(black)
-            gfx.drawPolygon(self.transform_polygon)
-            gfx.setDitherPattern(0.5, bayer)
-            gfx.fillPolygon(self.transform_inside)
-            gfx.setColor(black)
+            self.transform:translate(center, center)
+            self.transform_polygon = self.poly_body * self.transform
+            self.transform_inside = self.poly_inside * self.transform
+            if not perf then
+                self.transform_polygon:translate(7 * factor, 7 * factor)
+                gfx.setDitherPattern(0.25, bayer)
+                gfx.fillPolygon(self.transform_polygon)
+                self.transform_polygon:translate(-7 * factor, -7 * factor)
+            end
+            if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 then
+                if rev == -1 then
+                    self.bakedboatreverse[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
+                else
+                    self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
+                end
+            else
+                gfx.setColor(white)
+                gfx.fillPolygon(self.transform_polygon)
+                gfx.setColor(black)
+                gfx.drawPolygon(self.transform_polygon)
+                gfx.setDitherPattern(0.5, bayer)
+                gfx.fillPolygon(self.transform_inside)
+                gfx.setColor(black)
 
-            -- Offset params for passengers
-            local bunny_body_x
-            local bunny_body_y
-            local bunny_tuft_x
-            local bunny_tuft_y
-            local rowbot_body_x
-            local rowbot_body_y
-            local bunny_head_x
-            local bunny_head_y
-            local bunny_ear_1_x
-            local bunny_ear_1_y
-            local bunny_ear_2_x
-            local bunny_ear_2_y
-            local rowbot_antennae_x
-            local rowbot_antennae_y
+                -- Offset params for passengers
+                local bunny_body_x
+                local bunny_body_y
+                local bunny_tuft_x
+                local bunny_tuft_y
+                local rowbot_body_x
+                local rowbot_body_y
+                local bunny_head_x
+                local bunny_head_y
+                local bunny_ear_1_x
+                local bunny_ear_1_y
+                local bunny_ear_2_x
+                local bunny_ear_2_y
+                local rowbot_antennae_x
+                local rowbot_antennae_y
 
-            --this is getting exessive but still should help
-            local rev8 = rev*8
-            local rev11 = rev*11
-            local rev12 = rev*12
-            local rev6 = rev*6
-            local rev19 = rev*19
-            local rev14 = rev*14
+                --this is getting exessive but still should help
+                local rev8 = rev*8
+                local rev11 = rev*11
+                local rev12 = rev*12
+                local rev6 = rev*6
+                local rev19 = rev*19
+                local rev14 = rev*14
 
-            bunny_body_x = (((rev8) * (scale * factor)) * -cosrot - -10 * sinrot) + center
-            bunny_body_y = (((rev8) * (scale * factor)) * -sinrot + -10 * cosrot) + center
-            bunny_tuft_x = ((((rev11)) * (scale * factor)) * -cosrot - 10 * sinrot) + center
-            bunny_tuft_y = ((((rev11)) * (scale * factor)) * -sinrot + 10 * cosrot) + center
-            rowbot_body_x = (((-rev8) * (scale * factor)) * -cosrot - -10 * sinrot) + center
-            rowbot_body_y = (((-rev8) * (scale * factor)) * -sinrot + -10 * cosrot) + center
-            bunny_head_x = (((rev12)) * (scale * factor)) * -cosrot + center
-            bunny_head_y = (((rev12)) * (scale * factor)) * -sinrot + center
-            bunny_ear_1_x = (((rev6)) * (scale * factor)) * -cosrot + 5 * sinrot + center
-            bunny_ear_1_y = (((rev6)) * (scale * factor)) * -sinrot - 5 * cosrot + center
-            bunny_ear_2_x = (((rev19)) * (scale * factor)) * -cosrot - 4 * sinrot + center
-            bunny_ear_2_y = (((rev19)) * (scale * factor)) * -sinrot + 4 * cosrot + center
-            rowbot_antennae_x = (((-rev14)) * (scale * factor)) * -cosrot + center
-            rowbot_antennae_y = (((-rev14)) * (scale * factor)) * -sinrot + center
-            -- Drawing passenger bodies, and bunny's hair tuft
-            gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * (scale * factor))
-            gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * (scale * factor))
-            gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * (scale * factor))
-            -- Drawing fills for heads
-            gfx.setColor(white)
+                bunny_body_x = (((rev8) * (scale * factor)) * -cosrot - -10 * sinrot) + center
+                bunny_body_y = (((rev8) * (scale * factor)) * -sinrot + -10 * cosrot) + center
+                bunny_tuft_x = ((((rev11)) * (scale * factor)) * -cosrot - 10 * sinrot) + center
+                bunny_tuft_y = ((((rev11)) * (scale * factor)) * -sinrot + 10 * cosrot) + center
+                rowbot_body_x = (((-rev8) * (scale * factor)) * -cosrot - -10 * sinrot) + center
+                rowbot_body_y = (((-rev8) * (scale * factor)) * -sinrot + -10 * cosrot) + center
+                bunny_head_x = (((rev12)) * (scale * factor)) * -cosrot + center
+                bunny_head_y = (((rev12)) * (scale * factor)) * -sinrot + center
+                bunny_ear_1_x = (((rev6)) * (scale * factor)) * -cosrot + 5 * sinrot + center
+                bunny_ear_1_y = (((rev6)) * (scale * factor)) * -sinrot - 5 * cosrot + center
+                bunny_ear_2_x = (((rev19)) * (scale * factor)) * -cosrot - 4 * sinrot + center
+                bunny_ear_2_y = (((rev19)) * (scale * factor)) * -sinrot + 4 * cosrot + center
+                rowbot_antennae_x = (((-rev14)) * (scale * factor)) * -cosrot + center
+                rowbot_antennae_y = (((-rev14)) * (scale * factor)) * -sinrot + center
+                -- Drawing passenger bodies, and bunny's hair tuft
+                gfx.fillCircleAtPoint(bunny_body_x, bunny_body_y, 6 * (scale * factor))
+                gfx.fillCircleAtPoint(bunny_tuft_x, bunny_tuft_y, 11 * (scale * factor))
+                gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * (scale * factor))
+                -- Drawing fills for heads
+                gfx.setColor(white)
 
-            gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * (scale * factor))
-            gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
-            -- Drawing hats, and ears/antennae
-            gfx.setColor(black)
-            gfx.drawPolygon(self.poly_rowbot * self.transform)
-            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * (scale * factor))
-            gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * (scale * factor))
-            gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * (scale * factor))
-            gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * (scale * factor))
-            gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * (scale * factor))
+                gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * (scale * factor))
+                gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
+                -- Drawing hats, and ears/antennae
+                gfx.setColor(black)
+                gfx.drawPolygon(self.poly_rowbot * self.transform)
+                gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 11 * (scale * factor))
+                gfx.drawCircleAtPoint(bunny_head_x, bunny_head_y, 8 * (scale * factor))
+                gfx.fillCircleAtPoint(bunny_ear_1_x, bunny_ear_1_y, 6 * (scale * factor))
+                gfx.fillCircleAtPoint(bunny_ear_2_x, bunny_ear_2_y, 6 * (scale * factor))
+                gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * (scale * factor))
+            end
+        end
+        if self.anim_overlay.timeLeft ~= 0 then
+            self.overlay_beach:getImage(floor(self.anim_overlay.value)):draw(0, 0)
         end
     end
     gfx.setColor(black) -- Make sure to set this back afterward, or else your corner UIs will suffer!!

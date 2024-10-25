@@ -32,7 +32,7 @@ function credits:init(...)
     }
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
-        creditsscrolly = pd.timer.new(145989, 0, -2640),
+        creditsscrolly = pd.timer.new(76719, 0, -2640),
         anim_fade = pd.timer.new(1, 1, 1),
         showcover1 = true,
         showcover2 = true,
@@ -69,17 +69,17 @@ function credits:init(...)
     dont = nil
     i = nil
 
-    pd.timer.performAfterDelay(5538, function()
+    pd.timer.performAfterDelay(4794, function()
         vars.anim_fade:resetnew(1, 34, 34)
     end)
 
-    pd.timer.performAfterDelay(8158, function()
+    pd.timer.performAfterDelay(7179, function()
         vars.showcover1 = false
     end)
-    pd.timer.performAfterDelay(10867, function()
+    pd.timer.performAfterDelay(9544, function()
         vars.showcover2 = false
     end)
-    vars.creditsscrolly.delay = 13487
+    vars.creditsscrolly.delay = 11906
     vars.creditsscrolly.timerEndedCallback = function()
         pd.timer.performAfterDelay(5000, function()
             vars.anim_fade:resetnew(2000, 34, 1)
@@ -111,16 +111,16 @@ function credits:init(...)
             end
         end
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawText(text('programming'), 207, 405 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('programming_desc'), 207, 430 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('sounds'), 14, 629 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('sounds_desc_1'), 14, 654 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('sounds'), 220, 899 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('sounds_desc_2'), 220, 924 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('bugsmashers'), 14, 1120 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('bugsmashers_desc'), 14, 1145 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('playtesters'), 220, 1373 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('playtesters_desc'), 220, 1398 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('programming'), 207, 400 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('programming_desc'), 207, 425 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('sounds'), 14, 655 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('sounds_desc'), 14, 685 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('art'), 220, 915 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('art_desc'), 220, 940 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('bugsmashers'), 14, 1140 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('bugsmashers_desc'), 14, 1165 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('playtesters'), 220, 1403 + vars.creditsscrolly.value)
+        assets.pedallica:drawText(text('playtesters_desc'), 220, 1428 + vars.creditsscrolly.value)
         assets.kapel_doubleup:drawText(text('radstuff'), 14, 1601 + vars.creditsscrolly.value)
         assets.pedallica:drawText(text('radstuff_desc'), 14, 1626 + vars.creditsscrolly.value)
         gfx.setImageDrawMode(gfx.kDrawModeCopy)

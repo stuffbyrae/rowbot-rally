@@ -219,19 +219,18 @@ function boat:bake(rotation, scale)
     local cosrot = cos[rot]
     local sinrot = sin[rot]
 
-    local r01_head = self.boat_size / 2
-    local r01_arm_1_x = -20 * -cos[rot] + (self.boat_size / 2)
-    local r01_arm_1_y = -20 * -sin[rot] + (self.boat_size / 2)
-    local r01_arm_2_x = 20 * -cos[rot] + (self.boat_size / 2)
-    local r01_arm_2_y = 20 * -sin[rot] + (self.boat_size / 2)
-    gfx.setLineWidth(10)
-    gfx.drawLine(r01_arm_1_x, r01_arm_1_y, r01_arm_2_x, r01_arm_2_y)
+    local fin_x1 = 25 * sin[rot] + (center)
+    local fin_x2 = 5 * sin[rot] + (center)
+    local fin_y1 = 25 * -cos[rot] + (center)
+    local fin_y2 = 5 * -cos[rot] + (center)
+    gfx.setLineWidth(7)
+    gfx.drawLine(fin_x1, fin_y1, fin_x2, fin_y2)
+    gfx.setDitherPattern(0.75, bayer)
+    gfx.setLineWidth(25)
+    gfx.setLineCapStyle(gfx.kLineCapStyleSquare)
+    gfx.drawLine(self.boat_size/2, self.boat_size/2, self.boat_size/2 - 1, self.boat_size/2 - 1)
     gfx.setLineWidth(2)
-    gfx.setColor(white)
-    gfx.fillCircleAtPoint(r01_head, r01_head, 15)
-    gfx.setColor(black)
-    gfx.drawCircleAtPoint(r01_head, r01_head, 15)
-    gfx.drawCircleAtPoint(r01_head, r01_head, 10)
+    gfx.setLineCapStyle(gfx.kLineCapStyleRound)
     gfx.setColor(black) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
     self.transform:reset()
     gfx.popContext()
@@ -654,15 +653,19 @@ function boat:draw(x, y, width, height)
             gfx.fillPolygon(self.transform_polygon)
             self.transform_polygon:translate(-7, -7)
         end
-        if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 and self.stage == 1 then
+        if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 and self.bakedboat ~= nil then
             self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
         else
-            gfx.setColor(white)
-            gfx.fillPolygon(self.transform_polygon)
-            gfx.setColor(black)
-            gfx.drawPolygon(self.transform_polygon)
-            gfx.setDitherPattern(0.5, bayer)
-            gfx.fillPolygon(self.transform_inside)
+            if self.stage ~= 7 then
+                gfx.setColor(white)
+                gfx.fillPolygon(self.transform_polygon)
+                gfx.setColor(black)
+                gfx.drawPolygon(self.transform_polygon)
+                if self.stage ~= 3 then
+                    gfx.setDitherPattern(0.5, bayer)
+                    gfx.fillPolygon(self.transform_inside)
+                end
+            end
             gfx.setColor(black)
             -- debug for creating boat polys
             -- only stages 3 and 5 NEED these forever
@@ -680,6 +683,22 @@ function boat:draw(x, y, width, height)
                 gfx.setLineWidth(2)
                 gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 12)
                 gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 8)
+            elseif self.stage == 3 then
+                local fin_x1 = 25 * sin[self.rotation] + (self.boat_size / 2)
+                local fin_x2 = 5 * sin[self.rotation] + (self.boat_size / 2)
+                local fin_y1 = 25 * -cos[self.rotation] + (self.boat_size / 2)
+                local fin_y2 = 5 * -cos[self.rotation] + (self.boat_size / 2)
+                gfx.setLineWidth(7)
+                gfx.drawLine(fin_x1, fin_y1, fin_x2, fin_y2)
+                gfx.setDitherPattern(0.75, bayer)
+                gfx.setLineWidth(25)
+                gfx.setLineCapStyle(gfx.kLineCapStyleSquare)
+                gfx.drawLine(self.boat_size/2, self.boat_size/2, self.boat_size/2 - 1, self.boat_size/2 - 1)
+                gfx.setLineWidth(2)
+                gfx.setLineCapStyle(gfx.kLineCapStyleRound)
+            elseif self.stage == 5 then
+            elseif self.stage == 6 then
+            elseif self.stage == 7 then
             end
         end
     else
@@ -775,7 +794,7 @@ function boat:draw(x, y, width, height)
                 gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * (scale * factor))
             end
         end
-        if self.anim_overlay.timeLeft ~= 0 then
+        if self.anim_overlay ~= nil and self.anim_overlay.timeLeft ~= 0 then
             self.overlay_beach:getImage(floor(self.anim_overlay.value)):draw(0, 0)
         end
     end

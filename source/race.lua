@@ -649,7 +649,6 @@ function race:checkpointcheck(cpu)
                     spritesboat:moveBy(-sin(angle) * 1, cos(angle) * 1)
                     collision = self:cpucollisioncheck()
                 end
-
             elseif vars.whirlpools_x ~= nil and tag ~= 255 then
                 -- CPU is colliding with a whirlpool.
                 local angle = race:fastatan(spritescpu.y - (vars.whirlpools_y[tag - 42] + 34), spritescpu.x - (vars.whirlpools_x[tag - 42] + 34)) - 1.57

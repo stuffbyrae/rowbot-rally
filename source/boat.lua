@@ -366,7 +366,7 @@ function boat:crash(point_x, point_y, polygons)
     self.crash_time = 500 * (max(0.25, min(1, self.move_speedo.value)))
     if self.crashable then
         if not self.crashed then
-            if self.mode ~= "cpu" then
+            if self.mode ~= "cpu" and self.crash_time > 135 then
                 self.sfx_crash:stop()
                 self.sfx_crash:setRate(1 + (random() - 0.5))
                 self.sfx_crash:setVolume(max(0, min(save.vol_sfx/5, self.move_speedo.value)))

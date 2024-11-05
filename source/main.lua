@@ -543,7 +543,7 @@ import 'race'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 3, 'story')
+    scenemanager:switchscene(race, 6, 'debug')
 end
 
 local offsetx

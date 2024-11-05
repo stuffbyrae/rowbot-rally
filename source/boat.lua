@@ -527,7 +527,7 @@ function boat:update(delta)
                 self.rotation += (targetangle - self.rotation) * self.lerp
                 local dx = self.x - self.point_x
                 local dy = self.y - self.point_y
-                if sqrt(dx * dx + dy * dy) <= 80 then
+                if sqrt(dx * dx + dy * dy) <= 90 then
                     self.follow_next += 1
                     if self.follow_next > self.follow_count then
                         self.follow_next = 1

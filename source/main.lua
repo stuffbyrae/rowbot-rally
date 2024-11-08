@@ -31,6 +31,7 @@ gfx.setLineWidth(2)
 
 -- Game variables
 show_crank = false -- do you show the crankindicator in this scene?
+show_crank_override = false -- If this is turned on, then show the crankindicator regardless of dock status.
 corner_active = false -- Is the corner UI active?
 demo = true
 if not string.find(pd.metadata.bundleID, "demo") then demo = false end -- DEMO check.
@@ -44,8 +45,6 @@ enabled_cheats_tiny = false
 enabled_cheats_retro = false
 enabled_cheats_scream = false
 enabled_cheats_trippy = false
-
-perf = false
 
 title_memorize = 'story_mode'
 
@@ -169,10 +168,18 @@ function savecheck()
     if save.metric == nil then save.metric = true end
     if save.seen_chill == nil then save.seen_chill = false end
     if save.seen_credits == nil then save.seen_credits = false end
+    if save.perf == nil then save.perf = false end
 end
 
 -- ... now we run that!
 savecheck()
+
+-- I don't *love* this, but for some inexplicable reason replacing the global with the save table feels dangerous in a way I can't describe.
+if save.perf then
+  perf = true
+else
+  perf = false
+end
 
 -- Math clamp function
 function math.clamp(val, lower, upper)
@@ -231,6 +238,13 @@ function fademusic(delay)
             music:stop()
             music = nil
         end)
+    end
+end
+
+function stopmusic()
+    if music ~= nil then
+        music:stop()
+        music = nil
     end
 end
 
@@ -543,7 +557,7 @@ import 'race'
 if save.first_launch then
     scenemanager:switchscene(opening, true)
 else
-    scenemanager:switchscene(race, 6, 'debug')
+    scenemanager:switchscene(title)
 end
 
 local offsetx
@@ -567,7 +581,7 @@ function pd.update()
     -- Catch-all stuff ...
     gfx.sprite.update()
     pd.timer.updateTimers()
-    if pd.isCrankDocked() and show_crank then -- If the crank's docked, and the variable allows for it...
+    if (pd.isCrankDocked() or show_crank_override) and show_crank then -- If the crank's docked, and the variable allows for it...
         pd.ui.crankIndicator:draw(-3, -17) -- Show the Use the Crank! indicator.
     end
     -- Corner update logic

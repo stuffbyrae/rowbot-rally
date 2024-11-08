@@ -76,7 +76,7 @@ function tutorial:init(...)
         current_step = 1,
         progressable = false,
         hud_open = false,
-        progress_delay = 1500,
+        progress_delay = 1,
         gameplay_progress = 0,
         up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
         water = pd.timer.new(2000, 1, 16),
@@ -260,8 +260,14 @@ function tutorial:progress()
             spritesboat:start()
         elseif vars.current_step == 6 then
             spritesboat:state(true, true, true)
+            if not save.button_controls then
+                show_crank = true
+                show_crank_override = true
+            end
         elseif vars.current_step == 7 then
             spritesboat:state(true, true, false)
+            show_crank = false
+            show_crank_override = false
         elseif vars.current_step == 8 then
             vars.anim_hud:resetnew(750, -130, 0, pd.easingFunctions.outSine)
             assets.sfx_ui:play()
@@ -318,6 +324,7 @@ end
 
 function tutorial:leave(totitle)
     if not vars.leaving then
+        show_crank_override = false
         vars.leaving = true
         if not totitle then
             save['slot' .. save.current_story_slot .. '_progress'] = "cutscene2"

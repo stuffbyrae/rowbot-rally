@@ -43,9 +43,6 @@ function credits:init(...)
 
     save.stories_completed += 1
     save['slot' .. save.current_story_slot .. '_progress'] = "finish"
-    if save['slot' .. save.current_story_slot .. '_circuit'] < 4 then
-        save['slot' .. save.current_story_slot .. '_circuit'] += 1
-    end
 
     local randomnum
     local dont

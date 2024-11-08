@@ -74,7 +74,7 @@ function options:init(...)
                 if save.vol_music > 0 then
                     save.vol_music = 0
                     assets.sfx_clickoff:play()
-                    fademusic(1)
+                    stopmusic()
                 else
                     save.vol_music = 5
                     assets.sfx_clickon:play()
@@ -116,9 +116,11 @@ function options:init(...)
             elseif vars.selection == 6 then
                 if perf then
                     perf = false
+                    save.perf = false
                     assets.sfx_clickoff:play()
                 else
                     perf = true
+                    save.perf = true
                     assets.sfx_clickon:play()
                 end
             end

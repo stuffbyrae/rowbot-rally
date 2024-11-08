@@ -74,7 +74,6 @@ function results:init(...)
     pd.inputHandlers.push(vars.resultsHandlers)
 
     if vars.win then
-        newmusic('audio/sfx/win')
         if vars.mode == "story" then
             if vars.stage == 1 and save.stages_unlocked == 0 then vars.showtimetrials = true end
             if save.stages_unlocked < vars.stage then
@@ -121,6 +120,7 @@ function results:init(...)
             end
         end
         self:sendscores()
+        newmusic('audio/sfx/win')
         savegame() -- Save the game! This is put last so "Sending score..." takes precedence over "Saving..." corner UI
     else
         self:sendscores()
@@ -288,32 +288,40 @@ function results:back()
 end
 
 function results:sendscores()
-    if playtest then return end
-    if demo then return end
+    if playtest or demo then return end
     corner('sendscore')
-    local board
-    if vars.mirror then
-        board = 'stage' .. vars.stage .. 'mirror'
-    else
-        board = 'stage' .. vars.stage
-    end
-    if perf then
-        pd.scoreboards.addScore(board, vars.time, function(status, result)
-            if status.code ~= "OK" then
-                makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
-            end
-        end)
-    else
-        pd.scoreboards.addScore(board, vars.time, function(status, result)
-            if status.code ~= "OK" then
-                makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
-            end
-            pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
-                pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
-                    pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
-                    end)
+    if vars.mode == "story" then
+        pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
+            pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
+                pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
                 end)
             end)
         end)
+    elseif vars.mode == "tt" then
+        local board
+        if vars.mirror then
+            board = 'stage' .. vars.stage .. 'mirror'
+        else
+            board = 'stage' .. vars.stage
+        end
+        if perf then
+            pd.scoreboards.addScore(board, vars.time, function(status, result)
+                if status.code ~= "OK" then
+                    makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
+                end
+            end)
+        else
+            pd.scoreboards.addScore(board, vars.time, function(status, result)
+                if status.code ~= "OK" then
+                    makepopup(text('whoops'), text('popup_leaderboard_failed'), text('ok'), false)
+                end
+                pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
+                    pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
+                        pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
+                        end)
+                    end)
+                end)
+            end)
+        end
     end
 end

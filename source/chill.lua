@@ -27,7 +27,7 @@ function chill:init(...)
                 save.vol_music = 5
                 newmusic('audio/music/chill', true) -- Adding new music
             else
-                fademusic(1)
+                stopmusic()
                 save.vol_music = 0
             end
         end)

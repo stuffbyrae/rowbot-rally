@@ -418,7 +418,7 @@ function race:init(...)
                 if anim_overlay.timeLeft ~= 0 then
                     assets['overlay_' .. vars.overlay]:getImage(floor(anim_overlay.value)):draw(0, 0, "flipX")
                 end
-                if vars.lap_string ~= nil and not save.ui then
+                if vars.lap_string ~= nil and not save.pro_ui then
                     assets.kapel_doubleup_outline:drawTextAligned(reverse(vars.lap_string), 400 - vars.anim_lap_string.value, 12, kTextAlignment.right)
                 end
                 -- Draw the timer
@@ -448,7 +448,7 @@ function race:init(...)
                 if anim_overlay.timeLeft ~= 0 then
                     assets['overlay_' .. vars.overlay]:getImage(floor(anim_overlay.value)):draw(0, 0)
                 end
-                if vars.lap_string ~= nil and not save.ui then
+                if vars.lap_string ~= nil and not save.pro_ui then
                     assets.kapel_doubleup_outline:drawText(vars.lap_string, vars.anim_lap_string.value, 12)
                 end
                 -- Draw the timer
@@ -587,9 +587,10 @@ function race:finish(timeout, duration)
         else
             vars.anim_hud:resetnew(500, vars.anim_hud.value, -130, pd.easingFunctions.inSine)
         end
+        vars.anim_lap_string:resetnew(500, vars.anim_lap_string.value, -175, pd.easingFunctions.inSine)
         vars.in_progress = false
         vars.finished = true
-        fademusic(0)
+        stopmusic()
         spritesboat:state(false, false, false)
         if timeout then -- If you ran the timer past 09:59.00...
             vars.won = false -- Beans to whatever the other thing says, YOU LOST!
@@ -684,11 +685,13 @@ function race:checkpointcheck(cpu)
                     if vars.current_lap > vars.laps then -- The race is done.
                         self:finish(false)
                     else
-                        if not save.ui then
+                        if not save.pro_ui then
                             vars.lap_string = vars['lap_string_' .. vars.current_lap]
                             vars.anim_lap_string:resetnew(500, -175, 130, pd.easingFunctions.outBack)
                             pd.timer.performAfterDelay(1500, function()
-                                vars.anim_lap_string:resetnew(500, 130, -175, pd.easingFunctions.inBack)
+                                if vars.in_progress then
+                                    vars.anim_lap_string:resetnew(500, 130, -175, pd.easingFunctions.inBack)
+                                end
                             end)
                         end
                         if vars.current_lap == 2 then

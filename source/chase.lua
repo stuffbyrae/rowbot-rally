@@ -463,7 +463,7 @@ function chase:lose()
         vars.boat_can_move = false
     end)
     pd.timer.performAfterDelay(875, function()
-        fademusic(1)
+        stopmusic()
         assets.sfx_chomp:play()
         assets.sfx_cymbal:play()
         shakies_y()

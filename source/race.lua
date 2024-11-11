@@ -587,7 +587,7 @@ function race:finish(timeout, duration)
         else
             vars.anim_hud:resetnew(500, vars.anim_hud.value, -130, pd.easingFunctions.inSine)
         end
-        vars.anim_lap_string:resetnew(500, vars.anim_lap_string.value, -175, pd.easingFunctions.inSine)
+        if vars.anim_lap_string ~= nil then vars.anim_lap_string:resetnew(500, vars.anim_lap_string.value, -175, pd.easingFunctions.inSine) end
         vars.in_progress = false
         vars.finished = true
         stopmusic()
@@ -641,7 +641,7 @@ function race:checkpointcheck(cpu)
                     end
                 end
                 vars.cpu_last_checkpoint = tag
-            elseif tag == 255 then
+            elseif tag == 255 and vars.stage ~= 7 then
                 -- CPU is colliding with boat.
                 local collision = self:cpucollisioncheck()
                 while collision == true do
@@ -881,7 +881,7 @@ function race:update()
         if spritesboat.crashable and not spritesboat.beached then spritesboat:collision_check(vars.edges_polygons, assets.image_stagec, spritesstage.x, spritesstage.y) end
         if spritescpu ~= nil then
             self:checkpointcheck(true)
-            if spritescpu.crashable and vars.stage ~= 7 then
+            if spritescpu.crashable then
                 spritescpu:collision_check(vars.edges_polygons, assets.image_stagec_cpu or assets.image_stagec, spritesstage.x, spritesstage.y)
             end
         end

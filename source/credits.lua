@@ -8,6 +8,7 @@ local fle <const> = pd.sound.fileplayer
 local geo <const> = pd.geometry
 local text <const> = gfx.getLocalizedText
 local random <const> = math.random
+local floor <const> = math.floor
 
 class('credits').extends(gfx.sprite) -- Create the scene's class
 function credits:init(...)
@@ -93,12 +94,12 @@ function credits:init(...)
     end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
-        assets.polaroid[vars.polaroids[1]]:draw(29, 412 + vars.creditsscrolly.value)
-        assets.polaroid[vars.polaroids[2]]:draw(213, 652 + vars.creditsscrolly.value)
-        assets.polaroid[vars.polaroids[3]]:draw(29, 892 + vars.creditsscrolly.value)
-        assets.polaroid[vars.polaroids[4]]:draw(213, 1132 + vars.creditsscrolly.value)
-        assets.polaroid[vars.polaroids[5]]:draw(29, 1372 + vars.creditsscrolly.value)
-        assets.polaroid[vars.polaroids[6]]:draw(213, 1612 + vars.creditsscrolly.value)
+        assets.polaroid[vars.polaroids[1]]:draw(29, floor(412 + vars.creditsscrolly.value))
+        assets.polaroid[vars.polaroids[2]]:draw(213, floor(652 + vars.creditsscrolly.value))
+        assets.polaroid[vars.polaroids[3]]:draw(29, 892 + floor(vars.creditsscrolly.value))
+        assets.polaroid[vars.polaroids[4]]:draw(213, 1132 + floor(vars.creditsscrolly.value))
+        assets.polaroid[vars.polaroids[5]]:draw(29, 1372 + floor(vars.creditsscrolly.value))
+        assets.polaroid[vars.polaroids[6]]:draw(213, 1612 + floor(vars.creditsscrolly.value))
         assets.credits:draw(0, vars.creditsscrolly.value)
         -- Draw text
         if not vars.showcover1 then
@@ -108,23 +109,23 @@ function credits:init(...)
             end
         end
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
-        assets.kapel_doubleup:drawText(text('programming'), 207, 400 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('programming_desc'), 207, 425 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('sounds'), 14, 655 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('sounds_desc'), 14, 685 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('art'), 220, 915 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('art_desc'), 220, 940 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('bugsmashers'), 14, 1140 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('bugsmashers_desc'), 14, 1165 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('playtesters'), 220, 1403 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('playtesters_desc'), 220, 1428 + vars.creditsscrolly.value)
-        assets.kapel_doubleup:drawText(text('radstuff'), 14, 1601 + vars.creditsscrolly.value)
-        assets.pedallica:drawText(text('radstuff_desc'), 14, 1626 + vars.creditsscrolly.value)
+        assets.kapel_doubleup:drawText(text('programming'), 207, floor(400 + vars.creditsscrolly.value))
+        assets.pedallica:drawText(text('programming_desc'), 207, floor(425 + vars.creditsscrolly.value))
+        assets.kapel_doubleup:drawText(text('sounds'), 14, floor(655 + vars.creditsscrolly.value))
+        assets.pedallica:drawText(text('sounds_desc'), 14, floor(685 + vars.creditsscrolly.value))
+        assets.kapel_doubleup:drawText(text('art'), 220, floor(915 + vars.creditsscrolly.value))
+        assets.pedallica:drawText(text('art_desc'), 220, floor(940 + vars.creditsscrolly.value))
+        assets.kapel_doubleup:drawText(text('bugsmashers'), 14, floor(1140 + vars.creditsscrolly.value))
+        assets.pedallica:drawText(text('bugsmashers_desc'), 14, floor(1165 + vars.creditsscrolly.value))
+        assets.kapel_doubleup:drawText(text('playtesters'), 220, floor(1403 + vars.creditsscrolly.value))
+        assets.pedallica:drawText(text('playtesters_desc'), 220, floor(1428 + vars.creditsscrolly.value))
+        assets.kapel_doubleup:drawText(text('radstuff'), 14, floor(1601 + vars.creditsscrolly.value))
+        assets.pedallica:drawText(text('radstuff_desc'), 14, floor(1626 + vars.creditsscrolly.value))
         gfx.setImageDrawMode(gfx.kDrawModeCopy)
-        assets.kapel_doubleup:drawTextAligned(text('thankyouto'), 200, 1931 + vars.creditsscrolly.value, kTextAlignment.center)
-        assets.pedallica:drawTextAligned(text('thankyouto_desc'), 200, 1964 + vars.creditsscrolly.value, kTextAlignment.center)
-        assets.pedallica:drawTextAligned(text('copyright'), 200, 2507 + vars.creditsscrolly.value, kTextAlignment.center)
-        assets.kapel_doubleup:drawTextAligned(text('thankyouforplaying'), 200, 2656 + vars.creditsscrolly.value, kTextAlignment.center)
+        assets.kapel_doubleup:drawTextAligned(text('thankyouto'), 200, floor(1931 + vars.creditsscrolly.value), kTextAlignment.center)
+        assets.pedallica:drawTextAligned(text('thankyouto_desc'), 200, floor(1964 + vars.creditsscrolly.value), kTextAlignment.center)
+        assets.pedallica:drawTextAligned(text('copyright'), 200, floor(2507 + vars.creditsscrolly.value), kTextAlignment.center)
+        assets.kapel_doubleup:drawTextAligned(text('thankyouforplaying'), 200, floor(2650 + vars.creditsscrolly.value), kTextAlignment.center)
     end)
 
     class('credits_fade').extends(gfx.sprite)

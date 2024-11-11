@@ -19,7 +19,7 @@ function cutscene:init(...)
     cutscene.super.init(self)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
-    gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
+    gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
 
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
@@ -91,25 +91,14 @@ function cutscene:init(...)
         end)
     end)
 
-    self:setImage(gfx.image.new(356, 200, gfx.kColorWhite))
+    self:setSize(400, 240)
     self:setCenter(0.5, 0.5)
     self:moveTo(200, 120)
     self:setZIndex(1)
-    assets.video:setContext(self:getImage())
-
-    class('cutscene_border').extends(gfx.sprite)
-    function cutscene_border:init()
-        cutscene_border.super.init(self)
-        self:moveTo(200, 120)
-        self:setZIndex(2)
-        self:add()
-    end
-    function cutscene_border:update()
-        self:setImage(vars.anim_border:image())
-    end
+    assets.context = gfx.image.new(356, 200, gfx.kColorWhite)
+    assets.video:setContext(assets.context)
 
     -- Set the sprites
-    sprites.border = cutscene_border()
     self:add()
 
     save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene' .. vars.play -- Story slot sanity check
@@ -124,6 +113,10 @@ function cutscene:update()
     if frame ~= vars.lastframe then
         assets.video:renderFrame(frame)
         vars.lastframe = frame
-        self:markDirty()
     end
+end
+
+function cutscene:draw()
+    assets.context:draw(22, 20)
+    vars.anim_border:image():draw(0, 0)
 end

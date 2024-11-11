@@ -76,7 +76,7 @@ function tutorial:init(...)
         current_step = 1,
         progressable = false,
         hud_open = false,
-        progress_delay = 1,
+        progress_delay = 1500,
         gameplay_progress = 0,
         up = pd.timer.new(500, 0, 10, pd.easingFunctions.inSine),
         water = pd.timer.new(2000, 1, 16),
@@ -87,6 +87,7 @@ function tutorial:init(...)
         boundsx = 0,
         boundsy = 0,
         show_parallax = false,
+        savey = 0,
     }
     vars.tutorialHandlers = {
         AButtonDown = function()
@@ -301,10 +302,12 @@ function tutorial:progress()
                 pd.timer.performAfterDelay(vars.progress_delay / 3, function()
                     assets.sfx_clickoff:play()
                     vars.hud_open = true
-                    if vars.current_step ~= 6 and vars.current_step ~= 14 then -- Only turn on A-button progression if it's not a gameplay-based skill.
+                    if vars.current_step ~= 6 and vars.current_step ~= 14 and vars.current_step ~= 15 then -- Only turn on A-button progression if it's not a gameplay-based skill.
                         pd.timer.performAfterDelay(vars.progress_delay, function()
                             vars.progressable = true
                         end)
+                    elseif vars.current_step == 15 then
+                        vars.savey = spritesboat.y
                     end
                 end)
             end
@@ -368,6 +371,12 @@ function tutorial:update()
     if vars.current_step > 14 then
         self:checkpointcheck()
         if spritesboat.crashable then spritesboat:collision_check(vars.edges_polygons, assets.image_stagec, vars.boundsx, vars.boundsy) end
+    end
+    if vars.current_step == 15 and vars.savey ~= 0 then
+        if spritesboat.y < vars.savey - 750 and vars.hud_open then
+            assets.sfx_clickon:play()
+            vars.hud_open = false
+        end
     end
     -- Set up the parallax!
     if not perf then

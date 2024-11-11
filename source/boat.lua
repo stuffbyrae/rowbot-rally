@@ -44,6 +44,11 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.stage = stage
         self.bakedboat = gfx.imagetable.new('images/race/boat_' .. self.stage)
 
+        if self.stage == 5 then
+            self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
+            self.poly_rowbot_fill = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11)
+        end
+
         self.lerp = 0.1 -- Rate at which the rotation towards the angle is interpolated.
         self.speed = 4.4 + (save['slot' .. save.current_story_slot .. '_circuit'] / 8) -- Forward movement speed of the boat.
 
@@ -209,7 +214,7 @@ function boat:bake(rotation, scale)
     gfx.setDitherPattern(0.5, bayer)
     gfx.fillPolygon(self.transform_inside)
     gfx.setColor(black)
-    --this should help alot
+
     local rev = self.reversed
     local scale = scale or 1
     local rot = rotation
@@ -219,22 +224,10 @@ function boat:bake(rotation, scale)
     local cosrot = cos[rot]
     local sinrot = sin[rot]
 
-    local fin_x1 = 25 * sin[rot] + (center)
-    local fin_x2 = 5 * sin[rot] + (center)
-    local fin_y1 = 25 * -cos[rot] + (center)
-    local fin_y2 = 5 * -cos[rot] + (center)
-    gfx.setLineWidth(7)
-    gfx.drawLine(fin_x1, fin_y1, fin_x2, fin_y2)
-    gfx.setDitherPattern(0.75, bayer)
-    gfx.setLineWidth(25)
-    gfx.setLineCapStyle(gfx.kLineCapStyleSquare)
-    gfx.drawLine(self.boat_size/2, self.boat_size/2, self.boat_size/2 - 1, self.boat_size/2 - 1)
-    gfx.setLineWidth(2)
-    gfx.setLineCapStyle(gfx.kLineCapStyleRound)
     gfx.setColor(black) -- Make sure to set this back afterward, or else your corner UIs will suffer!!
     self.transform:reset()
     gfx.popContext()
-    pd.simulator.writeToFile(img, '~/boat_' .. rotation .. '.png')
+    pd.simulator.writeToFile(img, '~/Downloads/boat_' .. rotation .. '.png')
 end
 
 function boat:setnewsize(size)
@@ -329,10 +322,18 @@ function boat:collision_check(polygons, image, crash_stage_x, crash_stage_y, don
     for i = 1, #polygons do
         if self.crash_body_scale:intersects(polygons[i]) then
             result = true
-            if not dontcheck then
+            if not dontcheck and not (self.mode == "cpu" and self.stage == 7) then
                 self:image_check(polygons, image, crash_stage_x, crash_stage_y)
             end
         end
+    end
+    if self.mode == "cpu" and self.stage == 7 then
+        if result then
+            self:setZIndex(2)
+        else
+            self:setZIndex(0)
+        end
+        return
     end
     return result
 end
@@ -536,7 +537,6 @@ function boat:update(delta)
                     self.point_y = self.follow_polygon[(self.follow_next * 2)]
                 end
             end
-            -- gfx.setDrawOffset(-self.x + 200, -self.y + 120)
         else -- Player controlling
             gfx.setDrawOffset(-self.x + 200 - sin[self.rotation] * self.cam_x.value, -self.y + 120 + cos[self.rotation] * self.cam_y.value)
             if self.mode == "race" then
@@ -634,7 +634,7 @@ function boat:draw(x, y, width, height)
     local sinrot = sin[rot]
 
     if self.mode == "cpu" then
-        if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not perf then
+        if self.ripple_scale ~= nil and self.ripple_scale.value ~= self.ripple_scale.endValue and not perf and self.stage ~= 7 then
             self.ripple:scale(scale * self.ripple_scale.value, scale * self.ripple_scale.value)
             self.ripple:translate(center, center)
             gfx.setColor(white)
@@ -648,10 +648,15 @@ function boat:draw(x, y, width, height)
         self.transform_polygon = self.poly_body * self.transform
         self.transform_inside = self.poly_inside * self.transform
         if not perf then
-            self.transform_polygon:translate(7, 7)
             gfx.setDitherPattern(0.25, bayer)
-            gfx.fillPolygon(self.transform_polygon)
-            self.transform_polygon:translate(-7, -7)
+            if self.stage == 7 then
+                gfx.fillCircleAtPoint(center + 14, center + 14, 30)
+            else
+                self.transform_polygon:translate(7, 7)
+                gfx.fillPolygon(self.transform_polygon)
+                self.transform_polygon:translate(-7, -7)
+            end
+            gfx.setColor(gfx.kColorBlack)
         end
         if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 and self.bakedboat ~= nil then
             self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
@@ -670,35 +675,93 @@ function boat:draw(x, y, width, height)
             -- debug for creating boat polys
             -- only stages 3 and 5 NEED these forever
             if self.stage == 2 then
-                local robuzz_head = self.boat_size / 2
-                local robuzz_body_x = -10 * sin[self.rotation] + (self.boat_size / 2)
-                local robuzz_body_y = -10 * -cos[self.rotation] + (self.boat_size / 2)
-                local robuzz_tail_x = -12 * -sin[self.rotation] + (self.boat_size / 2)
-                local robuzz_tail_y = -12 * cos[self.rotation] + (self.boat_size / 2)
+                local robuzz_body_x = -13 * sinrot + center
+                local robuzz_body_y = -13 * -cosrot + center
+                local robuzz_tail_x = -15 * -sinrot + center
+                local robuzz_tail_y = -15 * cosrot + center
                 gfx.fillCircleAtPoint(robuzz_tail_x, robuzz_tail_y, 8)
                 gfx.fillCircleAtPoint(robuzz_body_x, robuzz_body_y, 10)
                 gfx.setColor(white)
-                gfx.fillCircleAtPoint(robuzz_head, robuzz_head, 12)
+                gfx.fillCircleAtPoint(center, center, 14)
                 gfx.setColor(black)
                 gfx.setLineWidth(2)
-                gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 12)
-                gfx.drawCircleAtPoint(robuzz_head, robuzz_head, 8)
+                gfx.drawCircleAtPoint(center, center, 14)
+                gfx.drawCircleAtPoint(center, center, 10)
             elseif self.stage == 3 then
-                local fin_x1 = 25 * sin[self.rotation] + (self.boat_size / 2)
-                local fin_x2 = 5 * sin[self.rotation] + (self.boat_size / 2)
-                local fin_y1 = 25 * -cos[self.rotation] + (self.boat_size / 2)
-                local fin_y2 = 5 * -cos[self.rotation] + (self.boat_size / 2)
+                local fin_x1 = 25 * sinrot + center
+                local fin_x2 = 5 * sinrot + center
+                local fin_y1 = 25 * -cosrot + center
+                local fin_y2 = 5 * -cosrot + center
                 gfx.setLineWidth(7)
                 gfx.drawLine(fin_x1, fin_y1, fin_x2, fin_y2)
                 gfx.setDitherPattern(0.75, bayer)
                 gfx.setLineWidth(25)
                 gfx.setLineCapStyle(gfx.kLineCapStyleSquare)
-                gfx.drawLine(self.boat_size/2, self.boat_size/2, self.boat_size/2 - 1, self.boat_size/2 - 1)
+                gfx.drawLine(center, center, center - 1, center - 1)
                 gfx.setLineWidth(2)
                 gfx.setLineCapStyle(gfx.kLineCapStyleRound)
             elseif self.stage == 5 then
+                local body_x = -6 * sinrot + center
+                local body_y = -6 * -cosrot + center
+                gfx.fillCircleAtPoint(body_x, body_y, 12)
+                self.transform:translate((-14 * scale) * cosrot, (-14 * scale) * sinrot)
+                rowbot_antennae_x = scale * -cosrot + center
+                rowbot_antennae_y = scale * -sinrot + center
+                gfx.setColor(white)
+                gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
+                gfx.setColor(black)
+                gfx.drawPolygon(self.poly_rowbot * self.transform)
+                gfx.fillCircleAtPoint(rowbot_antennae_x, rowbot_antennae_y, 3 * (scale * factor))
             elseif self.stage == 6 then
+                local body_x = -13 * sinrot + center
+                local body_y = -13 * -cosrot + center
+                gfx.setColor(black)
+                gfx.fillCircleAtPoint(center, center, 16)
+                gfx.fillCircleAtPoint(body_x, body_y, 11)
+                gfx.setColor(white)
+                gfx.drawCircleAtPoint(center, center, 13)
             elseif self.stage == 7 then
+                gfx.setColor(white)
+                gfx.fillCircleAtPoint(center, center, 16)
+                gfx.setColor(black)
+                gfx.setDitherPattern(0.75, bayer)
+                gfx.fillCircleAtPoint(center, center, 30)
+                gfx.setColor(white)
+                gfx.fillCircleAtPoint(center, center, 25)
+                gfx.setColor(black)
+                gfx.drawCircleAtPoint(center, center, 25)
+                gfx.drawCircleAtPoint(center, center, 30)
+                local rot60 = (rot + 60) % 360
+                if rot60 == 0 then rot60 = 360 end
+                local cosrot60 = cos[rot60]
+                local sinrot60 = sin[rot60]
+                local rot120 = (rot + 120) % 360
+                if rot120 == 0 then rot120 = 360 end
+                local cosrot120 = cos[rot120]
+                local sinrot120 = sin[rot120]
+                local hair1_x1 = -8 * sinrot + center
+                local hair1_x2 = 8 * sinrot + center
+                local hair1_y1 = -8 * -cosrot + center
+                local hair1_y2 = 8 * -cosrot + center
+                local hair2_x1 = -8 * sinrot60 + center
+                local hair2_x2 = 8 * sinrot60 + center
+                local hair2_y1 = -8 * -cosrot60 + center
+                local hair2_y2 = 8 * -cosrot60 + center
+                local hair3_x1 = -8 * sinrot120 + center
+                local hair3_x2 = 8 * sinrot120 + center
+                local hair3_y1 = -8 * -cosrot120 + center
+                local hair3_y2 = 8 * -cosrot120 + center
+                gfx.setLineWidth(8)
+                gfx.drawLine(hair1_x1, hair1_y1, hair1_x2, hair1_y2)
+                gfx.drawLine(hair2_x1, hair2_y1, hair2_x2, hair2_y2)
+                gfx.drawLine(hair3_x1, hair3_y1, hair3_x2, hair3_y2)
+                gfx.setLineWidth(4)
+                gfx.setColor(white)
+                gfx.drawLine(hair1_x1, hair1_y1, hair1_x2, hair1_y2)
+                gfx.drawLine(hair2_x1, hair2_y1, hair2_x2, hair2_y2)
+                gfx.drawLine(hair3_x1, hair3_y1, hair3_x2, hair3_y2)
+                gfx.setColor(black)
+                gfx.setLineWidth(2)
             end
         end
     else
@@ -754,12 +817,12 @@ function boat:draw(x, y, width, height)
                 local rowbot_antennae_y
 
                 --this is getting exessive but still should help
+                local rev6 = rev*6
                 local rev8 = rev*8
                 local rev11 = rev*11
                 local rev12 = rev*12
-                local rev6 = rev*6
-                local rev19 = rev*19
                 local rev14 = rev*14
+                local rev19 = rev*19
 
                 bunny_body_x = (((rev8) * (scale * factor)) * -cosrot - -10 * sinrot) + center
                 bunny_body_y = (((rev8) * (scale * factor)) * -sinrot + -10 * cosrot) + center
@@ -781,7 +844,6 @@ function boat:draw(x, y, width, height)
                 gfx.fillCircleAtPoint(rowbot_body_x, rowbot_body_y, 6 * (scale * factor))
                 -- Drawing fills for heads
                 gfx.setColor(white)
-
                 gfx.fillCircleAtPoint(bunny_head_x, bunny_head_y, 11 * (scale * factor))
                 gfx.fillPolygon(self.poly_rowbot_fill * self.transform)
                 -- Drawing hats, and ears/antennae

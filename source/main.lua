@@ -35,7 +35,7 @@ show_crank_override = false -- If this is turned on, then show the crankindicato
 corner_active = false -- Is the corner UI active?
 demo = true
 if not string.find(pd.metadata.bundleID, "demo") then demo = false end -- DEMO check.
-playtest = false -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
+playtest = true -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
 
 -- Cheats checks
 enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards
@@ -551,8 +551,6 @@ if pd.isSimulator == 1 then
     save.button_controls = true
 end
 
-import 'stats'
-import 'race'
 -- Final launch
 if save.first_launch then
     scenemanager:switchscene(opening, true)

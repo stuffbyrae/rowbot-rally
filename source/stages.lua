@@ -160,7 +160,7 @@ function stages:init(...)
         stages_boat.super.init(self)
         self:setImage(assets.image_boat)
         self:moveTo(45, 195)
-        self:setZIndex(1)
+        self:setZIndex(4)
         self:add()
     end
     function stages_boat:update()
@@ -311,7 +311,7 @@ function stages:leaderboardsin()
     assets.image_rowbot_accent = gfx.imagetable.new('images/stages/rowbot_accent')
     assets.image_leaderboard_container = gfx.imagetable.new('images/stages/leaderboard_container')
     assets.image_leaderboard_container_intro = gfx.imagetable.new('images/stages/leaderboard_container_intro')
-    vars.anim_boat_y:resetnew(250, sprites.boat.y, 300, pd.easingFunctions.inCubic)
+    vars.anim_boat_x:resetnew(250, sprites.boat.x, -100, pd.easingFunctions.inCubic)
     vars.anim_preview_x:resetnew(250, sprites.preview.x, 600, pd.easingFunctions.inCubic)
     vars.anim_lb_bubble = gfx.animation.loop.new(100, assets.image_leaderboard_container_intro, false)
     sprites.lb_accent:setImage(assets.image_rowbot_accent[2])
@@ -388,7 +388,7 @@ function stages:leaderboardsout()
     vars.anim_lb_bubble = gfx.animation.loop.new(70, assets.image_leaderboard_container_outro, false)
     pd.timer.performAfterDelay(250, function()
         assets.sfx_whoosh:play()
-        vars.anim_boat_y:resetnew(250, sprites.boat.y, 200, pd.easingFunctions.outCubic)
+        vars.anim_boat_x:resetnew(250, sprites.boat.x, 45, pd.easingFunctions.outCubic)
         vars.anim_preview_x:resetnew(250, sprites.preview.x, 400, pd.easingFunctions.outCubic)
     end)
     pd.timer.performAfterDelay(300, function()
@@ -401,9 +401,6 @@ function stages:leaderboardsout()
             sprites.lb_accent:remove()
             pd.inputHandlers.pop()
             self:update_image_top(vars.selection, true)
-            vars.anim_boat_y:resetnew(2500, 195, 200, pd.easingFunctions.inOutCubic)
-            vars.anim_boat_y.repeats = true
-            vars.anim_boat_y.reverses = true
         end
     end)
 end
@@ -468,8 +465,15 @@ function stages:update_image_top(stage, show_desc, ranking, name)
     assets.image_top = gfx.image.new(480, 300)
     gfx.pushContext(assets.image_top)
         gfx.fillRect(0, 0, 480, 50) -- Add the black rectangle
-        assets.image_timer:draw(0, 40) -- Draw the timer graphic
-        assets.kapel:drawText(text('besttime'), 34, 80) -- the "Best Time" label
+
+        if (vars.mirror == false and save['stage' .. stage .. '_best'] ~= 17970) or (vars.mirror and save['stage' .. stage .. '_best_mirror'] ~= 17970) then
+            assets.image_timer:draw(0, 40) -- Draw the timer graphic
+            assets.kapel:drawText(text('besttime'), 34, 80) -- the "Best Time" label
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Fill white...
+            assets.times_new_rally:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 75, 57, kTextAlignment.center) -- and the best time.
+            gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back to normal just to be safe
+        end
+
         gfx.setImageDrawMode(gfx.kDrawModeFillWhite) -- Fill white...
         if vars.mirror then
             assets.kapel:drawText(text('stage') .. stage .. text('mirrormode'), 5, 7) -- The stage number
@@ -477,7 +481,6 @@ function stages:update_image_top(stage, show_desc, ranking, name)
             assets.kapel:drawText(text('stage') .. stage, 5, 7) -- The stage number
         end
         assets.kapel_doubleup:drawText(text('stage_' .. stage .. '_name'), 5, 16) -- The stage's name
-        assets.times_new_rally:drawTextAligned(mins .. ':' .. secs .. '.' .. mils, 75, 57, kTextAlignment.center) -- and the best time.
         gfx.setImageDrawMode(gfx.kDrawModeCopy) -- Set this back to normal just to be safe
         if show_desc then
             if vars.mirror then

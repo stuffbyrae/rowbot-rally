@@ -142,6 +142,7 @@ function title:init(...)
         sfx_menu = smp.new('audio/sfx/menu'),
         sfx_whoosh = smp.new('audio/sfx/whoosh'),
         sfx_rowboton = smp.new('audio/sfx/rowboton'),
+        arrow = gfx.image.new('images/ui/arrow'),
     }
     assets.sfx_bonk:setVolume(save.vol_sfx/5)
     assets.sfx_proceed:setVolume(save.vol_sfx/5)
@@ -176,10 +177,9 @@ function title:init(...)
         anim_checker_x = pd.timer.new(2300, 0, -124),
         anim_checker_y = pd.timer.new(2300, 0, -32),
         circuit = 1,
+        arrow_left_x = pd.timer.new(1, 15, 15),
+        arrow_right_x = pd.timer.new(1, 364, 364),
     }
-    vars.anim_pulse.repeats = true
-    vars.anim_checker_x.repeats = true
-    vars.anim_checker_y.repeats = true
     vars.titleHandlers = {
         leftButtonDown = function()
             self:newselection(false)
@@ -267,6 +267,9 @@ function title:init(...)
     }
     pd.inputHandlers.push(vars.titleHandlers)
 
+    vars.anim_pulse.repeats = true
+    vars.anim_checker_x.repeats = true
+    vars.anim_checker_y.repeats = true
     vars.anim_item.discardOnCompletion = false
     vars.anim_slots.discardOnCompletion = false
     vars.anim_fade.discardOnCompletion = false
@@ -274,6 +277,8 @@ function title:init(...)
     vars.anim_slot_d.discardOnCompletion = false
     vars.anim_slot_l.discardOnCompletion = false
     vars.anim_slot_r.discardOnCompletion = false
+    vars.arrow_left_x.discardOnCompletion = false
+    vars.arrow_right_x.discardOnCompletion = false
 
     vars.item_list = {'story_mode'} -- Add story mode — that's always there!
     if save.stages_unlocked >= 1 and not demo then
@@ -325,11 +330,23 @@ function title:init(...)
         if vars.anim_bg ~= nil then
             self:moveTo(0, vars.anim_bg.value)
         end
+        if vars.arrow_left_x.value ~= 15 or vars.arrow_right_x.value ~= 364 then
+            self:markDirty()
+        end
     end
     function title_bg:draw()
         assets.image_bg:draw(0, 0)
-        assets.kapel:drawTextAligned(text('move'), 375, 115, kTextAlignment.right)
-        assets.kapel:drawTextAligned(text('select'), 380, 126, kTextAlignment.right)
+        assets.kapel:drawTextAligned(text('select'), 375, 115, kTextAlignment.right)
+        if vars.selection == 1 then
+            assets.arrow:fadedImage(0.5, gfx.image.kDitherTypeBayer2x2):draw(vars.arrow_left_x.value, 160)
+        else
+            assets.arrow:draw(vars.arrow_left_x.value, 160)
+        end
+        if vars.selection == #vars.item_list then
+            assets.arrow:fadedImage(0.5, gfx.image.kDitherTypeBayer2x2):draw(vars.arrow_right_x.value, 160, gfx.kImageFlippedX)
+        else
+            assets.arrow:draw(vars.arrow_right_x.value, 160, gfx.kImageFlippedX)
+        end
     end
 
     class('title_item').extends(gfx.sprite)
@@ -534,8 +551,10 @@ function title:newselection(dir)
             assets.sfx_menu:play()
             if dir then
                 vars.anim_item:resetnew(150, 200, -200, pd.easingFunctions.inCubic)
+                vars.arrow_right_x:resetnew(300, 374, 364, pd.easingFunctions.outCubic)
             else
                 vars.anim_item:resetnew(150, 200, 600, pd.easingFunctions.inCubic)
+                vars.arrow_left_x:resetnew(300, 5, 15, pd.easingFunctions.outCubic)
             end
             vars.anim_item.timerEndedCallback = function()
                 if vars.selection == 1 and demo then -- Bring in the demo text if necessary

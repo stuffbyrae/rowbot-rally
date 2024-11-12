@@ -154,7 +154,7 @@ function savecheck()
     save.vol_music = save.vol_music or 5
     save.vol_sfx = save.vol_sfx or 5
     if save.pro_ui == nil then save.pro_ui = false end
-    if save.button_controls == nil then save.button_controls = false end
+    if save.button_controls == nil then save.button_controls = pd.isSimulator == 1 and true or false end
     save.sensitivity = save.sensitivity or 3
     -- Global stats
     if save.first_launch == nil then save.first_launch = true end
@@ -545,10 +545,6 @@ function shakies_y(time, int)
         return
     end
     anim_shakies_y = pd.timer.new(time or 500, int or 10, 0, pd.easingFunctions.outElastic)
-end
-
-if pd.isSimulator == 1 then
-    save.button_controls = true
 end
 
 -- Final launch

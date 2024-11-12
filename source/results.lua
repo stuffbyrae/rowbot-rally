@@ -290,7 +290,7 @@ end
 function results:sendscores()
     if playtest or demo then return end
     corner('sendscore')
-    if vars.mode == "story" then
+    if vars.mode == "story" or (vars.mode == "tt" and enabled_cheats) then
         pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
             pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
                 pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)

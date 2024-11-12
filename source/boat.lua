@@ -69,6 +69,8 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
             self.overlay_beach = gfx.imagetable.new('images/race/beach')
             self.anim_overlay = pd.timer.new(0, 0, 0)
             self.anim_overlay.discardOnCompletion = false
+            self.sfx_beach = smp.new('audio/sfx/beach')
+            self.sfx_beach:setVolume(save.vol_sfx/5)
         end
 
         self.poly_rowbot = geo.polygon.new(3,-11, 3,9, 23,9, 23,-11, 3,-11, 6,-8, 6,6, 20,6, 20,-8, 6,-8, 3,-11)
@@ -77,11 +79,9 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         self.sfx_crash = smp.new('audio/sfx/crash')
         self.sfx_rowboton = smp.new('audio/sfx/rowboton')
         self.sfx_row = smp.new('audio/sfx/row')
-        self.sfx_beach = smp.new('audio/sfx/beach')
         self.sfx_crash:setVolume(save.vol_sfx/5)
         self.sfx_rowboton:setVolume(save.vol_sfx/5)
         self.sfx_row:setVolume(save.vol_sfx/5)
-        self.sfx_beach:setVolume(save.vol_sfx/5)
 
         if not demo then
             self.sfx_air = smp.new('audio/sfx/air')

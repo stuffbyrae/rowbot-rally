@@ -248,10 +248,6 @@ function cheats:init(...)
             assets.pedallica:drawTextAligned(text('off'), 180, 115, kTextAlignment.right)
         end
 
-        if enabled_cheats then
-            assets.pedallica:drawText(text('cheats_warning'), 10, 150)
-        end
-
         if save['unlocked_cheats_' .. vars.item_list[vars.selection]] then
             assets.pedallica:drawText(text(vars.item_list[vars.selection] .. '_desc'), 213, 48)
         end
@@ -272,14 +268,22 @@ function cheats:init(...)
     class('cheats_wave').extends(gfx.sprite)
     function cheats_wave:init()
         cheats_wave.super.init(self)
-        self:setImage(assets.image_wave_composite)
+        self:setSize(464, 280)
         self:setCenter(0, 0)
         self:setZIndex(2)
         self:moveTo(0, 185)
         self:add()
     end
     function cheats_wave:update()
-        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
+        self:moveTo(0, vars.anim_wave_y.value)
+    end
+    function cheats_wave:draw()
+        assets.image_wave_composite:draw(vars.anim_wave_x.value, 0)
+        if enabled_cheats then
+            gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+            assets.pedallica:drawText(text('cheats_warning'), 10, 15)
+            gfx.setImageDrawMode(gfx.kDrawModeCopy)
+        end
     end
 
     class('cheats_back').extends(gfx.sprite)

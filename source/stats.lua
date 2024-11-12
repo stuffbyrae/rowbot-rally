@@ -76,6 +76,7 @@ function stats:init(...)
         rank_crashes_result = {},
         lb_degreescranked_result = {},
         rank_degreescranked_result = {},
+        last_playtime = 0,
     }
     vars.statsHandlers = {
         BButtonDown = function()
@@ -386,4 +387,11 @@ function stats:getonlinestatsscores()
         end
         gfx.sprite.redrawBackground()
     end)
+end
+
+function stats:update()
+    if save.total_playtime >= vars.last_playtime then
+        gfx.sprite.redrawBackground()
+    end
+    vars.last_playtime = save.total_playtime
 end

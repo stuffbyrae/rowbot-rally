@@ -22,7 +22,11 @@ function options:init(...)
         menu:addMenuItem(text('setdefaults'), function()
             save.vol_music = 5
             save.vol_sfx = 5
-            save.button_controls = false
+            if pd.isSimulator == 1 then
+                save.button_controls = true
+            else
+                save.button_controls = false
+            end
             save.sensitivity = 3
             save.pro_ui = false
             perf = false

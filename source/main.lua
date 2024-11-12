@@ -35,7 +35,7 @@ show_crank_override = false -- If this is turned on, then show the crankindicato
 corner_active = false -- Is the corner UI active?
 demo = true
 if not string.find(pd.metadata.bundleID, "demo") then demo = false end -- DEMO check.
-playtest = true -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
+playtest = false -- Playtesting build - locks scoreboard sending, and self-destructs after launch.
 
 -- Cheats checks
 enabled_cheats = false -- Set this to true if ANY cheats are enabled. Important!, as this stops saving cheated times to leaderboards

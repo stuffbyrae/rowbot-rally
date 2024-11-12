@@ -3,6 +3,6 @@ author=rae
 description=Team up with a mechanical pal and row for the gold in the annual Fish Bowl!
 bundleID=wtf.rae.rowbotrally
 version=0.5.0
-buildNumber=11950
+buildNumber=11952
 imagePath=images/system
 launchSoundPath=audio/sfx/launch

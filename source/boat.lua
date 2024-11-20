@@ -472,6 +472,7 @@ function boat:leap()
                 end)
             else
                 self.leaping = false
+                self:setZIndex(0)
             end
         end)
     end

@@ -178,38 +178,6 @@ function cheats:init(...)
         gfx.fillRect(0, 5 + 15 * vars.selection + 10 * vars.offset, 5, 15)
         enabled_cheats = false
 
-        if save.unlocked_cheats_big then
-            assets.pedallica:drawText(text('big_name'), 10, 30)
-        else
-            assets.pedallica:drawText(text('???'), 10, 30)
-        end
-        if save.unlocked_cheats_small then
-            assets.pedallica:drawText(text('small_name'), 10, 45)
-        else
-            assets.pedallica:drawText(text('???'), 10, 45)
-        end
-        if save.unlocked_cheats_tiny then
-            assets.pedallica:drawText(text('tiny_name'), 10, 60)
-        else
-            assets.pedallica:drawText(text('???'), 10, 60)
-        end
-
-        if save.unlocked_cheats_retro then
-            assets.pedallica:drawText(text('retro_name'), 10, 85)
-        else
-            assets.pedallica:drawText(text('???'), 10, 85)
-        end
-        if save.unlocked_cheats_scream then
-            assets.pedallica:drawText(text('scream_name'), 10, 100)
-        else
-            assets.pedallica:drawText(text('???'), 10, 100)
-        end
-        if save.unlocked_cheats_trippy then
-            assets.pedallica:drawText(text('trippy_name'), 10, 115)
-        else
-            assets.pedallica:drawText(text('???'), 10, 115)
-        end
-
         if enabled_cheats_big then
             enabled_cheats = true
             assets.pedallica:drawTextAligned(text('on'), 180, 30, kTextAlignment.right)
@@ -246,6 +214,74 @@ function cheats:init(...)
             assets.pedallica:drawTextAligned(text('on'), 180, 115, kTextAlignment.right)
         else
             assets.pedallica:drawTextAligned(text('off'), 180, 115, kTextAlignment.right)
+        end
+
+        if save.unlocked_cheats_big then
+            assets.pedallica:drawText(text('big_name'), 10, 30)
+        else
+            assets.pedallica:drawText(text('???'), 10, 30)
+            if save.button_controls then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+                gfx.fillRect(10, 30, 180, 15)
+                gfx.setColor(gfx.kColorBlack)
+            end
+        end
+        if save.unlocked_cheats_small then
+            assets.pedallica:drawText(text('small_name'), 10, 45)
+        else
+            assets.pedallica:drawText(text('???'), 10, 45)
+            if save.button_controls then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+                gfx.fillRect(10, 45, 180, 15)
+                gfx.setColor(gfx.kColorBlack)
+            end
+        end
+        if save.unlocked_cheats_tiny then
+            assets.pedallica:drawText(text('tiny_name'), 10, 60)
+        else
+            assets.pedallica:drawText(text('???'), 10, 60)
+            if save.button_controls then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+                gfx.fillRect(10, 60, 180, 15)
+                gfx.setColor(gfx.kColorBlack)
+            end
+        end
+
+        if save.unlocked_cheats_retro then
+            assets.pedallica:drawText(text('retro_name'), 10, 85)
+        else
+            assets.pedallica:drawText(text('???'), 10, 85)
+            if save.button_controls then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+                gfx.fillRect(10, 85, 180, 15)
+                gfx.setColor(gfx.kColorBlack)
+            end
+        end
+        if save.unlocked_cheats_scream then
+            assets.pedallica:drawText(text('scream_name'), 10, 100)
+        else
+            assets.pedallica:drawText(text('???'), 10, 100)
+            if save.button_controls then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+                gfx.fillRect(10, 100, 180, 15)
+                gfx.setColor(gfx.kColorBlack)
+            end
+        end
+        if save.unlocked_cheats_trippy then
+            assets.pedallica:drawText(text('trippy_name'), 10, 115)
+        else
+            assets.pedallica:drawText(text('???'), 10, 115)
+            if save.button_controls then
+                gfx.setColor(gfx.kColorWhite)
+                gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+                gfx.fillRect(10, 115, 180, 15)
+                gfx.setColor(gfx.kColorBlack)
+            end
         end
 
         if save['unlocked_cheats_' .. vars.item_list[vars.selection]] then
@@ -307,12 +343,12 @@ function cheats:init(...)
 end
 
 -- Select a new stage using the arrow keys. dir is a boolean — left is false, right is true
-function cheats:newselection(dir)
+function cheats:newselection(dir, num)
     vars.old_selection = vars.selection
     if dir then
-        vars.selection = math.clamp(vars.selection + 1, 1, #vars.item_list)
+        vars.selection = math.clamp(vars.selection + (num or 1), 1, #vars.item_list)
     else
-        vars.selection = math.clamp(vars.selection - 1, 1, #vars.item_list)
+        vars.selection = math.clamp(vars.selection - (num or 1), 1, #vars.item_list)
     end
     -- If this is true, then that means we've reached an end and nothing has changed.
     if vars.old_selection == vars.selection then
@@ -333,4 +369,15 @@ function cheats:leave() -- Leave and move back to the title screen
         title_memorize = 'cheats'
         scenemanager:switchscene(title, title_memorize) -- Switch back to the title!
     end)
+end
+
+function cheats:update()
+    if not vars.transitioning then
+        local ticks = pd.getCrankTicks(8)
+        if ticks < 0 then
+            self:newselection(false, -ticks)
+        elseif ticks > 0 then
+            self:newselection(true, ticks)
+        end
+    end
 end

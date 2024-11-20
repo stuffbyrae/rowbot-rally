@@ -534,13 +534,13 @@ function title:init(...)
     newmusic('audio/music/title', true, 1.1) -- Adding new music
 end
 
-function title:newselection(dir)
+function title:newselection(dir, num)
     if vars.list_open then
         vars.old_selection = vars.selection
         if dir then
-            vars.selection = math.clamp(vars.selection + 1, 1, #vars.item_list)
+            vars.selection = math.clamp(vars.selection + (num or 1), 1, #vars.item_list)
         else
-            vars.selection = math.clamp(vars.selection - 1, 1, #vars.item_list)
+            vars.selection = math.clamp(vars.selection - (num or 1), 1, #vars.item_list)
         end
         -- If this is true, then that means we've reached an end and nothing has changed.
         if vars.old_selection == vars.selection then
@@ -596,12 +596,12 @@ function title:openslots()
 end
 
 -- Selecting one of the three slots.
-function title:selectslot(dir)
+function title:selectslot(dir, num)
     vars.old_slot_selection = vars.slot_selection
     if dir then
-        vars.slot_selection = math.clamp(vars.slot_selection + 1, 1, 3)
+        vars.slot_selection = math.clamp(vars.slot_selection + (num or 1), 1, 3)
     else
-        vars.slot_selection = math.clamp(vars.slot_selection - 1, 1, 3)
+        vars.slot_selection = math.clamp(vars.slot_selection - (num or 1), 1, 3)
     end
     -- If this is true, then that means we've reached an end and nothing has changed.
     if vars.old_slot_selection == vars.slot_selection then
@@ -784,4 +784,23 @@ function title:checkpercent(slot)
         slot_percent = '100'
     end
     return slot_percent
+end
+
+function title:update()
+    if not vars.transitioning then
+        local ticks = pd.getCrankTicks(6)
+        if vars.slots_open and not vars.slot_open then
+            if ticks < 0 then
+                self:selectslot(false, -ticks)
+            elseif ticks > 0 then
+                self:selectslot(true, ticks)
+            end
+        elseif vars.list_open and not vars.slots_open and not vars.slot_open then
+            if ticks < 0 then
+                self:newselection(false, -ticks)
+            elseif ticks > 0 then
+                self:newselection(true, ticks)
+            end
+        end
+    end
 end

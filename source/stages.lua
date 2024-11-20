@@ -69,7 +69,8 @@ function stages:init(...)
     gfx.popContext()
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
-        selection = 1,
+        selection = args[1] or 1,
+        mirror = args[2] or false,
         leaderboards_open = false,
         leaderboards_closable = false,
         anim_wave_x = pd.timer.new(5000, 0, -58),
@@ -80,7 +81,6 @@ function stages:init(...)
         anim_top_y = pd.timer.new(1, 0, 0),
         anim_fade = pd.timer.new(1, 34, 34),
         anim_preview_x = pd.timer.new(1, 400, 400),
-        mirror = false,
         board = '',
     }
     vars.stagesHandlers = {
@@ -134,8 +134,6 @@ function stages:init(...)
     vars.anim_top_y.discardOnCompletion = false
     vars.anim_preview_x.discardOnCompletion = false
     vars.anim_fade.discardOnCompletion = false
-
-    self:update_image_top(1, true)
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
@@ -279,17 +277,21 @@ function stages:init(...)
     sprites.fade = stages_fade()
     self:add()
 
+    self:update_image_buttons()
+    self:update_image_top(vars.selection, true)
+    self:update_image_preview()
+
     newmusic('audio/music/stages', true) -- Adding new music
 end
 
 -- Select a new stage using the arrow keys. dir is a boolean — left is false, right is true
-function stages:newselection(dir)
+function stages:newselection(dir, num)
     vars.mirror = false
     vars.old_selection = vars.selection
     if dir then
-        vars.selection = math.clamp(vars.selection + 1, 1, save.stages_unlocked)
+        vars.selection = math.clamp(vars.selection + (num or 1), 1, save.stages_unlocked)
     else
-        vars.selection = math.clamp(vars.selection - 1, 1, save.stages_unlocked)
+        vars.selection = math.clamp(vars.selection - (num or 1), 1, save.stages_unlocked)
     end
     -- If this is true, then that means we've reached an end and nothing has changed.
     if vars.old_selection == vars.selection then
@@ -537,4 +539,15 @@ function stages:flipmirror()
         vars.anim_fade:resetnew(300, 1, 34)
     end
     assets.sfx_cymbal:play()
+end
+
+function stages:update()
+    if not vars.transitioning then
+        local ticks = pd.getCrankTicks(6)
+        if ticks < 0 then
+            self:newselection(false, -ticks)
+        elseif ticks > 0 then
+            self:newselection(true, ticks)
+        end
+    end
 end

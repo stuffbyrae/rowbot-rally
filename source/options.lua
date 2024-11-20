@@ -102,12 +102,17 @@ function options:init(...)
                     assets.sfx_clickon:play()
                 end
             elseif vars.selection == 4 then -- Sensitivity
-                if save.sensitivity > 2 then
-                    save.sensitivity = 2
-                    assets.sfx_clickon:play()
+                if save.button_controls then
+                    shakies()
+                    assets.sfx_bonk:play()
                 else
-                    save.sensitivity = 3
-                    assets.sfx_clickoff:play()
+                    if save.sensitivity > 2 then
+                        save.sensitivity = 2
+                        assets.sfx_clickon:play()
+                    else
+                        save.sensitivity = 3
+                        assets.sfx_clickoff:play()
+                    end
                 end
             elseif vars.selection == 5 then -- Pro UI
                 if save.pro_ui then
@@ -217,6 +222,13 @@ function options:init(...)
             assets.pedallica:drawTextAligned(text('off'), 180, 115, kTextAlignment.right)
         end
 
+        if save.button_controls then
+            gfx.setColor(gfx.kColorWhite)
+            gfx.setDitherPattern(0.5, gfx.image.kDitherTypeBayer2x2)
+            gfx.fillRect(10, 85, 180, 15)
+            gfx.setColor(gfx.kColorBlack)
+        end
+
         assets.pedallica:drawText(text(vars.item_list[vars.selection] .. '_desc'), 213, 48)
     end)
 
@@ -288,12 +300,12 @@ function options:sfx_change()
 end
 
 -- Select a new stage using the arrow keys. dir is a boolean — left is false, right is true
-function options:newselection(dir)
+function options:newselection(dir, num)
     vars.old_selection = vars.selection
     if dir then
-        vars.selection = math.clamp(vars.selection + 1, 1, #vars.item_list)
+        vars.selection = math.clamp(vars.selection + (num or 1), 1, #vars.item_list)
     else
-        vars.selection = math.clamp(vars.selection - 1, 1, #vars.item_list)
+        vars.selection = math.clamp(vars.selection - (num or 1), 1, #vars.item_list)
     end
     -- If this is true, then that means we've reached an end and nothing has changed.
     if vars.old_selection == vars.selection then
@@ -316,4 +328,15 @@ function options:leave() -- Leave and move back to the title screen
         end
         scenemanager:switchscene(title, title_memorize) -- Switch back to the title!
     end)
+end
+
+function options:update()
+    if not vars.transitioning then
+        local ticks = pd.getCrankTicks(8)
+        if ticks < 0 then
+            self:newselection(false, -ticks)
+        elseif ticks > 0 then
+            self:newselection(true, ticks)
+        end
+    end
 end

@@ -254,7 +254,7 @@
 "button_controls_desc" = "Use the D-pad to play!\nHold Up to start rowing\nstraight-on, and hold\nRight to row clockwise.\n\n\nPress A to toggle."
 "sensitivity_desc" = "Makes matching pace\nwith your RowBot\nrequire less cranking.\n(Has no effect with\nButton Controls.)\n\nPress A to toggle."
 "ui_desc" = "Toggles a simpler UI in\nraces, removing a lot\nof stuff. You can also\ntoggle this during\nraces, if you want.\n\nPress A to toggle."
-"perf_desc" = "Knocks down a lot of\nthe visual quality, in\nexchange for a better\nFPS when using\nPlaydate Mirror.\n\nPress A to toggle."
+"perf_desc" = "Knocks down a bit of\nthe visual quality, in\nexchange for better\nFPS when using\nPlaydate Mirror.\n\nPress A to toggle."
 -- Options toggles
 "off" = "❎"
 "on" = "✅"

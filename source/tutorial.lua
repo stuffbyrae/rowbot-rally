@@ -88,6 +88,7 @@ function tutorial:init(...)
         boundsy = 0,
         show_parallax = false,
         savey = 0,
+        power_bake = pd.timer.new(0, 0, 0),
     }
     vars.tutorialHandlers = {
         AButtonDown = function()
@@ -117,6 +118,7 @@ function tutorial:init(...)
     vars.up.reverses = true
     vars.up.reverseEasingFunction = pd.easingFunctions.outBack
     vars.anim_hud.discardOnCompletion = false
+    vars.power_bake.discardOnCompletion = false
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 
@@ -259,6 +261,7 @@ function tutorial:progress()
         if vars.current_step == 3 then
             spritesboat:state(true, true, false)
             spritesboat:start()
+            show_crank = false
         elseif vars.current_step == 6 then
             spritesboat:state(true, true, true)
             if not save.button_controls then
@@ -272,6 +275,14 @@ function tutorial:progress()
         elseif vars.current_step == 8 then
             vars.anim_hud:resetnew(750, -130, 0, pd.easingFunctions.outSine)
             assets.sfx_ui:play()
+        elseif vars.current_step == 10 then
+            vars.power_bake:resetnew(1000, vars.power_bake.value, 20, pd.easingFunctions.inOutSine)
+        elseif vars.current_step == 11 then
+            vars.power_bake:resetnew(1000, vars.power_bake.value, 0, pd.easingFunctions.inOutSine)
+        elseif vars.current_step == 12 then
+            vars.power_bake:resetnew(1000, vars.power_bake.value, 10, pd.easingFunctions.inOutSine)
+        elseif vars.current_step == 13 then
+            vars.power_bake:resetnew(1000, vars.power_bake.value, 0, pd.easingFunctions.inOutSine)
         elseif vars.current_step == 14 then
             spritesboat:state(true, true, true)
         elseif vars.current_step == 15 then
@@ -367,6 +378,9 @@ function tutorial:update()
                 self:progress()
             end
         end
+    end
+    if vars.current_step >= 10 and vars.current_step <= 13 then
+        spritesboat.crankage = vars.power_bake.value
     end
     if vars.current_step > 14 then
         self:checkpointcheck()

@@ -1,6 +1,7 @@
 -- Importing things
 import 'CoreLibs/ui'
 import 'CoreLibs/math'
+import 'CoreLibs/crank'
 import 'CoreLibs/timer'
 import 'CoreLibs/object'
 import 'CoreLibs/sprites'

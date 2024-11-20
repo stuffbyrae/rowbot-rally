@@ -133,7 +133,11 @@ function results:init(...)
         gfx.setFont(assets.kapel_doubleup)
         if vars.win then
             if vars.mode == "story" then
-                gfx.imageWithText(text('youwin'), 200, 120):drawScaled(40, 20, 2)
+                if vars.stage == 4 then
+                    gfx.imageWithText(text('finish'), 200, 120):drawScaled(40, 20, 2)
+                else
+                    gfx.imageWithText(text('youwin'), 200, 120):drawScaled(40, 20, 2)
+                end
                 makebutton(text('onwards')):drawAnchored(355, 185, 1, 0.5)
                 makebutton(text('back'), 'small'):drawAnchored(395, 235, 1, 1)
                 assets.kapel_doubleup:drawTextAligned(text('yourtime'), 355, 85, kTextAlignment.right)
@@ -283,7 +287,7 @@ function results:back()
             scenemanager:transitionsceneonewayback(title)
         end
     elseif vars.mode == "tt" then
-        scenemanager:transitionsceneback(stages)
+        scenemanager:transitionsceneback(stages, vars.stage, vars.mirror)
     end
 end
 

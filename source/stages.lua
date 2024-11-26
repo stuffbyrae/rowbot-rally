@@ -93,8 +93,10 @@ function stages:init(...)
         end,
 
         upButtonDown = function()
-            assets.sfx_leaderboard_in:play()
-            self:leaderboardsin()
+            if pd.metadata.bundleID == "wtf.rae.rowbotrally" then
+                assets.sfx_leaderboard_in:play()
+                self:leaderboardsin()
+            end
         end,
 
         downButtonDown = function()
@@ -139,9 +141,9 @@ function stages:init(...)
         gfx.image.new(400, 240, gfx.kColorWhite):draw(0, 0)
     end)
 
-    class('stages_wave').extends(gfx.sprite)
-    function stages_wave:init()
-        stages_wave.super.init(self)
+    class('stages_wave', _, classes).extends(gfx.sprite)
+    function classes.stages_wave:init()
+        classes.stages_wave.super.init(self)
         self:setImage(assets.image_wave_composite)
         self:setCenter(0, 0)
         self:setZIndex(2)
@@ -149,89 +151,89 @@ function stages:init(...)
         self:setZIndex(0)
         self:add()
     end
-    function stages_wave:update()
+    function classes.stages_wave:update()
         self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
     end
 
-    class('stages_boat').extends(gfx.sprite)
-    function stages_boat:init()
-        stages_boat.super.init(self)
+    class('stages_boat', _, classes).extends(gfx.sprite)
+    function classes.stages_boat:init()
+        classes.stages_boat.super.init(self)
         self:setImage(assets.image_boat)
         self:moveTo(45, 195)
         self:setZIndex(4)
         self:add()
     end
-    function stages_boat:update()
+    function classes.stages_boat:update()
         self:moveTo(vars.anim_boat_x.value, vars.anim_boat_y.value)
     end
 
-    class('stages_back').extends(gfx.sprite)
-    function stages_back:init()
-        stages_back.super.init(self)
+    class('stages_back', _, classes).extends(gfx.sprite)
+    function classes.stages_back:init()
+        classes.stages_back.super.init(self)
         self:setImage(assets.image_back)
         self:setCenter(0, 1)
         self:moveTo(105, 235)
         self:setZIndex(2)
         self:add()
     end
-    function stages_back:update()
+    function classes.stages_back:update()
         self:moveTo(105, vars.anim_back_y.value)
     end
 
-    class('stages_top').extends(gfx.sprite)
-    function stages_top:init()
-        stages_top.super.init(self)
+    class('stages_top', _, classes).extends(gfx.sprite)
+    function classes.stages_top:init()
+        classes.stages_top.super.init(self)
         self:setImage(assets.image_top)
         self:setCenter(0, 0)
         self:setZIndex(3)
         self:add()
     end
-    function stages_top:update()
+    function classes.stages_top:update()
         self:moveTo(0, vars.anim_top_y.value)
     end
 
-    class('stages_preview').extends(gfx.sprite)
-    function stages_preview:init()
-        stages_preview.super.init(self)
+    class('stages_preview', _, classes).extends(gfx.sprite)
+    function classes.stages_preview:init()
+        classes.stages_preview.super.init(self)
         self:setZIndex(4)
         self:setCenter(1, 0)
         self:moveTo(400, 0)
         self:setImage(assets.image_preview)
         self:add()
     end
-    function stages_preview:update()
+    function classes.stages_preview:update()
         self:moveTo(vars.anim_preview_x.value, 0)
     end
 
-    class('stages_buttons').extends(gfx.sprite)
-    function stages_buttons:init()
-        stages_buttons.super.init(self)
+    class('stages_buttons', _, classes).extends(gfx.sprite)
+    function classes.stages_buttons:init()
+        classes.stages_buttons.super.init(self)
         self:setZIndex(5)
         self:setImage(assets.image_buttons)
         self:setCenter(1, 1)
         self:moveTo(390, 235)
         self:add()
     end
-    function stages_buttons:update()
+    function classes.stages_buttons:update()
         self:moveTo(vars.anim_preview_x.value - 10, 235)
     end
 
-    class('stages_lb_accent').extends(gfx.sprite)
-    function stages_lb_accent:init()
-        stages_lb_accent.super.init(self)
+    class('stages_lb_accent', _, classes).extends(gfx.sprite)
+    function classes.stages_lb_accent:init()
+        classes.stages_lb_accent.super.init(self)
         self:setCenter(0, 1)
         self:moveTo(0, 240)
         self:setZIndex(1)
     end
 
-    class('stages_lb_bubble').extends(gfx.sprite)
-    function stages_lb_bubble:init()
-        stages_lb_bubble.super.init(self)
+    class('stages_lb_bubble', _, classes).extends(gfx.sprite)
+    function classes.stages_lb_bubble:init()
+        classes.stages_lb_bubble.super.init(self)
         self:setCenter(1, 0.5)
         self:moveTo(400, 120)
         self:setZIndex(7)
     end
-    function stages_lb_bubble:update()
+    function classes.stages_lb_bubble:update()
         if vars.anim_lb_bubble ~= nil then
             self:setImage(vars.anim_lb_bubble:image())
             if not vars.anim_lb_bubble:isValid() then
@@ -240,41 +242,40 @@ function stages:init(...)
         end
     end
 
-    class('stages_lb_text').extends(gfx.sprite)
-    function stages_lb_text:init()
-        stages_lb_text.super.init(self)
+    class('stages_lb_text', _, classes).extends(gfx.sprite)
+    function classes.stages_lb_text:init()
+        classes.stages_lb_text.super.init(self)
         self:setCenter(1, 0.5)
         self:moveTo(400, 120)
         self:setZIndex(8)
     end
 
-    class('stages_fade').extends(gfx.sprite)
-    function stages_fade:init()
-        stages_fade.super.init(self)
+    class('stages_fade', _, classes).extends(gfx.sprite)
+    function classes.stages_fade:init()
+        classes.stages_fade.super.init(self)
         self:setCenter(0, 0)
         self:moveTo(0, 0)
         self:setZIndex(999)
         self:setIgnoresDrawOffset(true)
         self:add()
     end
-    function stages_fade:update()
+    function classes.stages_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
     -- Set the sprites
-    sprites.wave = stages_wave()
-    sprites.boat = stages_boat()
-    sprites.back = stages_back()
-    sprites.top = stages_top()
-    sprites.preview = stages_preview()
-    sprites.buttons = stages_buttons()
-    self:update_image_buttons()
-    sprites.lb_accent = stages_lb_accent()
-    sprites.lb_bubble = stages_lb_bubble()
-    sprites.lb_text = stages_lb_text()
-    sprites.fade = stages_fade()
+    sprites.wave = classes.stages_wave()
+    sprites.boat = classes.stages_boat()
+    sprites.back = classes.stages_back()
+    sprites.top = classes.stages_top()
+    sprites.preview = classes.stages_preview()
+    sprites.buttons = classes.stages_buttons()
+    sprites.lb_accent = classes.stages_lb_accent()
+    sprites.lb_bubble = classes.stages_lb_bubble()
+    sprites.lb_text = classes.stages_lb_text()
+    sprites.fade = classes.stages_fade()
     self:add()
 
     self:update_image_buttons()
@@ -411,6 +412,7 @@ end
 function stages:enterrace()
     pd.inputHandlers.pop()
     assets.sfx_proceed:play()
+    vars.transitioning = true
     fademusic(1000)
     vars.anim_boat_x:resetnew(750, sprites.boat.x, 450, pd.easingFunctions.inCubic)
     vars.anim_preview_x:resetnew(250, sprites.preview.x, 600, pd.easingFunctions.inCubic)
@@ -430,14 +432,14 @@ function stages:update_image_buttons()
         assets.image_ok:drawAnchored(99, 10, 0.5, 0)
         if save['stage' .. vars.selection .. '_flawless'] and save['stage' .. vars.selection .. '_speedy'] then
             if vars.mirror then
-                assets.image_leaderboards:drawAnchored(78, 190, 0.5, 0)
+                if pd.metadata.bundleID == "wtf.rae.rowbotrally" then assets.image_leaderboards:drawAnchored(78, 190, 0.5, 0) end
                 assets.image_regular:drawAnchored(78, 217, 0.5, 0)
             else
-                assets.image_leaderboards:drawAnchored(78, 190, 0.5, 0)
+                if pd.metadata.bundleID == "wtf.rae.rowbotrally" then assets.image_leaderboards:drawAnchored(78, 190, 0.5, 0) end
                 assets.image_mirror:drawAnchored(78, 217, 0.5, 0)
             end
         else
-            assets.image_leaderboards:drawAnchored(78, 217, 0.5, 0)
+            if pd.metadata.bundleID == "wtf.rae.rowbotrally" then assets.image_leaderboards:drawAnchored(78, 217, 0.5, 0) end
         end
     gfx.popContext()
     sprites.buttons:setImage(assets.image_buttons)
@@ -454,7 +456,6 @@ end
 
 -- Writing to the image along the top; wrapped in a function so that I can update it later.
 function stages:update_image_top(stage, show_desc, ranking, name)
-    -- Todo: figure out if there's a better way to accomplish this bullshit
     -- Calculate the proper time for each save, and assign it to variables
     local mins
     local secs
@@ -542,8 +543,8 @@ function stages:flipmirror()
 end
 
 function stages:update()
-    if not vars.transitioning then
-        local ticks = pd.getCrankTicks(6)
+    if not vars.transitioning and not vars.leaderboards_open then
+        local ticks = pd.getCrankTicks(5)
         if ticks < 0 then
             self:newselection(false, -ticks)
         elseif ticks > 0 then

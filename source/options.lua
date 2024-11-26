@@ -232,62 +232,69 @@ function options:init(...)
         assets.pedallica:drawText(text(vars.item_list[vars.selection] .. '_desc'), 213, 48)
     end)
 
-    class('options_ticker').extends(gfx.sprite)
-    function options_ticker:init()
-        options_ticker.super.init(self)
+    class('options_ticker', _, classes).extends(gfx.sprite)
+    function classes.options_ticker:init()
+        classes.options_ticker.super.init(self)
         self:setImage(assets.image_ticker)
         self:setCenter(0, 0)
         self:setZIndex(1)
         self:add()
     end
-    function options_ticker:update()
+    function classes.options_ticker:update()
         self:moveTo(vars.anim_ticker.value, 0)
     end
 
-    class('options_wave').extends(gfx.sprite)
-    function options_wave:init()
-        options_wave.super.init(self)
-        self:setImage(assets.image_wave_composite)
+    class('options_wave', _, classes).extends(gfx.sprite)
+    function classes.options_wave:init()
+        classes.options_wave.super.init(self)
+        self:setSize(464, 280)
         self:setCenter(0, 0)
         self:setZIndex(2)
         self:moveTo(0, 185)
         self:add()
     end
-    function options_wave:update()
-        self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
+    function classes.options_wave:update()
+        self:moveTo(0, vars.anim_wave_y.value)
+        self:markDirty()
+    end
+    function classes.options_wave:draw()
+        assets.image_wave_composite:draw(vars.anim_wave_x.value, 0)
+        gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
+        assets.pedallica:drawText('v' .. pd.metadata.version .. ' - Build ' .. pd.metadata.buildNumber, 10, 20)
+        gfx.setImageDrawMode(gfx.kDrawModeCopy)
     end
 
-    class('options_back').extends(gfx.sprite)
-    function options_back:init()
-        options_back.super.init(self)
+    class('options_back', _, classes).extends(gfx.sprite)
+    function classes.options_back:init()
+        classes.options_back.super.init(self)
         self:setCenter(0, 0)
         self:setZIndex(3)
         self:setImage(assets.image_back)
         self:moveTo(295, 210)
         self:add()
     end
-    function options_back:update()
+    function classes.options_back:update()
         self:moveTo(295, (vars.anim_wave_y.value*1.1))
     end
 
-    class('options_gear').extends(gfx.sprite)
-    function options_gear:init()
-        options_gear.super.init(self)
+    class('options_gear', _, classes).extends(gfx.sprite)
+    function classes.options_gear:init()
+        classes.options_gear.super.init(self)
         self:setZIndex(4)
         self:setCenter(0, 0)
         self:moveTo(25, 20)
         self:add()
     end
-    function options_gear:update()
+    function classes.options_gear:update()
         self:setImage(vars.anim_gears:image())
         self:moveTo(25, vars.anim_wave_y.value - 60)
     end
 
     -- Set the sprites
-    sprites.ticker = options_ticker()
-    sprites.wave = options_wave()
-    sprites.back = options_back()
-    sprites.gear = options_gear()
+    sprites.ticker = classes.options_ticker()
+    sprites.wave = classes.options_wave()
+    sprites.back = classes.options_back()
+    sprites.gear = classes.options_gear()
     self:add()
 end
 
@@ -332,7 +339,7 @@ end
 
 function options:update()
     if not vars.transitioning then
-        local ticks = pd.getCrankTicks(8)
+        local ticks = pd.getCrankTicks(7)
         if ticks < 0 then
             self:newselection(false, -ticks)
         elseif ticks > 0 then

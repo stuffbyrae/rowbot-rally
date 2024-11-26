@@ -172,29 +172,29 @@ function chase:init(...)
         end
     end)
 
-    class('chase_bg').extends(gfx.sprite)
-    function chase_bg:init()
-        chase_bg.super.init(self)
+    class('chase_bg', _, classes).extends(gfx.sprite)
+    function classes.chase_bg:init()
+        classes.chase_bg.super.init(self)
         self:setImage(assets.bg[1])
         self:setCenter(0.5, 1)
         self:moveTo(200, 240)
         self:setZIndex(1)
         self:add()
     end
-    function chase_bg:update()
+    function classes.chase_bg:update()
         self:setImage(assets.bg[floor(vars.anim_bg.value)])
     end
 
-    class('chase_rocks').extends(gfx.sprite)
-    function chase_rocks:init()
-        chase_rocks.super.init(self)
+    class('chase_rocks', _, classes).extends(gfx.sprite)
+    function classes.chase_rocks:init()
+        classes.chase_rocks.super.init(self)
         self:setSize(400, 240)
         self:setCenter(0, 0)
         self:moveTo(0, 0)
         self:setZIndex(2)
         self:add()
     end
-    function chase_rocks:draw()
+    function classes.chase_rocks:draw()
         if vars.show_warn then
             assets.warn[floor(vars.anim_warn.value)]:drawAnchored(vars.rock_x, 90, 0.5, 1)
         end
@@ -203,38 +203,40 @@ function chase:init(...)
         end
     end
 
-    class('chase_oars').extends(gfx.sprite)
-    function chase_oars:init()
-        chase_oars.super.init(self)
+    class('chase_oars', _, classes).extends(gfx.sprite)
+    function classes.chase_oars:init()
+        classes.chase_oars.super.init(self)
         self:setSize(230, 100)
         self:setCenter(0.5, 1)
         self:moveTo(200, 220)
         self:setZIndex(3)
         self:add()
     end
-    function chase_oars:draw()
-        if self.x < 100 then
-            assets.oar_ground[floor(vars.anim_oar_1.value)]:draw(0, 0)
-        else
-            assets.oar[floor(vars.anim_oar_1.value)]:draw(0, 0)
-        end
-        if self.x > 300 then
-            assets.oar_ground[floor(vars.anim_oar_2.value)]:draw(100, 0, "flipX")
-        else
-            assets.oar[floor(vars.anim_oar_2.value)]:draw(100, 0, "flipX")
+    function classes.chase_oars:draw()
+        if floor(vars.anim_invinc.value) == 1 then
+            if self.x < 100 then
+                assets.oar_ground[floor(vars.anim_oar_2.value)]:draw(0, 0)
+            else
+                assets.oar[floor(vars.anim_oar_2.value)]:draw(0, 0)
+            end
+            if self.x > 300 then
+                assets.oar_ground[floor(vars.anim_oar_1.value)]:draw(100, 0, "flipX")
+            else
+                assets.oar[floor(vars.anim_oar_1.value)]:draw(100, 0, "flipX")
+            end
         end
     end
 
-    class('chase_boat').extends(gfx.sprite)
-    function chase_boat:init()
-        chase_boat.super.init(self)
+    class('chase_boat', _, classes).extends(gfx.sprite)
+    function classes.chase_boat:init()
+        classes.chase_boat.super.init(self)
         self:setImage(assets.boat[5])
         self:setCenter(0.5, 1)
         self:moveTo(200, 220)
         self:setZIndex(3)
         self:add()
     end
-    function chase_boat:crash()
+    function classes.chase_boat:crash()
         if vars.boat_can_crash then
             vars.crashes += 0.75
             assets.sfx_crash:stop()
@@ -254,7 +256,7 @@ function chase:init(...)
             end)
         end
     end
-    function chase_boat:small_crash(dir)
+    function classes.chase_boat:small_crash(dir)
         vars.crashes += 0.25
         if vars.boat_can_move then
             assets.sfx_crash:stop()
@@ -262,7 +264,7 @@ function chase:init(...)
             assets.sfx_crash:play()
         end
         if dir then
-            vars.boat_speed = -10
+            vars.boat_speed = -20
             sprites.boat:moveTo(vars.boat_pos_max, sprites.boat.y)
             vars.crashed_right = true
             pd.timer.performAfterDelay(250, function()
@@ -278,21 +280,18 @@ function chase:init(...)
         end
     end
 
-    class('chase_splash').extends(gfx.sprite)
-    function chase_splash:init()
-        chase_splash.super.init(self)
+    class('chase_splash', _, classes).extends(gfx.sprite)
+    function classes.chase_splash:init()
+        classes.chase_splash.super.init(self)
         self:setCenter(0.5, 1)
         self:moveTo(200, 220)
         self:setZIndex(4)
         self:add()
     end
-    function chase_splash:update()
-        self:setImage(assets.splash[floor(vars.anim_splash.value)])
-    end
 
-    class('chase_shark').extends(gfx.sprite)
-    function chase_shark:init()
-        chase_shark.super.init(self)
+    class('chase_shark', _, classes).extends(gfx.sprite)
+    function classes.chase_shark:init()
+        classes.chase_shark.super.init(self)
         self:setImage(assets.shark)
         self:setCenter(0.5, 1)
         self:moveTo(200, 400)
@@ -300,27 +299,27 @@ function chase:init(...)
         self:add()
     end
 
-    class('chase_overlay').extends(gfx.sprite)
-    function chase_overlay:init()
-        chase_overlay.super.init(self)
+    class('chase_overlay', _, classes).extends(gfx.sprite)
+    function classes.chase_overlay:init()
+        classes.chase_overlay.super.init(self)
         self:setIgnoresDrawOffset(true)
         self:moveTo(0, 0)
         self:setCenter(0, 0)
         self:setZIndex(99)
         self:add()
     end
-    function chase_overlay:update()
+    function classes.chase_overlay:update()
         self:setImage(assets.overlay[floor(vars.anim_overlay.value)])
     end
 
     -- Set the sprites
-    sprites.bg = chase_bg()
-    sprites.rocks = chase_rocks()
-    sprites.oars = chase_oars()
-    sprites.boat = chase_boat()
-    sprites.splash = chase_splash()
-    sprites.shark = chase_shark()
-    sprites.overlay = chase_overlay()
+    sprites.bg = classes.chase_bg()
+    sprites.rocks = classes.chase_rocks()
+    sprites.oars = classes.chase_oars()
+    sprites.boat = classes.chase_boat()
+    sprites.splash = classes.chase_splash()
+    sprites.shark = classes.chase_shark()
+    sprites.overlay = classes.chase_overlay()
     self:add()
 
     savegame() -- Save the game!
@@ -365,8 +364,10 @@ function chase:update()
     sprites.boat:moveBy(max(vars.boat_speed_min, min(vars.boat_speed_max, vars.boat_speed)), 0)
     if floor(vars.anim_invinc.value) == 1 then
         sprites.boat:setImage(assets.boat[floor(-vars.boat_speed / 3.75) + 5])
+        sprites.splash:setImage(assets.splash[floor(vars.anim_splash.value)])
     else
-        sprites.boat:setImage(assets.boat[10])
+        sprites.boat:setImage(assets.boat[11])
+        sprites.splash:setImage(assets.splash[5])
     end
     if sprites.boat.x < vars.boat_pos_min then
         sprites.boat:small_crash(false)
@@ -429,6 +430,7 @@ function chase:win()
     if vars.playing then
         save['slot' .. save.current_story_slot .. '_progress'] = 'cutscene7'
         vars.playing = false
+        show_crank = false
         vars.boat_can_move = false
         vars.boat_speed = 0
         vars.boat_can_crash = false
@@ -461,6 +463,7 @@ function chase:lose()
         assets.overlay = assets.chomp
         vars.anim_overlay:resetnew(25, 1, 2)
         vars.boat_can_move = false
+        show_crank = false
     end)
     pd.timer.performAfterDelay(875, function()
         stopmusic()

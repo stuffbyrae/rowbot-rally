@@ -1,3 +1,5 @@
+classes = {} -- fuck this
+
 -- Importing things
 import 'CoreLibs/ui'
 import 'CoreLibs/math'

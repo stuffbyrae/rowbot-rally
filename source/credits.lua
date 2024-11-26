@@ -16,6 +16,7 @@ function credits:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(true) -- Should this scene redraw the sprites constantly?
+    pd.setAutoLockDisabled(true)
 
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
@@ -80,6 +81,7 @@ function credits:init(...)
     vars.creditsscrolly.delay = 11906
     vars.creditsscrolly.timerEndedCallback = function()
         pd.timer.performAfterDelay(5000, function()
+            pd.setAutoLockDisabled(false)
             vars.anim_fade:resetnew(2000, 34, 1)
             pd.timer.performAfterDelay(2000, function()
                 title_memorize = 'story_mode'
@@ -128,22 +130,22 @@ function credits:init(...)
         assets.kapel_doubleup:drawTextAligned(text('thankyouforplaying'), 200, floor(2650 + vars.creditsscrolly.value), kTextAlignment.center)
     end)
 
-    class('credits_fade').extends(gfx.sprite)
-    function credits_fade:init()
-        credits_fade.super.init(self)
+    class('credits_fade', _, classes).extends(gfx.sprite)
+    function classes.credits_fade:init()
+        classes.credits_fade.super.init(self)
         self:setImage(assets.image_fade[34])
         self:setCenter(0, 0)
         self:setIgnoresDrawOffset(true)
         self:setZIndex(9)
         self:add()
     end
-    function credits_fade:update()
+    function classes.credits_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
-    sprites.fade = credits_fade()
+    sprites.fade = classes.credits_fade()
     self:add()
 
     savegame(true) -- Save the game!

@@ -57,40 +57,40 @@ function opening:init(...)
 
     vars.anim_fade.discardOnCompletion = false
 
-    class('opening_content').extends(gfx.sprite)
-    function opening_content:init()
-        opening_content.super.init(self)
+    class('opening_content', _, classes).extends(gfx.sprite)
+    function classes.opening_content:init()
+        classes.opening_content.super.init(self)
         self:setCenter(0, 0)
         self:add()
     end
 
-    class('opening_a').extends(gfx.sprite)
-    function opening_a:init()
-        opening_a.super.init(self)
+    class('opening_a', _, classes).extends(gfx.sprite)
+    function classes.opening_a:init()
+        classes.opening_a.super.init(self)
         self:setImage(assets.image_a)
         self:setCenter(1, 1)
         self:moveTo(395, 235)
         self:add()
     end
 
-    class('opening_fade').extends(gfx.sprite)
-    function opening_fade:init()
-        opening_fade.super.init(self)
+    class('opening_fade', _, classes).extends(gfx.sprite)
+    function classes.opening_fade:init()
+        classes.opening_fade.super.init(self)
         self:setImage(assets.image_fade[1])
         self:setCenter(0, 0)
         self:setZIndex(9)
         self:add()
     end
-    function opening_fade:update()
+    function classes.opening_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
     -- Set the sprites
-    sprites.content = opening_content()
-    sprites.a = opening_a()
-    sprites.fade = opening_fade()
+    sprites.content = classes.opening_content()
+    sprites.a = classes.opening_a()
+    sprites.fade = classes.opening_fade()
     self:add()
 
     self:newcontent(vars.progress)

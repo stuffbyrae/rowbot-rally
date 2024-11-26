@@ -20,7 +20,7 @@ function intro:init(...)
         menu:addMenuItem(text('quitfornow'), function()
             fademusic()
             title_memorize = 'story_mode'
-            scenemanager:transitionsceneoneway(title, title_memorize)
+            scenemanager:transitionsceneonewayback(title, title_memorize)
         end)
     end
 
@@ -79,66 +79,66 @@ function intro:init(...)
         assets.pedallica:drawText(text('gimmick_' .. vars.stage .. '_desc'), 85, 34)
     gfx.popContext()
 
-    class('intro_fade').extends(gfx.sprite)
-    function intro_fade:init()
-        intro_fade.super.init(self)
+    class('intro_fade', _, classes).extends(gfx.sprite)
+    function classes.intro_fade:init()
+        classes.intro_fade.super.init(self)
         self:setImage(assets.image_fade[34])
         self:setCenter(0, 0)
         self:add()
     end
-    function intro_fade:update()
+    function classes.intro_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
-    class('intro_left').extends(gfx.sprite)
-    function intro_left:init()
-        intro_left.super.init(self)
+    class('intro_left', _, classes).extends(gfx.sprite)
+    function classes.intro_left:init()
+        classes.intro_left.super.init(self)
         self:setImage(assets.img_left)
         self:setCenter(0, 0)
         self:moveTo(-400, 0)
         self:add()
     end
-    function intro_left:update()
+    function classes.intro_left:update()
         if vars.anim_left ~= nil then
             self:moveTo(vars.anim_left.value, 0)
         end
     end
 
-    class('intro_right').extends(gfx.sprite)
-    function intro_right:init()
-        intro_right.super.init(self)
+    class('intro_right', _, classes).extends(gfx.sprite)
+    function classes.intro_right:init()
+        classes.intro_right.super.init(self)
         self:setImage(assets.image_preview)
         self:setCenter(1, 0)
         self:moveTo(600, 0)
         self:add()
     end
-    function intro_right:update()
+    function classes.intro_right:update()
         if vars.anim_right ~= nil then
             self:moveTo(vars.anim_right.value, 0)
         end
     end
 
-    class('intro_bottom').extends(gfx.sprite)
-    function intro_bottom:init()
-        intro_bottom.super.init(self)
+    class('intro_bottom', _, classes).extends(gfx.sprite)
+    function classes.intro_bottom:init()
+        classes.intro_bottom.super.init(self)
         self:setImage(assets.img_bottom)
         self:setCenter(0, 1)
         self:moveTo(0, 350)
         self:add()
     end
-    function intro_bottom:update()
+    function classes.intro_bottom:update()
         if vars.anim_left ~= nil then
             self:moveTo(0, vars.anim_bottom.value)
         end
     end
 
     -- Set the sprites
-    sprites.fade = intro_fade()
-    sprites.left = intro_left()
-    sprites.right = intro_right()
-    sprites.bottom = intro_bottom()
+    sprites.fade = classes.intro_fade()
+    sprites.left = classes.intro_left()
+    sprites.right = classes.intro_right()
+    sprites.bottom = classes.intro_bottom()
     self:add()
 
     newmusic('audio/music/intro') -- Adding new music

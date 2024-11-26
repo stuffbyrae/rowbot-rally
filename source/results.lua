@@ -200,38 +200,38 @@ function results:init(...)
         assets.image_bg:draw(0, 0)
     end)
 
-    class('results_fade').extends(gfx.sprite)
-    function results_fade:init()
-        results_fade.super.init(self)
+    class('results_fade', _, classes).extends(gfx.sprite)
+    function classes.results_fade:init()
+        classes.results_fade.super.init(self)
         self:setCenter(0, 0)
         self:setZIndex(0)
         self:setIgnoresDrawOffset(true)
         self:add()
     end
-    function results_fade:update()
+    function classes.results_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
-    class('results_plate').extends(gfx.sprite)
-    function results_plate:init()
-        results_plate.super.init(self)
+    class('results_plate', _, classes).extends(gfx.sprite)
+    function classes.results_plate:init()
+        classes.results_plate.super.init(self)
         self:setImage(assets.image_plate)
         self:setCenter(0, 0)
         self:moveTo(0, 0)
         self:setZIndex(1)
         self:add()
     end
-    function results_plate:update()
+    function classes.results_plate:update()
         if vars.anim_plate ~= nil then
             self:moveTo(0, vars.anim_plate.value)
         end
     end
 
-    class('results_react').extends(gfx.sprite)
-    function results_react:init(win)
-        results_react.super.init(self)
+    class('results_react', _, classes).extends(gfx.sprite)
+    function classes.results_react:init(win)
+        classes.results_react.super.init(self)
         if win then
             self:setImage(assets.image_react_win)
         else
@@ -242,16 +242,16 @@ function results:init(...)
         self:setZIndex(2)
         self:add()
     end
-    function results_react:update()
+    function classes.results_react:update()
         if vars.anim_react ~= nil then
             self:moveTo(-15, vars.anim_react.value)
         end
     end
 
     -- Set the sprites
-    sprites.fade = results_fade()
-    sprites.plate = results_plate()
-    sprites.react = results_react(vars.win)
+    sprites.fade = classes.results_fade()
+    sprites.plate = classes.results_plate()
+    sprites.react = classes.results_react(vars.win)
 
     self:add()
 end
@@ -292,16 +292,9 @@ function results:back()
 end
 
 function results:sendscores()
-    if playtest or demo then return end
+    if playtest or demo or pd.metadata.bundleID ~= "wtf.rae.rowbotrally" then return end
     corner('sendscore')
-    if vars.mode == "story" or (vars.mode == "tt" and enabled_cheats) then
-        pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
-            pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
-                pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
-                end)
-            end)
-        end)
-    elseif vars.mode == "tt" then
+    if vars.mode == "tt" and vars.win and not enabled_cheats then
         local board
         if vars.mirror then
             board = 'stage' .. vars.stage .. 'mirror'
@@ -327,5 +320,12 @@ function results:sendscores()
                 end)
             end)
         end
+    else
+        pd.scoreboards.addScore('racetime', math.floor(save.total_racetime), function(status)
+            pd.scoreboards.addScore('crashes', save.total_crashes, function(status)
+                pd.scoreboards.addScore('degreescranked', math.floor(save.total_degrees_cranked), function(status)
+                end)
+            end)
+        end)
     end
 end

@@ -157,16 +157,16 @@ function tutorial:init(...)
         assets.water[floor(vars.water.value)]:draw(((vars.x * 0.8) % 400) - 400, ((vars.y * 0.8) % 240) - 240) -- Move the water sprite to keep it in frame
     end)
 
-    class('tutorial_stage').extends(gfx.sprite)
-    function tutorial_stage:init()
-        tutorial_stage.super.init(self)
+    class('tutorial_stage', _, classes).extends(gfx.sprite)
+    function classes.tutorial_stage:init()
+        classes.tutorial_stage.super.init(self)
         self:setZIndex(1)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
         self:setIgnoresDrawOffset(true)
         self:add()
     end
-    function tutorial_stage:draw()
+    function classes.tutorial_stage:draw()
         if vars.showstage then
             assets.image_stage:draw(0, 0)
 
@@ -237,7 +237,7 @@ function tutorial:init(...)
     end
 
     -- Set the sprites
-    sprites.stage = tutorial_stage()
+    sprites.stage = classes.tutorial_stage()
     sprites.boat = boat("tutorial", 0, 0, 0, vars.stage_x, vars.stage_y, nil, false, "story")
     spritesboat = sprites.boat
     self:add()

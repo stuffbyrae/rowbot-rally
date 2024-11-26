@@ -10,13 +10,13 @@ function notif:init(...)
     local args = {...} -- Arguments passed in through the scene management will arrive here
     show_crank = false -- Should the crank indicator be shown?
     gfx.sprite.setAlwaysRedraw(false) -- Should this scene redraw the sprites constantly?
-    
+
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(100)
     end
-    
+
     vars = { -- This scene takes the same args as the makepopup() function, just displays it in its own bespoke scene.
         head_text = args[1],
         body_text = args[2],

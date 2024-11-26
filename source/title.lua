@@ -79,7 +79,7 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
-        self.cheat_code_retro = Tanuk_CodeSequence({pd.kButtonUp, pd.kButtonUp, pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonRight, pd.kButtonLeft, pd.kButtonRight, pd.kButtonB}, function()
+        local cheat_code_retro = Tanuk_CodeSequence({pd.kButtonUp, pd.kButtonUp, pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonRight, pd.kButtonLeft, pd.kButtonRight, pd.kButtonB}, function()
             save.unlocked_cheats = true
             save.unlocked_cheats_retro = true
             enabled_cheats = true
@@ -89,7 +89,7 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
-        self.cheat_code_scream = Tanuk_CodeSequence({pd.kButtonLeft, pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonRight, pd.kButtonB, pd.kButtonUp, pd.kButtonUp, pd.kButtonB}, function()
+        local cheat_code_scream = Tanuk_CodeSequence({pd.kButtonLeft, pd.kButtonDown, pd.kButtonDown, pd.kButtonLeft, pd.kButtonRight, pd.kButtonB, pd.kButtonUp, pd.kButtonUp, pd.kButtonB}, function()
             save.unlocked_cheats = true
             save.unlocked_cheats_scream = true
             enabled_cheats = true
@@ -99,7 +99,7 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
-        self.cheat_code_trippy = Tanuk_CodeSequence({pd.kButtonLeft, pd.kButtonUp, pd.kButtonRight, pd.kButtonDown, pd.kButtonLeft, pd.kButtonUp, pd.kButtonRight, pd.kButtonDown, pd.kButtonB}, function()
+        local cheat_code_trippy = Tanuk_CodeSequence({pd.kButtonLeft, pd.kButtonUp, pd.kButtonRight, pd.kButtonDown, pd.kButtonLeft, pd.kButtonUp, pd.kButtonRight, pd.kButtonDown, pd.kButtonB}, function()
             save.unlocked_cheats = true
             save.unlocked_cheats_trippy = true
             enabled_cheats = true
@@ -109,7 +109,7 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
-        self.cheat_code_all = Tanuk_CodeSequence({pd.kButtonRight, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
+        local cheat_code_all = Tanuk_CodeSequence({pd.kButtonRight, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
             save.unlocked_cheats = true
             save.unlocked_cheats_big = true
             save.unlocked_cheats_small = true
@@ -122,7 +122,7 @@ function title:init(...)
                 scenemanager:switchscene(title)
             end)
         end, false)
-        self.cheat_code_chill = Tanuk_CodeSequence({pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
+        local cheat_code_chill = Tanuk_CodeSequence({pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonDown, pd.kButtonUp, pd.kButtonB}, function()
             fademusic()
             save.seen_chill = true
             scenemanager:transitionsceneoneway(chill)
@@ -308,25 +308,25 @@ function title:init(...)
         assets.image_water_bg:draw(0, 0)
     end)
 
-    class('title_checker').extends(gfx.sprite)
-    function title_checker:init()
-        title_checker.super.init(self)
+    class('title_checker', _, classes).extends(gfx.sprite)
+    function classes.title_checker:init()
+        classes.title_checker.super.init(self)
         self:setImage(assets.image_checker)
         self:setCenter(0, 0)
         self:add()
     end
-    function title_checker:update()
+    function classes.title_checker:update()
         self:moveTo(vars.anim_checker_x.value, vars.anim_checker_y.value)
     end
 
-    class('title_bg').extends(gfx.sprite)
-    function title_bg:init()
-        title_bg.super.init(self)
+    class('title_bg', _, classes).extends(gfx.sprite)
+    function classes.title_bg:init()
+        classes.title_bg.super.init(self)
         self:setSize(400, 480)
         self:setCenter(0, 0)
         self:add()
     end
-    function title_bg:update()
+    function classes.title_bg:update()
         if vars.anim_bg ~= nil then
             self:moveTo(0, vars.anim_bg.value)
         end
@@ -334,7 +334,7 @@ function title:init(...)
             self:markDirty()
         end
     end
-    function title_bg:draw()
+    function classes.title_bg:draw()
         assets.image_bg:draw(0, 0)
         assets.kapel:drawTextAligned(text('select'), 375, 115, kTextAlignment.right)
         if vars.selection == 1 then
@@ -349,14 +349,14 @@ function title:init(...)
         end
     end
 
-    class('title_item').extends(gfx.sprite)
-    function title_item:init()
-        title_item.super.init(self)
+    class('title_item', _, classes).extends(gfx.sprite)
+    function classes.title_item:init()
+        classes.title_item.super.init(self)
         self:setImage(assets.image_item:scaledImage(2))
         self:moveTo(200, 170)
         self:add()
     end
-    function title_item:update()
+    function classes.title_item:update()
         if vars.anim_item ~= nil then
             self:moveTo(vars.anim_item.value, 170)
         end
@@ -365,20 +365,20 @@ function title:init(...)
         end
     end
 
-    class('title_slots').extends(gfx.sprite)
-    function title_slots:init()
-        title_slots.super.init(self)
+    class('title_slots', _, classes).extends(gfx.sprite)
+    function classes.title_slots:init()
+        classes.title_slots.super.init(self)
         self:setImage(assets.image_slots)
         self:setCenter(0, 0)
         self:setSize(400, 240)
     end
-    function title_slots:update()
+    function classes.title_slots:update()
         if vars.anim_slots ~= nil then
             self:moveTo(0, vars.anim_slots.value)
         end
         self:markDirty()
     end
-    function title_slots:draw()
+    function classes.title_slots:draw()
         gfx.fillRect(0, 17, 400, 206)
         gfx.setColor(gfx.kColorWhite)
         gfx.fillRect(0, 20, 400, 200)
@@ -521,10 +521,10 @@ function title:init(...)
     end
 
     -- Set the sprites
-    sprites.checker = title_checker()
-    sprites.bg = title_bg()
-    sprites.item = title_item()
-    sprites.slots = title_slots()
+    sprites.checker = classes.title_checker()
+    sprites.bg = classes.title_bg()
+    sprites.item = classes.title_item()
+    sprites.slots = classes.title_slots()
     self:add()
 
     pd.timer.performAfterDelay(1000, function()
@@ -788,7 +788,7 @@ end
 
 function title:update()
     if not vars.transitioning then
-        local ticks = pd.getCrankTicks(6)
+        local ticks = pd.getCrankTicks(5)
         if vars.slots_open and not vars.slot_open then
             if ticks < 0 then
                 self:selectslot(false, -ticks)

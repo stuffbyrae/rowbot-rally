@@ -289,31 +289,31 @@ function cheats:init(...)
         end
     end)
 
-    class('cheats_ticker').extends(gfx.sprite)
-    function cheats_ticker:init()
-        cheats_ticker.super.init(self)
+    class('cheats_ticker', _, classes).extends(gfx.sprite)
+    function classes.cheats_ticker:init()
+        classes.cheats_ticker.super.init(self)
         self:setImage(assets.image_ticker)
         self:setCenter(0, 0)
         self:setZIndex(1)
         self:add()
     end
-    function cheats_ticker:update()
+    function classes.cheats_ticker:update()
         self:moveTo(vars.anim_ticker.value, 0)
     end
 
-    class('cheats_wave').extends(gfx.sprite)
-    function cheats_wave:init()
-        cheats_wave.super.init(self)
+    class('cheats_wave', _, classes).extends(gfx.sprite)
+    function classes.cheats_wave:init()
+        classes.cheats_wave.super.init(self)
         self:setSize(464, 280)
         self:setCenter(0, 0)
         self:setZIndex(2)
         self:moveTo(0, 185)
         self:add()
     end
-    function cheats_wave:update()
+    function classes.cheats_wave:update()
         self:moveTo(0, vars.anim_wave_y.value)
     end
-    function cheats_wave:draw()
+    function classes.cheats_wave:draw()
         assets.image_wave_composite:draw(vars.anim_wave_x.value, 0)
         if enabled_cheats then
             gfx.setImageDrawMode(gfx.kDrawModeFillWhite)
@@ -322,23 +322,23 @@ function cheats:init(...)
         end
     end
 
-    class('cheats_back').extends(gfx.sprite)
-    function cheats_back:init()
-        cheats_back.super.init(self)
+    class('cheats_back', _, classes).extends(gfx.sprite)
+    function classes.cheats_back:init()
+        classes.cheats_back.super.init(self)
         self:setCenter(0, 0)
         self:setZIndex(3)
         self:setImage(assets.image_back)
         self:moveTo(295, 210)
         self:add()
     end
-    function cheats_back:update()
+    function classes.cheats_back:update()
         self:moveTo(295, (vars.anim_wave_y.value*1.1))
     end
 
     -- Set the sprites
-    sprites.ticker = cheats_ticker()
-    sprites.wave = cheats_wave()
-    sprites.back = cheats_back()
+    sprites.ticker = classes.cheats_ticker()
+    sprites.wave = classes.cheats_wave()
+    sprites.back = classes.cheats_back()
     self:add()
 end
 
@@ -373,7 +373,7 @@ end
 
 function cheats:update()
     if not vars.transitioning then
-        local ticks = pd.getCrankTicks(8)
+        local ticks = pd.getCrankTicks(7)
         if ticks < 0 then
             self:newselection(false, -ticks)
         elseif ticks > 0 then

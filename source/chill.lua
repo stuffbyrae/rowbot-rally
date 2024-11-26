@@ -99,9 +99,9 @@ function chill:init(...)
         assets.bg:drawImage(vars.bg_image, 0, 0)
     end)
 
-    class('chill_wave').extends(gfx.sprite)
-    function chill_wave:init()
-        chill_wave.super.init(self)
+    class('chill_wave', _, classes).extends(gfx.sprite)
+    function classes.chill_wave:init()
+        classes.chill_wave.super.init(self)
         self:setImage(assets.image_wave_composite)
         self:setCenter(0, 0)
         self:setZIndex(2)
@@ -109,40 +109,40 @@ function chill:init(...)
         self:setZIndex(0)
         self:add()
     end
-    function chill_wave:update()
+    function classes.chill_wave:update()
         self:moveTo(vars.anim_wave_x.value, 205)
     end
 
-    class('chill_boat').extends(gfx.sprite)
-    function chill_boat:init()
-        chill_boat.super.init(self)
+    class('chill_boat', _, classes).extends(gfx.sprite)
+    function classes.chill_boat:init()
+        classes.chill_boat.super.init(self)
         self:setImage(assets.image_boat)
         self:moveTo(45, 195)
         self:setZIndex(1)
         self:add()
     end
-    function chill_boat:update()
+    function classes.chill_boat:update()
         self:moveTo(65, vars.anim_boat_y.value)
     end
 
-    class('chill_fade').extends(gfx.sprite)
-    function chill_fade:init()
-        chill_fade.super.init(self)
+    class('chill_fade', _, classes).extends(gfx.sprite)
+    function classes.chill_fade:init()
+        classes.chill_fade.super.init(self)
         self:setImage(assets.image_fade[1])
         self:setCenter(0, 0)
         self:setZIndex(9)
         self:add()
     end
-    function chill_fade:update()
+    function classes.chill_fade:update()
         if vars.anim_fade ~= nil then
             self:setImage(assets.image_fade[math.floor(vars.anim_fade.value)])
         end
     end
 
     -- Set the sprites
-    sprites.wave = chill_wave()
-    sprites.boat = chill_boat()
-    sprites.fade = chill_fade()
+    sprites.wave = classes.chill_wave()
+    sprites.boat = classes.chill_boat()
+    sprites.fade = classes.chill_fade()
     self:add()
 
     self:checktime()

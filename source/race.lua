@@ -196,16 +196,16 @@ function race:init(...)
         vars.boosts_remaining = 3
     end
 
-    class('race_below').extends(gfx.sprite)
-    function race_below:init()
-        race_below.super.init(self)
+    class('race_below', _, classes).extends(gfx.sprite)
+    function classes.race_below:init()
+        classes.race_below.super.init(self)
         self:setZIndex(-2)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
         self:setOpaque(true)
         self:add()
     end
-    function race_below:draw(x, y, width, height)
+    function classes.race_below:draw(x, y, width, height)
         local x = vars.x
         local y = vars.y
         if not (vars.mode == "tt" and enabled_cheats_trippy) then
@@ -283,15 +283,15 @@ function race:init(...)
         end
     end
 
-    class('race_stage').extends(gfx.sprite)
-    function race_stage:init()
-        race_stage.super.init(self)
+    class('race_stage', _, classes).extends(gfx.sprite)
+    function classes.race_stage:init()
+        classes.race_stage.super.init(self)
         self:setZIndex(1)
         self:setCenter(0, 0)
         self:setSize(vars.stage_x, vars.stage_y)
         self:add()
     end
-    function race_stage:draw()
+    function classes.race_stage:draw()
         local x = vars.x
         local y = vars.y
         assets.image_stage:draw(0, 0)
@@ -473,9 +473,9 @@ function race:init(...)
     end
 
     -- Little debug dot, representing the middle of the screen.
-    class('race_debug').extends(gfx.sprite)
-    function race_debug:init()
-        race_debug.super.init(self)
+    class('race_debug', _, classes).extends(gfx.sprite)
+    function classes.race_debug:init()
+        classes.race_debug.super.init(self)
         if vars.cpu_x ~= nil then
             self:moveTo(vars.cpu_x, vars.cpu_y)
         else
@@ -487,10 +487,10 @@ function race:init(...)
     end
 
     -- Set the sprites
-    sprites.below = race_below()
-    sprites.stage = race_stage()
+    sprites.below = classes.race_below()
+    sprites.stage = classes.race_stage()
     if vars.mode == "debug" then -- If there's debug mode, add the dot.
-        sprites.debug = race_debug()
+        sprites.debug = classes.race_debug()
     else -- If not, then add the boat.
         if vars.cpu_x ~= nil then
             sprites.cpu = boat("cpu", vars.cpu_x, vars.cpu_y, vars.stage, vars.stage_x, vars.stage_y, vars.follow_polygon)
@@ -703,7 +703,9 @@ function race:checkpointcheck(cpu)
                                 music:setOffset(0)
                                 music:setRate(1.1)
                                 pd.timer.performAfterDelay(1750, function()
-                                    music:play()
+                                    if music ~= nil then
+                                        music:play()
+                                    end
                                 end)
                             end
                         end

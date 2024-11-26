@@ -294,21 +294,28 @@ end
 
 function scenemanager:cleanupscene()
     closepopup() -- Close any active popups that may be lingering.
+    if classes ~= nil then
+        for i = #classes, 1, -1 do
+            classes[i] = nil
+        end
+        classes = nil
+    end
+    classes = {}
     gfx.sprite.removeAll()
     if sprites ~= nil then
-        for i = 1, #sprites do
+        for i = #sprites, 1, -1 do
             sprites[i] = nil
         end
     end
     sprites = {}
     if assets ~= nil then
-        for i = 1, #assets do
+        for i = #assets, 1, -1 do
             assets[i] = nil
         end
         assets = nil -- Nil all the assets,
     end
     if vars ~= nil then
-        for i = 1, #vars do
+        for i = #vars, 1, -1 do
             vars[i] = nil
         end
     end
@@ -319,11 +326,11 @@ function scenemanager:cleanupscene()
     pd.display.setMosaic(0, 0) -- Reset the mosaic, in case Retro Mode is on
     pd.display.setFlipped(false, false) -- Set display flip back in case of mirror.
     -- Just in case.
-    pd.gameWillPause = nil
-    pd.gameWillResume = nil
-    pd.deviceWillLock = nil
-    pd.deviceDidUnlock = nil
-    pd.deviceWillSleep = nil
+    -- pd.gameWillPause = nil
+    -- pd.gameWillResume = nil
+    -- pd.deviceWillLock = nil
+    -- pd.deviceDidUnlock = nil
+    -- pd.deviceWillSleep = nil
 end
 
 function scenemanager:removealltimers()

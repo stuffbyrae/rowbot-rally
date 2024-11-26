@@ -28,7 +28,7 @@ function stats:init(...)
                 vars.show_leaderboards = false
                 gfx.sprite.redrawBackground()
             end)
-        elseif not playtest then
+        elseif not playtest and pd.metadata.bundleID == "wtf.rae.rowbotrally" then
             menu:addMenuItem(text('onlinestats'), function()
                 self:refreshonlinestats()
             end)
@@ -129,9 +129,7 @@ function stats:init(...)
                 assets.pedallica:drawText(text('leaderboards_grab_short'), 10, 45)
             else
                 for _, v in ipairs(vars.lb_racetime_result.scores) do
-                    if v.rank > 5 then
-                        return
-                    else
+                    if v.rank <= 5 then
                         assets.kapel:drawText(v.rank .. '. ' .. v.player, 10, 45 + (25 * (v.rank - 1)))
                         if v.value > 108000 then
                             assets.pedallica:drawText(self:gethms(v.value, true), 10, 55 + (25 * (v.rank - 1)))
@@ -152,9 +150,7 @@ function stats:init(...)
                 assets.pedallica:drawTextAligned(text('leaderboards_grab_short'), 200, 45, kTextAlignment.center)
             else
                 for _, v in ipairs(vars.lb_crashes_result.scores) do
-                    if v.rank > 5 then
-                        return
-                    else
+                    if v.rank <= 5 then
                         assets.kapel:drawTextAligned(v.rank .. '. ' .. v.player, 200, 45 + (25 * (v.rank - 1)), kTextAlignment.center)
                         assets.pedallica:drawTextAligned(commalize(v.value), 200, 55 + (25 * (v.rank - 1)), kTextAlignment.center)
                     end
@@ -171,9 +167,7 @@ function stats:init(...)
                 assets.pedallica:drawTextAligned(text('leaderboards_grab_short'), 390, 45, kTextAlignment.right)
             else
                 for _, v in ipairs(vars.lb_degreescranked_result.scores) do
-                    if v.rank > 5 then
-                        return
-                    else
+                    if v.rank <= 5 then
                         assets.kapel:drawTextAligned(v.rank .. '. ' .. v.player, 390, 45 + (25 * (v.rank - 1)), kTextAlignment.right)
                         assets.pedallica:drawTextAligned(self:getdistancecranked(v.value), 390, 55 + (25 * (v.rank - 1)), kTextAlignment.right)
                     end
@@ -226,48 +220,48 @@ function stats:init(...)
         end
     end)
 
-    class('stats_ticker').extends(gfx.sprite)
-    function stats_ticker:init()
-        stats_ticker.super.init(self)
+    class('stats_ticker', _, classes).extends(gfx.sprite)
+    function classes.stats_ticker:init()
+        classes.stats_ticker.super.init(self)
         self:setImage(assets.image_ticker)
         self:setCenter(0, 0)
         self:setZIndex(1)
         self:add()
     end
-    function stats_ticker:update()
+    function classes.stats_ticker:update()
         self:moveTo(vars.anim_ticker.value, 0)
     end
 
-    class('stats_wave').extends(gfx.sprite)
-    function stats_wave:init()
-        stats_wave.super.init(self)
+    class('stats_wave', _, classes).extends(gfx.sprite)
+    function classes.stats_wave:init()
+        classes.stats_wave.super.init(self)
         self:setImage(assets.image_wave_composite)
         self:setCenter(0, 0)
         self:setZIndex(2)
         self:moveTo(0, 185)
         self:add()
     end
-    function stats_wave:update()
+    function classes.stats_wave:update()
         self:moveTo(vars.anim_wave_x.value, vars.anim_wave_y.value)
     end
 
-    class('stats_back').extends(gfx.sprite)
-    function stats_back:init()
-        stats_back.super.init(self)
+    class('stats_back', _, classes).extends(gfx.sprite)
+    function classes.stats_back:init()
+        classes.stats_back.super.init(self)
         self:setCenter(0, 0)
         self:setZIndex(3)
         self:setImage(assets.image_back)
         self:moveTo(295, 210)
         self:add()
     end
-    function stats_back:update()
+    function classes.stats_back:update()
         self:moveTo(295, (vars.anim_wave_y.value*1.1))
     end
 
     -- Set the sprites
-    sprites.ticker = stats_ticker()
-    sprites.wave = stats_wave()
-    sprites.back = stats_back()
+    sprites.ticker = classes.stats_ticker()
+    sprites.wave = classes.stats_wave()
+    sprites.back = classes.stats_back()
     self:add()
 end
 
@@ -390,7 +384,7 @@ function stats:getonlinestatsscores()
 end
 
 function stats:update()
-    if save.total_playtime >= vars.last_playtime then
+    if save.total_playtime >= vars.last_playtime and not vars.show_leaderboards then
         gfx.sprite.redrawBackground()
     end
     vars.last_playtime = save.total_playtime

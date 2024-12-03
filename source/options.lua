@@ -68,7 +68,7 @@ function options:init(...)
         transitioning = true,
         anim_wave_x = pd.timer.new(5000, 0, -58),
         anim_wave_y = pd.timer.new(1000, -30, 185, pd.easingFunctions.outCubic), -- Send the wave down from above
-        item_list = {'music', 'sfx', 'button_controls', 'sensitivity', 'ui', 'perf'},
+        item_list = {'music', 'sfx', 'button_controls', 'sensitivity', 'ui', 'minimap', 'perf'},
         selection = 1,
         offset = 1,
     }
@@ -123,6 +123,14 @@ function options:init(...)
                     assets.sfx_clickon:play()
                 end
             elseif vars.selection == 6 then
+                if save.minimap then
+                    save.minimap = false
+                    assets.sfx_clickoff:play()
+                else
+                    save.minimap = true
+                    assets.sfx_clickon:play()
+                end
+            elseif vars.selection == 7 then
                 if perf then
                     perf = false
                     save.perf = false
@@ -188,7 +196,8 @@ function options:init(...)
         assets.pedallica:drawText(text('button_controls_name'), 10, 70)
         assets.pedallica:drawText(text('sensitivity_name'), 10, 85)
         assets.pedallica:drawText(text('ui_name'), 10, 100)
-        assets.pedallica:drawText(text('perf_name'), 10, 115)
+        assets.pedallica:drawText(text('minimap_name'), 10, 115)
+        assets.pedallica:drawText(text('perf_name'), 10, 130)
 
         if save.vol_music > 0 then
             assets.pedallica:drawTextAligned(text('on'), 180, 30, kTextAlignment.right)
@@ -216,10 +225,15 @@ function options:init(...)
         else
             assets.pedallica:drawTextAligned(text('off'), 180, 100, kTextAlignment.right)
         end
-        if perf then
+        if save.minimap then
             assets.pedallica:drawTextAligned(text('on'), 180, 115, kTextAlignment.right)
         else
             assets.pedallica:drawTextAligned(text('off'), 180, 115, kTextAlignment.right)
+        end
+        if perf then
+            assets.pedallica:drawTextAligned(text('on'), 180, 130, kTextAlignment.right)
+        else
+            assets.pedallica:drawTextAligned(text('off'), 180, 130, kTextAlignment.right)
         end
 
         if save.button_controls then
@@ -287,7 +301,7 @@ function options:init(...)
     end
     function classes.options_gear:update()
         self:setImage(vars.anim_gears:image())
-        self:moveTo(25, vars.anim_wave_y.value - 60)
+        self:moveTo(25, vars.anim_wave_y.value - 40)
     end
 
     -- Set the sprites

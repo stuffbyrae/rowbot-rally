@@ -157,6 +157,7 @@ function savecheck()
     save.vol_music = save.vol_music or 5
     save.vol_sfx = save.vol_sfx or 5
     if save.pro_ui == nil then save.pro_ui = false end
+  if save.minimap == nil then save.minimap = false end
     if save.button_controls == nil then save.button_controls = pd.isSimulator == 1 and true or false end
     save.sensitivity = save.sensitivity or 3
     -- Global stats

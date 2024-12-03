@@ -41,13 +41,18 @@ function race:init(...)
             menu:addMenuItem(text('disqualify'), function() self:finish(true) end)
         end
         if not vars.finished then
+            menu:addCheckmarkMenuItem(text('minimap'), save.minimap, function(new)
+                save.minimap = new
+            end)
             menu:addCheckmarkMenuItem(text('proui'), save.pro_ui, function(new)
                 save.pro_ui = new
                 if not vars.finished then
                     if new then
+                        vars.minimap = pd.timer.new(200, vars.minimap.value, 155, pd.easingFunctions.inOutSine)
                         vars.anim_hud:resetnew(200, vars.anim_hud.value, -130, pd.easingFunctions.inOutSine)
                         vars.anim_ui_offset:resetnew(200, vars.anim_ui_offset.value, 88, pd.easingFunctions.inOutSine)
                     else
+                        vars.minimap = pd.timer.new(200, vars.minimap.value, 130, pd.easingFunctions.inOutSine)
                         vars.anim_hud:resetnew(200, vars.anim_hud.value, 0, pd.easingFunctions.inOutSine)
                         vars.anim_ui_offset:resetnew(200, vars.anim_ui_offset.value, 0, pd.easingFunctions.inOutSine)
                     end
@@ -164,14 +169,17 @@ function race:init(...)
     vars.overlay = "fade"
 
     if save.pro_ui then
+        vars.minimap = pd.timer.new(500, 300, 155, pd.easingFunctions.outSine)
         vars.anim_hud = pd.timer.new(500, -230, -130, pd.easingFunctions.outSine)
         vars.anim_ui_offset = pd.timer.new(0, 88, 88)
     else
+        vars.minimap = pd.timer.new(500, 300, 130, pd.easingFunctions.outSine)
         vars.anim_hud = pd.timer.new(500, -130, 0, pd.easingFunctions.outSine)
         vars.anim_ui_offset = pd.timer.new(0, 0, 0)
     end
     vars.anim_hud.discardOnCompletion = false
     vars.anim_ui_offset.discardOnCompletion = false
+    vars.minimap.discardOnCompletion = false
 
     -- Load in the appropriate stuffs depending on what stage is called. EZ!
     pd.file.run('stages/' .. vars.stage .. '/stage.pdz')
@@ -437,6 +445,37 @@ function race:init(...)
                 if assets.shades ~= nil then
                     assets.shades:draw(311 + vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value, "flipX")
                 end
+                if save.minimap and assets.minimap ~= nil then
+                    assets.minimap:draw(0, vars.minimap.value)
+                    local divvy
+                    if vars.stage == 1 then
+                        divvy = 25
+                    elseif vars.stage == 2 then
+                        divvy = 30
+                    elseif vars.stage == 3 then
+                        divvy = 20
+                    elseif vars.stage == 5 then
+                        divvy = 24
+                    elseif vars.stage == 6 then
+                        divvy = 33
+                    elseif vars.stage == 7 then
+                        divvy = 41
+                    end
+                    gfx.setLineWidth(1)
+                    if spritescpu ~= nil then
+                        if vars.stage == 6 or vars.stage == 7 then
+                            gfx.drawCircleAtPoint(spritescpu.x / divvy, spritescpu.y / divvy + vars.minimap.value, 2)
+                        else
+                            gfx.drawCircleAtPoint(spritescpu.x / divvy, spritescpu.y / divvy + vars.minimap.value, 3)
+                        end
+                    end
+                    if vars.stage == 6 or vars.stage == 7 then
+                        gfx.fillCircleAtPoint(spritesboat.x / divvy, spritesboat.y / divvy + vars.minimap.value, 2)
+                    else
+                        gfx.fillCircleAtPoint(spritesboat.x / divvy, spritesboat.y / divvy + vars.minimap.value, 3)
+                    end
+                    gfx.setLineWidth(2)
+                end
             else
                 -- If there's some kind of stage overlay anim going on, play it.
                 if anim_stage_overlay ~= nil and stage_overlay ~= nil then
@@ -465,7 +504,38 @@ function race:init(...)
                 assets.image_meter_r:getImage(floor(vars.rowbot * 14.5) + 1):draw(0, 177 - anim_hud)
                 assets.image_meter_p:getImage(min(30, max(1, 30 - floor(vars.player * 14.5)))):draw(200, 177 - anim_hud)
                 if assets.shades ~= nil then
-                    assets.shades:draw(89 - vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value)
+                    assets.shades:draw(89 - vars.anim_shades_x.value, 215 - anim_hud - vars.anim_shades_y.value)
+                end
+                if save.minimap and assets.minimap ~= nil then
+                    assets.minimap:draw(0, vars.minimap.value)
+                    local divvy
+                    if vars.stage == 1 then
+                        divvy = 25
+                    elseif vars.stage == 2 then
+                        divvy = 30
+                    elseif vars.stage == 3 then
+                        divvy = 20
+                    elseif vars.stage == 5 then
+                        divvy = 24
+                    elseif vars.stage == 6 then
+                        divvy = 33
+                    elseif vars.stage == 7 then
+                        divvy = 41
+                    end
+                    gfx.setLineWidth(1)
+                    if spritescpu ~= nil then
+                        if vars.stage == 6 or vars.stage == 7 then
+                            gfx.drawCircleAtPoint(spritescpu.x / divvy, spritescpu.y / divvy + vars.minimap.value, 2)
+                        else
+                            gfx.drawCircleAtPoint(spritescpu.x / divvy, spritescpu.y / divvy + vars.minimap.value, 3)
+                        end
+                    end
+                    if vars.stage == 6 or vars.stage == 7 then
+                        gfx.fillCircleAtPoint(spritesboat.x / divvy, spritesboat.y / divvy + vars.minimap.value, 2)
+                    else
+                        gfx.fillCircleAtPoint(spritesboat.x / divvy, spritesboat.y / divvy + vars.minimap.value, 3)
+                    end
+                    gfx.setLineWidth(2)
                 end
             end
             gfx.setDrawOffset(x, y)
@@ -587,6 +657,7 @@ function race:finish(timeout, duration)
         else
             vars.anim_hud:resetnew(500, vars.anim_hud.value, -130, pd.easingFunctions.inSine)
         end
+        vars.minimap = pd.timer.new(500, vars.minimap.value, 300, pd.easingFunctions.outSine)
         if vars.anim_lap_string ~= nil then vars.anim_lap_string:resetnew(500, vars.anim_lap_string.value, -175, pd.easingFunctions.inSine) end
         vars.in_progress = false
         vars.finished = true

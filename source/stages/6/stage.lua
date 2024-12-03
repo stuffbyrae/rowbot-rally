@@ -17,6 +17,7 @@ function race:stage_init()
     assets.water = gfx.imagetable.new('stages/6/water')
     assets.popeyes = gfx.image.new('stages/6/popeyes')
     assets.stage_overlay = gfx.imagetable.new('stages/6/stage_overlay')
+    assets.minimap = gfx.image.new('stages/6/minimap')
 
     vars.anim_stage_overlay = pd.timer.new(500, 1, 4.99)
     vars.anim_stage_overlay.repeats = true

@@ -28,6 +28,7 @@ function race:stage_init()
     assets.caustics = gfx.imagetable.new('stages/2/caustics')
     assets.caustics_overlay = gfx.image.new('stages/2/caustics_overlay')
     assets.whirlpool = gfx.imagetable.new('stages/2/whirlpool')
+    assets.minimap = gfx.image.new('stages/2/minimap')
 
     assets.image_stage = assets.image_stage_1
 

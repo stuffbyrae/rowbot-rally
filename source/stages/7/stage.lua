@@ -21,6 +21,7 @@ function race:stage_init()
     assets.reverse_pad = gfx.imagetable.new('stages/7/reverse_pad')
     assets.sfx_cymbal = smp.new('audio/sfx/cymbal')
     assets.sfx_cymbal:setVolume(save.vol_sfx/5)
+    assets.minimap = gfx.image.new('stages/7/minimap')
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 

@@ -371,7 +371,7 @@ function tutorial:update()
         end
     end
     if vars.current_step == 14 and vars.player > 0 then
-        if spritesboat.rotation >= 340 or spritesboat.rotation <= 20 then
+        if spritesboat.rotation >= 325 or spritesboat.rotation <= 35 then
             vars.gameplay_progress += 1
             if vars.gameplay_progress >= 260 then
                 vars.progressable = true

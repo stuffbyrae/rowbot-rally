@@ -23,6 +23,7 @@ function race:stage_init()
     assets.caustics = gfx.imagetable.new('stages/5/caustics')
     assets.caustics_overlay = gfx.image.new('stages/5/caustics_overlay')
     assets.leap_pad = gfx.imagetable.new('stages/5/leap_pad')
+    assets.minimap = gfx.image.new('stages/5/minimap')
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
 

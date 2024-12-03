@@ -115,7 +115,7 @@
 
 -- Pause strings
 "paused" = "Paused!"
-"rowtipdemo" = "If you're enjoying this\ndemo, you should check\nout the full game! It's like\nthis, but...more!\n\n\n      🌐 play.date/g/rbr"
+"rowtipdemo" = "If you're enjoying this\ndemo, you should check\nout the full game! It's like\nthis, but...more!\n\n\n🌐 play.date/g/rbr"
 "rowtip1" = "If you're having trouble\nusing the Crank, try\nenabling Button Controls\nfrom the Options, and use\nthe D-pad to play instead!"
 "rowtip2" = "Want a more streamlined\nand row-fessional racing\nexperience? Toggle the\nPro UI in Options (or in a\nrace)! So fresh, so clean."
 "rowtip3" = "RowBot R-10 models are\npowered by an advanced\nmulti-gear rowing\nmechanism, which\ndefinitely isn't prone to\nfailure. Ignore all the\nlawsuits."
@@ -197,7 +197,7 @@
 "rowtip72" = "Don't be fooled by the\nflashy exterior: the Fish\nBowl trophy is only\ngold-plated, not solid.\n\nWithin its core instead,\nis pure diamond."
 "rowtip73" = "The Fish Bowl trophy is\nactually dishwasher-\nand microwave-safe, so\nfeel free to use it as a\nbowl for that leftover\nramen in your fridge!"
 "rowtip74" = "At one point, Robo-X\nhad actually tried to hold\na robotic submarine\ntournament! Alas, all of\nthe subs collapsed right\naway under the immense\npressure to perform."
-"rowtip75" = "Thanks again for\nplaying RowBot Rally! If\nyou enjoyed it, you'll\nprobably like my other\nPlaydate games, too!\n\n			   🌐 rae.wtf"
+"rowtip75" = "Thanks again for\nplaying RowBot Rally! If\nyou enjoyed it, you'll\nprobably like my other\nPlaydate games, too!\n\n🌐 rae.wtf"
 
 -- Leaderboards
 "leaderboards_grab" = "Grabbing leaderboards,\nplease wait..."
@@ -246,6 +246,7 @@
 "button_controls_name" = "Button Controls"
 "sensitivity_name" = "Easier Cranking"
 "ui_name" = "Pro UI"
+"minimap_name" = "Minimap"
 "perf_name" = "Performance Mode"
 
 -- Options descriptions
@@ -254,6 +255,7 @@
 "button_controls_desc" = "Use the D-pad to play!\nHold Up to start rowing\nstraight-on, and hold\nRight to row clockwise.\n\n\nPress A to toggle."
 "sensitivity_desc" = "Makes matching pace\nwith your RowBot\nrequire less cranking.\n(Has no effect with\nButton Controls.)\n\nPress A to toggle."
 "ui_desc" = "Toggles a simpler UI in\nraces, removing a lot\nof stuff. You can also\ntoggle this during\nraces, if you want.\n\nPress A to toggle."
+"minimap_desc" = "Toggles a minimap in\nraces, which also shows\nwhere the player and\nCPU are in the course.\n\n\nPress A to toggle."
 "perf_desc" = "Knocks down a bit of\nthe visual quality, in\nexchange for better\nFPS when using\nPlaydate Mirror.\n\nPress A to toggle."
 -- Options toggles
 "off" = "❎"
@@ -324,6 +326,7 @@
 "skipchase" = "skip chase"
 "disqualify" = "disqualify"
 "proui" = "pro ui"
+"minimap" = "minimap"
 "setdefaults" = "set defaults"
 "disableall" = "disable all"
 "metric" = "metric"
@@ -346,7 +349,7 @@
 "bugsmashers" = "Bugsmashers"
 "bugsmashers_desc" = "NickNack, orkn, Toad\n\nsuperfunc, Omikron,\nbudpikmin, Lavender,\nYadis, dwfp, Zel,\nSoinksters, The3DPrintist"
 "playtesters" = "Playtesters"
-"playtesters_desc" = "AidenKT, magPlex,\nkiwi, tangledtulip,\nputtheyarndown"
+"playtesters_desc" = "AidenKT, magPlex,\nkiwi, puttheyarndown,\nsourencho, ThatWontCompute"
 "radstuff" = "Rad Stuff"
 "radstuff_desc" = "Neven Mrgan - Pedallica\nFont End Dev - Kapel\nToad - Asst. Font Conversion\n\nDave Hayden - PDV converter\n\nToad & Schyzo - Tanuk lib"
 "thankyouto" = "Thank you to..."

@@ -95,29 +95,24 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         if self.racemode ~= "story" then
             if enabled_cheats_big then
                 self.bakedboat = gfx.imagetable.new('images/race/boat_big')
-                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_big_reverse')
                 self.scale_factor = 1.70
                 self.speed = 4
                 self.turn = 4
             elseif enabled_cheats_small then
                 self.bakedboat = gfx.imagetable.new('images/race/boat_small')
-                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_small_reverse')
                 self.scale_factor = 0.5
                 self.speed = 6
                 self.turn = 7
             elseif enabled_cheats_tiny then
                 self.bakedboat = gfx.imagetable.new('images/race/boat_tiny')
-                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_tiny_reverse')
                 self.scale_factor = 0.1
                 self.speed = 7
                 self.turn = 10
             else
                 self.bakedboat = gfx.imagetable.new('images/race/boat')
-                self.bakedboatreverse = gfx.imagetable.new('images/race/boat_reverse')
             end
         else
             self.bakedboat = gfx.imagetable.new('images/race/boat')
-            self.bakedboatreverse = gfx.imagetable.new('images/race/boat_reverse')
         end
 
         self.cam_x = pd.timer.new(0, 0, 0) -- Camera X position
@@ -788,7 +783,8 @@ function boat:draw(x, y, width, height)
             end
             if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 then
                 if rev == -1 then
-                    self.bakedboatreverse[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
+                    local newrotation = lerp(360, 1, self.rotation / 360)
+                    self.bakedboat[floor(newrotation)]:drawAnchored(center, center, 0.5, 0.5, "flipX")
                 else
                     self.bakedboat[self.rotation]:drawAnchored(center, center, 0.5, 0.5)
                 end

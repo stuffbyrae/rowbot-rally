@@ -57,6 +57,8 @@ function tutorial:init(...)
         image_tutorial_crank = gfx.image.new('images/ui/tutorial_crank'),
         image_tutorial_up = gfx.image.new('images/ui/tutorial_up'),
         image_stagec = gfx.image.new('stages/tutorial/stagec'),
+        button_controls = gfx.image.new('images/race/button_controls'),
+        easier_cranking = gfx.image.new('images/race/easier_cranking'),
     }
     assets.sfx_ref:setVolume(save.vol_sfx/5)
     assets.sfx_ui:setVolume(save.vol_sfx/5)
@@ -228,6 +230,11 @@ function tutorial:init(...)
         -- Draw the power meter
         assets.image_meter_r:drawImage(floor((vars.rowbot * 14.5)) + 1, 0, 177 - vars.anim_hud.value)
         assets.image_meter_p:drawImage(min(30, max(1, 30 - floor(vars.player * 14.5))), 200, 177 - vars.anim_hud.value)
+        if save.button_controls then
+            assets.button_controls:draw(5, 215 - vars.anim_hud.value)
+        elseif save.sensitivity < 3 then
+            assets.easier_cranking:draw(5, 212 - vars.anim_hud.value)
+        end
         -- If there's some kind of gameplay overlay anim going on, play it.
         if vars.anim_overlay ~= nil then
             assets['overlay_fade']:drawImage(math.floor(vars.anim_overlay.value), 0, 0)

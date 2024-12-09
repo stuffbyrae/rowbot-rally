@@ -336,6 +336,8 @@
 "localstats" = "local stats"
 "music" = "music"
 "autolock" = "auto-lock"
+"credits" = "credits"
+"skipcredits" = "skip credits"
 
 -- Credits
 "madebyrae" = "Made by Rae"

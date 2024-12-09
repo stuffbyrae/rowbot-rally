@@ -157,7 +157,7 @@ function savecheck()
     save.vol_music = save.vol_music or 5
     save.vol_sfx = save.vol_sfx or 5
     if save.pro_ui == nil then save.pro_ui = false end
-  if save.minimap == nil then save.minimap = false end
+    if save.minimap == nil then save.minimap = false end
     if save.button_controls == nil then save.button_controls = pd.isSimulator == 1 and true or false end
     save.sensitivity = save.sensitivity or 3
     -- Global stats
@@ -180,9 +180,9 @@ savecheck()
 
 -- I don't *love* this, but for some inexplicable reason replacing the global with the save table feels dangerous in a way I can't describe.
 if save.perf then
-  perf = true
+    perf = true
 else
-  perf = false
+    perf = false
 end
 
 -- Math clamp function

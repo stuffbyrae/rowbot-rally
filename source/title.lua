@@ -13,6 +13,7 @@ if not demo then
     import 'notif'
     import 'cheats'
     import "Tanuk_CodeSequence"
+	import 'credits'
 end
 
 -- Setting up consts
@@ -32,7 +33,13 @@ function title:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        if save.seen_chill then
+        if save.seen_credits then
+			menu:addMenuItem(text('credits'), function()
+				fademusic()
+				scenemanager:transitionsceneoneway(credits)
+			end)
+		end
+		if save.seen_chill then
             menu:addMenuItem(text('chillmode'), function()
                 fademusic()
                 scenemanager:transitionsceneoneway(chill)
@@ -787,8 +794,8 @@ function title:checkpercent(slot)
 end
 
 function title:update()
+    local ticks = pd.getCrankTicks(5)
     if not vars.transitioning then
-        local ticks = pd.getCrankTicks(5)
         if vars.slots_open and not vars.slot_open then
             if ticks < 0 then
                 self:selectslot(false, -ticks)

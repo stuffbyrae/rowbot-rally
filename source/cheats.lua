@@ -372,8 +372,8 @@ function cheats:leave() -- Leave and move back to the title screen
 end
 
 function cheats:update()
+    local ticks = pd.getCrankTicks(7)
     if not vars.transitioning then
-        local ticks = pd.getCrankTicks(7)
         if ticks < 0 then
             self:newselection(false, -ticks)
         elseif ticks > 0 then

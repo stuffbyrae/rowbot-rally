@@ -345,7 +345,7 @@ function boat:image_check(polygons, image, crash_stage_x, crash_stage_y)
             self:crash(point_x, point_y, polygons)
             table.insert(points_collided, i)
         end
-        if self.mode ~= "cpu" and #points_collided == self.poly_body_crash:count() then
+        if self.mode ~= "cpu" and #points_collided >= self.poly_body_crash:count() * 0.50 and not self.beached then
             self.sfx_beach:play()
             self.beached = true
             if self.leaping then

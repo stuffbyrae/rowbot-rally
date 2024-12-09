@@ -21,6 +21,11 @@ function credits:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
+		if save.seen_credits then
+			menu:addMenuItem(text('skipcredits'), function()
+				self:finish(0)
+			end)
+		end
         local pauseimage = gfx.image.new(400, 240)
         pd.setMenuImage(pauseimage, 100)
     end
@@ -39,6 +44,7 @@ function credits:init(...)
         showcover1 = true,
         showcover2 = true,
         polaroids = {},
+		ending = false,
     }
 
     vars.anim_fade.discardOnCompletion = false
@@ -80,19 +86,7 @@ function credits:init(...)
     end)
     vars.creditsscrolly.delay = 11906
     vars.creditsscrolly.timerEndedCallback = function()
-        pd.timer.performAfterDelay(5000, function()
-            pd.setAutoLockDisabled(false)
-            vars.anim_fade:resetnew(2000, 34, 1)
-            pd.timer.performAfterDelay(2000, function()
-                title_memorize = 'story_mode'
-                if save.seen_credits then
-                    scenemanager:switchscene(title, title_memorize)
-                else
-                    save.seen_credits = true
-                    scenemanager:switchscene(notif, text('game_complete'), text('popup_game_complete'), text('title_screen'), false, function() scenemanager:switchscene(title, title_memorize) end)
-                end
-            end)
-        end)
+        self:finish(5000)
     end
 
     gfx.sprite.setBackgroundDrawingCallback(function(x, y, width, height) -- Background drawing
@@ -150,4 +144,24 @@ function credits:init(...)
 
     savegame(true) -- Save the game!
     newmusic('audio/music/credits') -- Adding new music
+end
+
+function credits:finish(delay)
+	if not vars.ending then
+		vars.ending = true
+		pd.timer.performAfterDelay(delay, function()
+			pd.setAutoLockDisabled(false)
+			fademusic(1990)
+			vars.anim_fade:resetnew(2000, 34, 1)
+			pd.timer.performAfterDelay(2000, function()
+				title_memorize = 'story_mode'
+				if save.seen_credits then
+					scenemanager:switchscene(title, title_memorize)
+				else
+					save.seen_credits = true
+					scenemanager:switchscene(notif, text('game_complete'), text('popup_game_complete'), text('title_screen'), false, function() scenemanager:switchscene(title, title_memorize) end)
+				end
+			end)
+		end)
+	end
 end

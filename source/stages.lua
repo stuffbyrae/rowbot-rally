@@ -543,8 +543,8 @@ function stages:flipmirror()
 end
 
 function stages:update()
+    local ticks = pd.getCrankTicks(5)
     if not vars.transitioning and not vars.leaderboards_open then
-        local ticks = pd.getCrankTicks(5)
         if ticks < 0 then
             self:newselection(false, -ticks)
         elseif ticks > 0 then

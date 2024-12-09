@@ -92,6 +92,8 @@ function race:init(...)
         sfx_final = smp.new('audio/sfx/final'),
         image_meter_r = gfx.imagetable.new('images/race/meter/meter_r'),
         image_meter_p = gfx.imagetable.new('images/race/meter/meter_p'),
+        button_controls = gfx.image.new('images/race/button_controls'),
+        easier_cranking = gfx.image.new('images/race/easier_cranking'),
     }
     assets.sfx_countdown:setVolume(save.vol_sfx/5)
     assets.sfx_start:setVolume(save.vol_sfx/5)
@@ -442,6 +444,11 @@ function race:init(...)
                 -- Draw the power meter
                 assets.image_meter_r:getImage(floor(vars.rowbot * 14.5) + 1):draw(200, 177 - anim_hud, "flipX")
                 assets.image_meter_p:getImage(min(30, max(1, 30 - floor(vars.player * 14.5)))):draw(0, 177 - anim_hud, "flipX")
+                if save.button_controls then
+                    assets.button_controls:draw(323, 215 - anim_hud, "flipX")
+                elseif save.sensitivity < 3 then
+                    assets.easier_cranking:draw(323, 212 - anim_hud, "flipX")
+                end
                 if assets.shades ~= nil then
                     assets.shades:draw(311 + vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value, "flipX")
                 end
@@ -503,6 +510,11 @@ function race:init(...)
                 -- Draw the power meter
                 assets.image_meter_r:getImage(floor(vars.rowbot * 14.5) + 1):draw(0, 177 - anim_hud)
                 assets.image_meter_p:getImage(min(30, max(1, 30 - floor(vars.player * 14.5)))):draw(200, 177 - anim_hud)
+                if save.button_controls then
+                    assets.button_controls:draw(5, 215 - anim_hud)
+                elseif save.sensitivity < 3 then
+                    assets.easier_cranking:draw(5, 212 - anim_hud)
+                end
                 if assets.shades ~= nil then
                     assets.shades:draw(89 - vars.anim_shades_x.value, 215 - anim_hud - vars.anim_shades_y.value)
                 end

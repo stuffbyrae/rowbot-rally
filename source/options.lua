@@ -258,12 +258,25 @@ function options:init(...)
         self:moveTo(vars.anim_ticker.value, 0)
     end
 
+    class('options_gear', _, classes).extends(gfx.sprite)
+    function classes.options_gear:init()
+        classes.options_gear.super.init(self)
+        self:setZIndex(2)
+        self:setCenter(0, 0)
+        self:moveTo(25, 20)
+        self:add()
+    end
+    function classes.options_gear:update()
+        self:setImage(vars.anim_gears:image())
+        self:moveTo(25, vars.anim_wave_y.value - 40)
+    end
+
     class('options_wave', _, classes).extends(gfx.sprite)
     function classes.options_wave:init()
         classes.options_wave.super.init(self)
         self:setSize(464, 280)
         self:setCenter(0, 0)
-        self:setZIndex(2)
+        self:setZIndex(3)
         self:moveTo(0, 185)
         self:add()
     end
@@ -282,26 +295,13 @@ function options:init(...)
     function classes.options_back:init()
         classes.options_back.super.init(self)
         self:setCenter(0, 0)
-        self:setZIndex(3)
+        self:setZIndex(4)
         self:setImage(assets.image_back)
         self:moveTo(295, 210)
         self:add()
     end
     function classes.options_back:update()
         self:moveTo(295, (vars.anim_wave_y.value*1.1))
-    end
-
-    class('options_gear', _, classes).extends(gfx.sprite)
-    function classes.options_gear:init()
-        classes.options_gear.super.init(self)
-        self:setZIndex(4)
-        self:setCenter(0, 0)
-        self:moveTo(25, 20)
-        self:add()
-    end
-    function classes.options_gear:update()
-        self:setImage(vars.anim_gears:image())
-        self:moveTo(25, vars.anim_wave_y.value - 40)
     end
 
     -- Set the sprites
@@ -352,8 +352,8 @@ function options:leave() -- Leave and move back to the title screen
 end
 
 function options:update()
+    local ticks = pd.getCrankTicks(7)
     if not vars.transitioning then
-        local ticks = pd.getCrankTicks(7)
         if ticks < 0 then
             self:newselection(false, -ticks)
         elseif ticks > 0 then

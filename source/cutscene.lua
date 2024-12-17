@@ -25,13 +25,15 @@ function cutscene:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(100)
-        menu:addMenuItem(text('skipscene'), function()
-            assets.sfx:stop()
-        end)
-        menu:addMenuItem(text('quitfornow'), function()
-            vars.title = true
-            assets.sfx:stop()
-        end)
+		if not vars.ending then
+			menu:addMenuItem(text('skipscene'), function()
+				assets.sfx:stop()
+			end)
+			menu:addMenuItem(text('quitfornow'), function()
+				vars.title = true
+				assets.sfx:stop()
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -43,6 +45,7 @@ function cutscene:init(...)
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
         play = args[1], -- What scene do we play?
         title = false,
+		ending = false,
     }
     assert(vars.play, 'hey find me a video you dummy') -- dummy.
     vars.anim_border = gfx.animation.loop.new(70, assets.img_border_intro, false) -- Set up the border intro animation
@@ -58,6 +61,7 @@ function cutscene:init(...)
     assets.music:play()
 
     assets.sfx:setFinishCallback(function()
+		vars.ending = true
         assets.music:stop()
         vars.anim_border = gfx.animation.loop.new(70, assets.img_border_outro, false)
         pd.timer.performAfterDelay(550, function()

@@ -20,29 +20,31 @@ function chill:init(...)
 
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
-        menu:removeAllMenuItems()
-        menu:addCheckmarkMenuItem(text('music'), vars.music, function(new)
-            vars.music = new
-            if new then
-                save.vol_music = 5
-                newmusic('audio/music/chill', true) -- Adding new music
-            else
-                stopmusic()
-                save.vol_music = 0
-            end
-        end)
-        menu:addCheckmarkMenuItem(text('autolock'), vars.lock, function(new)
-            vars.lock = new
-            if new then
-                pd.setAutoLockDisabled(true)
-            else
-                pd.setAutoLockDisabled(false)
-            end
-        end)
-        menu:addMenuItem(text('backtotitle'), function()
-            self:leave()
-        end)
         setpauseimage(0)
+        menu:removeAllMenuItems()
+		if not scenemanager.transitioning then
+			menu:addCheckmarkMenuItem(text('music'), vars.music, function(new)
+				vars.music = new
+				if new then
+					save.vol_music = 5
+					newmusic('audio/music/chill', true) -- Adding new music
+				else
+					stopmusic()
+					save.vol_music = 0
+				end
+			end)
+			menu:addCheckmarkMenuItem(text('autolock'), vars.lock, function(new)
+				vars.lock = new
+				if new then
+					pd.setAutoLockDisabled(true)
+				else
+					pd.setAutoLockDisabled(false)
+				end
+			end)
+			menu:addMenuItem(text('backtotitle'), function()
+				self:leave()
+			end)
+		end
     end
 
     function pd.gameWillResume()

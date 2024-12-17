@@ -19,26 +19,27 @@ function stats:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(130)
-        menu:addCheckmarkMenuItem(text('metric'), save.metric, function(new)
-            save.metric = new
-            gfx.sprite.redrawBackground()
-        end)
-        if vars.show_leaderboards then
-            menu:addMenuItem(text('localstats'), function()
-                vars.show_leaderboards = false
-                gfx.sprite.redrawBackground()
-            end)
-        elseif not playtest and pd.metadata.bundleID == "wtf.rae.rowbotrally" then
-            menu:addMenuItem(text('onlinestats'), function()
-                self:refreshonlinestats()
-            end)
-        end
-        menu:addMenuItem(text('backtotitle'), function()
-            if not vars.transitioning then
-                self:leave()
-            end
-        end)
-
+		if not vars.transitioning then
+			menu:addCheckmarkMenuItem(text('metric'), save.metric, function(new)
+				save.metric = new
+				gfx.sprite.redrawBackground()
+			end)
+			if vars.show_leaderboards then
+				menu:addMenuItem(text('localstats'), function()
+					vars.show_leaderboards = false
+					gfx.sprite.redrawBackground()
+				end)
+			elseif not playtest and pd.metadata.bundleID == "wtf.rae.rowbotrally" then
+				menu:addMenuItem(text('onlinestats'), function()
+					self:refreshonlinestats()
+				end)
+			end
+			menu:addMenuItem(text('backtotitle'), function()
+				if not vars.transitioning then
+					self:leave()
+				end
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.

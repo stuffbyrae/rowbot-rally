@@ -54,7 +54,7 @@ function race:stage_init()
     -- Poles
     vars.checkpoint_x = 1830
     vars.checkpoint_y = 195
-    vars.checkpoint_width = 215
+    vars.checkpoint_width = 235
     -- Race collision edges
     vars.edges_polygons = {
         geo.polygon.new(0, 0, 1840, 0, 1840, 285, 1640, 340, 1465, 375, 1295, 400, 1165, 410, 1050, 410, 890, 395, 660, 355, 455, 305, 310, 260, 205, 210, 205, 2145, 0, 2145, 0, 0),

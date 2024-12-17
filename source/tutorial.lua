@@ -28,14 +28,16 @@ function tutorial:init(...)
 
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
-        menu:removeAllMenuItems()
-        menu:addMenuItem(text('skiptutorial'), function()
-            self:leave(false)
-        end)
-        menu:addMenuItem(text('quitfornow'), function()
-            self:leave(true)
-        end)
         setpauseimage(100)
+        menu:removeAllMenuItems()
+		if not vars.leaving and not scenemanager.transitioning then
+			menu:addMenuItem(text('skiptutorial'), function()
+				self:leave(false)
+			end)
+			menu:addMenuItem(text('quitfornow'), function()
+				self:leave(true)
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.

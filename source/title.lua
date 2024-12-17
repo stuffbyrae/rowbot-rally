@@ -33,18 +33,20 @@ function title:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-        if save.seen_credits then
-			menu:addMenuItem(text('credits'), function()
-				fademusic()
-				scenemanager:transitionsceneoneway(credits)
-			end)
+		if not scenemanager.transitioning then
+			if save.seen_credits then
+				menu:addMenuItem(text('credits'), function()
+					fademusic()
+					scenemanager:transitionsceneoneway(credits, true)
+				end)
+			end
+			if save.seen_chill then
+				menu:addMenuItem(text('chillmode'), function()
+					fademusic()
+					scenemanager:transitionsceneoneway(chill)
+				end)
+			end
 		end
-		if save.seen_chill then
-            menu:addMenuItem(text('chillmode'), function()
-                fademusic()
-                scenemanager:transitionsceneoneway(chill)
-            end)
-        end
         setpauseimage(200)
     end
 
@@ -794,20 +796,22 @@ function title:checkpercent(slot)
 end
 
 function title:update()
-    local ticks = pd.getCrankTicks(5)
-    if not vars.transitioning then
-        if vars.slots_open and not vars.slot_open then
-            if ticks < 0 then
-                self:selectslot(false, -ticks)
-            elseif ticks > 0 then
-                self:selectslot(true, ticks)
-            end
-        elseif vars.list_open and not vars.slots_open and not vars.slot_open then
-            if ticks < 0 then
-                self:newselection(false, -ticks)
-            elseif ticks > 0 then
-                self:newselection(true, ticks)
-            end
-        end
-    end
+	if not scenemanager.transitioning then
+		local ticks = pd.getCrankTicks(5)
+		if not vars.transitioning then
+			if vars.slots_open and not vars.slot_open then
+				if ticks < 0 then
+					self:selectslot(false, -ticks)
+				elseif ticks > 0 then
+					self:selectslot(true, ticks)
+				end
+			elseif vars.list_open and not vars.slots_open and not vars.slot_open then
+				if ticks < 0 then
+					self:newselection(false, -ticks)
+				elseif ticks > 0 then
+					self:newselection(true, ticks)
+				end
+			end
+		end
+	end
 end

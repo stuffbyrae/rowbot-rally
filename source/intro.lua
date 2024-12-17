@@ -17,11 +17,13 @@ function intro:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(200)
-        menu:addMenuItem(text('quitfornow'), function()
-            fademusic()
-            title_memorize = 'story_mode'
-            scenemanager:transitionsceneonewayback(title, title_memorize)
-        end)
+		if not scenemanager.transitioning then
+			menu:addMenuItem(text('quitfornow'), function()
+				fademusic()
+				title_memorize = 'story_mode'
+				scenemanager:transitionsceneonewayback(title, title_memorize)
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.

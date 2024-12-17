@@ -19,26 +19,28 @@ function options:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(50)
-        menu:addMenuItem(text('setdefaults'), function()
-            save.vol_music = 5
-            save.vol_sfx = 5
-            if pd.isSimulator == 1 then
-                save.button_controls = true
-            else
-                save.button_controls = false
-            end
-            save.sensitivity = 3
-            save.pro_ui = false
-            perf = false
-            newmusic('audio/music/title', true, 1.1)
-            self:sfx_change()
-            gfx.sprite.redrawBackground()
-        end)
-        menu:addMenuItem(text('backtotitle'), function()
-            if not vars.transitioning then
-                self:leave()
-            end
-        end)
+		if not vars.transitioning then
+			menu:addMenuItem(text('setdefaults'), function()
+				save.vol_music = 5
+				save.vol_sfx = 5
+				if pd.isSimulator == 1 then
+					save.button_controls = true
+				else
+					save.button_controls = false
+				end
+				save.sensitivity = 3
+				save.pro_ui = false
+				perf = false
+				newmusic('audio/music/title', true, 1.1)
+				self:sfx_change()
+				gfx.sprite.redrawBackground()
+			end)
+			menu:addMenuItem(text('backtotitle'), function()
+				if not vars.transitioning then
+					self:leave()
+				end
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -352,12 +354,14 @@ function options:leave() -- Leave and move back to the title screen
 end
 
 function options:update()
-    local ticks = pd.getCrankTicks(7)
-    if not vars.transitioning then
-        if ticks < 0 then
-            self:newselection(false, -ticks)
-        elseif ticks > 0 then
-            self:newselection(true, ticks)
-        end
-    end
+	if not scenemanager.transitioning then
+		local ticks = pd.getCrankTicks(7)
+		if not vars.transitioning then
+			if ticks < 0 then
+				self:newselection(false, -ticks)
+			elseif ticks > 0 then
+				self:newselection(true, ticks)
+			end
+		end
+	end
 end

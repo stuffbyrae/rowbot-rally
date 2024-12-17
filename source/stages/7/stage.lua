@@ -12,7 +12,6 @@ function race:stage_init()
     else
         assets.image_stage = gfx.image.new('stages/7/stage')
         assets.parallax_short_bake = gfx.image.new('stages/7/parallax_short_bake')
-        assets.parallax_medium_bake = gfx.image.new('stages/7/parallax_medium_bake')
         assets.image_stagec = assets.image_stage
     end
     assets.image_water_bg = gfx.image.new('stages/7/water_bg')

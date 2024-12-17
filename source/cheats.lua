@@ -19,20 +19,22 @@ function cheats:init(...)
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
         setpauseimage(50)
-        menu:addMenuItem(text('disableall'), function()
-            enabled_cheats = false
-            enabled_cheats_big = false
-            enabled_cheats_small = false
-            enabled_cheats_tiny = false
-            enabled_cheats_retro = false
-            enabled_cheats_scream = false
-            gfx.sprite.redrawBackground()
-        end)
-        menu:addMenuItem(text('backtotitle'), function()
-            if not vars.transitioning then
-                self:leave()
-            end
-        end)
+		if not vars.transitioning then
+			menu:addMenuItem(text('disableall'), function()
+				enabled_cheats = false
+				enabled_cheats_big = false
+				enabled_cheats_small = false
+				enabled_cheats_tiny = false
+				enabled_cheats_retro = false
+				enabled_cheats_scream = false
+				gfx.sprite.redrawBackground()
+			end)
+			menu:addMenuItem(text('backtotitle'), function()
+				if not vars.transitioning then
+					self:leave()
+				end
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -372,12 +374,14 @@ function cheats:leave() -- Leave and move back to the title screen
 end
 
 function cheats:update()
-    local ticks = pd.getCrankTicks(7)
-    if not vars.transitioning then
-        if ticks < 0 then
-            self:newselection(false, -ticks)
-        elseif ticks > 0 then
-            self:newselection(true, ticks)
-        end
-    end
+	if not scenemanager.transitioning then
+		local ticks = pd.getCrankTicks(7)
+		if not vars.transitioning then
+			if ticks < 0 then
+				self:newselection(false, -ticks)
+			elseif ticks > 0 then
+				self:newselection(true, ticks)
+			end
+		end
+	end
 end

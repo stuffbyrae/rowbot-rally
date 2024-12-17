@@ -19,9 +19,11 @@ function opening:init(...)
         menu:removeAllMenuItems()
         local pauseimage = gfx.image.new(400, 240)
         pd.setMenuImage(pauseimage, 100)
-        menu:addMenuItem(text('skipscene'), function()
-            self:leave()
-        end)
+		if not vars.leaving then
+			menu:addMenuItem(text('skipscene'), function()
+				self:leave()
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc

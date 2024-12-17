@@ -17,13 +17,15 @@ function stages:init(...)
 
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
-        menu:removeAllMenuItems()
-        menu:addMenuItem(text('backtotitle'), function()
-            fademusic()
-            title_memorize = 'time_trials'
-            scenemanager:transitionsceneonewayback(title, title_memorize)
-        end)
         setpauseimage(200)
+        menu:removeAllMenuItems()
+		if not scenemanager.transitioning then
+			menu:addMenuItem(text('backtotitle'), function()
+				fademusic()
+				title_memorize = 'time_trials'
+				scenemanager:transitionsceneonewayback(title, title_memorize)
+			end)
+		end
     end
 
     assets = { -- All assets go here. Images, sounds, fonts, etc.
@@ -488,25 +490,25 @@ function stages:update_image_top(stage, show_desc, ranking, name)
         if show_desc then
             if vars.mirror then
                 if save['stage' .. stage .. '_flawless_mirror'] then
-                    assets.image_medal_flawless:draw(135, 45)
+                    assets.image_medal_flawless:draw(181, 45)
                 else
-                    assets.image_medal_unobtained:draw(135, 45)
+                    assets.image_medal_unobtained:draw(181, 45)
                 end
                 if save['stage' .. stage .. '_speedy_mirror'] then
-                    assets.image_medal_speedy:draw(180, 45)
+                    assets.image_medal_speedy:draw(135, 45)
                 else
-                    assets.image_medal_unobtained:draw(180, 45)
+                    assets.image_medal_unobtained:draw(135, 45)
                 end
             else
                 if save['stage' .. stage .. '_flawless'] then
-                    assets.image_medal_flawless:draw(135, 45)
+                    assets.image_medal_flawless:draw(181, 45)
                 else
-                    assets.image_medal_unobtained:draw(135, 45)
+                    assets.image_medal_unobtained:draw(181, 45)
                 end
                 if save['stage' .. stage .. '_speedy'] then
-                    assets.image_medal_speedy:draw(180, 45)
+                    assets.image_medal_speedy:draw(135, 45)
                 else
-                    assets.image_medal_unobtained:draw(180, 45)
+                    assets.image_medal_unobtained:draw(135, 45)
                 end
             end
             assets.pedallica:drawText(text('stage_' .. stage .. '_desc'), 10, 95)
@@ -543,12 +545,14 @@ function stages:flipmirror()
 end
 
 function stages:update()
-    local ticks = pd.getCrankTicks(5)
-    if not vars.transitioning and not vars.leaderboards_open then
-        if ticks < 0 then
-            self:newselection(false, -ticks)
-        elseif ticks > 0 then
-            self:newselection(true, ticks)
-        end
-    end
+	if not scenemanager.transitioning then
+		local ticks = pd.getCrankTicks(4)
+		if not vars.transitioning and not vars.leaderboards_open then
+			if ticks < 0 then
+				self:newselection(false, -ticks)
+			elseif ticks > 0 then
+				self:newselection(true, ticks)
+			end
+		end
+	end
 end

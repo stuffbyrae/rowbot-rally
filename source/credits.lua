@@ -21,7 +21,7 @@ function credits:init(...)
     function pd.gameWillPause() -- When the game's paused...
         local menu = pd.getSystemMenu()
         menu:removeAllMenuItems()
-		if save.seen_credits then
+		if save.seen_credits and not vars.ending then
 			menu:addMenuItem(text('skipcredits'), function()
 				self:finish(0)
 			end)
@@ -39,6 +39,7 @@ function credits:init(...)
     }
 
     vars = { -- All variables go here. Args passed in from earlier, scene variables, etc.
+		title = args[1],
         creditsscrolly = pd.timer.new(76719, 0, -2640),
         anim_fade = pd.timer.new(1, 1, 1),
         showcover1 = true,
@@ -49,8 +50,11 @@ function credits:init(...)
 
     vars.anim_fade.discardOnCompletion = false
 
-    save.stories_completed += 1
-    save['slot' .. save.current_story_slot .. '_progress'] = "finish"
+	if not vars.title then
+		save.stories_completed += 1
+		save['slot' .. save.current_story_slot .. '_progress'] = "finish"
+	end
+
 
     local randomnum
     local dont
@@ -75,14 +79,20 @@ function credits:init(...)
     i = nil
 
     pd.timer.performAfterDelay(4794, function()
-        vars.anim_fade:resetnew(1, 34, 34)
+		if not vars.ending then
+        	vars.anim_fade:resetnew(1, 34, 34)
+		end
     end)
 
     pd.timer.performAfterDelay(7179, function()
-        vars.showcover1 = false
+		if not vars.ending then
+        	vars.showcover1 = false
+		end
     end)
     pd.timer.performAfterDelay(9544, function()
-        vars.showcover2 = false
+		if not vars.ending then
+        	vars.showcover2 = false
+		end
     end)
     vars.creditsscrolly.delay = 11906
     vars.creditsscrolly.timerEndedCallback = function()
@@ -155,7 +165,7 @@ function credits:finish(delay)
 			vars.anim_fade:resetnew(2000, 34, 1)
 			pd.timer.performAfterDelay(2000, function()
 				title_memorize = 'story_mode'
-				if save.seen_credits then
+				if save.seen_credits or vars.title then
 					scenemanager:switchscene(title, title_memorize)
 				else
 					save.seen_credits = true

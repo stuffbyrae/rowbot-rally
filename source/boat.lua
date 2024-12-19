@@ -50,7 +50,7 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
         end
 
         self.lerp = 0.1 -- Rate at which the rotation towards the angle is interpolated.
-        self.speed = 4.4 + (save['slot' .. save.current_story_slot .. '_circuit'] / 8) -- Forward movement speed of the boat.
+        self.speed = 4.25 + (save['slot' .. save.current_story_slot .. '_circuit'] / 8) -- Forward movement speed of the boat.
 
         self.follow_polygon = listpoly(follow_polygon)
         self.follow_count = #self.follow_polygon / 2
@@ -194,6 +194,10 @@ function boat:init(mode, start_x, start_y, stage, stage_x, stage_y, follow_polyg
     -- end
 end
 
+function boat:collisionResponse()
+	return gfx.sprite.kCollisionTypeOverlap
+end
+
 function boat:bake(rotation, scale)
     local img = gfx.image.new(90, 90)
     gfx.pushContext(img)
@@ -289,7 +293,9 @@ function boat:finish(duration, peelout)
         self.ripple_scale:start()
         self.ripple_opacity:start()
     end
-    self:setnewsize(110)
+	if not self.leaping then
+    	self:setnewsize(110)
+	end
     if self.mode == "cpu" then
         self.movable = false
     else
@@ -393,7 +399,7 @@ function boat:boost()
         self.boost_x:resetnew(700, 0.9, 1)
         self.boost_y:resetnew(700, 1.1, 1)
         self.speed = self.speed * 2 -- Make the boat go faster (duh)
-        self.lerp = 0.1 -- Make it turn a little less quickly, though!
+        self.lerp = 0.075 -- Make it turn a little less quickly, though!
         pd.timer.performAfterDelay(2000, function()
             self.boosting = false
             self.speed = self.speed / 2 -- Set the speed back
@@ -474,6 +480,11 @@ function boat:leap()
 end
 
 function boat:beach_recovery()
+	if not self.movable then
+		self:state(false, false, false)
+		self:finish(50, false)
+		return
+	end
     self:state(false, false, false)
     self:finish(50, false)
     pd.timer.performAfterDelay(1500, function()
@@ -781,7 +792,7 @@ function boat:draw(x, y, width, height)
                 gfx.fillPolygon(self.transform_polygon)
                 self.transform_polygon:translate(-7 * factor, -7 * factor)
             end
-            if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 then
+            if scale == 1 and self.boost_x.value == 1 and self.boost_y.value == 1 and self.bakedboat ~= nil then
                 if rev == -1 then
                     local newrotation = lerp(360, 1, self.rotation / 360)
                     self.bakedboat[floor(newrotation)]:drawAnchored(center, center, 0.5, 0.5, "flipX")

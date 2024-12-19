@@ -326,11 +326,11 @@ function scenemanager:cleanupscene()
     pd.display.setMosaic(0, 0) -- Reset the mosaic, in case Retro Mode is on
     pd.display.setFlipped(false, false) -- Set display flip back in case of mirror.
     -- Just in case.
-    -- pd.gameWillPause = nil
-    -- pd.gameWillResume = nil
-    -- pd.deviceWillLock = nil
-    -- pd.deviceDidUnlock = nil
-    -- pd.deviceWillSleep = nil
+    pd.gameWillPause = nil
+    pd.gameWillResume = nil
+    pd.deviceWillLock = nil
+    pd.deviceDidUnlock = nil
+    pd.deviceWillSleep = nil
 end
 
 function scenemanager:removealltimers()

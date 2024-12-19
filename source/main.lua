@@ -562,9 +562,10 @@ local offsetx
 local offsety
 
 function pd.update()
+	drawoffsetx, drawoffsety = gfx.getDrawOffset()
     -- Pop-up UI update logic
     if anim_popup ~= nil and popup ~= nil then -- If the pop-up exists, and its animation exists...
-        popup:moveTo(0, anim_popup.value) -- Move it there!
+        popup:moveTo(drawoffsetx, anim_popup.value + drawoffsety) -- Move it there!
     end
     offsetx, offsety = pd.display.getOffset()
     -- Screen shake update logic

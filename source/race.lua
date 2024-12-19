@@ -403,10 +403,6 @@ function race:init(...)
                 gfx.setColor(gfx.kColorBlack)
                 gfx.drawPolygon(both_polygons)
             end
-
-            if assets.wave ~= nil and vars.anim_wave ~= nil then
-                assets.wave[floor(vars.anim_wave.value)]:draw(((stage_x - 400) * parallax_long_amount) + stage_progress_long_x, 0)
-            end
         end
 
         local anim_ui_offset = vars.anim_ui_offset.value
@@ -450,7 +446,7 @@ function race:init(...)
                     assets.easier_cranking:draw(323, 212 - anim_hud, "flipX")
                 end
                 if assets.shades ~= nil then
-                    assets.shades:draw(311 + vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value, "flipX")
+                    assets.shades:draw(275 + vars.anim_shades_x.value, 215 - vars.anim_hud.value - vars.anim_shades_y.value, "flipX")
                 end
                 if save.minimap and assets.minimap ~= nil then
                     assets.minimap:draw(0, vars.minimap.value)
@@ -704,8 +700,8 @@ end
 
 function race:checkpointcheck(cpu)
     if cpu then
-        local x, y, cpu_collisions, cpu_count = spritescpu:checkCollisions(spritescpu.x, spritescpu.y)
-        for i = 1, cpu_count do
+        local x, y, cpu_collisions, _ = spritescpu:checkCollisions(spritescpu.x, spritescpu.y)
+        for i = 1, #cpu_collisions do
             local tag = cpu_collisions[i].other:getTag()
             if tag >= 1 and tag <= 3 then
                 if vars.cpu_current_checkpoint == tag - 1 and vars.cpu_last_checkpoint == tag - 1 then
@@ -746,8 +742,8 @@ function race:checkpointcheck(cpu)
             end
         end
     else
-        local _, _, boat_collisions, boat_count = spritesboat:checkCollisions(spritesboat.x, spritesboat.y)
-        for i = 1, boat_count do
+        local _, _, boat_collisions, _ = spritesboat:checkCollisions(spritesboat.x, spritesboat.y)
+        for i = 1, #boat_collisions do
             local tag = boat_collisions[i].other:getTag()
             if tag >= 1 and tag <= 3 then
                 if tag == 1 and vars.lever ~= nil then

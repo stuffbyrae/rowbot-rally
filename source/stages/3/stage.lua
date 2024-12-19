@@ -16,14 +16,10 @@ function race:stage_init()
     assets.image_water_bg = gfx.image.new('stages/3/water_bg')
     assets.caustics = gfx.imagetable.new('stages/3/caustics')
     assets.caustics_overlay = gfx.image.new('stages/3/caustics_overlay')
-    assets.wave = gfx.imagetable.new('stages/3/wave')
     assets.boost_pad = gfx.imagetable.new('stages/3/boost_pad')
     assets.minimap = gfx.image.new('stages/3/minimap')
 
     vars.stage_x, vars.stage_y = assets.image_stage:getSize()
-
-    vars.anim_wave = pd.timer.new(1400, 1, 8.99)
-    vars.anim_wave.repeats = true
 
     if vars.mode == "tt" then
         vars.boat_x = 260
@@ -199,38 +195,31 @@ function race:stage_init()
                 245, 1065,
                 235, 980)
         elseif save['slot' .. save.current_story_slot .. '_circuit'] == 4 then
-            vars.follow_polygon = pd.geometry.polygon.new(225, 580,
-                260, 445,
-                340, 345,
-                460, 275,
-                575, 240,
-                740, 235,
-                1190, 235,
-                1325, 255,
-                1400, 320,
-                1425, 425,
-                1375, 525,
-                1265, 580,
-                825, 555,
-                650, 580,
-                575, 670,
-                555, 795,
-                590, 910,
-                660, 990,
-                770, 1015,
-                1215, 1040,
-                1325, 1070,
-                1390, 1150,
-                1375, 1285,
-                1265, 1345,
-                1155, 1380,
-                945, 1365,
-                630, 1385,
-                450, 1360,
-                375, 1305,
-                310, 1240,
-                270, 1120,
-                250, 985)
+            vars.follow_polygon = pd.geometry.polygon.new(225, 590,
+				240, 465,
+				200, 340,
+				260, 375,
+				365, 305,
+				510, 240,
+				735, 220,
+				1125, 220,
+				1265, 240,
+				1365, 275,
+				1440, 345,
+				1460, 470,
+				1430, 675,
+				1430, 1045,
+				1450, 1150,
+				1410, 1275,
+				1275, 1350,
+				1100, 1375,
+				865, 1375,
+				410, 1355,
+				305, 1370,
+				335, 1290,
+				245, 1095,
+				225, 900,
+				225, 665)
         end
     end
     vars.laps = 3 -- How many laps...

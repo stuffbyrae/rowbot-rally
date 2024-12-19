@@ -204,6 +204,7 @@
 "leaderboards_fail" = "Couldn't grab the\nleaderboards. Try\nagain later?"
 "leaderboards_empty" = "This leaderboard's\nempty! You'd better\nstart racing!"
 "leaderboards_playtest" = "Sorry! Leaderboards\naren't available\nduring playtesting."
+"leaderboards_checking" = "You're goin' too fast!\nPlease wait a sec,\nthen try again."
 "leaderboards_grab_short" = "Grabbing scores..."
 "leaderboards_fail_short" = "Can't grab scores."
 "leaderboards_empty_short" = "This board's empty!"
